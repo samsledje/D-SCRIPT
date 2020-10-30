@@ -1,5 +1,5 @@
-D-SCRIPT: Deep Learning for Sequence Based PPI Prediction
-=========================================================
+D-SCRIPT: Deep Learning PPI Prediction
+=======================================
 
 .. toctree::
    :maxdepth: 2
