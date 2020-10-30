@@ -3,6 +3,6 @@
 
  ![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
  
- [Main Page](dscript.csail.mit.edu)
+ [Main Page](http://dscript.csail.mit.edu)
  
- [Documentation](samsledje.github.io/D-SCRIPT)
+ [Documentation](http://samsledje.github.io/D-SCRIPT)
