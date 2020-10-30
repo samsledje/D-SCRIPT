@@ -4,4 +4,5 @@
  ![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
  
  [Main Page](dscript.csail.mit.edu)
+ 
  [Documentation](samsledje.github.io/D-SCRIPT)
