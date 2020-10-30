@@ -72,16 +72,15 @@ def plot_cmap(cm):
 #Defaults
 parser = argparse.ArgumentParser('Script for predicting ')
 
-parser.add_argument('--model', help='path to trained prediction model', required=True)
-parser.add_argument('--pos-pairs', help='path to list of true positive names', required=True)
-parser.add_argument('--neg-pairs', help='path to list of true negative names', required=True)
-parser.add_argument('--embeddings', help='path to h5 file with embedded sequences', required=True)
+parser.add_argument('--model', help='Trained prediction model', required=True)
+parser.add_argument('--pos-pairs', help='True positive pairs', required=True)
+parser.add_argument('--neg-pairs', help='True negative pairs', required=True)
+parser.add_argument('--embeddings', help='h5 file with embedded sequences', required=True)
 
-parser.add_argument('--outfile', help='output file to write results')
-parser.add_argument('--device', help='device to use', default=-1)
+parser.add_argument('--outfile', help='Output file to write results')
+parser.add_argument('-d', '--device', default=-1, help='Compute device to use')
 
 args = parser.parse_args()
-
 device = int(args.device)
 
 # Load Model

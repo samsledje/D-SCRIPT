@@ -152,42 +152,47 @@ def get_pair_names(path):
 
 def parse_args():
     parser = argparse.ArgumentParser('Script for training protein interaction prediction model')
-
+    data_grp = parser.add_argument_group("Data")
+    proj_grp = parser.add_argument_group("Projection Module")
+    contact_grp = parser.add_argument_group("Contact Module")
+    inter_grp = parser.add_argument_group("Interaction Module")
+    train_grp = parser.add_argument_group("Training")
+    misc_grp = parser.add_argument_group("Output and Device")
+    
     # Data
-    parser.add_argument('--pos-train', help='list of positive training pairs', required=True)
-    parser.add_argument('--neg-train', help='list of negative training pairs', required=True)
-    parser.add_argument('--pos-test', help='list of positive testing pairs', required=True)
-    parser.add_argument('--neg-test', help='list of negative testing pairs', required=True)
-    parser.add_argument('--embedding', help='h5py path containing embedded sequences', required=True)
-    parser.add_argument('--augment',action='store_true',help='set flag to augment data by adding (B A) for all pairs (A B)')
+    data_grp.add_argument('--pos-train', help='Positive training pairs', required=True)
+    data_grp.add_argument('--neg-train', help='Negative training pairs', required=True)
+    data_grp.add_argument('--pos-test', help='Positive testing pairs', required=True)
+    data_grp.add_argument('--neg-test', help='Negative testing pairs', required=True)
+    data_grp.add_argument('--embedding', help='h5 file with embedded sequences', required=True)
+    data_grp.add_argument('--augment',action='store_true',help='Set flag to augment data by adding (B A) for all pairs (A B)')
 
     # Embedding model
-    parser.add_argument('--projection-dim', type=int, default=100, help='dimension of embedding projection layer (default: 100)')
-    parser.add_argument('--dropout-p', type=float, default=0.5, help='parameter p for embedding dropout layer (default: 0.5)')
+    proj_grp.add_argument('--projection-dim', type=int, default=100, help='Dimension of embedding projection layer (default: 100)')
+    proj_grp.add_argument('--dropout-p', type=float, default=0.5, help='Parameter p for embedding dropout layer (default: 0.5)')
     
     # Contact model
-    parser.add_argument('--hidden-dim', type=int, default=50, help='number of hidden units for comparison layer in contact prediction (default: 50)')
-    parser.add_argument('--kernel-width', type=int, default=7, help='width of convolutional filter for contact prediction (default: 7)')
+    contact_grp.add_argument('--hidden-dim', type=int, default=50, help='Number of hidden units for comparison layer in contact prediction (default: 50)')
+    contact_grp.add_argument('--kernel-width', type=int, default=7, help='Width of convolutional filter for contact prediction (default: 7)')
 
     # Interaction Model
-    parser.add_argument('--use-w', action='store_true', help='use weight matrix in interaction prediction model')
-    parser.add_argument('--pool-width', type=int, default=9, help='size of max-pool in interaction model (default: 9)')
+    inter_grp.add_argument('--use-w', action='store_true', help='Use weight matrix in interaction prediction model')
+    inter_grp.add_argument('--pool-width', type=int, default=9, help='Size of max-pool in interaction model (default: 9)')
 
     # Training
-    parser.add_argument('--negative-ratio', type=int, default=10, help='number of negative training samples for each positive training sample (default: 10)')
-    parser.add_argument('--epoch-scale', type=int, default=5, help='report heldout performance every this many epochs (default: 5)')
-    parser.add_argument('--num-epochs', type=int, default=100, help='number of epochs (default: 100)')
-
-    parser.add_argument('--batch-size', type=int, default=25, help='minibatch size (default: 25)')
-    parser.add_argument('--weight-decay', type=float, default=0, help='L2 regularization (default: 0)')
-    parser.add_argument('--lr', type=float, default=0.001, help='learning rate (default: 0.001)')
-    parser.add_argument('--lambda', dest='lambda_', type=float, default=0.35, help='weight on the similarity objective (default: 0.35)')
+    train_grp.add_argument('--negative-ratio', type=int, default=10, help='Number of negative training samples for each positive training sample (default: 10)')
+    train_grp.add_argument('--epoch-scale', type=int, default=5, help='Report heldout performance every this many epochs (default: 5)')
+    train_grp.add_argument('--num-epochs', type=int, default=100, help='Number of epochs (default: 100)')
+    train_grp.add_argument('--batch-size', type=int, default=25, help='Minibatch size (default: 25)')
+    train_grp.add_argument('--weight-decay', type=float, default=0, help='L2 regularization (default: 0)')
+    train_grp.add_argument('--lr', type=float, default=0.001, help='Learning rate (default: 0.001)')
+    train_grp.add_argument('--lambda', dest='lambda_', type=float, default=0.35, help='Weight on the similarity objective (default: 0.35)')
 
     # Output
-    parser.add_argument('-o', '--output', help='output file path (default: stdout)')
-    parser.add_argument('--save-prefix', help='path prefix for saving models')
-    parser.add_argument('-d', '--device', type=int, default=-1, help='compute device to use')
-    parser.add_argument('--checkpoint', help='checkpoint model to start training from')
+    misc_grp.add_argument('-o', '--output', help='Output file path (default: stdout)')
+    misc_grp.add_argument('--save-prefix', help='Path prefix for saving models')
+    misc_grp.add_argument('-d', '--device', type=int, default=-1, help='Compute device to use')
+    misc_grp.add_argument('--checkpoint', help='Checkpoint model to start training from')
 
     args = parser.parse_args()
     return args
