@@ -47,7 +47,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'default'
 #html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
