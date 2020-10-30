@@ -66,7 +66,7 @@ def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
         y = y.cuda()
     y = Variable(y)
 
-    bce_loss = F.binary_cross_entropy(phat.float(), y.float())
+    bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
     cmap_loss = torch.mean(c_map_mag)
     loss = (weight * bce_loss) + ((1-weight) * cmap_loss)
     b = len(p_hat)
@@ -154,10 +154,10 @@ def parse_args():
     parser = argparse.ArgumentParser('Script for training protein interaction prediction model')
 
     # Data
-    parser.add_argument('--pos-pairs', help='list of true positive pairs', required=True)
-    parser.add_argument('--neg-pairs', help='list of true negative (or random) pairs', required=True)
-    parser.add_argument('--pos-test', help='list of true positive pairs for evaluation', required=True)
-    parser.add_argument('--neg-test', help='list of true negative (or random) pairs for evaluation', required=True)
+    parser.add_argument('--pos-train', help='list of positive training pairs', required=True)
+    parser.add_argument('--neg-train', help='list of negative training pairs', required=True)
+    parser.add_argument('--pos-test', help='list of positive testing pairs', required=True)
+    parser.add_argument('--neg-test', help='list of negative testing pairs', required=True)
     parser.add_argument('--embedding', help='h5py path containing embedded sequences', required=True)
     parser.add_argument('--augment',action='store_true',help='set flag to augment data by adding (B A) for all pairs (A B)')
 
@@ -182,8 +182,6 @@ def parse_args():
     parser.add_argument('--weight-decay', type=float, default=0, help='L2 regularization (default: 0)')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate (default: 0.001)')
     parser.add_argument('--lambda', dest='lambda_', type=float, default=0.35, help='weight on the similarity objective (default: 0.35)')
-    parser.add_argument('--pred-skew',type=float,default=0.5,help='raise predictions to pred_skew before computing loss (default: 0.5)')
-    parser.add_argument('--skew-alpha',type=float,default=0,help='p = (alpha)(phat) + (1-alpha)(phat ** skew) (default: 0)')
 
     # Output
     parser.add_argument('-o', '--output', help='output file path (default: stdout)')
@@ -198,8 +196,8 @@ def load_embeddings_from_args(args, output):
     ## Create data sets
     batch_size = args.batch_size
 
-    pos_train = args.pos_pairs
-    neg_train = args.neg_pairs
+    pos_train = args.pos_train
+    neg_train = args.neg_train
     pos_test = args.pos_test
     neg_test = args.neg_test
     augment = args.augment
@@ -259,14 +257,11 @@ def load_embeddings_from_args(args, output):
 
     output.flush()
     
-    print(f'# Loading Tensors',file=output)
+    print(f'# Loading Embeddings',file=output)
     tensors = {}
     all_proteins = set(n0_pos).union(set(n1_pos)).union(set(n0_neg)).union(set(n1_neg)).union(set(n0_pos_test)).union(set(n1_pos_test)).union(set(n0_neg_test)).union(set(n1_neg_test))
     for prot_name in tqdm(all_proteins):
-        if args.dumb_embed_switch:
-            tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,-100:])
-        else:
-            tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,:])
+        tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,:])
     
     return pairs_train_iterator, pairs_test_iterator, tensors
 
@@ -318,8 +313,6 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
     report_steps = args.epoch_scale
     inter_weight = args.lambda_
     cmap_weight = 1 - inter_weight
-    phat_skew = args.pred_skew
-    phat_alpha = args.skew_alpha
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
 
@@ -333,7 +326,6 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
     print(f'\tbatch_size: {batch_size}', file=output)
     print(f'\tinteraction weight: {inter_weight}', file=output)
     print(f'\tcontact map weight: {cmap_weight}', file=output)
-    #print(f'\tloss calculation: phat = {phat_alpha}*phat + (1 - {phat_alpha})*phat', file=output)
     output.flush()
 
     batch_report_fmt = "# [{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
@@ -352,8 +344,7 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
         # Train batches
         for (z0, z1, y) in pairs_train_iterator:
 
-            loss, correct, mse, b = interaction_grad(model, z0, z1, y, tensors, use_cuda, weight=inter_weight,
-                                                     skew=phat_skew, alpha = phat_alpha)
+            loss, correct, mse, b = interaction_grad(model, z0, z1, y, tensors, use_cuda, weight=inter_weight)
 
             n += b
             delta = b*(loss - loss_accum)
