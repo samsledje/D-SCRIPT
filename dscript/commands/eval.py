@@ -17,12 +17,14 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 import matplotlib
+
 matplotlib.use("Agg")
 
 import dscript
 import dscript.fasta as fa
 from dscript.alphabets import Uniprot21
 from dscript.lm_embed import embed_from_fasta
+
 
 def plot_eval_predictions(pos_phat, neg_phat, path="figure"):
 
@@ -81,15 +83,19 @@ def plot_cmap(cm):
         sns.heatmap(extract_cmap_numpy(cm))
     plt.show()
 
+
 def add_args(parser):
     parser.add_argument("--model", help="Trained prediction model", required=True)
     parser.add_argument("--pos-pairs", help="True positive pairs", required=True)
     parser.add_argument("--neg-pairs", help="True negative pairs", required=True)
-    parser.add_argument("--embeddings", help="h5 file with embedded sequences", required=True)
+    parser.add_argument(
+        "--embeddings", help="h5 file with embedded sequences", required=True
+    )
 
     parser.add_argument("--outfile", help="Output file to write results")
     parser.add_argument("-d", "--device", default=-1, help="Compute device to use")
     return parser
+
 
 def main(args):
     device = int(args.device)
@@ -98,7 +104,11 @@ def main(args):
     torch.cuda.set_device(device)
     use_cuda = device >= 0
     if device >= 0:
-        print("# Using CUDA device {} - {}".format(device, torch.cuda.get_device_name(device)))
+        print(
+            "# Using CUDA device {} - {}".format(
+                device, torch.cuda.get_device_name(device)
+            )
+        )
     else:
         print("# Using CPU")
 
@@ -145,7 +155,9 @@ def main(args):
         with torch.no_grad():
             pos_phat = []
             pos_cmap = []
-            for i, j in tqdm(pos_interactions, total=len(pos_interactions), desc="Positive Pairs"):
+            for i, j in tqdm(
+                pos_interactions, total=len(pos_interactions), desc="Positive Pairs"
+            ):
                 p1 = seqEmbDict[i]
                 p2 = seqEmbDict[j]
                 if use_cuda:
@@ -163,7 +175,9 @@ def main(args):
 
             neg_phat = []
             neg_cmap = []
-            for i, j in tqdm(neg_interactions, total=len(neg_interactions), desc="Negative Pairs"):
+            for i, j in tqdm(
+                neg_interactions, total=len(neg_interactions), desc="Negative Pairs"
+            ):
                 if use_cuda:
                     p1 = torch.Tensor(h5fi[i][:]).float().cuda()
                     p2 = torch.Tensor(h5fi[j][:]).float().cuda()
@@ -188,7 +202,8 @@ def main(args):
 
     outFile.close()
     h5fi.close()
-    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     add_args(parser)

@@ -22,9 +22,14 @@ from sklearn.metrics import average_precision_score as average_precision
 import dscript
 from dscript.alphabets import Uniprot21
 from dscript.utils import PairedDataset, collate_paired_sequences
-from dscript.models.embedding import LastHundredEmbed, IdentityEmbed, FullyConnectedEmbed
+from dscript.models.embedding import (
+    LastHundredEmbed,
+    IdentityEmbed,
+    FullyConnectedEmbed,
+)
 from dscript.models.contact import ContactCNN
 from dscript.models.interaction import ModelInteraction
+
 
 def add_args(parser):
     data_grp = parser.add_argument_group("Data")
@@ -35,11 +40,11 @@ def add_args(parser):
     misc_grp = parser.add_argument_group("Output and Device")
 
     # Data
-    data_grp.add_argument("--pos-train", help="Positive training pairs", required=True)
-    data_grp.add_argument("--neg-train", help="Negative training pairs", required=True)
-    data_grp.add_argument("--pos-test", help="Positive testing pairs", required=True)
-    data_grp.add_argument("--neg-test", help="Negative testing pairs", required=True)
-    data_grp.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
+    data_grp.add_argument("--test", help="Test data", required=True)
+    data_grp.add_argument("--val", help="Validation data", required=True)
+    data_grp.add_argument(
+        "--embedding", help="h5 file with embedded sequences", required=True
+    )
     data_grp.add_argument(
         "--augment",
         action="store_true",
@@ -76,7 +81,9 @@ def add_args(parser):
 
     # Interaction Model
     inter_grp.add_argument(
-        "--use-w", action="store_true", help="Use weight matrix in interaction prediction model"
+        "--use-w",
+        action="store_true",
+        help="Use weight matrix in interaction prediction model",
     )
     inter_grp.add_argument(
         "--pool-width",
@@ -107,7 +114,9 @@ def add_args(parser):
     train_grp.add_argument(
         "--weight-decay", type=float, default=0, help="L2 regularization (default: 0)"
     )
-    train_grp.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001)")
+    train_grp.add_argument(
+        "--lr", type=float, default=0.001, help="Learning rate (default: 0.001)"
+    )
     train_grp.add_argument(
         "--lambda",
         dest="lambda_",
@@ -119,10 +128,15 @@ def add_args(parser):
     # Output
     misc_grp.add_argument("-o", "--output", help="Output file path (default: stdout)")
     misc_grp.add_argument("--save-prefix", help="Path prefix for saving models")
-    misc_grp.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
-    misc_grp.add_argument("--checkpoint", help="Checkpoint model to start training from")
+    misc_grp.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
+    misc_grp.add_argument(
+        "--checkpoint", help="Checkpoint model to start training from"
+    )
 
     return parser
+
 
 def predict_interaction(model, n0, n1, tensors, use_cuda):
 
@@ -256,67 +270,56 @@ def get_pair_names(path):
             n1.append(b)
     return n0, n1
 
+
 def load_embeddings_from_args(args, output):
     ## Create data sets
     batch_size = args.batch_size
 
-    pos_train = args.pos_train
-    neg_train = args.neg_train
-    pos_test = args.pos_test
-    neg_test = args.neg_test
+    train_fi = args.train
+    test_fi = args.test
     augment = args.augment
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {pos_train},{neg_train}...", file=output)
+    print(f"# Loading training pairs from {train_f}...", file=output)
     output.flush()
 
-    n0_pos, n1_pos = get_pair_names(pos_train)
+    train_df = pd.read_csv(train_fi, sep="\t", header=None)
     if augment:
-        n0_pos_new = n0_pos + n1_pos
-        n1_pos_new = n1_pos + n0_pos
-        n0_pos = n0_pos_new
-        n1_pos = n1_pos_new
-    y_pos = torch.ones(len(n0_pos), dtype=torch.float32)
+        train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
+        train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
+        train_y = torch.from_numpy(pd.concat((train_df[2], 1 - train_df[2])).values)
+    else:
+        train_n0, train_n1 = train_df[0], train_df[1]
+        train_y = torch.from_numpy(train_df[2])
 
-    print(f"# Loaded {len(n0_pos)} positive training pairs", file=output)
+    print(f"# Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
-    n0_neg, n1_neg = get_pair_names(neg_train)
+    test_df = pd.read_csv(test_fi, sep="\t", header=None)
     if augment:
-        n0_neg_new = n0_neg + n1_neg
-        n1_neg_new = n1_neg + n0_neg
-        n0_neg = n0_neg_new
-        n1_neg = n1_neg_new
-    y_neg = torch.zeros(len(n0_neg), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg)} negative training pairs", file=output)
-
-    print(f"# Loading testing pairs from {pos_test},{neg_test}...", file=output)
+        test_n0 = pd.concat((test_df[0], test_df[1]), axis=0)
+        test_n1 = pd.concat((test_df[1], test_df[0]), axis=0)
+        test_y = torch.from_numpy(pd.concat((test_df[2], 1 - test_df[2])).values)
+    else:
+        test_n0, test_n1 = test_df[0], test_df[1]
+        test_y = torch.from_numpy(test_df[2])
     output.flush()
 
-    n0_pos_test, n1_pos_test = get_pair_names(pos_test)
-    y_pos_test = torch.ones(len(n0_pos_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_pos_test)} positive test pairs", file=output)
-    output.flush()
-
-    n0_neg_test, n1_neg_test = get_pair_names(neg_test)
-    y_neg_test = torch.zeros(len(n0_neg_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg_test)} negative test pairs", file=output)
-    output.flush()
-
-    train_pairs = PairedDataset(n0_pos + n0_neg, n1_pos + n1_neg, torch.cat((y_pos, y_neg), 0))
+    train_pairs = PairedDataset(train_n0, train_n1, train_y)
     pairs_train_iterator = torch.utils.data.DataLoader(
-        train_pairs, batch_size=batch_size, collate_fn=collate_paired_sequences, shuffle=True
+        train_pairs,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=True,
     )
 
-    test_pairs = PairedDataset(
-        n0_pos_test + n0_neg_test, n1_pos_test + n1_neg_test, torch.cat((y_pos_test, y_neg_test), 0)
-    )
+    test_pairs = PairedDataset(test_n0, test_n1, test_y)
     pairs_test_iterator = torch.utils.data.DataLoader(
-        test_pairs, batch_size=batch_size, collate_fn=collate_paired_sequences, shuffle=True
+        test_pairs,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=True,
     )
 
     output.flush()
@@ -324,14 +327,7 @@ def load_embeddings_from_args(args, output):
     print(f"# Loading Embeddings", file=output)
     tensors = {}
     all_proteins = (
-        set(n0_pos)
-        .union(set(n1_pos))
-        .union(set(n0_neg))
-        .union(set(n1_neg))
-        .union(set(n0_pos_test))
-        .union(set(n1_pos_test))
-        .union(set(n0_neg_test))
-        .union(set(n1_neg_test))
+        set(train_n0).union(set(train_n1)).union(set(test_n0)).union(set(test_n1))
     )
     for prot_name in tqdm(all_proteins):
         tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
@@ -339,7 +335,9 @@ def load_embeddings_from_args(args, output):
     return pairs_train_iterator, pairs_test_iterator, tensors
 
 
-def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tensors, output):
+def run_training_from_args(
+    args, pairs_train_iterator, pairs_test_iterator, tensors, output
+):
 
     use_cuda = (args.device > -1) and torch.cuda.is_available()
 
@@ -367,7 +365,9 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
         print("# Initializing interaction model with:", file=output)
         print(f"\tpool_width: {pool_width}", file=output)
         print(f"\tuse_w: {use_W}", file=output)
-        model = ModelInteraction(embedding, contact, use_cuda, use_W=use_W, pool_size=pool_width)
+        model = ModelInteraction(
+            embedding, contact, use_cuda, use_W=use_W, pool_size=pool_width
+        )
 
         print(model, file=output)
 
@@ -402,7 +402,9 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
     print(f"\tcontact map weight: {cmap_weight}", file=output)
     output.flush()
 
-    batch_report_fmt = "# [{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
+    batch_report_fmt = (
+        "# [{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
+    )
     epoch_report_fmt = "# Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     N = len(pairs_train_iterator) * batch_size
@@ -439,7 +441,14 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
             model.clip()
 
             if report:
-                tokens = [epoch + 1, num_epochs, n / N, loss_accum, acc_accum, mse_accum]
+                tokens = [
+                    epoch + 1,
+                    num_epochs,
+                    n / N,
+                    loss_accum,
+                    acc_accum,
+                    mse_accum,
+                ]
                 print(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
@@ -473,7 +482,9 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
 
             # Save the model
             if save_prefix is not None:
-                save_path = save_prefix + "_epoch" + str(epoch + 1).zfill(digits) + ".sav"
+                save_path = (
+                    save_prefix + "_epoch" + str(epoch + 1).zfill(digits) + ".sav"
+                )
                 print(f"# Saving model to {save_path}", file=output)
                 model.cpu()
                 torch.save(model, save_path)
@@ -508,15 +519,23 @@ def main(args):
     use_cuda = (device > -1) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=output)
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+            file=output,
+        )
     else:
         print("# Using CPU", file=output)
         device = "cpu"
 
-    pairs_train_iterator, pairs_test_iterator, tensors = load_embeddings_from_args(args, output)
-    run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tensors, output)
+    pairs_train_iterator, pairs_test_iterator, tensors = load_embeddings_from_args(
+        args, output
+    )
+    run_training_from_args(
+        args, pairs_train_iterator, pairs_test_iterator, tensors, output
+    )
 
     output.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

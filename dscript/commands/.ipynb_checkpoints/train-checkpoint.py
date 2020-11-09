@@ -35,10 +35,8 @@ def add_args(parser):
     misc_grp = parser.add_argument_group("Output and Device")
 
     # Data
-    data_grp.add_argument("--pos-train", help="Positive training pairs", required=True)
-    data_grp.add_argument("--neg-train", help="Negative training pairs", required=True)
-    data_grp.add_argument("--pos-test", help="Positive testing pairs", required=True)
-    data_grp.add_argument("--neg-test", help="Negative testing pairs", required=True)
+    data_grp.add_argument("--test", help="Test data", required=True)
+    data_grp.add_argument("--val", help="Validation data", required=True)
     data_grp.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
     data_grp.add_argument(
         "--augment",
@@ -260,61 +258,43 @@ def load_embeddings_from_args(args, output):
     ## Create data sets
     batch_size = args.batch_size
 
-    pos_train = args.pos_train
-    neg_train = args.neg_train
-    pos_test = args.pos_test
-    neg_test = args.neg_test
+    train_fi = args.train
+    test_fi = args.test
     augment = args.augment
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {pos_train},{neg_train}...", file=output)
+    print(f"# Loading training pairs from {train_f}...", file=output)
     output.flush()
 
-    n0_pos, n1_pos = get_pair_names(pos_train)
+    train_df = pd.read_csv(train_fi, sep="\t", header=None)
     if augment:
-        n0_pos_new = n0_pos + n1_pos
-        n1_pos_new = n1_pos + n0_pos
-        n0_pos = n0_pos_new
-        n1_pos = n1_pos_new
-    y_pos = torch.ones(len(n0_pos), dtype=torch.float32)
+        train_n0 = pd.concat((train_df[0],train_df[1]),axis=0)
+        train_n1 = pd.concat((train_df[1],train_df[0]),axis=0)
+        train_y = torch.from_numpy(pd.concat((train_df[2], 1-train_df[2])).values)
+    else:
+        train_n0, train_n1 = train_df[0], train_df[1]
+        train_y = torch.from_numpy(train_df[2])
 
-    print(f"# Loaded {len(n0_pos)} positive training pairs", file=output)
+    print(f"# Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
-    n0_neg, n1_neg = get_pair_names(neg_train)
+    test_df = pd.read_csv(test_fi, sep="\t", header=None)
     if augment:
-        n0_neg_new = n0_neg + n1_neg
-        n1_neg_new = n1_neg + n0_neg
-        n0_neg = n0_neg_new
-        n1_neg = n1_neg_new
-    y_neg = torch.zeros(len(n0_neg), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg)} negative training pairs", file=output)
-
-    print(f"# Loading testing pairs from {pos_test},{neg_test}...", file=output)
+        test_n0 = pd.concat((test_df[0],test_df[1]),axis=0)
+        test_n1 = pd.concat((test_df[1],test_df[0]),axis=0)
+        test_y = torch.from_numpy(pd.concat((test_df[2], 1-test_df[2])).values)
+    else:
+        test_n0, test_n1 = test_df[0], test_df[1]
+        test_y = torch.from_numpy(test_df[2])
     output.flush()
 
-    n0_pos_test, n1_pos_test = get_pair_names(pos_test)
-    y_pos_test = torch.ones(len(n0_pos_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_pos_test)} positive test pairs", file=output)
-    output.flush()
-
-    n0_neg_test, n1_neg_test = get_pair_names(neg_test)
-    y_neg_test = torch.zeros(len(n0_neg_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg_test)} negative test pairs", file=output)
-    output.flush()
-
-    train_pairs = PairedDataset(n0_pos + n0_neg, n1_pos + n1_neg, torch.cat((y_pos, y_neg), 0))
+    train_pairs = PairedDataset(train_n0, train_n1, train_y)
     pairs_train_iterator = torch.utils.data.DataLoader(
         train_pairs, batch_size=batch_size, collate_fn=collate_paired_sequences, shuffle=True
     )
 
-    test_pairs = PairedDataset(
-        n0_pos_test + n0_neg_test, n1_pos_test + n1_neg_test, torch.cat((y_pos_test, y_neg_test), 0)
-    )
+    test_pairs = PairedDataset(test_n0, test_n1, test_y)
     pairs_test_iterator = torch.utils.data.DataLoader(
         test_pairs, batch_size=batch_size, collate_fn=collate_paired_sequences, shuffle=True
     )
@@ -324,14 +304,10 @@ def load_embeddings_from_args(args, output):
     print(f"# Loading Embeddings", file=output)
     tensors = {}
     all_proteins = (
-        set(n0_pos)
-        .union(set(n1_pos))
-        .union(set(n0_neg))
-        .union(set(n1_neg))
-        .union(set(n0_pos_test))
-        .union(set(n1_pos_test))
-        .union(set(n0_neg_test))
-        .union(set(n1_neg_test))
+        set(train_n0)
+        .union(set(train_n1))
+        .union(set(test_n0))
+        .union(set(test_n1))
     )
     for prot_name in tqdm(all_proteins):
         tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])

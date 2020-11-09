@@ -20,12 +20,19 @@ from dscript.models.embedding import IdentityEmbed, SkipLSTM
 THRESH = 0.7
 SEP = "\t"
 
+
 def add_args(parser):
-    parser.add_argument("-p", "--pairs", help="Candidate protein pairs to predict", required=True)
-    parser.add_argument("-f", "--fasta", help="Protein sequences in .fasta format", required=True)
+    parser.add_argument(
+        "-p", "--pairs", help="Candidate protein pairs to predict", required=True
+    )
+    parser.add_argument(
+        "-f", "--fasta", help="Protein sequences in .fasta format", required=True
+    )
     parser.add_argument("-m", "--model", help="Pretrained Model", required=True)
     parser.add_argument("-o", "--outfile", help="File for predictions", required=True)
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     parser.add_argument(
         "--pos_threshold",
         type=float,
@@ -34,8 +41,11 @@ def add_args(parser):
     )
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("--sep", default=SEP, help="Separator for CSV")
-    parser.add_argument("--no-header", action="store_true", help="Set if CSV file has no header")
+    parser.add_argument(
+        "--no-header", action="store_true", help="Set if CSV file has no header"
+    )
     return parser
+
 
 def main(args):
     csvPath = args.pairs
@@ -82,7 +92,11 @@ def main(args):
     torch.cuda.set_device(device)
     use_cuda = device >= 0
     if device >= 0:
-        print("# Using CUDA device {} - {}".format(device, torch.cuda.get_device_name(device)))
+        print(
+            "# Using CUDA device {} - {}".format(
+                device, torch.cuda.get_device_name(device)
+            )
+        )
     else:
         print("# Using CPU")
 

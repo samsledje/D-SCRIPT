@@ -6,7 +6,7 @@ try:
     outPath = sys.argv[2]
     device = int(sys.argv[3])
 except IndexError:
-    print('usage: python embed.py [input fasta] [output h5] [device]')
+    print("usage: python embed.py [input fasta] [output h5] [device]")
     sys.exit(1)
-    
-embed_from_fasta(inPath,outPath,device)
+
+embed_from_fasta(inPath, outPath, device)
