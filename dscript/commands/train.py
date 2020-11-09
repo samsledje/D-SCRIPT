@@ -40,7 +40,7 @@ def add_args(parser):
     misc_grp = parser.add_argument_group("Output and Device")
 
     # Data
-    data_grp.add_argument("--test", help="Test data", required=True)
+    data_grp.add_argument("--train", help="Training data", required=True)
     data_grp.add_argument("--val", help="Validation data", required=True)
     data_grp.add_argument(
         "--embedding", help="h5 file with embedded sequences", required=True
@@ -261,27 +261,17 @@ def get_embeddings(f, n0, n1, thresh=800):
     return z0, z1
 
 
-def get_pair_names(path):
-    n0, n1 = [], []
-    with open(path, "r") as f:
-        for l in f:
-            a, b = l.strip().split()[:2]
-            n0.append(a)
-            n1.append(b)
-    return n0, n1
-
-
 def load_embeddings_from_args(args, output):
     ## Create data sets
     batch_size = args.batch_size
 
     train_fi = args.train
-    test_fi = args.test
+    test_fi = args.val
     augment = args.augment
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {train_f}...", file=output)
+    print(f"# Loading training pairs from {train_fi}...", file=output)
     output.flush()
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
@@ -291,7 +281,7 @@ def load_embeddings_from_args(args, output):
         train_y = torch.from_numpy(pd.concat((train_df[2], 1 - train_df[2])).values)
     else:
         train_n0, train_n1 = train_df[0], train_df[1]
-        train_y = torch.from_numpy(train_df[2])
+        train_y = torch.from_numpy(train_df[2].values)
 
     print(f"# Loading testing pairs from {test_fi}...", file=output)
     output.flush()
@@ -303,7 +293,7 @@ def load_embeddings_from_args(args, output):
         test_y = torch.from_numpy(pd.concat((test_df[2], 1 - test_df[2])).values)
     else:
         test_n0, test_n1 = test_df[0], test_df[1]
-        test_y = torch.from_numpy(test_df[2])
+        test_y = torch.from_numpy(test_df[2].values)
     output.flush()
 
     train_pairs = PairedDataset(train_n0, train_n1, train_y)
@@ -324,7 +314,7 @@ def load_embeddings_from_args(args, output):
 
     output.flush()
 
-    print(f"# Loading Embeddings", file=output)
+    print(f"# Loading embeddings", file=output)
     tensors = {}
     all_proteins = (
         set(train_n0).union(set(train_n1)).union(set(test_n0)).union(set(test_n1))

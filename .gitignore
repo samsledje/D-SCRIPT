@@ -1,6 +1,6 @@
 build/*
 dist/*
-*.egg*
+*.egg-info
 **/*.h5
-.ipynb_checkpoints/**
+**/.ipynb_checkpoints/**
 **/__pycache__/**
