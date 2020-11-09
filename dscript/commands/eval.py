@@ -10,6 +10,7 @@ import torch
 import h5py
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.metrics import (
@@ -33,10 +34,10 @@ def add_args(parser):
 
 
 def plot_eval_predictions(labels, predictions, path="figure"):
-    
+
     pos_phat = predictions[labels == 1]
     neg_phat = predictions[labels == 0]
-    
+
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Distribution of Predictions")
     ax1.hist(pos_phat)
@@ -124,7 +125,9 @@ def main(args):
     with torch.no_grad():
         phats = []
         labels = []
-        for _, (n0, n1, label) in tqdm(test_df.iterrows(), total=len(test_df), desc="Predicting pairs"):
+        for _, (n0, n1, label) in tqdm(
+            test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
+        ):
             try:
                 p0 = seqEmbDict[n0]
                 p1 = seqEmbDict[n1]

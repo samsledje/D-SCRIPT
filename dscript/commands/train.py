@@ -344,7 +344,7 @@ def main(args):
     )
     for prot_name in tqdm(all_proteins):
         tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
-    
+
     use_cuda = (args.device > -1) and torch.cuda.is_available()
 
     if args.checkpoint is None:

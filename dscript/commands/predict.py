@@ -14,9 +14,10 @@ from dscript.fasta import parse
 from dscript.lm_embed import encode_from_fasta
 from dscript.models.embedding import IdentityEmbed, SkipLSTM
 
+
 def add_args(parser):
     parser.add_argument(
-         "--pairs", help="Candidate protein pairs to predict", required=True
+        "--pairs", help="Candidate protein pairs to predict", required=True
     )
     parser.add_argument(
         "--seqs", help="Protein sequences in .fasta format", required=True
