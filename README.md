@@ -5,4 +5,4 @@
  
  - [Main Page](http://dscript.csail.mit.edu)
  
- - [Documentation](http://samsledje.github.io/D-SCRIPT)
+ - [Documentation](https://d-script.readthedocs.io/en/main/)
