@@ -261,8 +261,31 @@ def get_embeddings(f, n0, n1, thresh=800):
     return z0, z1
 
 
-def load_embeddings_from_args(args, output):
-    ## Create data sets
+def main(args):
+
+    output = args.output
+    if output is None:
+        output = sys.stdout
+    else:
+        output = open(output, "w")
+
+    print(f'# Called as: {" ".join(sys.argv)}', file=output)
+    if output is not sys.stdout:
+        print(f'Called as: {" ".join(sys.argv)}')
+
+    ## Set the device
+    device = args.device
+    use_cuda = (device > -1) and torch.cuda.is_available()
+    if use_cuda:
+        torch.cuda.set_device(device)
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+            file=output,
+        )
+    else:
+        print("# Using CPU", file=output)
+        device = "cpu"
+
     batch_size = args.batch_size
 
     train_fi = args.train
@@ -324,12 +347,11 @@ def load_embeddings_from_args(args, output):
 
     return pairs_train_iterator, pairs_test_iterator, tensors
 
-
-def run_training_from_args(
-    args, pairs_train_iterator, pairs_test_iterator, tensors, output
-):
-
-    use_cuda = (args.device > -1) and torch.cuda.is_available()
+    run_training_from_args(
+        args, pairs_train_iterator, pairs_test_iterator, tensors, output
+    )
+    
+        use_cuda = (args.device > -1) and torch.cuda.is_available()
 
     if args.checkpoint is None:
 
@@ -490,39 +512,6 @@ def run_training_from_args(
         torch.save(model, save_path)
         if use_cuda:
             model.cuda()
-
-
-def main(args):
-
-    output = args.output
-    if output is None:
-        output = sys.stdout
-    else:
-        output = open(output, "w")
-
-    print(f'# Called as: {" ".join(sys.argv)}', file=output)
-    if output is not sys.stdout:
-        print(f'Called as: {" ".join(sys.argv)}')
-
-    ## Set the device
-    device = args.device
-    use_cuda = (device > -1) and torch.cuda.is_available()
-    if use_cuda:
-        torch.cuda.set_device(device)
-        print(
-            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
-            file=output,
-        )
-    else:
-        print("# Using CPU", file=output)
-        device = "cpu"
-
-    pairs_train_iterator, pairs_test_iterator, tensors = load_embeddings_from_args(
-        args, output
-    )
-    run_training_from_args(
-        args, pairs_train_iterator, pairs_test_iterator, tensors, output
-    )
 
     output.close()
 

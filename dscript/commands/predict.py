@@ -23,10 +23,10 @@ SEP = "\t"
 
 def add_args(parser):
     parser.add_argument(
-        "-p", "--pairs", help="Candidate protein pairs to predict", required=True
+         "--pairs", help="Candidate protein pairs to predict", required=True
     )
     parser.add_argument(
-        "-f", "--fasta", help="Protein sequences in .fasta format", required=True
+        "--fasta", help="Protein sequences in .fasta format", required=True
     )
     parser.add_argument("-m", "--model", help="Pretrained Model", required=True)
     parser.add_argument("-o", "--outfile", help="File for predictions", required=True)
