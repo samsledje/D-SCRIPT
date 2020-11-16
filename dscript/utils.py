@@ -71,9 +71,7 @@ def gpu_mem(device):
     """Get the current gpu usage.
     Returns
     -------
-    usage: dict
-        Keys are device ids as integers.
-        Values are memory usage as integers in MB.
+    usage: memory used, memory total
     """
     result = sp.check_output(
         [
@@ -148,56 +146,6 @@ def collate_lists(args):
     x = [a[0] for a in args]
     y = [a[1] for a in args]
     return x, y
-
-
-class ContactMapDataset(torch.utils.data.Dataset):
-    def __init__(self, X, Y, augment=None, fragment=False, mi=64, ma=500):
-        self.X = X
-        self.Y = Y
-        self.augment = augment
-        self.fragment = fragment
-        self.mi = mi
-        self.ma = ma
-        """
-        if fragment: # multiply sequence occurence by expected number of fragments
-            lengths = np.array([len(x) for x in X])
-            mi = np.clip(lengths, None, mi)
-            ma = np.clip(lengths, None, ma)
-            weights = 2*lengths/(ma + mi)
-            mul = np.ceil(weights).astype(int)
-            X_ = []
-            Y_ = []
-            for i,n in enumerate(mul):
-                X_ += [X[i]]*n
-                Y_ += [Y[i]]*n
-            self.X = X_
-            self.Y = Y_
-        """
-
-    def __len__(self):
-        return len(self.X)
-
-    def __getitem__(self, i):
-        x = self.X[i]
-        y = self.Y[i]
-        if self.fragment and len(x) > self.mi:
-            mi = self.mi
-            ma = min(self.ma, len(x))
-            l = np.random.randint(mi, ma + 1)
-            i = np.random.randint(len(x) - l + 1)
-            xl = x[i : i + l]
-            yl = y[i : i + l, i : i + l]
-            # make sure there are unmasked observations
-            while torch.sum(yl >= 0) == 0:
-                l = np.random.randint(mi, ma + 1)
-                i = np.random.randint(len(x) - l + 1)
-                xl = x[i : i + l]
-                yl = y[i : i + l, i : i + l]
-            y = yl.contiguous()
-            x = xl
-        if self.augment is not None:
-            x = self.augment(x)
-        return x, y
 
 
 class AllPairsDataset(torch.utils.data.Dataset):

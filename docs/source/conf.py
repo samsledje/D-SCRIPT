@@ -58,7 +58,7 @@ html_static_path = ['_static']
 #
 #html_theme = 'default'
 html_theme = 'sphinx_rtd_theme'
-html_theme_options = {
-    'logo_only':  True,
-}
-html_logo = '_static/dscript_architecture1.png'
+# html_theme_options = {
+#     'logo_only':  True,
+# }
+# html_logo = '_static/dscript_architecture1.png'

@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscript.commands package &mdash; D-SCRIPT v1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscript.models package" href="dscript.models.html" />
+    <link rel="prev" title="dscript package" href="dscript.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">dscript</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscript.html">dscript package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscript.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscript.commands package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscript.models.html">dscript.models package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript.alphabets">dscript.alphabets module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript.fasta">dscript.fasta module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript.lm_embed">dscript.lm_embed module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript.pdb">dscript.pdb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript.utils">dscript.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscript.html#module-dscript">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">D-SCRIPT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscript</a> &raquo;</li>
+        
+          <li><a href="dscript.html">dscript package</a> &raquo;</li>
+        
+      <li>dscript.commands package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/dscript.commands.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscript-commands-package">
+<h1>dscript.commands package<a class="headerlink" href="#dscript-commands-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscript.commands.embed">
+<span id="dscript-commands-embed-module"></span><h2>dscript.commands.embed module<a class="headerlink" href="#module-dscript.commands.embed" title="Permalink to this headline">¶</a></h2>
+<p>Generate new embeddings using pre-trained language model</p>
+<dl class="py function">
+<dt id="dscript.commands.embed.add_args">
+<code class="sig-prename descclassname">dscript.commands.embed.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/embed.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.embed.add_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.embed.main">
+<code class="sig-prename descclassname">dscript.commands.embed.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/embed.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.embed.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.commands.eval">
+<span id="dscript-commands-eval-module"></span><h2>dscript.commands.eval module<a class="headerlink" href="#module-dscript.commands.eval" title="Permalink to this headline">¶</a></h2>
+<p>Evaluate a trained model</p>
+<dl class="py function">
+<dt id="dscript.commands.eval.add_args">
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.add_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.eval.main">
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.eval.plot_eval_predictions">
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">plot_eval_predictions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">predictions</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'figure'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#plot_eval_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.plot_eval_predictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.commands.predict">
+<span id="dscript-commands-predict-module"></span><h2>dscript.commands.predict module<a class="headerlink" href="#module-dscript.commands.predict" title="Permalink to this headline">¶</a></h2>
+<p>Make new predictions with a pre-trained model</p>
+<dl class="py function">
+<dt id="dscript.commands.predict.add_args">
+<code class="sig-prename descclassname">dscript.commands.predict.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/predict.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.predict.add_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.predict.main">
+<code class="sig-prename descclassname">dscript.commands.predict.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/predict.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.predict.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.commands.train">
+<span id="dscript-commands-train-module"></span><h2>dscript.commands.train module<a class="headerlink" href="#module-dscript.commands.train" title="Permalink to this headline">¶</a></h2>
+<p>Train a new model</p>
+<dl class="py function">
+<dt id="dscript.commands.train.add_args">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.add_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.get_embeddings">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">get_embeddings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">800</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#get_embeddings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.get_embeddings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.interaction_eval">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_iterator</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_eval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.interaction_grad">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">0.35</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_grad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.main">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.predict_cmap_interaction">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_cmap_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_cmap_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_cmap_interaction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.commands.train.predict_interaction">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_interaction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.commands">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscript.commands" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscript.models.html" class="btn btn-neutral float-right" title="dscript.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscript.html" class="btn btn-neutral float-left" title="dscript package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

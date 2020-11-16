@@ -3,11 +3,10 @@ D-SCRIPT: Deep Learning PPI Prediction
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
    
    overview
    installation
-   api/index
+   api/modules
 
 Indices and tables
 ==================

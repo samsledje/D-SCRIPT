@@ -69,8 +69,10 @@ class FullyConnected(nn.Module):
         return c
 
 
-# Contact Prediction Model
 class ContactCNN(nn.Module):
+    """
+    Residue Contact Prediction Module
+    """
     def __init__(self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()):
         super(ContactCNN, self).__init__()
 

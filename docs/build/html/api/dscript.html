@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscript package &mdash; D-SCRIPT v1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscript.commands package" href="dscript.commands.html" />
+    <link rel="prev" title="dscript" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">dscript</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dscript package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dscript.commands.html">dscript.commands package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscript.models.html">dscript.models package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.alphabets">dscript.alphabets module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.fasta">dscript.fasta module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.lm_embed">dscript.lm_embed module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.pdb">dscript.pdb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.utils">dscript.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">D-SCRIPT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscript</a> &raquo;</li>
+        
+      <li>dscript package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/dscript.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscript-package">
+<h1>dscript package<a class="headerlink" href="#dscript-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dscript.commands.html">dscript.commands package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#module-dscript.commands.embed">dscript.commands.embed module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#module-dscript.commands.eval">dscript.commands.eval module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#module-dscript.commands.predict">dscript.commands.predict module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#module-dscript.commands.train">dscript.commands.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html#module-dscript.commands">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dscript.models.html">dscript.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html#module-dscript.models.contact">dscript.models.contact module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html#module-dscript.models.embedding">dscript.models.embedding module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html#module-dscript.models.interaction">dscript.models.interaction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html#module-dscript.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscript.alphabets">
+<span id="dscript-alphabets-module"></span><h2>dscript.alphabets module<a class="headerlink" href="#module-dscript.alphabets" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="dscript.alphabets.Alphabet">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.alphabets.</code><code class="sig-name descname">Alphabet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chars</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">missing</span><span class="o">=</span><span class="default_value">255</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Alphabet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.decode">
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>decode index array, x, to byte string of this alphabet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.encode">
+<code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>encode a byte string into alphabet indices</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.get_kmer">
+<code class="sig-name descname">get_kmer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.get_kmer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.get_kmer" title="Permalink to this definition">¶</a></dt>
+<dd><p>retrieve byte string of length k decoded from integer h</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.unpack">
+<code class="sig-name descname">unpack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpack integer h into array of this alphabet with length k</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.alphabets.SDM12">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.alphabets.</code><code class="sig-name descname">SDM12</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#SDM12"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.SDM12" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscript.alphabets.Alphabet" title="dscript.alphabets.Alphabet"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscript.alphabets.Alphabet</span></code></a></p>
+<p>A D KER N TSQ YF LIVM C W H G P</p>
+<p>See <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732308/#B33">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732308/#B33</a>
+“Reduced amino acid alphabets exhibit an improved sensitivity and selectivity in fold assignment”
+Peterson et al. 2009. Bioinformatics.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.alphabets.Uniprot21">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.alphabets.</code><code class="sig-name descname">Uniprot21</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Uniprot21"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.alphabets.Uniprot21" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscript.alphabets.Alphabet" title="dscript.alphabets.Alphabet"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscript.alphabets.Alphabet</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscript.fasta">
+<span id="dscript-fasta-module"></span><h2>dscript.fasta module<a class="headerlink" href="#module-dscript.fasta" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="dscript.fasta.count_bins">
+<code class="sig-prename descclassname">dscript.fasta.</code><code class="sig-name descname">count_bins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em>, <em class="sig-param"><span class="n">bins</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#count_bins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.fasta.count_bins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.fasta.parse">
+<code class="sig-prename descclassname">dscript.fasta.</code><code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">'#'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.fasta.parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.fasta.parse_directory">
+<code class="sig-prename descclassname">dscript.fasta.</code><code class="sig-name descname">parse_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">extension</span><span class="o">=</span><span class="default_value">'.seq'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.fasta.parse_directory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.fasta.parse_stream">
+<code class="sig-prename descclassname">dscript.fasta.</code><code class="sig-name descname">parse_stream</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">b'#'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.fasta.parse_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.fasta.write">
+<code class="sig-prename descclassname">dscript.fasta.</code><code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nam</span></em>, <em class="sig-param"><span class="n">seq</span></em>, <em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.fasta.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.lm_embed">
+<span id="dscript-lm-embed-module"></span><h2>dscript.lm_embed module<a class="headerlink" href="#module-dscript.lm_embed" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="dscript.lm_embed.embed_from_directory">
+<code class="sig-prename descclassname">dscript.lm_embed.</code><code class="sig-name descname">embed_from_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/lm_embed.html#embed_from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.lm_embed.embed_from_directory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.lm_embed.embed_from_fasta">
+<code class="sig-prename descclassname">dscript.lm_embed.</code><code class="sig-name descname">embed_from_fasta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fastaPath</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/lm_embed.html#embed_from_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.lm_embed.embed_from_fasta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.lm_embed.encode_from_fasta">
+<code class="sig-prename descclassname">dscript.lm_embed.</code><code class="sig-name descname">encode_from_fasta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fastaPath</span></em>, <em class="sig-param"><span class="n">outputPath</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/lm_embed.html#encode_from_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.lm_embed.encode_from_fasta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.pdb">
+<span id="dscript-pdb-module"></span><h2>dscript.pdb module<a class="headerlink" href="#module-dscript.pdb" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="dscript.pdb.calc_dist_matrix">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">calc_dist_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain_one</span></em>, <em class="sig-param"><span class="n">chain_two</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'distance'</span></em>, <em class="sig-param"><span class="n">cutoff</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">rbf_sigma</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#calc_dist_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.calc_dist_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a matrix of C-alpha distances between two chains</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.calc_residue_dist">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">calc_residue_dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">CA_one</span></em>, <em class="sig-param"><span class="n">CA_two</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#calc_residue_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.calc_residue_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance between two alpha carbons</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.get_CA_residues">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">get_CA_residues</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#get_CA_residues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.get_CA_residues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.get_PDB_model">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">get_PDB_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdbid</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#get_PDB_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.get_PDB_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.parse_gw">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">parse_gw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gwFile</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#parse_gw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.parse_gw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.seq_from_chain">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">seq_from_chain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#seq_from_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.seq_from_chain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.pdb.seq_from_model">
+<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">seq_from_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#seq_from_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.seq_from_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript.utils">
+<span id="dscript-utils-module"></span><h2>dscript.utils module<a class="headerlink" href="#module-dscript.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="dscript.utils.AllPairsDataset">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">AllPairsDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">Y</span></em>, <em class="sig-param"><span class="n">augment</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#AllPairsDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.AllPairsDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.utils.MultinomialResample">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">MultinomialResample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trans</span></em>, <em class="sig-param"><span class="n">p</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#MultinomialResample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.MultinomialResample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.utils.PairedDataset">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">PairedDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X0</span></em>, <em class="sig-param"><span class="n">X1</span></em>, <em class="sig-param"><span class="n">Y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#PairedDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.PairedDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.RBF">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">RBF</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">x') = exp( -((x - x')**2 / 2sigma**&#64;)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#RBF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.RBF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.align">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">align</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq1</span></em>, <em class="sig-param"><span class="n">seq2</span></em>, <em class="sig-param"><span class="n">how</span><span class="o">=</span><span class="default_value">'local'</span></em>, <em class="sig-param"><span class="n">matrix</span><span class="o">=</span><span class="default_value">{('A', 'A'): 4, ('B', 'A'): - 2, ('B', 'B'): 4, ('B', 'C'): - 3, ('B', 'D'): 4, ('B', 'E'): 1, ('B', 'F'): - 3, ('B', 'G'): - 1, ('B', 'H'): 0, ('B', 'I'): - 3, ('B', 'K'): 0, ('B', 'L'): - 4, ('B', 'M'): - 3, ('B', 'N'): 3, ('B', 'P'): - 2, ('B', 'Q'): 0, ('B', 'R'): - 1, ('B', 'S'): 0, ('B', 'T'): - 1, ('B', 'V'): - 3, ('B', 'W'): - 4, ('B', 'Y'): - 3, ('C', 'A'): 0, ('C', 'C'): 9, ('C', 'D'): - 3, ('C', 'N'): - 3, ('C', 'R'): - 3, ('D', 'A'): - 2, ('D', 'D'): 6, ('D', 'N'): 1, ('D', 'R'): - 2, ('E', 'A'): - 1, ('E', 'C'): - 4, ('E', 'D'): 2, ('E', 'E'): 5, ('E', 'N'): 0, ('E', 'Q'): 2, ('E', 'R'): 0, ('F', 'A'): - 2, ('F', 'C'): - 2, ('F', 'D'): - 3, ('F', 'E'): - 3, ('F', 'F'): 6, ('F', 'G'): - 3, ('F', 'H'): - 1, ('F', 'I'): 0, ('F', 'K'): - 3, ('F', 'L'): 0, ('F', 'M'): 0, ('F', 'N'): - 3, ('F', 'Q'): - 3, ('F', 'R'): - 3, ('G', 'A'): 0, ('G', 'C'): - 3, ('G', 'D'): - 1, ('G', 'E'): - 2, ('G', 'G'): 6, ('G', 'N'): 0, ('G', 'Q'): - 2, ('G', 'R'): - 2, ('H', 'A'): - 2, ('H', 'C'): - 3, ('H', 'D'): - 1, ('H', 'E'): 0, ('H', 'G'): - 2, ('H', 'H'): 8, ('H', 'N'): 1, ('H', 'Q'): 0, ('H', 'R'): 0, ('I', 'A'): - 1, ('I', 'C'): - 1, ('I', 'D'): - 3, ('I', 'E'): - 3, ('I', 'G'): - 4, ('I', 'H'): - 3, ('I', 'I'): 4, ('I', 'N'): - 3, ('I', 'Q'): - 3, ('I', 'R'): - 3, ('K', 'A'): - 1, ('K', 'C'): - 3, ('K', 'D'): - 1, ('K', 'E'): 1, ('K', 'G'): - 2, ('K', 'H'): - 1, ('K', 'I'): - 3, ('K', 'K'): 5, ('K', 'L'): - 2, ('K', 'N'): 0, ('K', 'Q'): 1, ('K', 'R'): 2, ('L', 'A'): - 1, ('L', 'C'): - 1, ('L', 'D'): - 4, ('L', 'E'): - 3, ('L', 'G'): - 4, ('L', 'H'): - 3, ('L', 'I'): 2, ('L', 'L'): 4, ('L', 'N'): - 3, ('L', 'Q'): - 2, ('L', 'R'): - 2, ('M', 'A'): - 1, ('M', 'C'): - 1, ('M', 'D'): - 3, ('M', 'E'): - 2, ('M', 'G'): - 3, ('M', 'H'): - 2, ('M', 'I'): 1, ('M', 'K'): - 1, ('M', 'L'): 2, ('M', 'M'): 5, ('M', 'N'): - 2, ('M', 'Q'): 0, ('M', 'R'): - 1, ('N', 'A'): - 2, ('N', 'N'): 6, ('N', 'R'): 0, ('P', 'A'): - 1, ('P', 'C'): - 3, ('P', 'D'): - 1, ('P', 'E'): - 1, ('P', 'F'): - 4, ('P', 'G'): - 2, ('P', 'H'): - 2, ('P', 'I'): - 3, ('P', 'K'): - 1, ('P', 'L'): - 3, ('P', 'M'): - 2, ('P', 'N'): - 2, ('P', 'P'): 7, ('P', 'Q'): - 1, ('P', 'R'): - 2, ('Q', 'A'): - 1, ('Q', 'C'): - 3, ('Q', 'D'): 0, ('Q', 'N'): 0, ('Q', 'Q'): 5, ('Q', 'R'): 1, ('R', 'A'): - 1, ('R', 'R'): 5, ('S', 'A'): 1, ('S', 'C'): - 1, ('S', 'D'): 0, ('S', 'E'): 0, ('S', 'F'): - 2, ('S', 'G'): 0, ('S', 'H'): - 1, ('S', 'I'): - 2, ('S', 'K'): 0, ('S', 'L'): - 2, ('S', 'M'): - 1, ('S', 'N'): 1, ('S', 'P'): - 1, ('S', 'Q'): 0, ('S', 'R'): - 1, ('S', 'S'): 4, ('T', 'A'): 0, ('T', 'C'): - 1, ('T', 'D'): - 1, ('T', 'E'): - 1, ('T', 'F'): - 2, ('T', 'G'): - 2, ('T', 'H'): - 2, ('T', 'I'): - 1, ('T', 'K'): - 1, ('T', 'L'): - 1, ('T', 'M'): - 1, ('T', 'N'): 0, ('T', 'P'): - 1, ('T', 'Q'): - 1, ('T', 'R'): - 1, ('T', 'S'): 1, ('T', 'T'): 5, ('V', 'A'): 0, ('V', 'C'): - 1, ('V', 'D'): - 3, ('V', 'E'): - 2, ('V', 'F'): - 1, ('V', 'G'): - 3, ('V', 'H'): - 3, ('V', 'I'): 3, ('V', 'K'): - 2, ('V', 'L'): 1, ('V', 'M'): 1, ('V', 'N'): - 3, ('V', 'P'): - 2, ('V', 'Q'): - 2, ('V', 'R'): - 3, ('V', 'S'): - 2, ('V', 'T'): 0, ('V', 'V'): 4, ('V', 'W'): - 3, ('V', 'Y'): - 1, ('W', 'A'): - 3, ('W', 'C'): - 2, ('W', 'D'): - 4, ('W', 'E'): - 3, ('W', 'F'): 1, ('W', 'G'): - 2, ('W', 'H'): - 2, ('W', 'I'): - 3, ('W', 'K'): - 3, ('W', 'L'): - 2, ('W', 'M'): - 1, ('W', 'N'): - 4, ('W', 'P'): - 4, ('W', 'Q'): - 2, ('W', 'R'): - 3, ('W', 'S'): - 3, ('W', 'T'): - 2, ('W', 'W'): 11, ('X', 'A'): 0, ('X', 'B'): - 1, ('X', 'C'): - 2, ('X', 'D'): - 1, ('X', 'E'): - 1, ('X', 'F'): - 1, ('X', 'G'): - 1, ('X', 'H'): - 1, ('X', 'I'): - 1, ('X', 'K'): - 1, ('X', 'L'): - 1, ('X', 'M'): - 1, ('X', 'N'): - 1, ('X', 'P'): - 2, ('X', 'Q'): - 1, ('X', 'R'): - 1, ('X', 'S'): 0, ('X', 'T'): 0, ('X', 'V'): - 1, ('X', 'W'): - 2, ('X', 'X'): - 1, ('X', 'Y'): - 1, ('X', 'Z'): - 1, ('Y', 'A'): - 2, ('Y', 'C'): - 2, ('Y', 'D'): - 3, ('Y', 'E'): - 2, ('Y', 'F'): 3, ('Y', 'G'): - 3, ('Y', 'H'): 2, ('Y', 'I'): - 1, ('Y', 'K'): - 2, ('Y', 'L'): - 1, ('Y', 'M'): - 1, ('Y', 'N'): - 2, ('Y', 'P'): - 3, ('Y', 'Q'): - 1, ('Y', 'R'): - 2, ('Y', 'S'): - 2, ('Y', 'T'): - 2, ('Y', 'W'): 2, ('Y', 'Y'): 7, ('Z', 'A'): - 1, ('Z', 'B'): 1, ('Z', 'C'): - 3, ('Z', 'D'): 1, ('Z', 'E'): 4, ('Z', 'F'): - 3, ('Z', 'G'): - 2, ('Z', 'H'): 0, ('Z', 'I'): - 3, ('Z', 'K'): 1, ('Z', 'L'): - 3, ('Z', 'M'): - 1, ('Z', 'N'): 0, ('Z', 'P'): - 1, ('Z', 'Q'): 3, ('Z', 'R'): 0, ('Z', 'S'): 0, ('Z', 'T'): - 1, ('Z', 'V'): - 2, ('Z', 'W'): - 3, ('Z', 'Y'): - 2, ('Z', 'Z'): 4}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#align"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.align" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.collate_lists">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">collate_lists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#collate_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.collate_lists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.collate_paired_sequences">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">collate_paired_sequences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#collate_paired_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.collate_paired_sequences" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.compute_sequence_similarity">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">compute_sequence_similarity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq1</span></em>, <em class="sig-param"><span class="n">seq2</span></em>, <em class="sig-param"><span class="n">how</span><span class="o">=</span><span class="default_value">'global'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#compute_sequence_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.compute_sequence_similarity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.gpu_mem">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">gpu_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#gpu_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.gpu_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current gpu usage.
+Returns
+——-
+usage: memory used, memory total</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.pack_sequences">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">pack_sequences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">order</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#pack_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.pack_sequences" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.plot_PR_curve">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">plot_PR_curve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">phat</span></em>, <em class="sig-param"><span class="n">saveFile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#plot_PR_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.plot_PR_curve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.plot_ROC_curve">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">plot_ROC_curve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">phat</span></em>, <em class="sig-param"><span class="n">saveFile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#plot_ROC_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.plot_ROC_curve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.utils.unpack_sequences">
+<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">unpack_sequences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">order</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#unpack_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.unpack_sequences" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dscript">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscript" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscript.commands.html" class="btn btn-neutral float-right" title="dscript.commands package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="dscript" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
