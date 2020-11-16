@@ -10,10 +10,6 @@ import subprocess as sp
 import sys
 import gzip as gz
 from .fasta import parse
-from Bio.Align import PairwiseAligner, substitution_matrices
-from Bio.pairwise2 import format_alignment
-from Bio.pairwise2 import align as Bio_align
-from Bio.SubsMat import MatrixInfo as matlist
 
 
 def plot_PR_curve(y, phat, saveFile=None):
@@ -95,30 +91,6 @@ def gpu_mem(device):
     )
     gpu_memory = [int(x) for x in result.strip().split(",")]
     return gpu_memory[0], gpu_memory[1]
-
-
-def align(seq1, seq2, how="local", matrix='blosum62'):
-    if matrix == 'blosum62':
-        matrix = matlist.blosum62
-    pa = PairwiseAligner()
-    pa.mode = "global"
-    if how == "local":
-        alignments = Bio_align.localdx(seq1, seq2, matlist.blosum62)
-    elif how == "global":
-        alignments = Bio_align.globaldx(seq1, seq2, matlist.blosum62)
-    else:
-        raise InputError("'how' must be one of ['local', 'global']")
-    return alignments
-
-
-def compute_sequence_similarity(seq1, seq2, how="global"):
-    pa = PairwiseAligner()
-    # pa.substitution_matrix = substitution_matrices.load("BLOSUM62")
-    pa.mode = how
-    scores = []
-    raw_score = pa.score(seq1, seq2)
-    norm_score = raw_score / ((len(seq1) + len(seq2)) / 2)
-    return norm_score
 
 
 def pack_sequences(X, order=None):

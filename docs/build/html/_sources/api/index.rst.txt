@@ -23,18 +23,10 @@ dscript.fasta
    :undoc-members:
    :show-inheritance:
 
-dscript.lm\_embed
------------------
+dscript.language\_model
+-----------------------
 
-.. automodule:: dscript.lm_embed
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscript.pdb
------------
-
-.. automodule:: dscript.pdb
+.. automodule:: dscript.language_model
    :members:
    :undoc-members:
    :show-inheritance:

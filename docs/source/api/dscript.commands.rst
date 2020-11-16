@@ -1,9 +1,6 @@
 dscript.commands package
 ========================
 
-Submodules
-----------
-
 dscript.commands.embed
 ----------------------
 

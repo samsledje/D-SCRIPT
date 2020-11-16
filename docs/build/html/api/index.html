@@ -92,8 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="dscript.models.html">dscript.models package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dscript.alphabets">dscript.alphabets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dscript.fasta">dscript.fasta</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-dscript.lm_embed">dscript.lm_embed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-dscript.pdb">dscript.pdb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-dscript.language_model">dscript.language_model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dscript.utils">dscript.utils</a></li>
 </ul>
 </li>
@@ -282,11 +281,11 @@
 </dd></dl>
 
 </div>
-<div class="section" id="module-dscript.lm_embed">
-<span id="dscript-lm-embed"></span><h2>dscript.lm_embed<a class="headerlink" href="#module-dscript.lm_embed" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dscript.language_model">
+<span id="dscript-language-model"></span><h2>dscript.language_model<a class="headerlink" href="#module-dscript.language_model" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="dscript.lm_embed.embed_from_directory">
-<code class="sig-prename descclassname">dscript.lm_embed.</code><code class="sig-name descname">embed_from_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">extension</span><span class="o">=</span><span class="default_value">'.seq'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/lm_embed.html#embed_from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.lm_embed.embed_from_directory" title="Permalink to this definition">¶</a></dt>
+<dt id="dscript.language_model.embed_from_directory">
+<code class="sig-prename descclassname">dscript.language_model.</code><code class="sig-name descname">embed_from_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">extension</span><span class="o">=</span><span class="default_value">'.seq'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/language_model.html#embed_from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.language_model.embed_from_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embed all files in a directory in <code class="docutils literal notranslate"><span class="pre">.fasta</span></code> format using pre-trained language model from <a class="reference external" href="https://github.com/tbepler/protein-sequence-embedding-iclr2019">Bepler &amp; Berger</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -302,8 +301,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="dscript.lm_embed.embed_from_fasta">
-<code class="sig-prename descclassname">dscript.lm_embed.</code><code class="sig-name descname">embed_from_fasta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fastaPath</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/lm_embed.html#embed_from_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.lm_embed.embed_from_fasta" title="Permalink to this definition">¶</a></dt>
+<dt id="dscript.language_model.embed_from_fasta">
+<code class="sig-prename descclassname">dscript.language_model.</code><code class="sig-name descname">embed_from_fasta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fastaPath</span></em>, <em class="sig-param"><span class="n">outputPath</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/language_model.html#embed_from_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.language_model.embed_from_fasta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embed sequences using pre-trained language model from <a class="reference external" href="https://github.com/tbepler/protein-sequence-embedding-iclr2019">Bepler &amp; Berger</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -316,46 +315,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-</div>
-<div class="section" id="module-dscript.pdb">
-<span id="dscript-pdb"></span><h2>dscript.pdb<a class="headerlink" href="#module-dscript.pdb" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="dscript.pdb.calc_dist_matrix">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">calc_dist_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain_one</span></em>, <em class="sig-param"><span class="n">chain_two</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'distance'</span></em>, <em class="sig-param"><span class="n">cutoff</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">rbf_sigma</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#calc_dist_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.calc_dist_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a matrix of C-alpha distances between two chains</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.calc_residue_dist">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">calc_residue_dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">CA_one</span></em>, <em class="sig-param"><span class="n">CA_two</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#calc_residue_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.calc_residue_dist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the distance between two alpha carbons</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.get_CA_residues">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">get_CA_residues</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#get_CA_residues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.get_CA_residues" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.get_PDB_model">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">get_PDB_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdbid</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#get_PDB_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.get_PDB_model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.parse_gw">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">parse_gw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gwFile</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#parse_gw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.parse_gw" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.seq_from_chain">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">seq_from_chain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#seq_from_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.seq_from_chain" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.pdb.seq_from_model">
-<code class="sig-prename descclassname">dscript.pdb.</code><code class="sig-name descname">seq_from_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">chain</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/pdb.html#seq_from_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.pdb.seq_from_model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 <div class="section" id="module-dscript.utils">
@@ -400,11 +359,6 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="dscript.utils.align">
-<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">align</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq1</span></em>, <em class="sig-param"><span class="n">seq2</span></em>, <em class="sig-param"><span class="n">how</span><span class="o">=</span><span class="default_value">'local'</span></em>, <em class="sig-param"><span class="n">matrix</span><span class="o">=</span><span class="default_value">'blosum62'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#align"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.align" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt id="dscript.utils.collate_lists">
 <code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">collate_lists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#collate_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.collate_lists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -412,11 +366,6 @@
 <dl class="py function">
 <dt id="dscript.utils.collate_paired_sequences">
 <code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">collate_paired_sequences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#collate_paired_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.collate_paired_sequences" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.utils.compute_sequence_similarity">
-<code class="sig-prename descclassname">dscript.utils.</code><code class="sig-name descname">compute_sequence_similarity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq1</span></em>, <em class="sig-param"><span class="n">seq2</span></em>, <em class="sig-param"><span class="n">how</span><span class="o">=</span><span class="default_value">'global'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#compute_sequence_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.utils.compute_sequence_similarity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
