@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 
+
 class FullyConnected(nn.Module):
     """
     Performs part 1 of Contact Prediction Module. Takes embeddings from Projection module and produces broadcast tensor.
@@ -19,6 +20,7 @@ class FullyConnected(nn.Module):
     :param activation: Activation function for broadcast tensor [default: torch.nn.ReLU()]
     :type activation: torch.nn.Module
     """
+
     def __init__(self, embed_dim, hidden_dim, activation=nn.ReLU()):
         super(FullyConnected, self).__init__()
 
@@ -67,6 +69,7 @@ class ContactCNN(nn.Module):
     :param activation: Activation function for final contact map [default: torch.nn.Sigmoid()]
     :type activation: torch.nn.Module
     """
+
     def __init__(self, embed_dim=100, hidden_dim=50, width=7, activation=nn.Sigmoid()):
         super(ContactCNN, self).__init__()
 

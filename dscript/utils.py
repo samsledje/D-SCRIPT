@@ -74,7 +74,7 @@ def RBF(D, sigma=None):
 def gpu_mem(device):
     """
     Get current memory usage for GPU
-    
+
     :param device: GPU device number
     :type device: int
     :return: memory used, memory total
@@ -164,12 +164,8 @@ class PairedDataset(torch.utils.data.Dataset):
         self.X0 = X0
         self.X1 = X1
         self.Y = Y
-        assert len(X0) == len(X1), (
-            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-        )
-        assert len(X0) == len(Y), (
-            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-        )
+        assert len(X0) == len(X1), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
+        assert len(X0) == len(Y), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
 
     def __len__(self):
         return len(self.X0)

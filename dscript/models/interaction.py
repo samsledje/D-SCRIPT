@@ -13,9 +13,9 @@ class LogisticActivation(nn.Module):
     """
     Implementation of Generalized Sigmoid
     Applies the element-wise function:
-    
+
     :math:`\\sigma(x) = \\frac{1}{1 + \\exp(-k(x-x_0))}`
-    
+
     :param x0: The value of the sigmoid midpoint
     :type x0: float
     :param k: The slope of the sigmoid - trainable -  :math:`k \\geq 0`
@@ -24,7 +24,7 @@ class LogisticActivation(nn.Module):
     :type train: bool
 
     :Example:
-        
+
     >>> logAct = LogisticActivation(0, 5)
     >>> x = torch.randn(256)
     >>> x = logAct(x)
@@ -45,9 +45,7 @@ class LogisticActivation(nn.Module):
         :return: :math:`(N \\times *)`, same shape as the input
         :rtype: torch.Tensor
         """
-        out = torch.clamp(
-            1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1
-        ).squeeze()
+        out = torch.clamp(1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1).squeeze()
         return out
 
     def clip(self):
@@ -79,15 +77,14 @@ class ModelInteraction(nn.Module):
     :type gamma_init: float
     :param use_W: whether to use the weighting matrix [default: True]
     :type use_W: bool
-    
+
     :Example:
-    
+
     >>> model = ModelInteraction(embedding, contact, True)
     >>> model.predict(x0, x1)
         0.9473
     >>> cmap, phat = model.map_predict(x0, x1)
     """
-
 
     def __init__(
         self,
@@ -180,16 +177,12 @@ class ModelInteraction(nn.Module):
             # Create contact weighting matrix
             N, M = C.shape[2:]
 
-            x1 = torch.from_numpy(
-                -1 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))) ** 2
-            ).float()
+            x1 = torch.from_numpy(-1 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))) ** 2).float()
             if self.use_cuda:
                 x1 = x1.cuda()
             x1 = torch.exp(self.lambda_ * x1)
 
-            x2 = torch.from_numpy(
-                -1 * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))) ** 2
-            ).float()
+            x2 = torch.from_numpy(-1 * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))) ** 2).float()
             if self.use_cuda:
                 x2 = x2.cuda()
             x2 = torch.exp(self.lambda_ * x2)

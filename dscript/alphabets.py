@@ -7,6 +7,7 @@ class Alphabet:
     """
     From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
     """
+
     def __init__(self, chars, encoding=None, mask=False, missing=255):
         self.chars = np.frombuffer(chars, dtype=np.uint8)
         self.encoding = np.zeros(256, dtype=np.uint8) + missing
@@ -57,13 +58,17 @@ class Alphabet:
         kmer = self.unpack(h, k)
         return self.decode(kmer)
 
+
 DNA = Alphabet(b"ACGT")
+
+
 class Uniprot21(Alphabet):
     """
     Uniprot 21 Amino Acid Encoding
 
     From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
     """
+
     def __init__(self, mask=False):
         chars = alphabet = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))

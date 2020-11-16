@@ -10,6 +10,7 @@ from datetime import datetime
 
 EMBEDDING_STATE_DICT = "/afs/csail/u/s/samsl/db/embedding_state_dict.pt"
 
+
 def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     """
     Embed sequences using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
@@ -27,9 +28,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if device >= 0:
         torch.cuda.set_device(device)
         if verbose:
-            print(
-                f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-            )
+            print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
     else:
         if verbose:
             print("# Using CPU")
@@ -66,6 +65,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
                 print("# {} sequences processed...".format(i), file=sys.stderr)
 
     h5fi.close()
+
 
 def embed_from_directory(directory, outputPath, device=0, verbose=False, extension=".seq"):
     """

@@ -6,7 +6,7 @@ def parse(f, comment="#"):
     :type f: _io.TextIOWrapper
     :param comment: Character used for comments
     :type comment: str
-    
+
     :return: names, sequence
     :rtype: list[str], list[str]
     """

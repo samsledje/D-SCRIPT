@@ -9,7 +9,7 @@ from dscript.language_model import embed_from_fasta
 def add_args(parser):
     """
     Create parser for command line utility
-    
+
     :meta private:
     """
     parser.add_argument("--seqs", help="Sequences to be embedded", required=True)

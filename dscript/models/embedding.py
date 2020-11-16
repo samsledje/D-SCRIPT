@@ -30,10 +30,9 @@ class FullyConnectedEmbed(nn.Module):
         t = self.drop(t)
         return t
 
+
 class SkipLSTM(nn.Module):
-    def __init__(
-        self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True
-    ):
+    def __init__(self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True):
         super(SkipLSTM, self).__init__()
 
         self.nin = nin
@@ -44,9 +43,7 @@ class SkipLSTM(nn.Module):
         self.layers = nn.ModuleList()
         dim = nin
         for i in range(num_layers):
-            f = nn.LSTM(
-                dim, hidden_dim, 1, batch_first=True, bidirectional=bidirectional
-            )
+            f = nn.LSTM(dim, hidden_dim, 1, batch_first=True, bidirectional=bidirectional)
             self.layers.append(f)
             if bidirectional:
                 dim = 2 * hidden_dim

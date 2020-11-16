@@ -17,21 +17,15 @@ from dscript.models.embedding import IdentityEmbed, SkipLSTM
 def add_args(parser):
     """
     Create parser for command line utility
-    
+
     :meta private:
     """
 
-    parser.add_argument(
-        "--pairs", help="Candidate protein pairs to predict", required=True
-    )
-    parser.add_argument(
-        "--seqs", help="Protein sequences in .fasta format", required=True
-    )
+    parser.add_argument("--pairs", help="Candidate protein pairs to predict", required=True)
+    parser.add_argument("--seqs", help="Protein sequences in .fasta format", required=True)
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("-o", "--outfile", help="File for predictions")
-    parser.add_argument(
-        "-d", "--device", type=int, default=-1, help="Compute device to use"
-    )
+    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("--sep", default="\t", help="Separator for CSV")
     return parser
@@ -75,11 +69,7 @@ def main(args):
     torch.cuda.set_device(device)
     use_cuda = device >= 0
     if device >= 0:
-        print(
-            "# Using CUDA device {} - {}".format(
-                device, torch.cuda.get_device_name(device)
-            )
-        )
+        print("# Using CUDA device {} - {}".format(device, torch.cuda.get_device_name(device)))
     else:
         print("# Using CPU")
 
