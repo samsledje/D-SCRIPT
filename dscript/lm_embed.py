@@ -10,17 +10,19 @@ from datetime import datetime
 
 EMBEDDING_STATE_DICT = "/afs/csail/u/s/samsl/db/embedding_state_dict.pt"
 
-def encode_from_fasta(fastaPath, outputPath):
-    names, seqs = parse(open(fastaPath, "rb"))
-    alphabet = Uniprot21()
-    encoded_seqs = [torch.from_numpy(alphabet.encode(s)) for s in seqs]
-    h5fi = h5py.File(outputPath, "w")
-    for name, embed in zip(names, encoded_seqs):
-        name = name.decode("utf-8")
-        h5fi.create_dataset(name, data=embed, compression="lzf")
-
-
 def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
+    """
+    Embed sequences using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+
+    :param fastaPath: Input sequence file (``.fasta`` format)
+    :type fastaPath: str
+    :param outputPath: Output embedding file (``.h5`` format)
+    :type outputPath: str
+    :param device: Compute device to use for embeddings [default: 0]
+    :type device: int
+    :param verbose: Print embedding progress
+    :type verbose: bool
+    """
     use_cuda = (device != -1) and torch.cuda.is_available()
     if device >= 0:
         torch.cuda.set_device(device)
@@ -65,10 +67,24 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     h5fi.close()
 
-def embed_from_directory(directory, outputPath, device=0, verbose=False):
-    nam, seq = parse_directory(directory)
+def embed_from_directory(directory, outputPath, device=0, verbose=False, extension=".seq"):
+    """
+    Embed all files in a directory in ``.fasta`` format using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+
+    :param directory: Input directory (``.fasta`` format)
+    :type directory: str
+    :param outputPath: Output embedding file (``.h5`` format)
+    :type outputPath: str
+    :param device: Compute device to use for embeddings [default: 0]
+    :type device: int
+    :param verbose: Print embedding progress
+    :type verbose: bool
+    :param extension: Extension of all files to read in
+    :type extension: str
+    """
+    nam, seq = parse_directory(directory, extension=extension)
     fastaPath = f"{directory}/allSeqs.fa"
     if os.path.exists(fastaPath):
         fastaPath = f"{fastaPath}.{int(datetime.utcnow().timestamp())}"
     write(nam, seq, open(fastaPath, "w"))
-    embed_from_fasta(fastaPath, outputPath, device, verbose, xform)
+    embed_from_fasta(fastaPath, outputPath, device, verbose)

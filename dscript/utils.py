@@ -60,18 +60,29 @@ def plot_ROC_curve(y, phat, saveFile=None):
 
 def RBF(D, sigma=None):
     """
-    Convert distance matrix D into similarity matrix S using Radial Basis Function (RBF) Kernel
-    RBF(x,x') = exp( -((x - x')**2 / 2sigma**@))
+    Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel
+    
+    :math:`RBF(x,x') = \\exp{\\frac{-((x - x')^{2}}{2\\sigma^{2}}}`
+
+    :param D: Distance matrix
+    :type D: np.ndarray
+    :param sigma: Bandwith of RBF Kernel [default: :math:`\\sqrt{\\text{max}(D)}`]
+    :type sigma: float
+    :return: Similarity matrix
+    :rtype: np.ndarray
     """
     sigma = sigma or np.sqrt(np.max(D))
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
 
 
 def gpu_mem(device):
-    """Get the current gpu usage.
-    Returns
-    -------
-    usage: memory used, memory total
+    """
+    Get current memory usage for GPU
+    
+    :param device: GPU device number
+    :type device: int
+    :return: memory used, memory total
+    :rtype: int, int
     """
     result = sp.check_output(
         [
@@ -86,7 +97,9 @@ def gpu_mem(device):
     return gpu_memory[0], gpu_memory[1]
 
 
-def align(seq1, seq2, how="local", matrix=matlist.blosum62):
+def align(seq1, seq2, how="local", matrix='blosum62'):
+    if matrix == 'blosum62':
+        matrix = matlist.blosum62
     pa = PairwiseAligner()
     pa.mode = "global"
     if how == "local":

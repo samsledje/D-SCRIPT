@@ -11,11 +11,16 @@ from tqdm import tqdm
 
 from dscript.alphabets import Uniprot21
 from dscript.fasta import parse
-from dscript.lm_embed import encode_from_fasta
 from dscript.models.embedding import IdentityEmbed, SkipLSTM
 
 
 def add_args(parser):
+    """
+    Create parser for command line utility
+    
+    :meta private:
+    """
+
     parser.add_argument(
         "--pairs", help="Candidate protein pairs to predict", required=True
     )

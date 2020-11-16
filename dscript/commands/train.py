@@ -23,7 +23,6 @@ import dscript
 from dscript.alphabets import Uniprot21
 from dscript.utils import PairedDataset, collate_paired_sequences
 from dscript.models.embedding import (
-    LastHundredEmbed,
     IdentityEmbed,
     FullyConnectedEmbed,
 )
@@ -32,6 +31,12 @@ from dscript.models.interaction import ModelInteraction
 
 
 def add_args(parser):
+    """
+    Create parser for command line utility
+    
+    :meta private:
+    """
+
     data_grp = parser.add_argument_group("Data")
     proj_grp = parser.add_argument_group("Projection Module")
     contact_grp = parser.add_argument_group("Contact Module")

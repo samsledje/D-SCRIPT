@@ -84,7 +84,8 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">D-SCRIPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
 </ul>
 
             
@@ -167,7 +168,7 @@
 <span class="kn">from</span> <span class="nn">Bio.SubsMat</span> <span class="kn">import</span> <span class="n">MatrixInfo</span> <span class="k">as</span> <span class="n">matlist</span>
 
 
-<div class="viewcode-block" id="plot_PR_curve"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.plot_PR_curve">[docs]</a><span class="k">def</span> <span class="nf">plot_PR_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">phat</span><span class="p">,</span> <span class="n">saveFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_PR_curve"><a class="viewcode-back" href="../../api/index.html#dscript.utils.plot_PR_curve">[docs]</a><span class="k">def</span> <span class="nf">plot_PR_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">phat</span><span class="p">,</span> <span class="n">saveFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
     <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">precision_recall_curve</span><span class="p">,</span> <span class="n">average_precision_score</span>
 
@@ -187,7 +188,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="plot_ROC_curve"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.plot_ROC_curve">[docs]</a><span class="k">def</span> <span class="nf">plot_ROC_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">phat</span><span class="p">,</span> <span class="n">saveFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_ROC_curve"><a class="viewcode-back" href="../../api/index.html#dscript.utils.plot_ROC_curve">[docs]</a><span class="k">def</span> <span class="nf">plot_ROC_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">phat</span><span class="p">,</span> <span class="n">saveFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
     <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">roc_auc_score</span>
 
@@ -209,20 +210,31 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="RBF"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.RBF">[docs]</a><span class="k">def</span> <span class="nf">RBF</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RBF"><a class="viewcode-back" href="../../api/index.html#dscript.utils.RBF">[docs]</a><span class="k">def</span> <span class="nf">RBF</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert distance matrix D into similarity matrix S using Radial Basis Function (RBF) Kernel</span>
-<span class="sd">    RBF(x,x&#39;) = exp( -((x - x&#39;)**2 / 2sigma**@))</span>
+<span class="sd">    Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel</span>
+<span class="sd">    </span>
+<span class="sd">    :math:`RBF(x,x&#39;) = \\exp{\\frac{-((x - x&#39;)^{2}}{2\\sigma^{2}}}`</span>
+
+<span class="sd">    :param D: Distance matrix</span>
+<span class="sd">    :type D: np.ndarray</span>
+<span class="sd">    :param sigma: Bandwith of RBF Kernel [default: :math:`\\sqrt{\\text{max}(D)}`]</span>
+<span class="sd">    :type sigma: float</span>
+<span class="sd">    :return: Similarity matrix</span>
+<span class="sd">    :rtype: np.ndarray</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">D</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="gpu_mem"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.gpu_mem">[docs]</a><span class="k">def</span> <span class="nf">gpu_mem</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the current gpu usage.</span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    usage: memory used, memory total</span>
+<div class="viewcode-block" id="gpu_mem"><a class="viewcode-back" href="../../api/index.html#dscript.utils.gpu_mem">[docs]</a><span class="k">def</span> <span class="nf">gpu_mem</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get current memory usage for GPU</span>
+<span class="sd">    </span>
+<span class="sd">    :param device: GPU device number</span>
+<span class="sd">    :type device: int</span>
+<span class="sd">    :return: memory used, memory total</span>
+<span class="sd">    :rtype: int, int</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
         <span class="p">[</span>
@@ -237,7 +249,9 @@
     <span class="k">return</span> <span class="n">gpu_memory</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gpu_memory</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="align"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.align">[docs]</a><span class="k">def</span> <span class="nf">align</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">matrix</span><span class="o">=</span><span class="n">matlist</span><span class="o">.</span><span class="n">blosum62</span><span class="p">):</span>
+<div class="viewcode-block" id="align"><a class="viewcode-back" href="../../api/index.html#dscript.utils.align">[docs]</a><span class="k">def</span> <span class="nf">align</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">matrix</span><span class="o">=</span><span class="s1">&#39;blosum62&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">matrix</span> <span class="o">==</span> <span class="s1">&#39;blosum62&#39;</span><span class="p">:</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">matlist</span><span class="o">.</span><span class="n">blosum62</span>
     <span class="n">pa</span> <span class="o">=</span> <span class="n">PairwiseAligner</span><span class="p">()</span>
     <span class="n">pa</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
     <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;local&quot;</span><span class="p">:</span>
@@ -249,7 +263,7 @@
     <span class="k">return</span> <span class="n">alignments</span></div>
 
 
-<div class="viewcode-block" id="compute_sequence_similarity"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.compute_sequence_similarity">[docs]</a><span class="k">def</span> <span class="nf">compute_sequence_similarity</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_sequence_similarity"><a class="viewcode-back" href="../../api/index.html#dscript.utils.compute_sequence_similarity">[docs]</a><span class="k">def</span> <span class="nf">compute_sequence_similarity</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">):</span>
     <span class="n">pa</span> <span class="o">=</span> <span class="n">PairwiseAligner</span><span class="p">()</span>
     <span class="c1"># pa.substitution_matrix = substitution_matrices.load(&quot;BLOSUM62&quot;)</span>
     <span class="n">pa</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">how</span>
@@ -259,7 +273,7 @@
     <span class="k">return</span> <span class="n">norm_score</span></div>
 
 
-<div class="viewcode-block" id="pack_sequences"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.pack_sequences">[docs]</a><span class="k">def</span> <span class="nf">pack_sequences</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="pack_sequences"><a class="viewcode-back" href="../../api/index.html#dscript.utils.pack_sequences">[docs]</a><span class="k">def</span> <span class="nf">pack_sequences</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
     <span class="c1"># X = [x.squeeze(0) for x in X]</span>
 
@@ -284,7 +298,7 @@
     <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">order</span></div>
 
 
-<div class="viewcode-block" id="unpack_sequences"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.unpack_sequences">[docs]</a><span class="k">def</span> <span class="nf">unpack_sequences</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+<div class="viewcode-block" id="unpack_sequences"><a class="viewcode-back" href="../../api/index.html#dscript.utils.unpack_sequences">[docs]</a><span class="k">def</span> <span class="nf">unpack_sequences</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
     <span class="n">X</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">pad_packed_sequence</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">X_block</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)):</span>
@@ -293,13 +307,13 @@
     <span class="k">return</span> <span class="n">X_block</span></div>
 
 
-<div class="viewcode-block" id="collate_lists"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.collate_lists">[docs]</a><span class="k">def</span> <span class="nf">collate_lists</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="collate_lists"><a class="viewcode-back" href="../../api/index.html#dscript.utils.collate_lists">[docs]</a><span class="k">def</span> <span class="nf">collate_lists</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></div>
 
 
-<div class="viewcode-block" id="AllPairsDataset"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.AllPairsDataset">[docs]</a><span class="k">class</span> <span class="nc">AllPairsDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="AllPairsDataset"><a class="viewcode-back" href="../../api/index.html#dscript.utils.AllPairsDataset">[docs]</a><span class="k">class</span> <span class="nc">AllPairsDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span>
@@ -325,7 +339,7 @@
         <span class="k">return</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y</span></div>
 
 
-<div class="viewcode-block" id="PairedDataset"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.PairedDataset">[docs]</a><span class="k">class</span> <span class="nc">PairedDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="PairedDataset"><a class="viewcode-back" href="../../api/index.html#dscript.utils.PairedDataset">[docs]</a><span class="k">class</span> <span class="nc">PairedDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X0</span><span class="p">,</span> <span class="n">X1</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">X0</span> <span class="o">=</span> <span class="n">X0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">X1</span> <span class="o">=</span> <span class="n">X1</span>
@@ -344,14 +358,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">X1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="collate_paired_sequences"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.collate_paired_sequences">[docs]</a><span class="k">def</span> <span class="nf">collate_paired_sequences</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="collate_paired_sequences"><a class="viewcode-back" href="../../api/index.html#dscript.utils.collate_paired_sequences">[docs]</a><span class="k">def</span> <span class="nf">collate_paired_sequences</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="n">x1</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MultinomialResample"><a class="viewcode-back" href="../../api/dscript.html#dscript.utils.MultinomialResample">[docs]</a><span class="k">class</span> <span class="nc">MultinomialResample</span><span class="p">:</span>
+<div class="viewcode-block" id="MultinomialResample"><a class="viewcode-back" href="../../api/index.html#dscript.utils.MultinomialResample">[docs]</a><span class="k">class</span> <span class="nc">MultinomialResample</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span> <span class="o">*</span> <span class="n">trans</span>
 

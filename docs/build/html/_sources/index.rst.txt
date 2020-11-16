@@ -6,6 +6,7 @@ D-SCRIPT: Deep Learning PPI Prediction
    
    overview
    installation
+   usage
    api/index
 
 Indices and tables

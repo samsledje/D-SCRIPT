@@ -1,14 +1,11 @@
-from __future__ import print_function, division
+"""
+Embedding model classes
+"""
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence
-
-
-class LastHundredEmbed(nn.Module):
-    def forward(self, x):
-        return x[:, :, -100:]
 
 
 class IdentityEmbed(nn.Module):
@@ -32,43 +29,6 @@ class FullyConnectedEmbed(nn.Module):
         t = self.activation(t)
         t = self.drop(t)
         return t
-
-
-class LSTMEmbed(nn.Module):
-    def __init__(self, nout, activation="ReLU", sparse=False, p=0.5):
-        super(LSTMEmbed, self).__init__()
-        self.activation = activation
-        self.sparse = sparse
-        self.p = p
-
-        self.embedding = SkipLSTM(21, nout, 1024, 3)
-        self.embedding.load_state_dict(torch.load(EMBEDDING_STATE_DICT))
-
-        for param in self.embedding.parameters():
-            param.requires_grad = False
-        torch.nn.init.normal_(self.embedding.proj.weight)
-        torch.nn.init.uniform_(self.embedding.proj.bias, 0, 0)
-        self.embedding.proj.weight.requires_grad = True
-        self.embedding.proj.bias.requires_grad = True
-
-        self.activationDict = nn.ModuleDict(
-            {"None": IdentityEmbed(), "ReLU": nn.ReLU(), "Sigmoid": nn.Sigmoid()}
-        )
-        self.dropout = nn.Dropout(p=self.p)
-
-    def forward(self, x):
-
-        t = self.embedding(x)
-        if self.activation:
-            t = self.activationDict[self.activation](t)
-        if self.sparse:
-            t = self.dropout(t)
-
-        return t
-
-    def long_embed(self, x):
-        return self.embedding.transform(x)
-
 
 class SkipLSTM(nn.Module):
     def __init__(

@@ -84,7 +84,8 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">D-SCRIPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API</a></li>
 </ul>
 
             
@@ -162,11 +163,16 @@
 
 <span class="kn">from</span> <span class="nn">dscript.alphabets</span> <span class="kn">import</span> <span class="n">Uniprot21</span>
 <span class="kn">from</span> <span class="nn">dscript.fasta</span> <span class="kn">import</span> <span class="n">parse</span>
-<span class="kn">from</span> <span class="nn">dscript.lm_embed</span> <span class="kn">import</span> <span class="n">encode_from_fasta</span>
 <span class="kn">from</span> <span class="nn">dscript.models.embedding</span> <span class="kn">import</span> <span class="n">IdentityEmbed</span><span class="p">,</span> <span class="n">SkipLSTM</span>
 
 
-<div class="viewcode-block" id="add_args"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.predict.add_args">[docs]</a><span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create parser for command line utility</span>
+<span class="sd">    </span>
+<span class="sd">    :meta private:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--pairs&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Candidate protein pairs to predict&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -180,7 +186,7 @@
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--embeddings&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;h5 file with embedded sequences&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sep&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Separator for CSV&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">parser</span></div>
+    <span class="k">return</span> <span class="n">parser</span>
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.predict.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -201,13 +207,13 @@
         <span class="n">names</span><span class="p">,</span> <span class="n">seqs</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fastaPath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
         <span class="n">seqDict</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">):</span> <span class="n">s</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">seqs</span><span class="p">)}</span>
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Sequence File </span><span class="si">{</span><span class="n">fastaPath</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Sequence File </span><span class="si">{fastaPath}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">pairs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csvPath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Pairs File </span><span class="si">{</span><span class="n">csvPath</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Pairs File </span><span class="si">{csvPath}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">precomputedEmbeddings</span><span class="p">:</span>
@@ -236,7 +242,7 @@
             <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">modelPath</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
             <span class="n">model</span><span class="o">.</span><span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Model </span><span class="si">{</span><span class="n">modelPath</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Model </span><span class="si">{modelPath}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Making Predictions...&quot;</span><span class="p">)</span>

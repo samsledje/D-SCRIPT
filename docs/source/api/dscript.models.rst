@@ -1,37 +1,26 @@
 dscript.models package
 ======================
 
-Submodules
-----------
-
-dscript.models.contact module
------------------------------
-
-.. automodule:: dscript.models.contact
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscript.models.embedding module
--------------------------------
+dscript.models.embedding
+------------------------
 
 .. automodule:: dscript.models.embedding
    :members:
    :undoc-members:
    :show-inheritance:
 
-dscript.models.interaction module
----------------------------------
+dscript.models.contact
+----------------------
 
-.. automodule:: dscript.models.interaction
+.. automodule:: dscript.models.contact
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+dscript.models.interaction
+--------------------------
 
-.. automodule:: dscript.models
+.. automodule:: dscript.models.interaction
    :members:
    :undoc-members:
    :show-inheritance:

@@ -23,6 +23,12 @@ from tqdm import tqdm
 
 
 def add_args(parser):
+    """
+    Create parser for command line utility
+    
+    :meta private:
+    """
+
     parser.add_argument("--model", help="Trained prediction model", required=True)
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument(

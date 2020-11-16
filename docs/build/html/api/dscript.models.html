@@ -36,7 +36,8 @@
 
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="dscript.commands package" href="dscript.commands.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -81,10 +82,25 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dscript.commands.html">dscript.commands package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dscript.models package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.models.embedding">dscript.models.embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.models.contact">dscript.models.contact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscript.models.interaction">dscript.models.interaction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.alphabets">dscript.alphabets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.fasta">dscript.fasta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.lm_embed">dscript.lm_embed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.pdb">dscript.pdb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.utils">dscript.utils</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -131,6 +147,8 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="index.html">API</a> &raquo;</li>
+        
       <li>dscript.models package</li>
     
     
@@ -152,170 +170,9 @@
             
   <div class="section" id="dscript-models-package">
 <h1>dscript.models package<a class="headerlink" href="#dscript-models-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-dscript.models.contact">
-<span id="dscript-models-contact-module"></span><h2>dscript.models.contact module<a class="headerlink" href="#module-dscript.models.contact" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="dscript.models.contact.ContactCNN">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">ContactCNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">embed_dim</span></em>, <em class="sig-param"><span class="n">hidden_dim</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">7</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">Sigmoid()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Residue Contact Prediction Module</p>
-<dl class="py method">
-<dt id="dscript.models.contact.ContactCNN.clip">
-<code class="sig-name descname">clip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.clip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.clip" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="dscript.models.contact.ContactCNN.cmap">
-<code class="sig-name descname">cmap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.cmap" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="dscript.models.contact.ContactCNN.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dscript.models.contact.ContactCNN.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">C</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.predict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.DotProduct">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">DotProduct</code><a class="reference internal" href="../_modules/dscript/models/contact.html#DotProduct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.DotProduct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.DotProduct.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">zpr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#DotProduct.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.DotProduct.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.FullyConnected">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">FullyConnected</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">embed_dim</span></em>, <em class="sig-param"><span class="n">hidden_dim</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">ReLU()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#FullyConnected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.FullyConnected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.FullyConnected.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#FullyConnected.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.FullyConnected.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.L1">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">L1</code><a class="reference internal" href="../_modules/dscript/models/contact.html#L1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.L1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.L1.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">zpr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#L1.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.L1.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.L2">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">L2</code><a class="reference internal" href="../_modules/dscript/models/contact.html#L2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.L2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.L2.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">zpr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#L2.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.L2.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.OuterProd">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">OuterProd</code><a class="reference internal" href="../_modules/dscript/models/contact.html#OuterProd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.OuterProd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.OuterProd.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">zpr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#OuterProd.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.OuterProd.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.contact.StackAll">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">StackAll</code><a class="reference internal" href="../_modules/dscript/models/contact.html#StackAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.StackAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.contact.StackAll.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">zpr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#StackAll.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.StackAll.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-dscript.models.embedding">
-<span id="dscript-models-embedding-module"></span><h2>dscript.models.embedding module<a class="headerlink" href="#module-dscript.models.embedding" title="Permalink to this headline">¶</a></h2>
+<span id="dscript-models-embedding"></span><h2>dscript.models.embedding<a class="headerlink" href="#module-dscript.models.embedding" title="Permalink to this headline">¶</a></h2>
+<p>Embedding model classes</p>
 <dl class="py class">
 <dt id="dscript.models.embedding.FullyConnectedEmbed">
 <em class="property">class </em><code class="sig-prename descclassname">dscript.models.embedding.</code><code class="sig-name descname">FullyConnectedEmbed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nin</span></em>, <em class="sig-param"><span class="n">nout</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">ReLU()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#FullyConnectedEmbed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.FullyConnectedEmbed" title="Permalink to this definition">¶</a></dt>
@@ -323,16 +180,12 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py method">
 <dt id="dscript.models.embedding.FullyConnectedEmbed.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#FullyConnectedEmbed.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.FullyConnectedEmbed.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.embedding.FullyConnectedEmbed.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.embedding.FullyConnectedEmbed.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -343,61 +196,12 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py method">
 <dt id="dscript.models.embedding.IdentityEmbed.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#IdentityEmbed.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.IdentityEmbed.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.embedding.LSTMEmbed">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.embedding.</code><code class="sig-name descname">LSTMEmbed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nout</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">'ReLU'</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">p</span><span class="o">=</span><span class="default_value">0.5</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.embedding.LSTMEmbed.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dscript.models.embedding.LSTMEmbed.long_embed">
-<code class="sig-name descname">long_embed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed.long_embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed.long_embed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt id="dscript.models.embedding.LastHundredEmbed">
-<em class="property">class </em><code class="sig-prename descclassname">dscript.models.embedding.</code><code class="sig-name descname">LastHundredEmbed</code><a class="reference internal" href="../_modules/dscript/models/embedding.html#LastHundredEmbed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.LastHundredEmbed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.embedding.LastHundredEmbed.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LastHundredEmbed.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.LastHundredEmbed.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
+<dl class="py attribute">
+<dt id="dscript.models.embedding.IdentityEmbed.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.embedding.IdentityEmbed.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -408,20 +212,16 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py method">
 <dt id="dscript.models.embedding.SkipLSTM.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#SkipLSTM.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.SkipLSTM.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="dscript.models.embedding.SkipLSTM.to_one_hot">
 <code class="sig-name descname">to_one_hot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#SkipLSTM.to_one_hot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.embedding.SkipLSTM.to_one_hot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.embedding.SkipLSTM.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.embedding.SkipLSTM.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -432,51 +232,177 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-dscript.models.contact">
+<span id="dscript-models-contact"></span><h2>dscript.models.contact<a class="headerlink" href="#module-dscript.models.contact" title="Permalink to this headline">¶</a></h2>
+<p>Contact model classes</p>
+<dl class="py class">
+<dt id="dscript.models.contact.ContactCNN">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">ContactCNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">embed_dim</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">hidden_dim</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">7</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">Sigmoid()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Residue Contact Prediction Module. Takes embeddings from Projection module and produces contact map, output of Contact module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> (<em>int</em>) – <p>Output dimension of <a class="reference external" href="#module-dscript.models.embedding">dscript.models.embedding</a> model <span class="math notranslate nohighlight">\(d\)</span> [default: 100]</p>
+</p></li>
+<li><p><strong>hidden_dim</strong> (<em>int</em>) – Hidden dimension <span class="math notranslate nohighlight">\(h\)</span> [default: 50]</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Width of convolutional filter <span class="math notranslate nohighlight">\(2w+1\)</span> [default: 7]</p></li>
+<li><p><strong>activation</strong> (<em>torch.nn.Module</em>) – Activation function for final contact map [default: torch.nn.Sigmoid()]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscript.models.contact.ContactCNN.broadcast">
+<code class="sig-name descname">broadcast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.broadcast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.broadcast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <a class="reference external" href="#module-dscript.models.contact.FullyConnected">dscript.models.contact.FullyConnected</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times N \times d)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times M \times d)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted contact broadcast tensor <span class="math notranslate nohighlight">\((b \times N \times M \times h)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.models.contact.ContactCNN.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.forward" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times N \times d)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times M \times d)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted contact map <span class="math notranslate nohighlight">\((b \times N \times M)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.models.contact.ContactCNN.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">B</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.predict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>B</strong> (<em>torch.Tensor</em>) – Predicted contact broadcast <span class="math notranslate nohighlight">\((b \times N \times M \times h)\)</span></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted contact map <span class="math notranslate nohighlight">\((b \times N \times M)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.contact.ContactCNN.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.contact.ContactCNN.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.models.contact.FullyConnected">
+<em class="property">class </em><code class="sig-prename descclassname">dscript.models.contact.</code><code class="sig-name descname">FullyConnected</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">embed_dim</span></em>, <em class="sig-param"><span class="n">hidden_dim</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">ReLU()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#FullyConnected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.FullyConnected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Performs part 1 of Contact Prediction Module. Takes embeddings from Projection module and produces broadcast tensor.</p>
+<p>Input embeddings of dimension <span class="math notranslate nohighlight">\(d\)</span> are combined into a <span class="math notranslate nohighlight">\(2d\)</span> length MLP input <span class="math notranslate nohighlight">\(z_{cat}\)</span>, where <span class="math notranslate nohighlight">\(z_{cat} = [z_0 \ominus z_1 | z_0 \odot z_1]\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> (<em>int</em>) – <p>Output dimension of <a class="reference external" href="#module-dscript.models.embedding">dscript.models.embedding</a> model <span class="math notranslate nohighlight">\(d\)</span> [default: 100]</p>
+</p></li>
+<li><p><strong>hidden_dim</strong> (<em>int</em>) – Hidden dimension <span class="math notranslate nohighlight">\(h\)</span> [default: 50]</p></li>
+<li><p><strong>activation</strong> (<em>torch.nn.Module</em>) – Activation function for broadcast tensor [default: torch.nn.ReLU()]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscript.models.contact.FullyConnected.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#FullyConnected.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.contact.FullyConnected.forward" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times N \times d)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Projection module embedding <span class="math notranslate nohighlight">\((b \times M \times d)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted broadcast tensor <span class="math notranslate nohighlight">\((b \times N \times M \times h)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.contact.FullyConnected.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.contact.FullyConnected.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-dscript.models.interaction">
-<span id="dscript-models-interaction-module"></span><h2>dscript.models.interaction module<a class="headerlink" href="#module-dscript.models.interaction" title="Permalink to this headline">¶</a></h2>
+<span id="dscript-models-interaction"></span><h2>dscript.models.interaction<a class="headerlink" href="#module-dscript.models.interaction" title="Permalink to this headline">¶</a></h2>
+<p>Interaction model classes</p>
 <dl class="py class">
 <dt id="dscript.models.interaction.LogisticActivation">
 <em class="property">class </em><code class="sig-prename descclassname">dscript.models.interaction.</code><code class="sig-name descname">LogisticActivation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x0</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">k</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">train</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#LogisticActivation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.LogisticActivation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<blockquote>
-<div><p>Implementation of Generalized Sigmoid
-Applies the element-wise function:
-.. math:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ext</span><span class="p">{</span><span class="n">Sigmoid</span><span class="p">}(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> \<span class="n">sigma</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> 
-</pre></div>
-</div>
-</div></blockquote>
-<dl>
-<dt>rac{1}{1 + exp(-k(x-x_0))}</dt><dd><dl>
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span> where <cite>*</cite> means, any number of additional dimensions</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *)\)</span>, same shape as the input</p></li>
+<p>Implementation of Generalized Sigmoid
+Applies the element-wise function:</p>
+<p><span class="math notranslate nohighlight">\(\sigma(x) = \frac{1}{1 + \exp(-k(x-x_0))}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>float</em>) – The value of the sigmoid midpoint</p></li>
+<li><p><strong>k</strong> (<em>float</em>) – The slope of the sigmoid - trainable -  <span class="math notranslate nohighlight">\(k \geq 0\)</span></p></li>
+<li><p><strong>train</strong> (<em>bool</em>) – Whether <span class="math notranslate nohighlight">\(k\)</span> is a trainable parameter</p></li>
 </ul>
 </dd>
-<dt>Parameters:</dt><dd><ul class="simple">
-<li><p>x0: The value of the sigmoid midpoint</p></li>
-<li><p>k: The slope of the sigmoid - trainable</p></li>
-</ul>
-</dd>
-<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">logAct</span> <span class="o">=</span> <span class="n">LogisticActivation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<dt class="field-even">Example</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">logAct</span> <span class="o">=</span> <span class="n">LogisticActivation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">logAct</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="dscript.models.interaction.LogisticActivation.clip">
-<code class="sig-name descname">clip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#LogisticActivation.clip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.LogisticActivation.clip" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt id="dscript.models.interaction.LogisticActivation.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#LogisticActivation.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.LogisticActivation.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the function to the input elementwise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – <span class="math notranslate nohighlight">\((N \times *)\)</span> where <span class="math notranslate nohighlight">\(*\)</span> means, any number of additional dimensions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\((N \times *)\)</span>, same shape as the input</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.interaction.LogisticActivation.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.interaction.LogisticActivation.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -484,36 +410,113 @@ Applies the element-wise function:
 <dt id="dscript.models.interaction.ModelInteraction">
 <em class="property">class </em><code class="sig-prename descclassname">dscript.models.interaction.</code><code class="sig-name descname">ModelInteraction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">embedding</span></em>, <em class="sig-param"><span class="n">contact</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em>, <em class="sig-param"><span class="n">pool_size</span><span class="o">=</span><span class="default_value">9</span></em>, <em class="sig-param"><span class="n">theta_init</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">lambda_init</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">gamma_init</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">use_W</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<dl class="py method">
-<dt id="dscript.models.interaction.ModelInteraction.clip">
-<code class="sig-name descname">clip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.clip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.clip" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embedding</strong> (<a class="reference internal" href="#dscript.models.embedding.FullyConnectedEmbed" title="dscript.models.embedding.FullyConnectedEmbed"><em>dscript.models.embedding.FullyConnectedEmbed</em></a>) – Embedding model</p></li>
+<li><p><strong>contact</strong> (<a class="reference internal" href="#dscript.models.contact.ContactCNN" title="dscript.models.contact.ContactCNN"><em>dscript.models.contact.ContactCNN</em></a>) – Contact model</p></li>
+<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether the model should be run on GPU</p></li>
+<li><p><strong>pool_size</strong> (<em>bool</em>) – width of max-pool [default 9]</p></li>
+<li><p><strong>theta_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\theta\)</span> for weight matrix [default: 1]</p></li>
+<li><p><strong>lambda_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\lambda\)</span> for weight matrix [default: 0]</p></li>
+<li><p><strong>gamma_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\gamma\)</span> for global pooling [default: 0]</p></li>
+<li><p><strong>use_W</strong> (<em>bool</em>) – whether to use the weighting matrix [default: True]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Example</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ModelInteraction</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">contact</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+<span class="go">    0.9473</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmap</span><span class="p">,</span> <span class="n">phat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">map_predict</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.cpred">
 <code class="sig-name descname">cpred</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.cpred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.cpred" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Project down input language model embeddings into low dimension using projection module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted contact map <span class="math notranslate nohighlight">\((b \times N \times M)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.embed">
-<code class="sig-name descname">embed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.embed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">embed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project down input language model embeddings into low dimension using projection module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>D-SCRIPT projection <span class="math notranslate nohighlight">\((b \times N \times d)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.map_predict">
 <code class="sig-name descname">map_predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.map_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.map_predict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Project down input language model embeddings into low dimension using projection module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted contact map, predicted probability of interaction <span class="math notranslate nohighlight">\((b \times N \times d_0), (1)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor, torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.predict">
 <code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z0</span></em>, <em class="sig-param"><span class="n">z1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project down input language model embeddings into low dimension using projection module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+<li><p><strong>z1</strong> (<em>torch.Tensor</em>) – Language model embedding <span class="math notranslate nohighlight">\((b \times N \times d_0)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted probability of interaction</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor, torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="dscript.models.interaction.ModelInteraction.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-dscript.models">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscript.models" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -522,6 +525,13 @@ Applies the element-wise function:
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dscript.commands.html" class="btn btn-neutral float-left" title="dscript.commands package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

@@ -4,42 +4,33 @@ dscript.commands package
 Submodules
 ----------
 
-dscript.commands.embed module
------------------------------
+dscript.commands.embed
+----------------------
 
 .. automodule:: dscript.commands.embed
    :members:
    :undoc-members:
    :show-inheritance:
 
-dscript.commands.eval module
-----------------------------
-
-.. automodule:: dscript.commands.eval
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscript.commands.predict module
--------------------------------
-
-.. automodule:: dscript.commands.predict
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscript.commands.train module
------------------------------
+dscript.commands.train
+----------------------
 
 .. automodule:: dscript.commands.train
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+dscript.commands.eval
+---------------------
+.. automodule:: dscript.commands.eval
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. automodule:: dscript.commands
+dscript.commands.predict
+------------------------
+
+.. automodule:: dscript.commands.predict
    :members:
    :undoc-members:
    :show-inheritance:

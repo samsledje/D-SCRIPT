@@ -1,3 +1,7 @@
+"""
+Interaction model classes
+"""
+
 import numpy as np
 
 import torch
@@ -9,30 +13,24 @@ class LogisticActivation(nn.Module):
     """
     Implementation of Generalized Sigmoid
     Applies the element-wise function:
-    .. math::
-        \text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \exp(-k(x-x_0))}
-    Shape:
-        - Input: :math:`(N, *)` where `*` means, any number of additional dimensions
-        - Output: :math:`(N, *)`, same shape as the input
-    Parameters:
-        - x0: The value of the sigmoid midpoint
-        - k: The slope of the sigmoid - trainable
-    Examples:
-        >>> logAct = LogisticActivation(0, 5)
-        >>> x = torch.randn(256)
-        >>> x = logAct(x)
+    
+    :math:`\\sigma(x) = \\frac{1}{1 + \\exp(-k(x-x_0))}`
+    
+    :param x0: The value of the sigmoid midpoint
+    :type x0: float
+    :param k: The slope of the sigmoid - trainable -  :math:`k \\geq 0`
+    :type k: float
+    :param train: Whether :math:`k` is a trainable parameter
+    :type train: bool
+
+    :Example:
+        
+    >>> logAct = LogisticActivation(0, 5)
+    >>> x = torch.randn(256)
+    >>> x = logAct(x)
     """
 
     def __init__(self, x0=0, k=1, train=False):
-        """
-        Initialization
-        INPUT:
-            - x0: The value of the sigmoid midpoint
-            - k: The slope of the sigmoid - trainable
-            - train: Whether to make k a trainable parameter
-            x0 and k are initialized to 0,1 respectively
-            Behaves the same as torch.sigmoid by default
-        """
         super(LogisticActivation, self).__init__()
         self.x0 = x0
         self.k = nn.Parameter(torch.FloatTensor([float(k)]))
@@ -41,17 +39,56 @@ class LogisticActivation(nn.Module):
     def forward(self, x):
         """
         Applies the function to the input elementwise
+
+        :param x: :math:`(N \\times *)` where :math:`*` means, any number of additional dimensions
+        :type x: torch.Tensor
+        :return: :math:`(N \\times *)`, same shape as the input
+        :rtype: torch.Tensor
         """
-        o = torch.clamp(
+        out = torch.clamp(
             1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1
         ).squeeze()
-        return o
+        return out
 
     def clip(self):
+        """
+        Restricts sigmoid slope :math:`k` to be greater than or equal to 0, if :math:`k` is trained.
+
+        :meta private:
+        """
         self.k.data.clamp_(min=0)
 
 
 class ModelInteraction(nn.Module):
+    """
+    Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.
+
+    :param embedding: Embedding model
+    :type embedding: dscript.models.embedding.FullyConnectedEmbed
+    :param contact: Contact model
+    :type contact: dscript.models.contact.ContactCNN
+    :param use_cuda: Whether the model should be run on GPU
+    :type use_cuda: bool
+    :param pool_size: width of max-pool [default 9]
+    :type pool_size: bool
+    :param theta_init: initialization value of :math:`\\theta` for weight matrix [default: 1]
+    :type theta_init: float
+    :param lambda_init: initialization value of :math:`\\lambda` for weight matrix [default: 0]
+    :type lambda_init: float
+    :param gamma_init: initialization value of :math:`\\gamma` for global pooling [default: 0]
+    :type gamma_init: float
+    :param use_W: whether to use the weighting matrix [default: True]
+    :type use_W: bool
+    
+    :Example:
+    
+    >>> model = ModelInteraction(embedding, contact, True)
+    >>> model.predict(x0, x1)
+        0.9473
+    >>> cmap, phat = model.map_predict(x0, x1)
+    """
+
+
     def __init__(
         self,
         embedding,
@@ -81,6 +118,11 @@ class ModelInteraction(nn.Module):
         self.clip()
 
     def clip(self):
+        """
+        Clamp model values
+
+        :meta private:
+        """
         self.contact.clip()
 
         if self.use_W:
@@ -89,20 +131,48 @@ class ModelInteraction(nn.Module):
 
         self.gamma.data.clamp_(min=0)
 
-    def embed(self, x):
+    def embed(self, z):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z: torch.Tensor
+        :return: D-SCRIPT projection :math:`(b \\times N \\times d)`
+        :rtype: torch.Tensor
+        """
         if self.embedding is None:
-            return x
+            return z
         else:
-            return self.embedding(x)
+            return self.embedding(z)
 
     def cpred(self, z0, z1):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted contact map :math:`(b \\times N \\times M)`
+        :rtype: torch.Tensor
+        """
         e0 = self.embed(z0)
         e1 = self.embed(z1)
-        B = self.contact.cmap(e0, e1)
+        B = self.contact.broadcast(e0, e1)
         C = self.contact.predict(B)
         return C
 
     def map_predict(self, z0, z1):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted contact map, predicted probability of interaction :math:`(b \\times N \\times d_0), (1)`
+        :rtype: torch.Tensor, torch.Tensor
+        """
 
         C = self.cpred(z0, z1)
 
@@ -143,5 +213,15 @@ class ModelInteraction(nn.Module):
         return C, phat
 
     def predict(self, z0, z1):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted probability of interaction
+        :rtype: torch.Tensor, torch.Tensor
+        """
         _, phat = self.map_predict(z0, z1)
         return phat

@@ -84,7 +84,8 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">D-SCRIPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
 </ul>
 
             
@@ -185,7 +186,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="get_PDB_model"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.get_PDB_model">[docs]</a><span class="k">def</span> <span class="nf">get_PDB_model</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="get_PDB_model"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.get_PDB_model">[docs]</a><span class="k">def</span> <span class="nf">get_PDB_model</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">Bio.PDB</span> <span class="kn">import</span> <span class="n">PDBParser</span>
 
     <span class="n">structure</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">()</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
@@ -193,7 +194,7 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="get_CA_residues"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.get_CA_residues">[docs]</a><span class="k">def</span> <span class="nf">get_CA_residues</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
+<div class="viewcode-block" id="get_CA_residues"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.get_CA_residues">[docs]</a><span class="k">def</span> <span class="nf">get_CA_residues</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
     <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">():</span>
@@ -203,13 +204,13 @@
     <span class="k">return</span> <span class="n">l</span></div>
 
 
-<div class="viewcode-block" id="calc_residue_dist"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.calc_residue_dist">[docs]</a><span class="k">def</span> <span class="nf">calc_residue_dist</span><span class="p">(</span><span class="n">CA_one</span><span class="p">,</span> <span class="n">CA_two</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_residue_dist"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.calc_residue_dist">[docs]</a><span class="k">def</span> <span class="nf">calc_residue_dist</span><span class="p">(</span><span class="n">CA_one</span><span class="p">,</span> <span class="n">CA_two</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the distance between two alpha carbons&quot;&quot;&quot;</span>
     <span class="n">diff_vector</span> <span class="o">=</span> <span class="n">CA_one</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">CA_two</span><span class="o">.</span><span class="n">coord</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff_vector</span> <span class="o">*</span> <span class="n">diff_vector</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="calc_dist_matrix"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.calc_dist_matrix">[docs]</a><span class="k">def</span> <span class="nf">calc_dist_matrix</span><span class="p">(</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rbf_sigma</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_dist_matrix"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.calc_dist_matrix">[docs]</a><span class="k">def</span> <span class="nf">calc_dist_matrix</span><span class="p">(</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rbf_sigma</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a matrix of C-alpha distances between two chains&quot;&quot;&quot;</span>
     <span class="n">ch1_C_alpha</span> <span class="o">=</span> <span class="n">get_CA_residues</span><span class="p">(</span><span class="n">chain_one</span><span class="p">)</span>
     <span class="n">ch2_C_alpha</span> <span class="o">=</span> <span class="n">get_CA_residues</span><span class="p">(</span><span class="n">chain_two</span><span class="p">)</span>
@@ -228,7 +229,7 @@
         <span class="k">raise</span> <span class="n">InputError</span></div>
 
 
-<div class="viewcode-block" id="parse_gw"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.parse_gw">[docs]</a><span class="k">def</span> <span class="nf">parse_gw</span><span class="p">(</span><span class="n">gwFile</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_gw"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.parse_gw">[docs]</a><span class="k">def</span> <span class="nf">parse_gw</span><span class="p">(</span><span class="n">gwFile</span><span class="p">):</span>
     <span class="n">edge_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gwFile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
@@ -255,11 +256,11 @@
 <span class="c1">#     return cm</span>
 
 
-<div class="viewcode-block" id="seq_from_model"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.seq_from_model">[docs]</a><span class="k">def</span> <span class="nf">seq_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">chain</span><span class="p">):</span>
+<div class="viewcode-block" id="seq_from_model"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.seq_from_model">[docs]</a><span class="k">def</span> <span class="nf">seq_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">chain</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">seq_from_chain</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="n">chain</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="seq_from_chain"><a class="viewcode-back" href="../../api/dscript.html#dscript.pdb.seq_from_chain">[docs]</a><span class="k">def</span> <span class="nf">seq_from_chain</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
+<div class="viewcode-block" id="seq_from_chain"><a class="viewcode-back" href="../../api/index.html#dscript.pdb.seq_from_chain">[docs]</a><span class="k">def</span> <span class="nf">seq_from_chain</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
     <span class="n">joinseq</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">get_CA_residues</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
