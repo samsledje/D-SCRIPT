@@ -10,7 +10,6 @@ from datetime import datetime
 
 EMBEDDING_STATE_DICT = "/afs/csail/u/s/samsl/db/embedding_state_dict.pt"
 
-
 def encode_from_fasta(fastaPath, outputPath):
     names, seqs = parse(open(fastaPath, "rb"))
     alphabet = Uniprot21()
@@ -65,25 +64,6 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
                 print("# {} sequences processed...".format(i), file=sys.stderr)
 
     h5fi.close()
-
-
-def embed_from_fasta_old(fastaPath, outputPath, device=0, verbose=False, xform=True):
-    cwd = os.getcwd()
-    os.chdir("/data/cb/tbepler/workspace/protein-sequence-embedding")
-    if xform:
-        cmd = "python embed_sequences.py -d{} --model results/struct_multitask_v4/saved_models/ssa_L1_100d_skip_lstm3x1024_uniref90_iter01000000_dlm_sim_tau0.5_augment0.05_mb64_contacts_both_mb16_0.1_0.9_0.5_iter1000000.sav --xform --output {} {}".format(
-            device, outputPath, fastaPath
-        )
-    else:
-        cmd = "python embed_sequences.py -d{} --model results/struct_multitask_v4/saved_models/ssa_L1_100d_skip_lstm3x1024_uniref90_iter01000000_dlm_sim_tau0.5_augment0.05_mb64_contacts_both_mb16_0.1_0.9_0.5_iter1000000.sav --output {} {}".format(
-            device, outputPath, fastaPath
-        )
-    proc = sp.Popen(cmd.split(), stdout=sp.PIPE, stderr=sp.PIPE)
-    out, err = proc.communicate()
-    os.chdir(cwd)
-    if verbose:
-        print(out.decode("utf-8"), err.decode("utf-8"))
-
 
 def embed_from_directory(directory, outputPath, device=0, verbose=False):
     nam, seq = parse_directory(directory)
