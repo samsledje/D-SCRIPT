@@ -15,7 +15,7 @@ help:
 .PHONY: help Makefile
 
 api:
-	sphinx-apidoc -o source/api ../dscript
+	sphinx-apidoc -d 2 -f --tocfile index -H D-SCRIPT -o source/api ../dscript
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
