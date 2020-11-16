@@ -61,7 +61,7 @@ def plot_ROC_curve(y, phat, saveFile=None):
 def RBF(D, sigma=None):
     """
     Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel
-    
+
     :math:`RBF(x,x') = \\exp{\\frac{-((x - x')^{2}}{2\\sigma^{2}}}`
 
     :param D: Distance matrix
