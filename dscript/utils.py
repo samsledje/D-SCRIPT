@@ -86,7 +86,9 @@ def gpu_mem(device):
     return gpu_memory[0], gpu_memory[1]
 
 
-def align(seq1, seq2, how="local", matrix=matlist.blosum62):
+def align(seq1, seq2, how="local", matrix=None):
+    if matrix is None:
+        matrix = matlist.blosum62
     pa = PairwiseAligner()
     pa.mode = "global"
     if how == "local":
