@@ -462,7 +462,7 @@ def main(args):
         mse_accum = 0
 
         # Train batches
-        for (z0, z1, y) in pairs_train_iterator:
+        for (z0, z1, y) in tqdm(pairs_train_iterator, desc=f"Epoch {epoch+1}/{num_epochs}",total=len(pairs_train_iterator)):
 
             loss, correct, mse, b = interaction_grad(model, z0, z1, y, tensors, use_cuda, weight=inter_weight)
 
