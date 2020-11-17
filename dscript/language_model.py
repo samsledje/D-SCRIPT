@@ -9,7 +9,31 @@ from .alphabets import Uniprot21
 from .models.embedding import SkipLSTM
 from datetime import datetime
 
-EMBEDDING_STATE_DICT = "/afs/csail/u/s/samsl/db/embedding_state_dict.pt"
+
+def get_state_dict(version=1):
+    """
+    Download the pre-trained language model if not already exists on local device. This is required because the model state dict is too large to be stored on Github.
+
+    :param version: Version of language model to download [default: 1]
+    :type version: int
+    :return: Path to state dictionary for pre-trained language model
+    :rtype: str
+    """
+    state_dict_basename = f"lm_model_v{version}.pt"
+    state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
+    state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
+    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/{state_dict_basename}"
+    if not os.path.exists(state_dict_fullname):
+        try:
+            import urllib.request
+            import shutil
+            print("Downloading Language Model from {}...".format(state_dict_url))
+            with urllib.request.urlopen(state_dict_url) as response, open(state_dict_fullname, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+        except Exception as e:
+            print("Unable to download language model - {}".format(e))
+            sys.exit(1)
+    return state_dict_fullname
 
 
 def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
@@ -37,7 +61,10 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if verbose:
         print("# Loading Model...")
     model = SkipLSTM(21, 100, 1024, 3)
-    model.load_state_dict(torch.load(EMBEDDING_STATE_DICT))
+    lm_state_dict = get_state_dict()
+    if verbose:
+        print('# Using model from {}'.format(lm_state_dict))
+    model.load_state_dict(torch.load(lm_state_dict))
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
     if use_cuda:
@@ -47,9 +74,12 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
         print("# Loading Sequences...")
     names, seqs = parse(open(fastaPath, "rb"))
     alphabet = Uniprot21()
-    encoded_seqs = [torch.from_numpy(alphabet.encode(s)) for s in seqs]
-    if use_cuda:
-        encoded_seqs = [x.cuda() for x in encoded_seqs]
+    encoded_seqs = []
+    for s in tqdm(seqs):
+        es = torch.from_numpy(alphabet.encode(s))
+        if use_cuda:
+            es = es.cuda()
+        encoded_seqs.append(es)
     if verbose:
         num_seqs = len(encoded_seqs)
         print("# {} Sequences Loaded".format(num_seqs))
@@ -59,12 +89,16 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     print("# Storing to {}...".format(outputPath))
     with torch.no_grad():
-        for i, (n, x) in tqdm(enumerate(zip(names, encoded_seqs)),total=len(names)):
-            x = x.long().unsqueeze(0)
-            z = model.transform(x)
-            name = n.decode("utf-8")
-            h5fi.create_dataset(name, data=z.cpu().numpy(), compression="lzf")
-
+        try:
+            for (n, x) in tqdm(zip(names, encoded_seqs),total=len(names)):
+                name = n.decode("utf-8")
+                if not name in h5fi:
+                    x = x.long().unsqueeze(0)
+                    z = model.transform(x)
+                    h5fi.create_dataset(name, data=z.cpu().numpy(), compression="lzf")
+        except KeyboardInterrupt:
+            h5fi.close()
+            sys.exit(1)
     h5fi.close()
 
 
