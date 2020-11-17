@@ -1,5 +1,5 @@
 """
-Contact model classes
+Contact model classes.
 """
 
 import torch
@@ -81,7 +81,7 @@ class ContactCNN(nn.Module):
 
     def clip(self):
         """
-        Force the conv layer to be transpose invariant
+        Force the convolutional layer to be transpose invariant.
 
         :meta private:
         """
@@ -103,7 +103,7 @@ class ContactCNN(nn.Module):
 
     def broadcast(self, z0, z1):
         """
-        Calls `dscript.models.contact.FullyConnected <#module-dscript.models.contact.FullyConnected>`_
+        Calls `dscript.models.contact.FullyConnected <#module-dscript.models.contact.FullyConnected>`_.
 
         :param z0: Projection module embedding :math:`(b \\times N \\times d)`
         :type z0: torch.Tensor
@@ -117,6 +117,8 @@ class ContactCNN(nn.Module):
 
     def predict(self, B):
         """
+        Predict contact map from broadcast tensor.
+
         :param B: Predicted contact broadcast :math:`(b \\times N \\times M \\times h)`
         :type B: torch.Tensor
         :return: Predicted contact map :math:`(b \\times N \\times M)`

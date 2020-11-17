@@ -5,7 +5,16 @@ import numpy as np
 
 class Alphabet:
     """
-    From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+    From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
+
+    :param chars: List of characters in alphabet
+    :type chars: byte str
+    :param encoding: Mapping of characters to numbers [default: encoding]
+    :type encoding: np.ndarray
+    :param mask: Set encoding mask [default: False]
+    :type mask: bool
+    :param missing: Number to use for a value outside the alphabet [default: 255]
+    :type missing: int
     """
 
     def __init__(self, chars, encoding=None, mask=False, missing=255):
@@ -28,49 +37,39 @@ class Alphabet:
         return chr(self.chars[i])
 
     def encode(self, x):
-        """ encode a byte string into alphabet indices """
+        """
+        Encode a byte string into alphabet indices
+        
+        :param x: Amino acid string
+        :type x: byte str
+        :return: Numeric encoding
+        :rtype: np.ndarray
+        """
         x = np.frombuffer(x, dtype=np.uint8)
         return self.encoding[x]
 
     def decode(self, x):
         """
-        Decode index array :math:`x` to byte string of this alphabet
+        Decode numeric encoding to byte string of this alphabet
+
+        :param x: Numeric encoding
+        :type x: np.ndarray
+        :return: Amino acid string
+        :rtype: byte str
         """
         string = self.chars[x]
         return string.tobytes()
 
-    def unpack(self, h, k):
-        """
-        Unpack integer :math:`h` into array of this alphabet with length :math:`k`
-        """
-        n = self.size
-        kmer = np.zeros(k, dtype=np.uint8)
-        for i in reversed(range(k)):
-            c = h % n
-            kmer[i] = c
-            h = h // n
-        return kmer
-
-    def get_kmer(self, h, k):
-        """
-        Retrieve byte string of length :math:`k` decoded from integer :math:`h`
-        """
-        kmer = self.unpack(h, k)
-        return self.decode(kmer)
-
-
-DNA = Alphabet(b"ACGT")
-
 
 class Uniprot21(Alphabet):
     """
-    Uniprot 21 Amino Acid Encoding
+    Uniprot 21 Amino Acid Encoding.
 
-    From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+    From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
     """
 
     def __init__(self, mask=False):
-        chars = alphabet = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
+        chars = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))
         encoding[21:] = [11, 4, 20, 20]  # encode 'OUBZ' as synonyms
         super(Uniprot21, self).__init__(chars, encoding=encoding, mask=mask, missing=20)

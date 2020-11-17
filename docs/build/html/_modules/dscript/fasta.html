@@ -82,9 +82,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
 </ul>
 
@@ -152,13 +152,13 @@
   <h1>Source code for dscript.fasta</h1><div class="highlight"><pre>
 <div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../api/index.html#dscript.fasta.parse">[docs]</a><span></span><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse a file in ``.fasta`` format</span>
+<span class="sd">    Parse a file in ``.fasta`` format.</span>
 
 <span class="sd">    :param f: Input file object</span>
 <span class="sd">    :type f: _io.TextIOWrapper</span>
 <span class="sd">    :param comment: Character used for comments</span>
 <span class="sd">    :type comment: str</span>
-<span class="sd">    </span>
+
 <span class="sd">    :return: names, sequence</span>
 <span class="sd">    :rtype: list[str], list[str]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -193,7 +193,7 @@
 
 <div class="viewcode-block" id="parse_directory"><a class="viewcode-back" href="../../api/index.html#dscript.fasta.parse_directory">[docs]</a><span class="k">def</span> <span class="nf">parse_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;.seq&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse all files in a directory ending with ``extension``</span>
+<span class="sd">    Parse all files in a directory ending with ``extension``.</span>
 
 <span class="sd">    :param directory: Input directory</span>
 <span class="sd">    :type directory: str</span>

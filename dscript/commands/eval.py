@@ -1,5 +1,5 @@
 """
-Evaluate a trained model
+Evaluate a trained model.
 """
 
 import sys, os
@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 def add_args(parser):
     """
-    Create parser for command line utility
+    Create parser for command line utility.
 
     :meta private:
     """
@@ -38,6 +38,16 @@ def add_args(parser):
 
 
 def plot_eval_predictions(labels, predictions, path="figure"):
+    """
+    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.   
+
+    :param y: Labels
+    :type y: np.ndarray
+    :param phat: Predicted probabilities
+    :type phat: np.ndarray
+    :param path: File prefix for plots to be saved to [default: figure]
+    :type path: str
+    """
 
     pos_phat = predictions[labels == 1]
     neg_phat = predictions[labels == 0]
@@ -85,6 +95,11 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
 
 def main(args):
+    """
+    Run model evaluation from arguments.
+
+    :meta private:
+    """
     device = int(args.device)
 
     # Load Model

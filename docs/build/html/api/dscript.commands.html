@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscript.commands package &mdash; D-SCRIPT v1.0-beta documentation</title>
+  <title>dscript.commands &mdash; D-SCRIPT v1.0-beta documentation</title>
   
 
   
@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="dscript.models package" href="dscript.models.html" />
+    <link rel="next" title="dscript.models" href="dscript.models.html" />
     <link rel="prev" title="API" href="index.html" /> 
 </head>
 
@@ -84,19 +84,18 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">dscript.commands package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-dscript.commands.embed">dscript.commands.embed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-dscript.commands.train">dscript.commands.train</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-dscript.commands.eval">dscript.commands.eval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-dscript.commands.predict">dscript.commands.predict</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dscript.commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dscript-commands-embed">dscript.commands.embed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dscript-commands-train">dscript.commands.train</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dscript-commands-eval">dscript.commands.eval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dscript-commands-predict">dscript.commands.predict</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="dscript.models.html">dscript.models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscript.models.html">dscript.models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.alphabets">dscript.alphabets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.fasta">dscript.fasta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.language_model">dscript.language_model</a></li>
@@ -151,7 +150,7 @@
         
           <li><a href="index.html">API</a> &raquo;</li>
         
-      <li>dscript.commands package</li>
+      <li>dscript.commands</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -170,76 +169,123 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscript-commands-package">
-<h1>dscript.commands package<a class="headerlink" href="#dscript-commands-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="dscript-commands">
+<h1>dscript.commands<a class="headerlink" href="#dscript-commands" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dscript-commands-embed">
+<h2>dscript.commands.embed<a class="headerlink" href="#dscript-commands-embed" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="usage.html#embedding">Embedding</a> for full usage details.</p>
+<span class="target" id="module-dscript.commands.embed"></span><p>Generate new embeddings using pre-trained language model.</p>
 </div>
-<div class="section" id="module-dscript.commands.embed">
-<span id="dscript-commands-embed"></span><h2>dscript.commands.embed<a class="headerlink" href="#module-dscript.commands.embed" title="Permalink to this headline">¶</a></h2>
-<p>Generate new embeddings using pre-trained language model</p>
-<dl class="py function">
-<dt id="dscript.commands.embed.main">
-<code class="sig-prename descclassname">dscript.commands.embed.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/embed.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.embed.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-dscript.commands.train">
-<span id="dscript-commands-train"></span><h2>dscript.commands.train<a class="headerlink" href="#module-dscript.commands.train" title="Permalink to this headline">¶</a></h2>
-<p>Train a new model</p>
-<dl class="py function">
-<dt id="dscript.commands.train.get_embeddings">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">get_embeddings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">800</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#get_embeddings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.get_embeddings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="dscript-commands-train">
+<h2>dscript.commands.train<a class="headerlink" href="#dscript-commands-train" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="usage.html#training">Training</a> for full usage details.</p>
+<span class="target" id="module-dscript.commands.train"></span><p>Train a new model.</p>
 <dl class="py function">
 <dt id="dscript.commands.train.interaction_eval">
 <code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_iterator</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_eval" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate test data set performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="dscript.models.html#dscript.models.interaction.ModelInteraction" title="dscript.models.interaction.ModelInteraction"><em>dscript.models.interaction.ModelInteraction</em></a>) – Model to be trained</p></li>
+<li><p><strong>test_iterator</strong> (<em>torch.utils.data.DataLoader</em>) – Test data iterator</p></li>
+<li><p><strong>tensors</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Dictionary of protein names to embeddings</p></li>
+<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether to use GPU</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(Loss, number correct, mean square error, precision, recall, F1 Score, AUPR)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(torch.Tensor, int, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="dscript.commands.train.interaction_grad">
 <code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">0.35</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_grad" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="dscript.commands.train.main">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Compute gradient and backpropagate loss for a batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="dscript.models.html#dscript.models.interaction.ModelInteraction" title="dscript.models.interaction.ModelInteraction"><em>dscript.models.interaction.ModelInteraction</em></a>) – Model to be trained</p></li>
+<li><p><strong>n0</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – First protein names</p></li>
+<li><p><strong>n1</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Second protein names</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Interaction labels</p></li>
+<li><p><strong>tensors</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Dictionary of protein names to embeddings</p></li>
+<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether to use GPU</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – Weight on the contact map magnitude objective. BCE loss is <span class="math notranslate nohighlight">\(1 - \text{weight}\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(Loss, number correct, mean square error, batch size)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(torch.Tensor, int, torch.Tensor, int)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="dscript.commands.train.predict_cmap_interaction">
 <code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_cmap_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_cmap_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_cmap_interaction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Predict whether a list of protein pairs will interact, as well as their contact map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="dscript.models.html#dscript.models.interaction.ModelInteraction" title="dscript.models.interaction.ModelInteraction"><em>dscript.models.interaction.ModelInteraction</em></a>) – Model to be trained</p></li>
+<li><p><strong>n0</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – First protein names</p></li>
+<li><p><strong>n1</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Second protein names</p></li>
+<li><p><strong>tensors</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Dictionary of protein names to embeddings</p></li>
+<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether to use GPU</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="dscript.commands.train.predict_interaction">
 <code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_interaction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Predict whether a list of protein pairs will interact.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="dscript.models.html#dscript.models.interaction.ModelInteraction" title="dscript.models.interaction.ModelInteraction"><em>dscript.models.interaction.ModelInteraction</em></a>) – Model to be trained</p></li>
+<li><p><strong>n0</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – First protein names</p></li>
+<li><p><strong>n1</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Second protein names</p></li>
+<li><p><strong>tensors</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Dictionary of protein names to embeddings</p></li>
+<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether to use GPU</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
-<div class="section" id="module-dscript.commands.eval">
-<span id="dscript-commands-eval"></span><h2>dscript.commands.eval<a class="headerlink" href="#module-dscript.commands.eval" title="Permalink to this headline">¶</a></h2>
-<p>Evaluate a trained model</p>
-<dl class="py function">
-<dt id="dscript.commands.eval.main">
-<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="dscript-commands-eval">
+<h2>dscript.commands.eval<a class="headerlink" href="#dscript-commands-eval" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="usage.html#evaluation">Evaluation</a> for full usage details.</p>
+<span class="target" id="module-dscript.commands.eval"></span><p>Evaluate a trained model.</p>
 <dl class="py function">
 <dt id="dscript.commands.eval.plot_eval_predictions">
 <code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">plot_eval_predictions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">predictions</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'figure'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#plot_eval_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.plot_eval_predictions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – Labels</p></li>
+<li><p><strong>phat</strong> (<em>np.ndarray</em>) – Predicted probabilities</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – File prefix for plots to be saved to [default: figure]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
-<div class="section" id="module-dscript.commands.predict">
-<span id="dscript-commands-predict"></span><h2>dscript.commands.predict<a class="headerlink" href="#module-dscript.commands.predict" title="Permalink to this headline">¶</a></h2>
-<p>Make new predictions with a pre-trained model</p>
-<dl class="py function">
-<dt id="dscript.commands.predict.main">
-<code class="sig-prename descclassname">dscript.commands.predict.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/predict.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.predict.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="dscript-commands-predict">
+<h2>dscript.commands.predict<a class="headerlink" href="#dscript-commands-predict" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="usage.html#prediction">Prediction</a> for full usage details.</p>
+<span class="target" id="module-dscript.commands.predict"></span><p>Make new predictions with a pre-trained model.</p>
 </div>
 </div>
 
@@ -251,7 +297,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dscript.models.html" class="btn btn-neutral float-right" title="dscript.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dscript.models.html" class="btn btn-neutral float-right" title="dscript.models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

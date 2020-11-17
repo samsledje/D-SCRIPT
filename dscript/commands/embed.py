@@ -1,5 +1,5 @@
 """
-Generate new embeddings using pre-trained language model
+Generate new embeddings using pre-trained language model.
 """
 
 import argparse
@@ -8,7 +8,7 @@ from dscript.language_model import embed_from_fasta
 
 def add_args(parser):
     """
-    Create parser for command line utility
+    Create parser for command line utility.
 
     :meta private:
     """
@@ -19,6 +19,11 @@ def add_args(parser):
 
 
 def main(args):
+    """
+    Run embedding from arguments.
+
+    :meta private:
+    """
     inPath = args.fasta
     outPath = args.outfile
     device = args.device

@@ -82,9 +82,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API</a></li>
 </ul>
 
@@ -151,12 +151,13 @@
             
   <h1>Source code for dscript.models.contact</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Contact model classes</span>
+<span class="sd">Contact model classes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">import</span> <span class="nn">torch.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
 
 <div class="viewcode-block" id="FullyConnected"><a class="viewcode-back" href="../../../api/dscript.models.html#dscript.models.contact.FullyConnected">[docs]</a><span class="k">class</span> <span class="nc">FullyConnected</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -171,6 +172,7 @@
 <span class="sd">    :param activation: Activation function for broadcast tensor [default: torch.nn.ReLU()]</span>
 <span class="sd">    :type activation: torch.nn.Module</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FullyConnected</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -219,6 +221,7 @@
 <span class="sd">    :param activation: Activation function for final contact map [default: torch.nn.Sigmoid()]</span>
 <span class="sd">    :type activation: torch.nn.Module</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ContactCNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -230,7 +233,7 @@
 
     <span class="k">def</span> <span class="nf">clip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Force the conv layer to be transpose invariant</span>
+<span class="sd">        Force the convolutional layer to be transpose invariant.</span>
 
 <span class="sd">        :meta private:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -252,7 +255,7 @@
 
 <div class="viewcode-block" id="ContactCNN.broadcast"><a class="viewcode-back" href="../../../api/dscript.models.html#dscript.models.contact.ContactCNN.broadcast">[docs]</a>    <span class="k">def</span> <span class="nf">broadcast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calls `dscript.models.contact.FullyConnected &lt;#module-dscript.models.contact.FullyConnected&gt;`_</span>
+<span class="sd">        Calls `dscript.models.contact.FullyConnected &lt;#module-dscript.models.contact.FullyConnected&gt;`_.</span>
 
 <span class="sd">        :param z0: Projection module embedding :math:`(b \\times N \\times d)`</span>
 <span class="sd">        :type z0: torch.Tensor</span>
@@ -266,6 +269,8 @@
 
 <div class="viewcode-block" id="ContactCNN.predict"><a class="viewcode-back" href="../../../api/dscript.models.html#dscript.models.contact.ContactCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict contact map from broadcast tensor.</span>
+
 <span class="sd">        :param B: Predicted contact broadcast :math:`(b \\times N \\times M \\times h)`</span>
 <span class="sd">        :type B: torch.Tensor</span>
 <span class="sd">        :return: Predicted contact map :math:`(b \\times N \\times M)`</span>

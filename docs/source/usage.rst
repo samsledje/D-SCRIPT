@@ -4,35 +4,175 @@ Usage
 Quick Start
 ~~~~~~~~~~~
 
-- Set up a conda environment using `conda-env.yml <https://github.com/samsledje/D-SCRIPT/blob/main/conda-env.yml>`_ with ``conda create --name [dscript/other env name] --file conda-env.yml``
+- Set up a conda environment using `conda-env.yml <https://github.com/samsledje/D-SCRIPT/blob/main/conda-env.yml>`_
+
+.. code-block:: bash
+ 
+    conda create --name [dscript/other env name] --file conda-env.yml
 
 
 Embed sequences with language model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``dscript embed --seqs [sequences, .fasta format] --outfile [embedding file]``
+
+.. code-block:: bash
+
+    dscript embed --seqs [sequences, .fasta format] --outfile [embedding file]
 
 Train and save a model
 ^^^^^^^^^^^^^^^^^^^^^^
-``dscript train --train [training data] --val [validation data] --embedding [embedding file] --save-prefix [prefix]``
+
+.. code-block:: bash
+
+    dscript train --train [training data] --val [validation data] --embedding [embedding file] --save-prefix [prefix]
 
 
 Evaluate a trained model
 ^^^^^^^^^^^^^^^^^^^^^^^^
-``dscript eval --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]``
+
+.. code-block:: bash
+
+    dscript eval --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
 
 
 Predict a new network using a trained model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``dscript predict --pairs [input data] --seqs [sequences, .fasta format] --model [model file]``
+
+.. code-block:: bash
+
+    dscript predict --pairs [input data] --seqs [sequences, .fasta format] --model [model file]
 
 Embedding
 ~~~~~~~~~
 
+.. code-block:: bash
+
+    usage: dscript embed [-h] --seqs SEQS --outfile OUTFILE [-d DEVICE]
+
+    Generate new embeddings using pre-trained language model
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --seqs SEQS           Sequences to be embedded
+    --outfile OUTFILE     h5 file to write results
+    -d DEVICE, --device DEVICE
+                            Compute device to use
+
 Training
 ~~~~~~~~
+
+.. code-block:: bash
+
+    usage: dscript train [-h] --train TRAIN --val VAL --embedding EMBEDDING
+                        [--augment] [--projection-dim PROJECTION_DIM]
+                        [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
+                        [--kernel-width KERNEL_WIDTH] [--use-w]
+                        [--pool-width POOL_WIDTH]
+                        [--negative-ratio NEGATIVE_RATIO]
+                        [--epoch-scale EPOCH_SCALE] [--num-epochs NUM_EPOCHS]
+                        [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
+                        [--lr LR] [--lambda LAMBDA_] [-o OUTPUT]
+                        [--save-prefix SAVE_PREFIX] [-d DEVICE]
+                        [--checkpoint CHECKPOINT]
+
+    Train a new model
+
+    optional arguments:
+    -h, --help            show this help message and exit
+
+    Data:
+    --train TRAIN         Training data
+    --val VAL             Validation data
+    --embedding EMBEDDING
+                            h5 file with embedded sequences
+    --augment             Set flag to augment data by adding (B A) for all pairs
+                            (A B)
+
+    Projection Module:
+    --projection-dim PROJECTION_DIM
+                            Dimension of embedding projection layer (default: 100)
+    --dropout-p DROPOUT_P
+                            Parameter p for embedding dropout layer (default: 0.5)
+
+    Contact Module:
+    --hidden-dim HIDDEN_DIM
+                            Number of hidden units for comparison layer in contact
+                            prediction (default: 50)
+    --kernel-width KERNEL_WIDTH
+                            Width of convolutional filter for contact prediction
+                            (default: 7)
+
+    Interaction Module:
+    --use-w               Use weight matrix in interaction prediction model
+    --pool-width POOL_WIDTH
+                            Size of max-pool in interaction model (default: 9)
+
+    Training:
+    --negative-ratio NEGATIVE_RATIO
+                            Number of negative training samples for each positive
+                            training sample (default: 10)
+    --epoch-scale EPOCH_SCALE
+                            Report heldout performance every this many epochs
+                            (default: 5)
+    --num-epochs NUM_EPOCHS
+                            Number of epochs (default: 100)
+    --batch-size BATCH_SIZE
+                            Minibatch size (default: 25)
+    --weight-decay WEIGHT_DECAY
+                            L2 regularization (default: 0)
+    --lr LR               Learning rate (default: 0.001)
+    --lambda LAMBDA_      Weight on the similarity objective (default: 0.35)
+
+    Output and Device:
+    -o OUTPUT, --output OUTPUT
+                            Output file path (default: stdout)
+    --save-prefix SAVE_PREFIX
+                            Path prefix for saving models
+    -d DEVICE, --device DEVICE
+                            Compute device to use
+    --checkpoint CHECKPOINT
+                            Checkpoint model to start training from``
 
 Evaluation
 ~~~~~~~~~~
 
+.. code-block:: bash
+
+    usage: dscript eval [-h] --model MODEL --test TEST --embedding EMBEDDING
+                        [-o OUTFILE] [-d DEVICE]
+
+    Evaluate a trained model
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --model MODEL         Trained prediction model
+    --test TEST           Test Data
+    --embedding EMBEDDING
+                            h5 file with embedded sequences
+    -o OUTFILE, --outfile OUTFILE
+                            Output file to write results
+    -d DEVICE, --device DEVICE
+                            Compute device to use
+
 Prediction
 ~~~~~~~~~~
+
+.. code-block:: bash
+
+    usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
+                        [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
+                        [--sep SEP]
+
+    Make new predictions with a pre-trained model
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --pairs PAIRS         Candidate protein pairs to predict
+    --seqs SEQS           Protein sequences in .fasta format
+    --model MODEL         Pretrained Model
+    -o OUTFILE, --outfile OUTFILE
+                            File for predictions
+    -d DEVICE, --device DEVICE
+                            Compute device to use
+    --embeddings EMBEDDINGS
+                            h5 file with embedded sequences
+    --sep SEP             Separator for CSV

@@ -1,8 +1,5 @@
-from __future__ import print_function, division
-
 import torch
 import torch.utils.data
-from torch.nn.utils.rnn import PackedSequence, pack_padded_sequence, pad_packed_sequence
 
 import numpy as np
 import pandas as pd
@@ -13,11 +10,21 @@ from .fasta import parse
 
 
 def plot_PR_curve(y, phat, saveFile=None):
+    """
+    Plot precision-recall curve.
+
+    :param y: Labels
+    :type y: np.ndarray
+    :param phat: Predicted probabilities
+    :type phat: np.ndarray
+    :param saveFile: File for plot of curve to be saved to
+    :type saveFile: str
+    """
     import matplotlib.pyplot as plt
     from sklearn.metrics import precision_recall_curve, average_precision_score
 
     aupr = average_precision_score(y, phat)
-    precision, recall, pr_thresh = precision_recall_curve(y, phat)
+    precision, recall, _ = precision_recall_curve(y, phat)
 
     plt.step(recall, precision, color="b", alpha=0.2, where="post")
     plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
@@ -33,6 +40,16 @@ def plot_PR_curve(y, phat, saveFile=None):
 
 
 def plot_ROC_curve(y, phat, saveFile=None):
+    """
+    Plot receiver operating characteristic curve.
+
+    :param y: Labels
+    :type y: np.ndarray
+    :param phat: Predicted probabilities
+    :type phat: np.ndarray
+    :param saveFile: File for plot of curve to be saved to
+    :type saveFile: str
+    """
     import matplotlib.pyplot as plt
     from sklearn.metrics import roc_curve, roc_auc_score
 
@@ -56,9 +73,9 @@ def plot_ROC_curve(y, phat, saveFile=None):
 
 def RBF(D, sigma=None):
     """
-    Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel
+    Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel.
 
-    :math:`RBF(x,x') = \\exp{\\frac{-((x - x')^{2}}{2\\sigma^{2}}}`
+    :math:`RBF(x,x') = \\exp{\\frac{-(x - x')^{2}}{2\\sigma^{2}}}`
 
     :param D: Distance matrix
     :type D: np.ndarray
@@ -73,7 +90,7 @@ def RBF(D, sigma=None):
 
 def gpu_mem(device):
     """
-    Get current memory usage for GPU
+    Get current memory usage for GPU.
 
     :param device: GPU device number
     :type device: int
@@ -93,73 +110,14 @@ def gpu_mem(device):
     return gpu_memory[0], gpu_memory[1]
 
 
-def pack_sequences(X, order=None):
-
-    # X = [x.squeeze(0) for x in X]
-
-    n = len(X)
-    lengths = np.array([len(x) for x in X])
-    if order is None:
-        order = np.argsort(lengths)[::-1]
-    m = max(len(x) for x in X)
-
-    X_block = X[0].new(n, m).zero_()
-
-    for i in range(n):
-        j = order[i]
-        x = X[j]
-        X_block[i, : len(x)] = x
-
-    # X_block = torch.from_numpy(X_block)
-
-    lengths = lengths[order]
-    X = pack_padded_sequence(X_block, lengths, batch_first=True)
-
-    return X, order
-
-
-def unpack_sequences(X, order):
-    X, lengths = pad_packed_sequence(X, batch_first=True)
-    X_block = [None] * len(order)
-    for i in range(len(order)):
-        j = order[i]
-        X_block[j] = X[i, : lengths[i]]
-    return X_block
-
-
-def collate_lists(args):
-    x = [a[0] for a in args]
-    y = [a[1] for a in args]
-    return x, y
-
-
-class AllPairsDataset(torch.utils.data.Dataset):
-    def __init__(self, X, Y, augment=None):
-        self.X = X
-        self.Y = Y
-        self.augment = augment
-
-    def __len__(self):
-        return len(self.X) ** 2
-
-    def __getitem__(self, k):
-        n = len(self.X)
-        i = k // n
-        j = k % n
-
-        x0 = self.X[i]
-        x1 = self.X[j]
-        if self.augment is not None:
-            x0 = self.augment(x0)
-            x1 = self.augment(x1)
-
-        y = self.Y[i, j]
-        # y = torch.cumprod((self.Y[i] == self.Y[j]).long(), 0).sum()
-
-        return x0, x1, y
-
-
 class PairedDataset(torch.utils.data.Dataset):
+    """
+    Dataset to be used by the PyTorch data loader for pairs of sequences and their labels.
+
+    :param X0: List of first item in the pair
+    :param X1: List of second item in the pair
+    :param Y: List of labels
+    """
     def __init__(self, X0, X1, Y):
         self.X0 = X0
         self.X1 = X1
@@ -175,17 +133,10 @@ class PairedDataset(torch.utils.data.Dataset):
 
 
 def collate_paired_sequences(args):
+    """
+    Collate function for PyTorch data loader.
+    """
     x0 = [a[0] for a in args]
     x1 = [a[1] for a in args]
     y = [a[2] for a in args]
     return x0, x1, torch.stack(y, 0)
-
-
-class MultinomialResample:
-    def __init__(self, trans, p):
-        self.p = (1 - p) * torch.eye(trans.size(0)).to(trans.device) + p * trans
-
-    def __call__(self, x):
-        # print(x.size(), x.dtype)
-        p = self.p[x]  # get distribution for each x
-        return torch.multinomial(p, 1).view(-1)  # sample from distribution

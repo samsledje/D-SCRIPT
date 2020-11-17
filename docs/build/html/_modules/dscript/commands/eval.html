@@ -82,9 +82,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API</a></li>
 </ul>
 
@@ -151,7 +151,7 @@
             
   <h1>Source code for dscript.commands.eval</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Evaluate a trained model</span>
+<span class="sd">Evaluate a trained model.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
@@ -176,22 +176,30 @@
 
 <span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create parser for command line utility</span>
-<span class="sd">    </span>
+<span class="sd">    Create parser for command line utility.</span>
+
 <span class="sd">    :meta private:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Trained prediction model&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--test&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Test Data&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--embedding&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;h5 file with embedded sequences&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--embedding&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;h5 file with embedded sequences&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--outfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write results&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compute device to use&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span>
 
 
 <div class="viewcode-block" id="plot_eval_predictions"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.eval.plot_eval_predictions">[docs]</a><span class="k">def</span> <span class="nf">plot_eval_predictions</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;figure&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.   </span>
+
+<span class="sd">    :param y: Labels</span>
+<span class="sd">    :type y: np.ndarray</span>
+<span class="sd">    :param phat: Predicted probabilities</span>
+<span class="sd">    :type phat: np.ndarray</span>
+<span class="sd">    :param path: File prefix for plots to be saved to [default: figure]</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">pos_phat</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">neg_phat</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
@@ -238,18 +246,19 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.eval.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run model evaluation from arguments.</span>
+
+<span class="sd">    :meta private:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">device</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
     <span class="c1"># Load Model</span>
     <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
     <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">device</span> <span class="o">&gt;=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">device</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;# Using CUDA device </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">device</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Using CUDA device </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">device</span><span class="p">)))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Using CPU&quot;</span><span class="p">)</span>
 
@@ -283,9 +292,7 @@
     <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
         <span class="n">phats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
-            <span class="n">test_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test_df</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Predicting pairs&quot;</span>
-        <span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test_df</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Predicting pairs&quot;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">p0</span> <span class="o">=</span> <span class="n">seqEmbDict</span><span class="p">[</span><span class="n">n0</span><span class="p">]</span>
                 <span class="n">p1</span> <span class="o">=</span> <span class="n">seqEmbDict</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
@@ -305,7 +312,7 @@
     <span class="n">plot_eval_predictions</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">phats</span><span class="p">,</span> <span class="n">outPath</span><span class="p">)</span>
 
     <span class="n">outFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">h5fi</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    <span class="n">h5fi</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

@@ -13,7 +13,7 @@ EMBEDDING_STATE_DICT = "/afs/csail/u/s/samsl/db/embedding_state_dict.pt"
 
 def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     """
-    Embed sequences using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+    Embed sequences using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
 
     :param fastaPath: Input sequence file (``.fasta`` format)
     :type fastaPath: str
@@ -69,7 +69,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
 def embed_from_directory(directory, outputPath, device=0, verbose=False, extension=".seq"):
     """
-    Embed all files in a directory in ``.fasta`` format using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_
+    Embed all files in a directory in ``.fasta`` format using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
 
     :param directory: Input directory (``.fasta`` format)
     :type directory: str

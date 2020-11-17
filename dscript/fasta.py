@@ -1,6 +1,6 @@
 def parse(f, comment="#"):
     """
-    Parse a file in ``.fasta`` format
+    Parse a file in ``.fasta`` format.
 
     :param f: Input file object
     :type f: _io.TextIOWrapper
@@ -41,7 +41,7 @@ def parse(f, comment="#"):
 
 def parse_directory(directory, extension=".seq"):
     """
-    Parse all files in a directory ending with ``extension``
+    Parse all files in a directory ending with ``extension``.
 
     :param directory: Input directory
     :type directory: str

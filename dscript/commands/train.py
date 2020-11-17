@@ -1,5 +1,5 @@
 """
-Train a new model
+Train a new model.
 """
 
 import sys
@@ -20,7 +20,6 @@ from torch.utils.data import IterableDataset, DataLoader
 from sklearn.metrics import average_precision_score as average_precision
 
 import dscript
-from dscript.alphabets import Uniprot21
 from dscript.utils import PairedDataset, collate_paired_sequences
 from dscript.models.embedding import (
     IdentityEmbed,
@@ -32,7 +31,7 @@ from dscript.models.interaction import ModelInteraction
 
 def add_args(parser):
     """
-    Create parser for command line utility
+    Create parser for command line utility.
 
     :meta private:
     """
@@ -130,6 +129,20 @@ def add_args(parser):
 
 
 def predict_interaction(model, n0, n1, tensors, use_cuda):
+    """
+    Predict whether a list of protein pairs will interact.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param n0: First protein names
+    :type n0: list[str]
+    :param n1: Second protein names
+    :type n1: list[str]
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+    """
 
     b = len(n0)
 
@@ -147,6 +160,20 @@ def predict_interaction(model, n0, n1, tensors, use_cuda):
 
 
 def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
+    """
+    Predict whether a list of protein pairs will interact, as well as their contact map.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param n0: First protein names
+    :type n0: list[str]
+    :param n1: Second protein names
+    :type n1: list[str]
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+    """
 
     b = len(n0)
 
@@ -168,6 +195,27 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
 
 
 def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
+    """
+    Compute gradient and backpropagate loss for a batch.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param n0: First protein names
+    :type n0: list[str]
+    :param n1: Second protein names
+    :type n1: list[str]
+    :param y: Interaction labels
+    :type y: torch.Tensor
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+    :param weight: Weight on the contact map magnitude objective. BCE loss is :math:`1 - \\text{weight}`.
+    :type weight: float
+
+    :return: (Loss, number correct, mean square error, batch size)
+    :rtype: (torch.Tensor, int, torch.Tensor, int)
+    """
 
     c_map_mag, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda)
     if use_cuda:
@@ -198,6 +246,21 @@ def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
 
 
 def interaction_eval(model, test_iterator, tensors, use_cuda):
+    """
+    Evaluate test data set performance.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param test_iterator: Test data iterator
+    :type test_iterator: torch.utils.data.DataLoader
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+
+    :return: (Loss, number correct, mean square error, precision, recall, F1 Score, AUPR)
+    :rtype: (torch.Tensor, int, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor)
+    """
     p_hat = []
     true_y = []
 
@@ -237,22 +300,12 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
     return loss, correct, mse, pr, re, f1, aupr
 
 
-def get_embeddings(f, n0, n1, thresh=800):
-    z0 = []
-    z1 = []
-
-    for (n_a, n_b) in zip(n0, n1):
-        z_a = f[n_a]
-        z_b = f[n_b]
-        if len(z_a) > thresh or len(z_b) > thresh:
-            continue
-        z0.append(z_a)
-        z1.append(z_b)
-    assert len(z0) > 0 and len(z1) > 0 and len(z0) == len(z1), (len(z0), len(z1))
-    return z0, z1
-
-
 def main(args):
+    """
+    Run training from arguments.
+
+    :meta private:
+    """
 
     output = args.output
     if output is None:

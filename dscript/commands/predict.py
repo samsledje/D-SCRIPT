@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model
+Make new predictions with a pre-trained model.
 """
 import sys, os
 import torch
@@ -32,6 +32,11 @@ def add_args(parser):
 
 
 def main(args):
+    """
+    Run new prediction from arguments.
+
+    :meta private:
+    """
     csvPath = args.pairs
     fastaPath = args.seqs
     modelPath = args.model

@@ -1,5 +1,5 @@
-dscript.models package
-======================
+dscript.models
+==============
 
 dscript.models.embedding
 ------------------------

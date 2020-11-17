@@ -82,9 +82,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
 </ul>
 
@@ -157,8 +157,18 @@
 
 <div class="viewcode-block" id="Alphabet"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Alphabet">[docs]</a><span class="k">class</span> <span class="nc">Alphabet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    From `Bepler &amp; Berger &lt;https://github.com/tbepler/protein-sequence-embedding-iclr2019&gt;`_</span>
+<span class="sd">    From `Bepler &amp; Berger &lt;https://github.com/tbepler/protein-sequence-embedding-iclr2019&gt;`_.</span>
+
+<span class="sd">    :param chars: List of characters in alphabet</span>
+<span class="sd">    :type chars: byte str</span>
+<span class="sd">    :param encoding: Mapping of characters to numbers [default: encoding]</span>
+<span class="sd">    :type encoding: np.ndarray</span>
+<span class="sd">    :param mask: Set encoding mask [default: False]</span>
+<span class="sd">    :type mask: bool</span>
+<span class="sd">    :param missing: Number to use for a value outside the alphabet [default: 255]</span>
+<span class="sd">    :type missing: int</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="mi">255</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">+</span> <span class="n">missing</span>
@@ -179,45 +189,39 @@
         <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
 <div class="viewcode-block" id="Alphabet.encode"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Alphabet.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; encode a byte string into alphabet indices &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encode a byte string into alphabet indices</span>
+<span class="sd">        </span>
+<span class="sd">        :param x: Amino acid string</span>
+<span class="sd">        :type x: byte str</span>
+<span class="sd">        :return: Numeric encoding</span>
+<span class="sd">        :rtype: np.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">[</span><span class="n">x</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Alphabet.decode"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Alphabet.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Decode index array :math:`x` to byte string of this alphabet</span>
+<span class="sd">        Decode numeric encoding to byte string of this alphabet</span>
+
+<span class="sd">        :param x: Numeric encoding</span>
+<span class="sd">        :type x: np.ndarray</span>
+<span class="sd">        :return: Amino acid string</span>
+<span class="sd">        :rtype: byte str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chars</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span></div></div>
 
-<div class="viewcode-block" id="Alphabet.unpack"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Alphabet.unpack">[docs]</a>    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Unpack integer :math:`h` into array of this alphabet with length :math:`k`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
-        <span class="n">kmer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="n">h</span> <span class="o">%</span> <span class="n">n</span>
-            <span class="n">kmer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
-            <span class="n">h</span> <span class="o">=</span> <span class="n">h</span> <span class="o">//</span> <span class="n">n</span>
-        <span class="k">return</span> <span class="n">kmer</span></div>
 
-<div class="viewcode-block" id="Alphabet.get_kmer"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Alphabet.get_kmer">[docs]</a>    <span class="k">def</span> <span class="nf">get_kmer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve byte string of length :math:`k` decoded from integer :math:`h`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">kmer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">kmer</span><span class="p">)</span></div></div>
-
-<span class="n">DNA</span> <span class="o">=</span> <span class="n">Alphabet</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;ACGT&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="Uniprot21"><a class="viewcode-back" href="../../api/index.html#dscript.alphabets.Uniprot21">[docs]</a><span class="k">class</span> <span class="nc">Uniprot21</span><span class="p">(</span><span class="n">Alphabet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Uniprot 21 Amino Acid Encoding</span>
+<span class="sd">    Uniprot 21 Amino Acid Encoding.</span>
 
-<span class="sd">    From `Bepler &amp; Berger &lt;https://github.com/tbepler/protein-sequence-embedding-iclr2019&gt;`_</span>
+<span class="sd">    From `Bepler &amp; Berger &lt;https://github.com/tbepler/protein-sequence-embedding-iclr2019&gt;`_.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">chars</span> <span class="o">=</span> <span class="n">alphabet</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;ARNDCQEGHILKMFPSTWYVXOUBZ&quot;</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;ARNDCQEGHILKMFPSTWYVXOUBZ&quot;</span>
         <span class="n">encoding</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
         <span class="n">encoding</span><span class="p">[</span><span class="mi">21</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>  <span class="c1"># encode &#39;OUBZ&#39; as synonyms</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Uniprot21</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></div>

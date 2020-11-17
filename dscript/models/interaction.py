@@ -22,12 +22,6 @@ class LogisticActivation(nn.Module):
     :type k: float
     :param train: Whether :math:`k` is a trainable parameter
     :type train: bool
-
-    :Example:
-
-    >>> logAct = LogisticActivation(0, 5)
-    >>> x = torch.randn(256)
-    >>> x = logAct(x)
     """
 
     def __init__(self, x0=0, k=1, train=False):
@@ -77,13 +71,6 @@ class ModelInteraction(nn.Module):
     :type gamma_init: float
     :param use_W: whether to use the weighting matrix [default: True]
     :type use_W: bool
-
-    :Example:
-
-    >>> model = ModelInteraction(embedding, contact, True)
-    >>> model.predict(x0, x1)
-        0.9473
-    >>> cmap, phat = model.map_predict(x0, x1)
     """
 
     def __init__(
@@ -218,3 +205,10 @@ class ModelInteraction(nn.Module):
         """
         _, phat = self.map_predict(z0, z1)
         return phat
+
+
+    def forward(self, z0, z1):
+        """
+        :meta private:
+        """
+        return self.predict(z0, z1)
