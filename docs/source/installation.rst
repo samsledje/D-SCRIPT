@@ -23,7 +23,7 @@ Set up environment
 
     $ cd D-SCRIPT
 
-    $ conda env create --file environment.yml # Edit this file to change CUDA and cuDNN version if necessary
+    $ conda env create --file environment.yml # Edit this file to change CUDA version if necessary
 
     $ conda activate dscript
 
