@@ -157,9 +157,9 @@ Prediction
 
     usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
                         [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
-                        [--sep SEP]
+                        [--predict_cmaps]
 
-    Make new predictions with a pre-trained model
+    Make new predictions with a pre-trained model.
 
     optional arguments:
     -h, --help            show this help message and exit
@@ -172,4 +172,4 @@ Prediction
                             Compute device to use
     --embeddings EMBEDDINGS
                             h5 file with embedded sequences
-    --sep SEP             Separator for CSV
+    --predict_cmaps       Output predicted contact maps
