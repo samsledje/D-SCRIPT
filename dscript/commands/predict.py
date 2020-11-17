@@ -5,6 +5,7 @@ import sys, os
 import torch
 import h5py
 import argparse
+import datetime
 import pandas as pd
 from scipy.special import comb
 from tqdm import tqdm
@@ -44,6 +45,9 @@ def main(args):
     embPath = args.embeddings
     device = args.device
     sep = args.sep
+
+    if outPath is None:
+        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.predictions.tsv")
 
     if embPath:
         precomputedEmbeddings = True
@@ -93,7 +97,7 @@ def main(args):
     n = 0
     with open(outPath, "w+") as f:
         with torch.no_grad():
-            for _, (n0, n1) in tqdm(pairs.iterrows(), total=len(pairs)):
+            for _, (n0, n1) in tqdm(pairs.iloc[:,:2].iterrows(), total=len(pairs)):
                 n0 = str(n0)
                 n1 = str(n1)
                 if n % 50 == 0:

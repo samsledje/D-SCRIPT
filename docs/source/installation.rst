@@ -18,9 +18,11 @@ Optional GPU support: CUDA Version 10.1, cuDNN 7.6.5
 
 .. code-block:: bash
  
-    conda create --name dscript --file environment.yml
+    $ cd D-SCRIPT
 
-    conda activate [dscript]
+    $ conda env create --file environment.yml
+
+    $ conda activate dscript
 
 Install from pip
 ----------------

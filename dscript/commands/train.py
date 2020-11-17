@@ -5,6 +5,7 @@ Train a new model.
 import sys
 import argparse
 import h5py
+import datetime
 import subprocess as sp
 import numpy as np
 import pandas as pd
@@ -435,6 +436,8 @@ def main(args):
     cmap_weight = 1 - inter_weight
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
+    if save_prefix is None:
+        save_prefix = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
 
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
@@ -491,8 +494,9 @@ def main(args):
                     acc_accum,
                     mse_accum,
                 ]
-                print(batch_report_fmt.format(*tokens), file=output)
-                output.flush()
+                if output is not sys.stdout:
+                    print(batch_report_fmt.format(*tokens), file=output)
+                    output.flush()
 
         if (epoch + 1) % report_steps == 0:
             model.eval()

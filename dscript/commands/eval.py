@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import torch
 import h5py
-
+import datetime
 import matplotlib
 
 matplotlib.use("Agg")
@@ -39,7 +39,7 @@ def add_args(parser):
 
 def plot_eval_predictions(labels, predictions, path="figure"):
     """
-    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.   
+    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.
 
     :param y: Labels
     :type y: np.ndarray
@@ -126,11 +126,10 @@ def main(args):
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
 
     if args.outfile is None:
-        outPath = "results"
-        outFile = open("results.txt", "w+")
+        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     else:
         outPath = args.outfile
-        outFile = open(outPath + ".txt", "w+")
+    outFile = open(outPath + ".txt", "w+")
 
     allProteins = set(test_df[0]).union(test_df[1])
 
