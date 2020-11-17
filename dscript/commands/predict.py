@@ -50,6 +50,14 @@ def main(args):
     else:
         precomputedEmbeddings = False
 
+    # Set Device
+    use_cuda = (device >= 0) and torch.cuda.is_available()
+    if use_cuda:
+        torch.cuda.set_device(device)
+        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
+    else:
+        print("# Using CPU")
+
     try:
         names, seqs = parse(open(fastaPath, "rb"))
         seqDict = {n.decode("utf-8"): s for n, s in zip(names, seqs)}
@@ -70,13 +78,6 @@ def main(args):
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = torch.from_numpy(embedH5[n][:])
-
-    torch.cuda.set_device(device)
-    use_cuda = device >= 0
-    if device >= 0:
-        print("# Using CUDA device {} - {}".format(device, torch.cuda.get_device_name(device)))
-    else:
-        print("# Using CPU")
 
     try:
         if use_cuda:

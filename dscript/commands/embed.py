@@ -14,7 +14,7 @@ def add_args(parser):
     """
     parser.add_argument("--seqs", help="Sequences to be embedded", required=True)
     parser.add_argument("--outfile", help="h5 file to write results", required=True)
-    parser.add_argument("-d", "--device", default=-1, help="Compute device to use")
+    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     return parser
 
 
@@ -24,7 +24,7 @@ def main(args):
 
     :meta private:
     """
-    inPath = args.fasta
+    inPath = args.seqs
     outPath = args.outfile
     device = args.device
     embed_from_fasta(inPath, outPath, device)

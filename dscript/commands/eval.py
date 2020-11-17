@@ -33,7 +33,7 @@ def add_args(parser):
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
     parser.add_argument("-o", "--outfile", help="Output file to write results")
-    parser.add_argument("-d", "--device", default=-1, help="Compute device to use")
+    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     return parser
 
 
@@ -100,16 +100,17 @@ def main(args):
 
     :meta private:
     """
-    device = int(args.device)
 
-    # Load Model
-    torch.cuda.set_device(device)
-    use_cuda = device >= 0
-    if device >= 0:
-        print("# Using CUDA device {} - {}".format(device, torch.cuda.get_device_name(device)))
+    # Set Device
+    device = args.device
+    use_cuda = (device >= 0) and torch.cuda.is_available()
+    if use_cuda:
+        torch.cuda.set_device(device)
+        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
     else:
         print("# Using CPU")
 
+    # Load Model
     model_path = args.model
     if use_cuda:
         model = torch.load(model_path).cuda()

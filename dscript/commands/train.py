@@ -317,9 +317,9 @@ def main(args):
     if output is not sys.stdout:
         print(f'Called as: {" ".join(sys.argv)}')
 
-    ## Set the device
+    # Set device
     device = args.device
-    use_cuda = (device > -1) and torch.cuda.is_available()
+    use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
         print(
