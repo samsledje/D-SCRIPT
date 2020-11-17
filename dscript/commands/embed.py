@@ -27,7 +27,7 @@ def main(args):
     inPath = args.seqs
     outPath = args.outfile
     device = args.device
-    embed_from_fasta(inPath, outPath, device)
+    embed_from_fasta(inPath, outPath, device, verbose=True)
 
 
 if __name__ == "__main__":

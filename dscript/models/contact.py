@@ -127,4 +127,4 @@ class ContactCNN(nn.Module):
         C = self.conv(B)
         C = self.batchnorm(C)
         C = self.activation(C)
-        return s
+        return C

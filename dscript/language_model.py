@@ -3,6 +3,7 @@ import subprocess as sp
 import random
 import torch
 import h5py
+from tqdm import tqdm
 from .fasta import parse, parse_directory, write
 from .alphabets import Uniprot21
 from .models.embedding import SkipLSTM
@@ -50,19 +51,19 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if use_cuda:
         encoded_seqs = [x.cuda() for x in encoded_seqs]
     if verbose:
-        print("# {} Sequences Loaded".format(len(encoded_seqs)))
+        num_seqs = len(encoded_seqs)
+        print("# {} Sequences Loaded".format(num_seqs))
+        print("# Approximate Storage Required (varies by average sequence length): ~{}GB".format(num_seqs * (1/125)))
 
     h5fi = h5py.File(outputPath, "w")
 
     print("# Storing to {}...".format(outputPath))
     with torch.no_grad():
-        for i, (n, x) in enumerate(zip(names, encoded_seqs)):
+        for i, (n, x) in tqdm(enumerate(zip(names, encoded_seqs)),total=len(names)):
             x = x.long().unsqueeze(0)
             z = model.transform(x)
             name = n.decode("utf-8")
             h5fi.create_dataset(name, data=z.cpu().numpy(), compression="lzf")
-            if verbose and i % 100 == 0:
-                print("# {} sequences processed...".format(i), file=sys.stderr)
 
     h5fi.close()
 
