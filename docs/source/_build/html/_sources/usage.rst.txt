@@ -4,6 +4,15 @@ Usage
 Quick Start
 ~~~~~~~~~~~
 
+- Set up a conda environment using `conda-env.yml <https://github.com/samsledje/D-SCRIPT/blob/main/conda-env.yml>`_
+
+.. code-block:: bash
+ 
+    conda create --name dscript --file environment.yml
+
+    conda activate [dscript]
+
+
 Embed sequences with language model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

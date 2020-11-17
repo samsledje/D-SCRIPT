@@ -1,5 +1,6 @@
 build/*
 dist/*
+.vscode/**
 *.egg-info
 **/*.h5
 **/.ipynb_checkpoints/**
