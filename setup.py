@@ -25,5 +25,6 @@ setup(name="dscript",
             "seaborn",
             "tqdm",
             "scikit-learn",
+            "h5py",
         ]
     )
