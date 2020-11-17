@@ -28,7 +28,7 @@ def add_args(parser):
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
-    parser.add_argument("--sep", default="\t", help="Separator for CSV")
+    parser.add_argument("--predict_cmaps", action="store_true", help="Output predicted contact maps")
     return parser
 
 
@@ -44,7 +44,7 @@ def main(args):
     outPath = args.outfile
     embPath = args.embeddings
     device = args.device
-    sep = args.sep
+    cmaps = args.predict_cmaps
 
     if outPath is None:
         outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.predictions.tsv")
@@ -70,7 +70,7 @@ def main(args):
         sys.exit(1)
 
     try:
-        pairs = pd.read_csv(csvPath, sep=sep, header=None)
+        pairs = pd.read_csv(csvPath, sep="\t", header=None)
     except FileNotFoundError:
         print(f"# Pairs File {csvPath} not found")
         sys.exit(1)
@@ -95,6 +95,8 @@ def main(args):
 
     print("# Making Predictions...")
     n = 0
+    if cmaps:
+        cmap_file = h5py.File(outPath+".cmaps.h5","w")
     with open(outPath, "w+") as f:
         with torch.no_grad():
             for _, (n0, n1) in tqdm(pairs.iloc[:,:2].iterrows(), total=len(pairs)):
@@ -109,8 +111,15 @@ def main(args):
                     p0 = p0.cuda()
                     p1 = p1.cuda()
 
-                p = model.predict(p0, p1).item()
-                f.write("{}\t{}\t{}\n".format(n0, n1, p))
+                if cmaps:
+                    cm, p = model.map_predict(p0, p1)
+                    cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                else:
+                    p = model.predict(p0, p1)
+                f.write("{}\t{}\t{}\n".format(n0, n1, p.item()))
+
+    if cmaps:
+        cmap_file.close()
 
 
 if __name__ == "__main__":
