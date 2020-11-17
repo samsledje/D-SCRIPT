@@ -14,26 +14,35 @@ Requirements
 
 Optional GPU support: CUDA Version 10.1, cuDNN 7.6.5
 
-- Set up a conda environment using `environment.yml <https://github.com/samsledje/D-SCRIPT/blob/main/environment.yml>`_
+Set up environment
+------------------
 
 .. code-block:: bash
  
+    $ git clone https://github.com/samsledje/D-SCRIPT.git
+
     $ cd D-SCRIPT
 
-    $ conda env create --file environment.yml
+    $ conda env create --file environment.yml # Edit this file to change CUDA and cuDNN version if necessary
 
     $ conda activate dscript
 
 Install from pip
 ----------------
 
+[TBD]
+
 .. code-block:: bash
 
-    [TBD] pip install dscript
+    pip install dscript
 
 Build from source
 -----------------
 
 .. code-block:: bash
 
-    git clone https://github.com/samsledje/D-SCRIPT.git; python setup.py build; python setup.py install
+    $ git clone https://github.com/samsledje/D-SCRIPT.git
+
+    $ cd D-SCRIPT
+    
+    $ python setup.py build; python setup.py install
