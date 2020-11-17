@@ -4,7 +4,7 @@ dscript.commands
 dscript.commands.embed
 ----------------------
 
-See `Embedding <usage.html#embedding>`_ for full usage details.
+See `Embedding <../usage.html#embedding>`_ for full usage details.
 
 .. automodule:: dscript.commands.embed
    :members:
@@ -14,7 +14,7 @@ See `Embedding <usage.html#embedding>`_ for full usage details.
 dscript.commands.train
 ----------------------
 
-See `Training <usage.html#training>`_ for full usage details.
+See `Training <../usage.html#training>`_ for full usage details.
 
 .. automodule:: dscript.commands.train
    :members:
@@ -24,7 +24,7 @@ See `Training <usage.html#training>`_ for full usage details.
 dscript.commands.eval
 ---------------------
 
-See `Evaluation <usage.html#evaluation>`_ for full usage details.
+See `Evaluation <../usage.html#evaluation>`_ for full usage details.
 
 .. automodule:: dscript.commands.eval
    :members:
@@ -34,7 +34,7 @@ See `Evaluation <usage.html#evaluation>`_ for full usage details.
 dscript.commands.predict
 ------------------------
 
-See `Prediction <usage.html#prediction>`_ for full usage details.
+See `Prediction <../usage.html#prediction>`_ for full usage details.
 
 .. automodule:: dscript.commands.predict
    :members:
