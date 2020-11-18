@@ -1,5 +1,5 @@
 """
-Embedding model classes
+Embedding model classes.
 """
 
 import torch

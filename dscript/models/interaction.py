@@ -1,5 +1,5 @@
 """
-Interaction model classes
+Interaction model classes.
 """
 
 import numpy as np
