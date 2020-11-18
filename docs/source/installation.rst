@@ -3,13 +3,17 @@ Installation
 
 Requirements
 ------------
+- python 3.7
+- pytorch 1.5
+- h5py
 - matplotlib
 - numpy
 - pandas
 - pytorch
-- seaborn
 - scikit-learn
 - scipy
+- seaborn
+- setuptools
 - tqdm
 
 Optional GPU support: CUDA Toolkit, cuDNN
