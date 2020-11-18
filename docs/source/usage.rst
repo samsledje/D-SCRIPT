@@ -7,7 +7,9 @@ Quick Start
 Predict a new network using a trained model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pre-trained models can be downloaded from [TBD]
+Pre-trained models can be downloaded from [TBD].
+Candidate pairs should be in tab-separated (``.tsv``) format with no header, and columns for [protein name 1], [protein name 2].
+Optionally, a third column with [label] can be provided, so predictions can be made using training or test data files (but the label will not affect the predictions).
 
 .. code-block:: bash
 
@@ -25,7 +27,7 @@ Sequences should be in ``.fasta`` format.
 Train and save a model
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Training and validation data should be in  ``.tsv`` format with no header, and columns for [protein name 1], [protein name 2], [label].
+Training and validation data should be in tab-separated (``.tsv``) format with no header, and columns for [protein name 1], [protein name 2], [label].
 
 .. code-block:: bash
 
@@ -45,24 +47,26 @@ Prediction
 
 .. code-block:: bash
 
-    usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
-                        [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
-                        [--predict_cmaps]
+    usage: dscript predict [-h] --pairs PAIRS --model MODEL [--seqs SEQS]
+                        [--embeddings EMBEDDINGS] [-o OUTFILE] [-d DEVICE]
+                        [--thresh THRESH]
 
-    Make new predictions with a pre-trained model.
+    Make new predictions with a pre-trained model. One of --seqs and --embeddings is required.
 
     optional arguments:
     -h, --help            show this help message and exit
     --pairs PAIRS         Candidate protein pairs to predict
-    --seqs SEQS           Protein sequences in .fasta format
     --model MODEL         Pretrained Model
+    --seqs SEQS           Protein sequences in .fasta format
+    --embeddings EMBEDDINGS
+                            h5 file with embedded sequences
     -o OUTFILE, --outfile OUTFILE
                             File for predictions
     -d DEVICE, --device DEVICE
                             Compute device to use
-    --embeddings EMBEDDINGS
-                            h5 file with embedded sequences
-    --predict_cmaps       Output predicted contact maps
+    --thresh THRESH       Positive prediction threshold - used to store contact
+                            maps and predictions in a separate file. [default:
+                            0.5]
 
 Embedding
 ~~~~~~~~~

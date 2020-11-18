@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model.
+Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
 import sys, os
 import torch
