@@ -4,22 +4,19 @@ Usage
 Quick Start
 ~~~~~~~~~~~
 
-- Set up a conda environment using `conda-env.yml <https://github.com/samsledje/D-SCRIPT/blob/main/conda-env.yml>`_
-
-.. code-block:: bash
- 
-    conda create --name [dscript/other env name] --file conda-env.yml
-
-
 Embed sequences with language model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Sequences should be in ``.fasta`` format.
+
 .. code-block:: bash
 
-    dscript embed --seqs [sequences, .fasta format] --outfile [embedding file]
+    dscript embed --seqs [sequences] --outfile [embedding file]
 
 Train and save a model
 ^^^^^^^^^^^^^^^^^^^^^^
+
+Training and validation data should be in  ``.tsv`` format with no header, and columns for [protein name 1], [protein name 2], [label].
 
 .. code-block:: bash
 
@@ -160,9 +157,9 @@ Prediction
 
     usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
                         [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
-                        [--sep SEP]
+                        [--predict_cmaps]
 
-    Make new predictions with a pre-trained model
+    Make new predictions with a pre-trained model.
 
     optional arguments:
     -h, --help            show this help message and exit
@@ -175,4 +172,4 @@ Prediction
                             Compute device to use
     --embeddings EMBEDDINGS
                             h5 file with embedded sequences
-    --sep SEP             Separator for CSV
+    --predict_cmaps       Output predicted contact maps

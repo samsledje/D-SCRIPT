@@ -30,7 +30,7 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -157,6 +157,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -181,7 +182,7 @@
 <span class="kn">from</span> <span class="nn">dscript.models.interaction</span> <span class="kn">import</span> <span class="n">ModelInteraction</span>
 
 
-<span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<div class="viewcode-block" id="add_args"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.add_args">[docs]</a><span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create parser for command line utility.</span>
 
@@ -277,7 +278,7 @@
     <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compute device to use&quot;</span><span class="p">)</span>
     <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--checkpoint&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Checkpoint model to start training from&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">parser</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
 
 
 <div class="viewcode-block" id="predict_interaction"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.predict_interaction">[docs]</a><span class="k">def</span> <span class="nf">predict_interaction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
@@ -452,7 +453,7 @@
     <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">pr</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">aupr</span></div>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run training from arguments.</span>
 
@@ -469,9 +470,9 @@
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Called as: {&quot; &quot;.join(sys.argv)}&#39;</span><span class="p">)</span>
 
-    <span class="c1">## Set the device</span>
+    <span class="c1"># Set device</span>
     <span class="n">device</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">device</span>
-    <span class="n">use_cuda</span> <span class="o">=</span> <span class="p">(</span><span class="n">device</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+    <span class="n">use_cuda</span> <span class="o">=</span> <span class="p">(</span><span class="n">device</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
@@ -565,7 +566,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Initializing interaction model with:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">pool_width: </span><span class="si">{pool_width}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">use_w: </span><span class="si">{use_W}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">ModelInteraction</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">contact</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">,</span> <span class="n">use_W</span><span class="o">=</span><span class="n">use_W</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="n">pool_width</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ModelInteraction</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">contact</span><span class="p">,</span> <span class="n">use_W</span><span class="o">=</span><span class="n">use_W</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="n">pool_width</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
 
@@ -575,7 +576,7 @@
         <span class="n">model</span><span class="o">.</span><span class="n">use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
 
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
 
     <span class="c1"># Train the model</span>
     <span class="n">lr</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">lr</span>
@@ -587,6 +588,8 @@
     <span class="n">cmap_weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">inter_weight</span>
     <span class="n">digits</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">save_prefix</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">save_prefix</span>
+    <span class="k">if</span> <span class="n">save_prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">save_prefix</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">-%H-%M&quot;</span><span class="p">)</span>
 
     <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">]</span>
     <span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">wd</span><span class="p">)</span>
@@ -614,7 +617,7 @@
         <span class="n">mse_accum</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Train batches</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs_train_iterator</span><span class="p">:</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch {epoch+1}/</span><span class="si">{num_epochs}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">)):</span>
 
             <span class="n">loss</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">interaction_grad</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">inter_weight</span><span class="p">)</span>
 
@@ -643,8 +646,9 @@
                     <span class="n">acc_accum</span><span class="p">,</span>
                     <span class="n">mse_accum</span><span class="p">,</span>
                 <span class="p">]</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">batch_report_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tokens</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">batch_report_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tokens</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+                    <span class="n">output</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">report_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
@@ -693,7 +697,7 @@
         <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
             <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
 
-    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

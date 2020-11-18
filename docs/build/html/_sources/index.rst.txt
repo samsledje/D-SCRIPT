@@ -1,7 +1,7 @@
 D-SCRIPT: Deep Learning PPI Prediction
 =======================================
 
-- `D-SCRIPT Home Page <dscript.csail.mit.edu>`_
+- `D-SCRIPT Home Page`_
 
 - `Quick Start <usage.html#quick-start>`_
 
@@ -15,6 +15,7 @@ evolutionarily than sequence, improves generalizability across species.
 If you use D-SCRIPT, please cite "Sequence-based prediction of protein-protein interactions: a structure-aware interpetable deep learning model"
 by `Sam Sledzieski`_, `Rohit Singh`_, `Lenore Cowen`_, and `Bonnie Berger`_ [link TBD].
 
+.. _`D-SCRIPT Home Page`: http://dscript.csail.mit.edu
 .. _`Sam Sledzieski`: http://samsledje.github.io/
 .. _`Rohit Singh`: http://people.csail.mit.edu/rsingh/
 .. _`Lenore Cowen`: http://www.cs.tufts.edu/~cowen/

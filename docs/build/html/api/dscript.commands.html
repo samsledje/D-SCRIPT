@@ -30,7 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.alphabets">dscript.alphabets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.fasta">dscript.fasta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.language_model">dscript.language_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#dscript-pretrained">dscript.pretrained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#module-dscript.utils">dscript.utils</a></li>
 </ul>
 </li>
@@ -175,14 +176,44 @@
 <h2>dscript.commands.embed<a class="headerlink" href="#dscript-commands-embed" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="../usage.html#embedding">Embedding</a> for full usage details.</p>
 <span class="target" id="module-dscript.commands.embed"></span><p>Generate new embeddings using pre-trained language model.</p>
+<dl class="function">
+<dt id="dscript.commands.embed.add_args">
+<code class="sig-prename descclassname">dscript.commands.embed.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/embed.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.embed.add_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create parser for command line utility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscript.commands.embed.main">
+<code class="sig-prename descclassname">dscript.commands.embed.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/embed.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.embed.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run embedding from arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="dscript-commands-train">
 <h2>dscript.commands.train<a class="headerlink" href="#dscript-commands-train" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="../usage.html#training">Training</a> for full usage details.</p>
 <span class="target" id="module-dscript.commands.train"></span><p>Train a new model.</p>
-<dl class="py function">
+<dl class="function">
+<dt id="dscript.commands.train.add_args">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.add_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create parser for command line utility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="dscript.commands.train.interaction_eval">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_iterator</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_eval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_eval</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test_iterator</em>, <em class="sig-param">tensors</em>, <em class="sig-param">use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_eval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate test data set performance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -202,9 +233,9 @@
 </dl>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="dscript.commands.train.interaction_grad">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">0.35</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_grad" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">interaction_grad</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">n0</em>, <em class="sig-param">n1</em>, <em class="sig-param">y</em>, <em class="sig-param">tensors</em>, <em class="sig-param">use_cuda</em>, <em class="sig-param">weight=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#interaction_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.interaction_grad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute gradient and backpropagate loss for a batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -227,9 +258,19 @@
 </dl>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
+<dt id="dscript.commands.train.main">
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run training from arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="dscript.commands.train.predict_cmap_interaction">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_cmap_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_cmap_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_cmap_interaction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_cmap_interaction</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">n0</em>, <em class="sig-param">n1</em>, <em class="sig-param">tensors</em>, <em class="sig-param">use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_cmap_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_cmap_interaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict whether a list of protein pairs will interact, as well as their contact map.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,9 +285,9 @@
 </dl>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="dscript.commands.train.predict_interaction">
-<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_interaction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">n0</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">use_cuda</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_interaction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dscript.commands.train.</code><code class="sig-name descname">predict_interaction</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">n0</em>, <em class="sig-param">n1</em>, <em class="sig-param">tensors</em>, <em class="sig-param">use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/train.html#predict_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.train.predict_interaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict whether a list of protein pairs will interact.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,9 +307,29 @@
 <h2>dscript.commands.eval<a class="headerlink" href="#dscript-commands-eval" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="../usage.html#evaluation">Evaluation</a> for full usage details.</p>
 <span class="target" id="module-dscript.commands.eval"></span><p>Evaluate a trained model.</p>
-<dl class="py function">
+<dl class="function">
+<dt id="dscript.commands.eval.add_args">
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.add_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create parser for command line utility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscript.commands.eval.main">
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run model evaluation from arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="dscript.commands.eval.plot_eval_predictions">
-<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">plot_eval_predictions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">predictions</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'figure'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#plot_eval_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.plot_eval_predictions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dscript.commands.eval.</code><code class="sig-name descname">plot_eval_predictions</code><span class="sig-paren">(</span><em class="sig-param">labels</em>, <em class="sig-param">predictions</em>, <em class="sig-param">path='figure'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/eval.html#plot_eval_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.eval.plot_eval_predictions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -286,6 +347,26 @@
 <h2>dscript.commands.predict<a class="headerlink" href="#dscript-commands-predict" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="../usage.html#prediction">Prediction</a> for full usage details.</p>
 <span class="target" id="module-dscript.commands.predict"></span><p>Make new predictions with a pre-trained model.</p>
+<dl class="function">
+<dt id="dscript.commands.predict.add_args">
+<code class="sig-prename descclassname">dscript.commands.predict.</code><code class="sig-name descname">add_args</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/predict.html#add_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.predict.add_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create parser for command line utility</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscript.commands.predict.main">
+<code class="sig-prename descclassname">dscript.commands.predict.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/commands/predict.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscript.commands.predict.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run new prediction from arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Meta private</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
