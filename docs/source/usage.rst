@@ -4,6 +4,15 @@ Usage
 Quick Start
 ~~~~~~~~~~~
 
+Predict a new network using a trained model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pre-trained models can be downloaded from [TBD]
+
+.. code-block:: bash
+
+    dscript predict --pairs [input data] --seqs [sequences, .fasta format] --model [model file]
+
 Embed sequences with language model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -31,12 +40,29 @@ Evaluate a trained model
     dscript eval --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
 
 
-Predict a new network using a trained model
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Prediction
+~~~~~~~~~~
 
 .. code-block:: bash
 
-    dscript predict --pairs [input data] --seqs [sequences, .fasta format] --model [model file]
+    usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
+                        [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
+                        [--predict_cmaps]
+
+    Make new predictions with a pre-trained model.
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --pairs PAIRS         Candidate protein pairs to predict
+    --seqs SEQS           Protein sequences in .fasta format
+    --model MODEL         Pretrained Model
+    -o OUTFILE, --outfile OUTFILE
+                            File for predictions
+    -d DEVICE, --device DEVICE
+                            Compute device to use
+    --embeddings EMBEDDINGS
+                            h5 file with embedded sequences
+    --predict_cmaps       Output predicted contact maps
 
 Embedding
 ~~~~~~~~~
@@ -149,27 +175,3 @@ Evaluation
                             Output file to write results
     -d DEVICE, --device DEVICE
                             Compute device to use
-
-Prediction
-~~~~~~~~~~
-
-.. code-block:: bash
-
-    usage: dscript predict [-h] --pairs PAIRS --seqs SEQS --model MODEL
-                        [-o OUTFILE] [-d DEVICE] [--embeddings EMBEDDINGS]
-                        [--predict_cmaps]
-
-    Make new predictions with a pre-trained model.
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    --pairs PAIRS         Candidate protein pairs to predict
-    --seqs SEQS           Protein sequences in .fasta format
-    --model MODEL         Pretrained Model
-    -o OUTFILE, --outfile OUTFILE
-                            File for predictions
-    -d DEVICE, --device DEVICE
-                            Compute device to use
-    --embeddings EMBEDDINGS
-                            h5 file with embedded sequences
-    --predict_cmaps       Output predicted contact maps
