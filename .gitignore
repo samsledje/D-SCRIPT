@@ -7,3 +7,4 @@ dist/*
 **/*.h5
 **/.ipynb_checkpoints/**
 **/__pycache__/**
+collect_env.py
