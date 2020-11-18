@@ -129,7 +129,7 @@ def main(args):
         outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     else:
         outPath = args.outfile
-    outFile = open(outPath + ".txt", "w+")
+    outFile = open(outPath + ".predictions.tsv", "w+")
 
     allProteins = set(test_df[0]).union(test_df[1])
 
@@ -151,7 +151,7 @@ def main(args):
                 pred = model.predict(p0, p1).item()
                 phats.append(pred)
                 labels.append(label)
-                print("{}\t{}\t1\t{:.5}".format(n0, n1, pred), file=outFile)
+                print("{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred), file=outFile)
             except Exception as e:
                 sys.stderr.write("{} x {} - {}".format(n0, n1, e))
 

@@ -1,5 +1,7 @@
 build/*
+scratch/*
 dist/*
+**/*.pt
 .vscode/**
 *.egg-info
 **/*.h5

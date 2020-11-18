@@ -77,7 +77,6 @@ class ModelInteraction(nn.Module):
         self,
         embedding,
         contact,
-        use_cuda,
         pool_size=9,
         theta_init=1,
         lambda_init=0,
@@ -85,7 +84,6 @@ class ModelInteraction(nn.Module):
         use_W=True,
     ):
         super(ModelInteraction, self).__init__()
-        self.use_cuda = use_cuda
         self.use_W = use_W
         self.activation = LogisticActivation(x0=0.5, k=20)
 
@@ -165,12 +163,12 @@ class ModelInteraction(nn.Module):
             N, M = C.shape[2:]
 
             x1 = torch.from_numpy(-1 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))) ** 2).float()
-            if self.use_cuda:
+            if self.gamma.device.type == 'cuda':
                 x1 = x1.cuda()
             x1 = torch.exp(self.lambda_ * x1)
 
             x2 = torch.from_numpy(-1 * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))) ** 2).float()
-            if self.use_cuda:
+            if self.gamma.device.type == 'cuda':
                 x2 = x2.cuda()
             x2 = torch.exp(self.lambda_ * x2)
 

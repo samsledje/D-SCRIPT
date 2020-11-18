@@ -414,7 +414,7 @@ def main(args):
         print("# Initializing interaction model with:", file=output)
         print(f"\tpool_width: {pool_width}", file=output)
         print(f"\tuse_w: {use_W}", file=output)
-        model = ModelInteraction(embedding, contact, use_cuda, use_W=use_W, pool_size=pool_width)
+        model = ModelInteraction(embedding, contact, use_W=use_W, pool_size=pool_width)
 
         print(model, file=output)
 
@@ -424,7 +424,7 @@ def main(args):
         model.use_cuda = use_cuda
 
     if use_cuda:
-        model.cuda()
+        model = model.cuda()
 
     # Train the model
     lr = args.lr

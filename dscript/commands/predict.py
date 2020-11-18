@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from dscript.alphabets import Uniprot21
 from dscript.fasta import parse
-from dscript.models.embedding import IdentityEmbed, SkipLSTM
+from dscript.language_model import lm_embed
 
 
 def add_args(parser):
@@ -23,12 +23,17 @@ def add_args(parser):
     """
 
     parser.add_argument("--pairs", help="Candidate protein pairs to predict", required=True)
-    parser.add_argument("--seqs", help="Protein sequences in .fasta format", required=True)
     parser.add_argument("--model", help="Pretrained Model", required=True)
+    parser.add_argument("--seqs", help="Protein sequences in .fasta format")
+    parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
-    parser.add_argument("--embeddings", help="h5 file with embedded sequences")
-    parser.add_argument("--predict_cmaps", action="store_true", help="Output predicted contact maps")
+    parser.add_argument(
+        "--thresh",
+        type=float,
+        default=0.5,
+        help="Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]",
+    )
     return parser
 
 
@@ -38,21 +43,21 @@ def main(args):
 
     :meta private:
     """
+    if args.seqs is None and args.embeddings is None:
+        print("One of --seqs or --embeddings is required.")
+        sys.exit(0)
+
     csvPath = args.pairs
-    fastaPath = args.seqs
     modelPath = args.model
     outPath = args.outfile
+    seqPath = args.seqs
     embPath = args.embeddings
     device = args.device
-    cmaps = args.predict_cmaps
+    threshold = args.thresh
 
+    # Set Outpath
     if outPath is None:
-        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.predictions.tsv")
-
-    if embPath:
-        precomputedEmbeddings = True
-    else:
-        precomputedEmbeddings = False
+        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.predictions")
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
@@ -62,27 +67,7 @@ def main(args):
     else:
         print("# Using CPU")
 
-    try:
-        names, seqs = parse(open(fastaPath, "rb"))
-        seqDict = {n.decode("utf-8"): s for n, s in zip(names, seqs)}
-    except FileNotFoundError:
-        print(f"# Sequence File {fastaPath} not found")
-        sys.exit(1)
-
-    try:
-        pairs = pd.read_csv(csvPath, sep="\t", header=None)
-    except FileNotFoundError:
-        print(f"# Pairs File {csvPath} not found")
-        sys.exit(1)
-
-    if precomputedEmbeddings:
-        all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
-        print("# Preloading Embeddings...")
-        embedH5 = h5py.File(embPath, "r")
-        embeddings = {}
-        for n in tqdm(all_prots):
-            embeddings[n] = torch.from_numpy(embedH5[n][:])
-
+    # Load Model
     try:
         if use_cuda:
             model = torch.load(modelPath).cuda()
@@ -93,33 +78,63 @@ def main(args):
         print(f"# Model {modelPath} not found")
         sys.exit(1)
 
+    # Load Pairs
+    try:
+        pairs = pd.read_csv(csvPath, sep="\t", header=None)
+        all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
+    except FileNotFoundError:
+        print(f"# Pairs File {csvPath} not found")
+        sys.exit(1)
+
+    # Load Sequences or Embeddings
+    if embPath is None:
+        try:
+            names, seqs = parse(open(seqPath, "r"))
+            seqDict = {n: s for n, s in zip(names, seqs)}
+        except FileNotFoundError:
+            print(f"# Sequence File {fastaPath} not found")
+            sys.exit(1)
+        print("# Generating Embeddings...")
+        embeddings = {}
+        for n in tqdm(all_prots):
+            embeddings[n] = lm_embed(seqDict[n], use_cuda)
+    else:
+        print("# Loading Embeddings...")
+        embedH5 = h5py.File(embPath, "r")
+        embeddings = {}
+        for n in tqdm(all_prots):
+            embeddings[n] = torch.from_numpy(embedH5[n][:])
+        embedH5.close()
+
+    # Make Predictions
     print("# Making Predictions...")
     n = 0
-    if cmaps:
-        cmap_file = h5py.File(outPath+".cmaps.h5","w")
-    with open(outPath, "w+") as f:
-        with torch.no_grad():
-            for _, (n0, n1) in tqdm(pairs.iloc[:,:2].iterrows(), total=len(pairs)):
-                n0 = str(n0)
-                n1 = str(n1)
-                if n % 50 == 0:
-                    f.flush()
-                n += 1
-                p0 = embeddings[n0]
-                p1 = embeddings[n1]
-                if use_cuda:
-                    p0 = p0.cuda()
-                    p1 = p1.cuda()
+    outPathAll = f"{outPath}.tsv"
+    outPathPos = f"{outPath}.positive.tsv"
+    cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
+    with open(outPathAll, "w+") as f:
+        with open(outPathPos, "w+") as pos_f:
+            with torch.no_grad():
+                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
+                    n0 = str(n0)
+                    n1 = str(n1)
+                    if n % 50 == 0:
+                        f.flush()
+                    n += 1
+                    p0 = embeddings[n0]
+                    p1 = embeddings[n1]
+                    if use_cuda:
+                        p0 = p0.cuda()
+                        p1 = p1.cuda()
 
-                if cmaps:
                     cm, p = model.map_predict(p0, p1)
-                    cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
-                else:
-                    p = model.predict(p0, p1)
-                f.write("{}\t{}\t{}\n".format(n0, n1, p.item()))
+                    p = p.item()
+                    f.write(f"{n0}\t{n1}\t{p}\n")
+                    if p >= threshold:
+                        pos_f.write(f"{n0}\t{n1}\t{p}\n")
+                        cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
 
-    if cmaps:
-        cmap_file.close()
+    cmap_file.close()
 
 
 if __name__ == "__main__":

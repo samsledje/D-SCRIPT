@@ -5,35 +5,38 @@ import torch
 import h5py
 from tqdm import tqdm
 from .fasta import parse, parse_directory, write
+from .pretrained import get_pretrained
 from .alphabets import Uniprot21
 from .models.embedding import SkipLSTM
 from datetime import datetime
 
 
-def get_state_dict(version=1):
+def lm_embed(sequence, use_cuda=False):
     """
-    Download the pre-trained language model if not already exists on local device. This is required because the model state dict is too large to be stored on Github.
+    Embed a single sequence using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
 
-    :param version: Version of language model to download [default: 1]
-    :type version: int
-    :return: Path to state dictionary for pre-trained language model
-    :rtype: str
+    :param sequence: Input sequence to be embedded
+    :type sequence: str
+    :param use_cuda: Whether to generate embeddings using GPU device [default: False]
+    :type use_cuda: bool
+    :return: Embedded sequence
+    :rtype: torch.Tensor
     """
-    state_dict_basename = f"lm_model_v{version}.pt"
-    state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
-    state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
-    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/{state_dict_basename}"
-    if not os.path.exists(state_dict_fullname):
-        try:
-            import urllib.request
-            import shutil
-            print("Downloading Language Model from {}...".format(state_dict_url))
-            with urllib.request.urlopen(state_dict_url) as response, open(state_dict_fullname, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
-        except Exception as e:
-            print("Unable to download language model - {}".format(e))
-            sys.exit(1)
-    return state_dict_fullname
+
+    model = get_pretrained("lm_v1")
+    torch.nn.init.normal_(model.proj.weight)
+    model.proj.bias = torch.nn.Parameter(torch.zeros(100))
+    if use_cuda:
+        model = model.cuda()
+
+    with torch.no_grad():
+        alphabet = Uniprot21()
+        es = torch.from_numpy(alphabet.encode(sequence.encode('utf-8')))
+        x = es.long().unsqueeze(0)
+        if use_cuda:
+            x = x.cuda()
+        z = model.transform(x)
+        return z.cpu()
 
 
 def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
@@ -60,11 +63,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     if verbose:
         print("# Loading Model...")
-    model = SkipLSTM(21, 100, 1024, 3)
-    lm_state_dict = get_state_dict()
-    if verbose:
-        print('# Using model from {}'.format(lm_state_dict))
-    model.load_state_dict(torch.load(lm_state_dict))
+    model = get_pretrained("lm_v1")
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
     if use_cuda:
