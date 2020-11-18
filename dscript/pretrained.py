@@ -34,7 +34,7 @@ VALID_MODELS = {
         }
 
 
-def get_state_dict(version="human_1", verbose=True):
+def get_state_dict(version="human_v1", verbose=True):
     """
     Download a pre-trained model if not already exists on local device.
 
@@ -42,7 +42,7 @@ def get_state_dict(version="human_1", verbose=True):
     :type version: str
     :param verbose: Print model download status on stdout [default: True]
     :type verbose: bool
-    :return: Path to state dictionary for pre-traine language model
+    :return: Path to state dictionary for pre-trained language model
     :rtype: str
     """
     state_dict_basename = f"dscript_{version}.pt"
@@ -62,9 +62,19 @@ def get_state_dict(version="human_1", verbose=True):
     return state_dict_fullname
 
 
-def get_pretrained(version="human_1"):
+def get_pretrained(version="human_v1"):
     """
-    Get pre-trained model
+    Get pre-trained model object.
+
+    Currently Available Models
+    ==========================
+
+    See the `documentation <https://d-script.readthedocs.io/en/main/data.html#trained-models>`_ for most up-to-date list.
+
+    - ``lm_v1`` - Language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
+    - ``human_v1`` - Human trained model from D-SCRIPT manuscript.
+
+    Default: ``human_v1``
 
     :param version: Version of pre-trained model to get
     :type version: str
