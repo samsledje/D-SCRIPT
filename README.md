@@ -2,6 +2,7 @@
  ![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
 
 <!--- #![GitHub release (latest by date)](https://img.shields.io/github/v/release/samsledje/D-SCRIPT) --->
+![PyPI](https://img.shields.io/pypi/v/dscript)
 [![Documentation Status](https://readthedocs.org/projects/d-script/badge/?version=main)](https://d-script.readthedocs.io/en/main/?badge=main)
 ![License](https://img.shields.io/github/license/samsledje/D-SCRIPT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
