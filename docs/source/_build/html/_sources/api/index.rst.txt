@@ -31,6 +31,14 @@ dscript.language\_model
    :undoc-members:
    :show-inheritance:
 
+dscript.pretrained
+------------------
+
+.. auotmodule:: dscript.pretrained
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dscript.utils
 -------------
 

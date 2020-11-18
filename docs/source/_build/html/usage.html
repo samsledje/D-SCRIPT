@@ -169,14 +169,6 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Set up a conda environment using <a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/conda-env.yml">conda-env.yml</a></p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create --name dscript --file environment.yml
-
-conda activate <span class="o">[</span>dscript<span class="o">]</span>
-</pre></div>
-</div>
 <div class="section" id="embed-sequences-with-language-model">
 <h3>Embed sequences with language model<a class="headerlink" href="#embed-sequences-with-language-model" title="Permalink to this headline">¶</a></h3>
 <p>Sequences should be in <code class="docutils literal notranslate"><span class="pre">.fasta</span></code> format.</p>
@@ -317,9 +309,9 @@ optional arguments:
 <h2>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: dscript predict <span class="o">[</span>-h<span class="o">]</span> --pairs PAIRS --seqs SEQS --model MODEL
                     <span class="o">[</span>-o OUTFILE<span class="o">]</span> <span class="o">[</span>-d DEVICE<span class="o">]</span> <span class="o">[</span>--embeddings EMBEDDINGS<span class="o">]</span>
-                    <span class="o">[</span>--sep SEP<span class="o">]</span>
+                    <span class="o">[</span>--predict_cmaps<span class="o">]</span>
 
-Make new predictions with a pre-trained model
+Make new predictions with a pre-trained model.
 
 optional arguments:
 -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
@@ -332,7 +324,7 @@ optional arguments:
                         Compute device to use
 --embeddings EMBEDDINGS
                         h5 file with embedded sequences
---sep SEP             Separator <span class="k">for</span> CSV
+--predict_cmaps       Output predicted contact maps
 </pre></div>
 </div>
 </div>
