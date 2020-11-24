@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+import dscript
 
 setup(name="dscript",
-        version="0.1.0",
+        version=dscript.__version__,
         description="D-SCRIPT: protein-protein interaction prediction",
         author="Samuel Sledzieski",
         author_email="samsl@mit.edu",
