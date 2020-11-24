@@ -34,8 +34,6 @@ Set up environment
 Install from pip
 ----------------
 
-[TBD]
-
 .. code-block:: bash
 
     pip install dscript

@@ -3,8 +3,6 @@
 from setuptools import setup, find_packages
 import dscript
 
-print(dscript.__version__)
-
 setup(name="dscript",
         version=dscript.__version__,
         description="D-SCRIPT: protein-protein interaction prediction",
