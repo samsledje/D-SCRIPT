@@ -137,6 +137,7 @@ def main(args):
     for i in tqdm(allProteins, desc="Loading embeddings"):
         seqEmbDict[i] = torch.from_numpy(h5fi[i][:]).float()
 
+    model.eval()
     with torch.no_grad():
         phats = []
         labels = []

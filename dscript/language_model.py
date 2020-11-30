@@ -28,6 +28,7 @@ def lm_embed(sequence, use_cuda=False):
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
     if use_cuda:
         model = model.cuda()
+    model.eval()
 
     with torch.no_grad():
         alphabet = Uniprot21()
@@ -69,6 +70,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if use_cuda:
         model = model.cuda()
 
+    model.eval()
     if verbose:
         print("# Loading Sequences...")
     names, seqs = parse(open(fastaPath, "rb"))

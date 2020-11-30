@@ -13,6 +13,7 @@ def build_lm_1(state_dict_path):
     model = SkipLSTM(21, 100, 1024, 3)
     state_dict = torch.load(state_dict_path)
     model.load_state_dict(state_dict)
+    model.eval()
     return model
 
 
@@ -25,6 +26,7 @@ def build_human_1(state_dict_path):
     model = ModelInteraction(embModel, conModel, use_W=True, pool_size=9)
     state_dict = torch.load(state_dict_path)
     model.load_state_dict(state_dict)
+    model.eval()
     return model
 
 

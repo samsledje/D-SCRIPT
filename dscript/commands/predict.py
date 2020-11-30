@@ -112,6 +112,7 @@ def main(args):
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
     cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
+    model.eval()
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
