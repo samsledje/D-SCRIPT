@@ -92,7 +92,7 @@ def main(args):
             names, seqs = parse(open(seqPath, "r"))
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
-            print(f"# Sequence File {fastaPath} not found")
+            print(f"# Sequence File {seqPath} not found")
             sys.exit(1)
         print("# Generating Embeddings...")
         embeddings = {}
