@@ -135,7 +135,7 @@ def main(args):
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
                             cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
-                        print('{n0} x {n1} skipped - CUDA out of memory',file=sys.stderr)
+                        print(f"{n0} x {n1} skipped - CUDA out of memory",file=sys.stderr)
 
     cmap_file.close()
 
