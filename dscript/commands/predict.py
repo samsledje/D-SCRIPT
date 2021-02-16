@@ -127,13 +127,15 @@ def main(args):
                     if use_cuda:
                         p0 = p0.cuda()
                         p1 = p1.cuda()
-
-                    cm, p = model.map_predict(p0, p1)
-                    p = p.item()
-                    f.write(f"{n0}\t{n1}\t{p}\n")
-                    if p >= threshold:
-                        pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                        cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                    try:
+                        cm, p = model.map_predict(p0, p1)
+                        p = p.item()
+                        f.write(f"{n0}\t{n1}\t{p}\n")
+                        if p >= threshold:
+                            pos_f.write(f"{n0}\t{n1}\t{p}\n")
+                            cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                    except RuntimeError as e:
+                        print('{n0} x {n1} skipped - CUDA out of memory',file=sys.stderr)
 
     cmap_file.close()
 
