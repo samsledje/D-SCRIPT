@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>dscript.language_model &mdash; D-SCRIPT v1.0-beta documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,8 +32,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -50,7 +51,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+            <a href="../../index.html" class="icon icon-home"> D-SCRIPT
           
 
           
@@ -126,6 +127,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -180,6 +183,7 @@
     <span class="n">model</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
         <span class="n">alphabet</span> <span class="o">=</span> <span class="n">Uniprot21</span><span class="p">()</span>
@@ -208,7 +212,7 @@
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Using CUDA device </span><span class="si">{device}</span><span class="s2"> - {torch.cuda.get_device_name(device)}&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Using CUDA device </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Using CPU&quot;</span><span class="p">)</span>
@@ -221,6 +225,7 @@
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
 
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Loading Sequences...&quot;</span><span class="p">)</span>
     <span class="n">names</span><span class="p">,</span> <span class="n">seqs</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fastaPath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
@@ -269,9 +274,9 @@
 <span class="sd">    :type extension: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nam</span><span class="p">,</span> <span class="n">seq</span> <span class="o">=</span> <span class="n">parse_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
-    <span class="n">fastaPath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{directory}</span><span class="s2">/allSeqs.fa&quot;</span>
+    <span class="n">fastaPath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/allSeqs.fa&quot;</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fastaPath</span><span class="p">):</span>
-        <span class="n">fastaPath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{fastaPath}</span><span class="s2">.{int(datetime.utcnow().timestamp())}&quot;</span>
+        <span class="n">fastaPath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fastaPath</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">write</span><span class="p">(</span><span class="n">nam</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">fastaPath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
     <span class="n">embed_from_fasta</span><span class="p">(</span><span class="n">fastaPath</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
 </pre></div>
@@ -280,28 +285,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+        &#169; Copyright 2020, Samuel Sledzieski, Rohit Singh.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

@@ -1,6 +1,16 @@
 dscript.commands
 ================
 
+dscript.commands.predict
+------------------------
+
+See `Prediction <../usage.html#prediction>`_ for full usage details.
+
+.. automodule:: dscript.commands.predict
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dscript.commands.embed
 ----------------------
 
@@ -27,16 +37,6 @@ dscript.commands.eval
 See `Evaluation <../usage.html#evaluation>`_ for full usage details.
 
 .. automodule:: dscript.commands.eval
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscript.commands.predict
-------------------------
-
-See `Prediction <../usage.html#prediction>`_ for full usage details.
-
-.. automodule:: dscript.commands.predict
    :members:
    :undoc-members:
    :show-inheritance:

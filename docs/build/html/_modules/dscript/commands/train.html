@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>dscript.commands.train &mdash; D-SCRIPT v1.0-beta documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,8 +32,6 @@
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -50,7 +51,7 @@
           
 
           
-            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+            <a href="../../../index.html" class="icon icon-home"> D-SCRIPT
           
 
           
@@ -126,6 +127,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -182,7 +185,7 @@
 <span class="kn">from</span> <span class="nn">dscript.models.interaction</span> <span class="kn">import</span> <span class="n">ModelInteraction</span>
 
 
-<div class="viewcode-block" id="add_args"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.add_args">[docs]</a><span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create parser for command line utility.</span>
 
@@ -273,12 +276,12 @@
     <span class="p">)</span>
 
     <span class="c1"># Output</span>
-    <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file path (default: stdout)&quot;</span><span class="p">)</span>
+    <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--outfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file path (default: stdout)&quot;</span><span class="p">)</span>
     <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--save-prefix&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path prefix for saving models&quot;</span><span class="p">)</span>
     <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compute device to use&quot;</span><span class="p">)</span>
     <span class="n">misc_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--checkpoint&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Checkpoint model to start training from&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">parser</span></div>
+    <span class="k">return</span> <span class="n">parser</span>
 
 
 <div class="viewcode-block" id="predict_interaction"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.predict_interaction">[docs]</a><span class="k">def</span> <span class="nf">predict_interaction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
@@ -453,22 +456,22 @@
     <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">pr</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">aupr</span></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/dscript.commands.html#dscript.commands.train.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run training from arguments.</span>
 
 <span class="sd">    :meta private:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;# Called as: {&quot; &quot;.join(sys.argv)}&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;# Called as: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Called as: {&quot; &quot;.join(sys.argv)}&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Called as: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="c1"># Set device</span>
     <span class="n">device</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">device</span>
@@ -476,7 +479,7 @@
     <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;# Using CUDA device </span><span class="si">{device}</span><span class="s2"> - {torch.cuda.get_device_name(device)}&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;# Using CUDA device </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -491,7 +494,7 @@
     <span class="n">embedding_h5</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">embedding</span>
     <span class="n">h5fi</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">embedding_h5</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Loading training pairs from </span><span class="si">{train_fi}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Loading training pairs from </span><span class="si">{</span><span class="n">train_fi</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="n">output</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">train_fi</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -503,7 +506,7 @@
         <span class="n">train_n0</span><span class="p">,</span> <span class="n">train_n1</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">train_df</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">train_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Loading testing pairs from </span><span class="si">{test_fi}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Loading testing pairs from </span><span class="si">{</span><span class="n">test_fi</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="n">output</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">test_fi</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -548,15 +551,15 @@
         <span class="n">dropout_p</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dropout_p</span>
         <span class="n">embedding</span> <span class="o">=</span> <span class="n">FullyConnectedEmbed</span><span class="p">(</span><span class="mi">6165</span><span class="p">,</span> <span class="n">projection_dim</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_p</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Initializing embedding model with:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">projection_dim: </span><span class="si">{projection_dim}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">dropout_p: </span><span class="si">{dropout_p}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">projection_dim: </span><span class="si">{</span><span class="n">projection_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">dropout_p: </span><span class="si">{</span><span class="n">dropout_p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
 
         <span class="c1"># Create contact model</span>
         <span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hidden_dim</span>
         <span class="n">kernel_width</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">kernel_width</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Initializing contact model with:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">hidden_dim: </span><span class="si">{hidden_dim}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">kernel_width: </span><span class="si">{kernel_width}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">hidden_dim: </span><span class="si">{</span><span class="n">hidden_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">kernel_width: </span><span class="si">{</span><span class="n">kernel_width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
 
         <span class="n">contact</span> <span class="o">=</span> <span class="n">ContactCNN</span><span class="p">(</span><span class="n">projection_dim</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">kernel_width</span><span class="p">)</span>
 
@@ -564,8 +567,8 @@
         <span class="n">use_W</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_w</span>
         <span class="n">pool_width</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pool_width</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Initializing interaction model with:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">pool_width: </span><span class="si">{pool_width}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">use_w: </span><span class="si">{use_W}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">pool_width: </span><span class="si">{</span><span class="n">pool_width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">use_w: </span><span class="si">{</span><span class="n">use_W</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">ModelInteraction</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">contact</span><span class="p">,</span> <span class="n">use_W</span><span class="o">=</span><span class="n">use_W</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="n">pool_width</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
@@ -594,13 +597,13 @@
     <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">]</span>
     <span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">wd</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;# Using save prefix &quot;</span><span class="si">{save_prefix}</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Training with Adam: lr=</span><span class="si">{lr}</span><span class="s2">, weight_decay=</span><span class="si">{wd}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">num_epochs: </span><span class="si">{num_epochs}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">epoch_scale: </span><span class="si">{report_steps}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">batch_size: </span><span class="si">{batch_size}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">interaction weight: </span><span class="si">{inter_weight}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">contact map weight: </span><span class="si">{cmap_weight}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;# Using save prefix &quot;</span><span class="si">{</span><span class="n">save_prefix</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Training with Adam: lr=</span><span class="si">{</span><span class="n">lr</span><span class="si">}</span><span class="s2">, weight_decay=</span><span class="si">{</span><span class="n">wd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">num_epochs: </span><span class="si">{</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">epoch_scale: </span><span class="si">{</span><span class="n">report_steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">batch_size: </span><span class="si">{</span><span class="n">batch_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">interaction weight: </span><span class="si">{</span><span class="n">inter_weight</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">contact map weight: </span><span class="si">{</span><span class="n">cmap_weight</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="n">output</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="n">batch_report_fmt</span> <span class="o">=</span> <span class="s2">&quot;# [</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">] training </span><span class="si">{:.1%}</span><span class="s2">: Loss=</span><span class="si">{:.6}</span><span class="s2">, Accuracy=</span><span class="si">{:.3%}</span><span class="s2">, MSE=</span><span class="si">{:.6}</span><span class="s2">&quot;</span>
@@ -617,7 +620,7 @@
         <span class="n">mse_accum</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Train batches</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch {epoch+1}/</span><span class="si">{num_epochs}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pairs_train_iterator</span><span class="p">)):</span>
 
             <span class="n">loss</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">interaction_grad</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">inter_weight</span><span class="p">)</span>
 
@@ -681,7 +684,7 @@
             <span class="c1"># Save the model</span>
             <span class="k">if</span> <span class="n">save_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_prefix</span> <span class="o">+</span> <span class="s2">&quot;_epoch&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.sav&quot;</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Saving model to </span><span class="si">{save_path}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Saving model to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
                 <span class="n">model</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
                 <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
@@ -691,13 +694,13 @@
 
     <span class="k">if</span> <span class="n">save_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_prefix</span> <span class="o">+</span> <span class="s2">&quot;_final.sav&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Saving final model to </span><span class="si">{save_path}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Saving final model to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="n">model</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
             <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
 
-    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -710,28 +713,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+        &#169; Copyright 2020, Samuel Sledzieski, Rohit Singh.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Data &mdash; D-SCRIPT v1.0-beta documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,8 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -52,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+            <a href="index.html" class="icon icon-home"> D-SCRIPT
           
 
           
@@ -88,7 +89,11 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#trained-models">Trained Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sample-data">Sample Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-data">Sample Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sequences">Sequences</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interactions">Interactions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
@@ -132,6 +137,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -143,7 +150,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/data.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -161,11 +168,34 @@
 <h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="trained-models">
 <h2>Trained Models<a class="headerlink" href="#trained-models" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://cb.csail.mit.edu/cb/dscript/data/models/lm_v1.sav">Bepler &amp; Berger language model</a></p></li>
+<li><p><a class="reference external" href="http://cb.csail.mit.edu/cb/dscript/data/models/human_v1.sav">Human data trained model</a></p></li>
+</ul>
 </div>
 <div class="section" id="sample-data">
 <h2>Sample Data<a class="headerlink" href="#sample-data" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon.</p>
+<div class="section" id="sequences">
+<h3>Sequences<a class="headerlink" href="#sequences" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/human.fasta">Human</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/mouse.fasta">Mouse</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/fly.fasta">Fly</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/yeast.fasta">Yeast</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/worm.fasta">Worm</a></p></li>
+</ul>
+</div>
+<div class="section" id="interactions">
+<h3>Interactions<a class="headerlink" href="#interactions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/human_train.tsv">Human Train</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/human_test.tsv">Human Test</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/mouse_test.tsv">Mouse Test</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/fly_test.tsv">Fly Test</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/yeast_test.tsv">Yeast Test</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/worm_test.tsv">Worm Test</a></p></li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -174,37 +204,29 @@
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="api/index.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="api/index.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+        &#169; Copyright 2020, Samuel Sledzieski, Rohit Singh.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

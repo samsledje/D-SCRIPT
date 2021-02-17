@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Usage &mdash; D-SCRIPT v1.0-beta documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,8 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -52,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> D-SCRIPT
+            <a href="index.html" class="icon icon-home"> D-SCRIPT
           
 
           
@@ -87,16 +88,16 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#predict-a-new-network-using-a-trained-model">Predict a new network using a trained model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#embed-sequences-with-language-model">Embed sequences with language model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#train-and-save-a-model">Train and save a model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#evaluate-a-trained-model">Evaluate a trained model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#predict-a-new-network-using-a-trained-model">Predict a new network using a trained model</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#prediction">Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#embedding">Embedding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#evaluation">Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prediction">Prediction</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
@@ -141,6 +142,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -152,7 +155,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -170,6 +173,15 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="predict-a-new-network-using-a-trained-model">
+<h3>Predict a new network using a trained model<a class="headerlink" href="#predict-a-new-network-using-a-trained-model" title="Permalink to this headline">¶</a></h3>
+<p>Pre-trained models can be downloaded from [TBD].
+Candidate pairs should be in tab-separated (<code class="docutils literal notranslate"><span class="pre">.tsv</span></code>) format with no header, and columns for [protein name 1], [protein name 2].
+Optionally, a third column with [label] can be provided, so predictions can be made using training or test data files (but the label will not affect the predictions).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dscript predict --pairs <span class="o">[</span>input data<span class="o">]</span> --seqs <span class="o">[</span>sequences, .fasta format<span class="o">]</span> --model <span class="o">[</span>model file<span class="o">]</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="embed-sequences-with-language-model">
 <h3>Embed sequences with language model<a class="headerlink" href="#embed-sequences-with-language-model" title="Permalink to this headline">¶</a></h3>
 <p>Sequences should be in <code class="docutils literal notranslate"><span class="pre">.fasta</span></code> format.</p>
@@ -179,7 +191,7 @@
 </div>
 <div class="section" id="train-and-save-a-model">
 <h3>Train and save a model<a class="headerlink" href="#train-and-save-a-model" title="Permalink to this headline">¶</a></h3>
-<p>Training and validation data should be in  <code class="docutils literal notranslate"><span class="pre">.tsv</span></code> format with no header, and columns for [protein name 1], [protein name 2], [label].</p>
+<p>Training and validation data should be in tab-separated (<code class="docutils literal notranslate"><span class="pre">.tsv</span></code>) format with no header, and columns for [protein name 1], [protein name 2], [label].</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dscript train --train <span class="o">[</span>training data<span class="o">]</span> --val <span class="o">[</span>validation data<span class="o">]</span> --embedding <span class="o">[</span>embedding file<span class="o">]</span> --save-prefix <span class="o">[</span>prefix<span class="o">]</span>
 </pre></div>
 </div>
@@ -190,11 +202,30 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="predict-a-new-network-using-a-trained-model">
-<h3>Predict a new network using a trained model<a class="headerlink" href="#predict-a-new-network-using-a-trained-model" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dscript predict --pairs <span class="o">[</span>input data<span class="o">]</span> --seqs <span class="o">[</span>sequences, .fasta format<span class="o">]</span> --model <span class="o">[</span>model file<span class="o">]</span>
-</pre></div>
 </div>
+<div class="section" id="prediction">
+<h2>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: dscript predict <span class="o">[</span>-h<span class="o">]</span> --pairs PAIRS --model MODEL <span class="o">[</span>--seqs SEQS<span class="o">]</span>
+                    <span class="o">[</span>--embeddings EMBEDDINGS<span class="o">]</span> <span class="o">[</span>-o OUTFILE<span class="o">]</span> <span class="o">[</span>-d DEVICE<span class="o">]</span>
+                    <span class="o">[</span>--thresh THRESH<span class="o">]</span>
+
+Make new predictions with a pre-trained model. One of --seqs and --embeddings is required.
+
+optional arguments:
+-h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+--pairs PAIRS         Candidate protein pairs to predict
+--model MODEL         Pretrained Model
+--seqs SEQS           Protein sequences in .fasta format
+--embeddings EMBEDDINGS
+                        h5 file with embedded sequences
+-o OUTFILE, --outfile OUTFILE
+                        File <span class="k">for</span> predictions
+-d DEVICE, --device DEVICE
+                        Compute device to use
+--thresh THRESH       Positive prediction threshold - used to store contact
+                        maps and predictions in a separate file. <span class="o">[</span>default:
+                        <span class="m">0</span>.5<span class="o">]</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="embedding">
@@ -222,7 +253,7 @@ optional arguments:
                     <span class="o">[</span>--negative-ratio NEGATIVE_RATIO<span class="o">]</span>
                     <span class="o">[</span>--epoch-scale EPOCH_SCALE<span class="o">]</span> <span class="o">[</span>--num-epochs NUM_EPOCHS<span class="o">]</span>
                     <span class="o">[</span>--batch-size BATCH_SIZE<span class="o">]</span> <span class="o">[</span>--weight-decay WEIGHT_DECAY<span class="o">]</span>
-                    <span class="o">[</span>--lr LR<span class="o">]</span> <span class="o">[</span>--lambda LAMBDA_<span class="o">]</span> <span class="o">[</span>-o OUTPUT<span class="o">]</span>
+                    <span class="o">[</span>--lr LR<span class="o">]</span> <span class="o">[</span>--lambda LAMBDA_<span class="o">]</span> <span class="o">[</span>-o OUTFILE<span class="o">]</span>
                     <span class="o">[</span>--save-prefix SAVE_PREFIX<span class="o">]</span> <span class="o">[</span>-d DEVICE<span class="o">]</span>
                     <span class="o">[</span>--checkpoint CHECKPOINT<span class="o">]</span>
 
@@ -306,29 +337,6 @@ optional arguments:
 </pre></div>
 </div>
 </div>
-<div class="section" id="prediction">
-<h2>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: dscript predict <span class="o">[</span>-h<span class="o">]</span> --pairs PAIRS --seqs SEQS --model MODEL
-                    <span class="o">[</span>-o OUTFILE<span class="o">]</span> <span class="o">[</span>-d DEVICE<span class="o">]</span> <span class="o">[</span>--embeddings EMBEDDINGS<span class="o">]</span>
-                    <span class="o">[</span>--predict_cmaps<span class="o">]</span>
-
-Make new predictions with a pre-trained model.
-
-optional arguments:
--h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
---pairs PAIRS         Candidate protein pairs to predict
---seqs SEQS           Protein sequences in .fasta format
---model MODEL         Pretrained Model
--o OUTFILE, --outfile OUTFILE
-                        File <span class="k">for</span> predictions
--d DEVICE, --device DEVICE
-                        Compute device to use
---embeddings EMBEDDINGS
-                        h5 file with embedded sequences
---predict_cmaps       Output predicted contact maps
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -336,37 +344,29 @@ optional arguments:
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="data.html" class="btn btn-neutral float-right" title="Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="data.html" class="btn btn-neutral float-right" title="Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Samuel Sledzieski, Rohit Singh
+        &#169; Copyright 2020, Samuel Sledzieski, Rohit Singh.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
