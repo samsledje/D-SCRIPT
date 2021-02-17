@@ -121,7 +121,7 @@ def add_args(parser):
     )
 
     # Output
-    misc_grp.add_argument("-o", "--output", help="Output file path (default: stdout)")
+    misc_grp.add_argument("-o", "--outfile", help="Output file path (default: stdout)")
     misc_grp.add_argument("--save-prefix", help="Path prefix for saving models")
     misc_grp.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     misc_grp.add_argument("--checkpoint", help="Checkpoint model to start training from")
@@ -308,7 +308,7 @@ def main(args):
     :meta private:
     """
 
-    output = args.output
+    output = args.outfile
     if output is None:
         output = sys.stdout
     else:
