@@ -18,6 +18,7 @@ def log(msg, file=sys.stderr):
     """
     timestr = datetime.utcnow().isoformat(sep='-', timespec='milliseconds')
     file.write(f"[{timestr}] {msg}\n")
+    file.flush()
 
 def plot_PR_curve(y, phat, saveFile=None):
     """

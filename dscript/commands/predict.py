@@ -67,7 +67,7 @@ def main(args):
     if use_cuda:
         torch.cuda.set_device(device)
         print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
-        log(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=logFile)
+        log(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=logFile)
     else:
         print("# Using CPU")
         log("# Using CPU", file=logFile)
@@ -81,7 +81,7 @@ def main(args):
             model.use_cuda = False
     except FileNotFoundError:
         print(f"# Model {modelPath} not found")
-        log(f"# Model {modelPath} not found", file=logFile)
+        log(f"Model {modelPath} not found", file=logFile)
         logFile.close()
         sys.exit(1)
 
@@ -91,7 +91,7 @@ def main(args):
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
         print(f"# Pairs File {csvPath} not found")
-        log(f"# Pairs File {csvPath} not found", file=logFile)
+        log(f"Pairs File {csvPath} not found", file=logFile)
         logFile.close()
         sys.exit(1)
 
@@ -102,17 +102,17 @@ def main(args):
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
             print(f"# Sequence File {seqPath} not found")
-            log(f"# Sequence File {seqPath} not found", file=logFile)
+            log(f"Sequence File {seqPath} not found", file=logFile)
             logFile.close()
             sys.exit(1)
         print("# Generating Embeddings...")
-        log("# Generating Embeddings...", file=logFile)
+        log("Generating Embeddings...", file=logFile)
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         print("# Loading Embeddings...")
-        log("# Loading Embeddings...", file=logFile)
+        log("Loading Embeddings...", file=logFile)
         embedH5 = h5py.File(embPath, "r")
         embeddings = {}
         for n in tqdm(all_prots):
@@ -121,7 +121,7 @@ def main(args):
 
     # Make Predictions
     print("# Making Predictions...")
-    log("# Making Predictions...", file=logFile)
+    log("Making Predictions...", file=logFile)
     n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
