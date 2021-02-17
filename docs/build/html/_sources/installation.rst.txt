@@ -9,7 +9,6 @@ Requirements
 - matplotlib
 - numpy
 - pandas
-- pytorch
 - scikit-learn
 - scipy
 - seaborn
