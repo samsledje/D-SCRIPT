@@ -99,7 +99,7 @@ class ContactCNN(nn.Module):
         :rtype: torch.Tensor
         """
         B = self.broadcast(z0, z1)
-        return self.predict(C)
+        return self.predict(B)
 
     def broadcast(self, z0, z1):
         """
