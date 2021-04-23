@@ -8,20 +8,20 @@
 
 ## v0.1
 
-### v0.1.5
+### v0.1.5: Active
 - Updated package level imports 
 - Updated documentation
 
-### v0.1.4 -- Bug Fix - Typo in `ContactModule.forward()`
+### v0.1.4: 2021-03-05 -- Bug Fix - Typo in `ContactModule.forward()`
 - Fixed issue #7: bug which would crash contact module if called directly
 
-### v0.1.3 -- Bug Fix - Pairs too large for GPU
+### v0.1.3: 2021-02-17 -- Bug Fix - Pairs too large for GPU
 - Fixed issues #3, #4
 - Basic logging system implemented to report skipped pairs
 - Fixed wrong variable name in loading from sequence file
 - Updated documentation
 
-### v0.1.2 -- Bug Fix - Eval Mode
+### v0.1.2: 2020-11-30 -- Bug Fix - Eval Mode
 - Model should be put into `eval()` mode before prediction or evaluation, and when new models are downloaded - this makes the output deterministic by disabling dropout layers
 
-### v0.1.1 -- First Beta Release -- 2020-11-18
+### v0.1.1: 2020-11-18 -- First Beta Release
