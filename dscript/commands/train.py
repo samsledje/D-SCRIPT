@@ -346,7 +346,7 @@ def main(args):
     if augment:
         train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
         train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
-        train_y = torch.from_numpy(pd.concat((train_df[2], 1 - train_df[2])).values)
+        train_y = torch.from_numpy(pd.concat((train_df[2], train_df[2])).values)
     else:
         train_n0, train_n1 = train_df[0], train_df[1]
         train_y = torch.from_numpy(train_df[2].values)
@@ -355,13 +355,8 @@ def main(args):
     output.flush()
 
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
-    if augment:
-        test_n0 = pd.concat((test_df[0], test_df[1]), axis=0)
-        test_n1 = pd.concat((test_df[1], test_df[0]), axis=0)
-        test_y = torch.from_numpy(pd.concat((test_df[2], 1 - test_df[2])).values)
-    else:
-        test_n0, test_n1 = test_df[0], test_df[1]
-        test_y = torch.from_numpy(test_df[2].values)
+    test_n0, test_n1 = test_df[0], test_df[1]
+    test_y = torch.from_numpy(test_df[2].values)
     output.flush()
 
     train_pairs = PairedDataset(train_n0, train_n1, train_y)
