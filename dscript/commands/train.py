@@ -105,10 +105,10 @@ def add_args(parser):
     train_grp.add_argument(
         "--epoch-scale",
         type=int,
-        default=5,
-        help="Report heldout performance every this many epochs (default: 5)",
+        default=1,
+        help="Report heldout performance every this many epochs (default: 1)",
     )
-    train_grp.add_argument("--num-epochs", type=int, default=100, help="Number of epochs (default: 100)")
+    train_grp.add_argument("--num-epochs", type=int, default=10, help="Number of epochs (default: 10)")
     train_grp.add_argument("--batch-size", type=int, default=25, help="Minibatch size (default: 25)")
     train_grp.add_argument("--weight-decay", type=float, default=0, help="L2 regularization (default: 0)")
     train_grp.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001)")
