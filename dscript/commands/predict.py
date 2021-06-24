@@ -6,6 +6,7 @@ import torch
 import h5py
 import argparse
 import datetime
+import numpy as np
 import pandas as pd
 from scipy.special import comb
 from tqdm import tqdm
@@ -58,7 +59,7 @@ def main(args):
     # Set Outpath
     if outPath is None:
         outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
-    
+
     logFilePath = outPath + ".log"
     logFile = open(logFilePath,"w+")
 
@@ -71,7 +72,7 @@ def main(args):
     else:
         print("# Using CPU")
         log("# Using CPU", file=logFile)
-        
+
     # Load Model
     try:
         if use_cuda:
@@ -147,7 +148,10 @@ def main(args):
                         f.write(f"{n0}\t{n1}\t{p}\n")
                         if p >= threshold:
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                            cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                            cm_np = cm.squeeze().cpu().numpy()
+                            dset = cmap_file.require_dataset(f"{n0}x{n1}", cm_np.shape, np.float32)
+                            dset[:] = cm_np
+                            #cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
                         log(f"{n0} x {n1} skipped - CUDA out of memory", file=logFile)
 

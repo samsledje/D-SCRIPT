@@ -13,6 +13,7 @@
 - Updated package level imports 
 - Updated documentation
 - Fixed issue #13: improper augmentation of data
+- Fixed issue #12: overwrites cmap data sets if they already exist
 
 ### v0.1.4: 2021-03-05 -- Bug Fix - Typo in `ContactModule.forward()`
 - Fixed issue #7: bug which would crash contact module if called directly
