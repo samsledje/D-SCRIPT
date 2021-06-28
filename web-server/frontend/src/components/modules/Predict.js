@@ -1,7 +1,5 @@
 import React from 'react'
 
-import Protein from './Protein'
-
 export default function Predict() {
     return (
         <div className="Predict-Container">
@@ -10,8 +8,18 @@ export default function Predict() {
                 <input type="text"></input><br></br>
             </form>
             <div className="Predict-Proteins">
-                <Protein></Protein>
-                <Protein></Protein>
+                <form className="Predict-Protein">
+                    <label>Protein #1: </label><br></br>
+                    <input type="text"></input><br></br>
+                    <label>Sequence #1: </label><br></br>
+                    <textarea></textarea><br></br>
+                </form>
+                <form className="Predict-Protein">
+                    <label>Protein #1: </label><br></br>
+                    <input type="text"></input><br></br>
+                    <label>Sequence #1: </label><br></br>
+                    <textarea></textarea><br></br>
+                </form>
             </div>
         </div>
     )

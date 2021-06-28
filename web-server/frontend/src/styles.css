@@ -28,6 +28,20 @@
           justify-content: space-between;
 }
 
+.Predict-Container .Predict-Proteins .Predict-Protein {
+  width: 50%;
+}
+
+.Predict-Container .Predict-Proteins .Predict-Protein textarea {
+  width: 70%;
+  height: 100px;
+  resize: none;
+  border-radius: 8px;
+  padding: 4px;
+  outline: none;
+  margin: 4px 0;
+}
+
 .Predict-Container label {
   font-size: 18px;
 }
@@ -43,20 +57,6 @@
 
 .Predict-Container form {
   width: 100%;
-}
-
-.Protein-Container {
-  width: 50%;
-}
-
-.Protein-Container .Protein-Box textarea {
-  width: 70%;
-  height: 100px;
-  resize: none;
-  border-radius: 8px;
-  padding: 4px;
-  outline: none;
-  margin: 4px 0;
 }
 
 * {
