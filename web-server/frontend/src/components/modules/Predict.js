@@ -21,6 +21,7 @@ export default function Predict() {
                     <textarea></textarea><br></br>
                 </form>
             </div>
+            <button>Compute Interaction Probability</button>
         </div>
     )
 }
