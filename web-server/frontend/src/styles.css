@@ -1,3 +1,19 @@
+.Home-Container {
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.Predict-Container {
+  height: 500px;
+  width: 750px;
+  background-color: rgba(232, 232, 232, 0.6);
+  border-radius: 16px;
+  margin: auto;
+  padding: 10px;
+}
+
 * {
   margin: 0;
   padding: 0;
