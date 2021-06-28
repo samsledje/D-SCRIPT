@@ -7,12 +7,22 @@
 }
 
 .Predict-Container {
-  height: 500px;
+  height: 480px;
   width: 750px;
   background-color: rgba(232, 232, 232, 0.6);
   border-radius: 16px;
   margin: auto;
-  padding: 10px;
+  padding: 0 24px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: column wrap;
+          flex-flow: column wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .Predict-Container label {
@@ -25,7 +35,8 @@
   padding: 4px;
   border-width: 1px;
   outline: none;
-  margin: 4px 0;
+  margin: 8px 0;
+  width: 40%;
 }
 
 .Predict-Container form {
@@ -37,6 +48,8 @@
   border-radius: 4px;
   border-width: 2px;
   cursor: pointer;
+  margin: 8px 0;
+  width: 30%;
 }
 
 .Predict-Container .Predict-Proteins {
@@ -57,13 +70,13 @@
 }
 
 .Predict-Container .Predict-Proteins .Predict-Protein textarea {
-  width: 70%;
+  width: 80%;
   height: 100px;
   resize: none;
   border-radius: 8px;
   padding: 4px;
   outline: none;
-  margin: 4px 0;
+  margin: 8px 0;
 }
 
 * {
