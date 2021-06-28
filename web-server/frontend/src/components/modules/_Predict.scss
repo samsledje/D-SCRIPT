@@ -5,4 +5,30 @@
     border-radius: 16px;
     margin: auto;
     padding: 10px;
+    // display: flex;
+    // flex-flow: row nowrap;
+    // justify-content: space-between;
+
+    .Predict-Proteins {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
+
+    label {
+        font-size: 18px;
+    }
+
+    input {
+        border-radius: 4px;
+        height: 16px;
+        padding: 4px;
+        border-width: 1px;
+        outline: none;
+        margin: 4px 0;
+    }
+
+    form {
+        width: 100%;
+    }
 }
