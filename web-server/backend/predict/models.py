@@ -8,7 +8,7 @@ class Prediction(models.Model):
     protein2 = models.CharField(max_length=60)
     sequence1 = models.TextField()
     sequence2 = models.TextField()
-    probability = models.DecimalField()
+    probability = models.DecimalField(decimal_places=5, max_digits=6)
 
     def __str__(self):
         return self.title
