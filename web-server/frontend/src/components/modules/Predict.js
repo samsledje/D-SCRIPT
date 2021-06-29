@@ -15,9 +15,9 @@ export default function Predict() {
                     <textarea></textarea><br></br>
                 </form>
                 <form className="Predict-Protein">
-                    <label>Protein #1: </label><br></br>
+                    <label>Protein #2: </label><br></br>
                     <input type="text"></input><br></br>
-                    <label>Sequence #1: </label><br></br>
+                    <label>Sequence #2: </label><br></br>
                     <textarea></textarea><br></br>
                 </form>
             </div>
