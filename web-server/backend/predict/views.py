@@ -8,6 +8,16 @@ from .models import Prediction
 
 # Create your views here.
 
-class PredictionView(viewsets.ModelViewSet):
-    serializer_class = PredictionSerializer
-    queryset = Prediction.objects.all()
+@api_view(['GET', 'POST'])
+def prediction_list(request):
+    """
+    List all predictions, or create a new prediction.
+    """
+    if request.method == 'GET':
+        predictions = Prediction.objects.all()
+        serializer = PredictionSerializer(predictions, many=True)
+        return Response(serializer.data)
+
+# class PredictionView(viewsets.ModelViewSet):
+#     serializer_class = PredictionSerializer
+#     queryset = Prediction.objects.all()

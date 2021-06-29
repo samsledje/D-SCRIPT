@@ -18,10 +18,10 @@ from django.urls import path, include
 from rest_framework import routers
 from predict import views
 
-router = routers.DefaultRouter()
-router.register(r'predictions', views.PredictionView, 'predict')
+# router = routers.DefaultRouter()
+# router.register(r'predictions', views.PredictionView, 'predict')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls))
+    path('api/predictions/', views.prediction_list)
 ]
