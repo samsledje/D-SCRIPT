@@ -14,6 +14,13 @@ export default function Predict() {
         logPredictions();
     }, []);
 
+    const handleSubmit = () => {
+        axios
+            .post("http://localhost:8000/api/predictions/", {})
+            .then((res) => console.log(res.data))
+            .catch((err) => console.log(err))
+    }
+
     return (
         <div className="Predict-Container">
             <form>
@@ -34,7 +41,7 @@ export default function Predict() {
                     <textarea></textarea><br></br>
                 </form>
             </div>
-            <button>Compute Interaction Probability</button>
+            <button onClick={handleSubmit}>Compute Interaction Probability</button>
         </div>
     )
 }
