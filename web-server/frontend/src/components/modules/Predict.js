@@ -1,6 +1,19 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Predict() {
+
+    const logPredictions = () => {
+        axios
+            .get("http://localhost:8000/api/predictions/")
+            .then((res) => console.log(res.data))
+            .catch((err) => console.log(err))
+    }
+
+    useEffect(() => {
+        logPredictions();
+    }, []);
+
     return (
         <div className="Predict-Container">
             <form>
