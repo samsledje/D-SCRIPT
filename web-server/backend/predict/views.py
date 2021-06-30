@@ -22,7 +22,13 @@ def prediction_list(request):
 
     elif request.method == 'POST':
         print (os.getcwd())
-        return Response(None)
+        data = request.data.copy() #dictionary
+        data['probability'] = (data['sequence1'], data['sequence2'])
+        serializer = PredictionSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer
