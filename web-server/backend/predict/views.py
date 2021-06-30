@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from .serializers import PredictionSerializer
 from .models import Prediction
 
+from .api import dscript
+
 import os
 
 # Create your views here.
@@ -23,6 +25,7 @@ def prediction_list(request):
     elif request.method == 'POST':
         print (os.getcwd())
         data = request.data.copy() #dictionary
+        dscript.hi(data['sequence1'], data['sequence2'])
         data['probability'] = (data['sequence1'], data['sequence2'])
         serializer = PredictionSerializer(data=data)
         if serializer.is_valid():
