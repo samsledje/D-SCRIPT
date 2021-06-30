@@ -23,14 +23,14 @@ def prediction_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        print (os.getcwd())
         data = request.data.copy() #dictionary
-        dscript.hi(data['sequence1'], data['sequence2'])
-        data['probability'] = (data['sequence1'], data['sequence2'])
+        data['probability'] = dscript.pair_predict(data['sequence1'], data['sequence2'])
         serializer = PredictionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print('NOT A  POST')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class PredictionView(viewsets.ModelViewSet):

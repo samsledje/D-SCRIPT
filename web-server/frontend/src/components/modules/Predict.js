@@ -43,10 +43,10 @@ export default function Predict() {
 
     const handleSubmit = () => {
         console.log(item)
-        // axios
-        //     .post("http://localhost:8000/api/predictions/", item)
-        //     .then((res) => console.log(res.data))
-        //     .catch((err) => console.log(err))
+        axios
+            .post("http://localhost:8000/api/predictions/", item)
+            .then((res) => console.log(res.data.probability))
+            .catch((err) => console.log(err))
     }
 
     return (

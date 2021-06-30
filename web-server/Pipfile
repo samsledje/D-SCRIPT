@@ -8,6 +8,10 @@ django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 python-dotenv = "*"
+torch = "*"
+h5py = "*"
+pandas = "*"
+tqdm = "*"
 
 [dev-packages]
 
