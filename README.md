@@ -16,3 +16,27 @@
  - [Homepage](http://dscript.csail.mit.edu)
  
  - [Documentation](https://d-script.readthedocs.io/en/main/)
+ 
+ # Running Web Server Locally
+ 
+ Navigate to the web-server directory and create the dscript_web conda environment with
+ 
+ ### `conda env create -f web_environment.yml`
+ 
+ To start the backend server, activate the current conda environment with
+ 
+ ### `conda activate dscript_web`
+ 
+ and navigate to the first backend directory and run
+ 
+ ### `python manage.py runserver`
+ 
+ You can currently access a list of all created predictions at http://localhost:8000/api/predictions/  -- to start the React frontend, install Node.js and navigate to the frontend directory and run
+ 
+ ### `npm install`
+ 
+ as well as
+ 
+ ### `npm start`
+ 
+ At this point, both the backend and frontend should be up and running.
