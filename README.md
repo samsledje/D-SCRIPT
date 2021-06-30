@@ -19,19 +19,19 @@
  
  # Running Web Server Locally
  
- Navigate to the web-server directory and create the dscript_web conda environment with
+ Navigate to D-SCRIPT/web-server and create the current dscript_web conda environment with
  
  ### `conda env create -f web_environment.yml`
  
- To start the backend server, activate the current conda environment with
+ To start the backend server, activate the created conda environment with
  
  ### `conda activate dscript_web`
  
- and navigate to the first backend directory and run
+ and navigate to D-SCRIPT/web-server/backend and run
  
  ### `python manage.py runserver`
  
- You can currently access a list of all created predictions at http://localhost:8000/api/predictions/  -- to start the React frontend, install Node.js and navigate to the frontend directory and run
+ You can currently access a list of all created predictions at http://localhost:8000/api/predictions/  -- to start the React frontend, install Node.js, navigate to D-SCRIPT/web-server/frontend and run
  
  ### `npm install`
  
@@ -39,4 +39,4 @@
  
  ### `npm start`
  
- At this point, both the backend and frontend should be up and running.
+ At this point, both the backend and frontend should be up and running. You can access the webpage currently at http://localhost:3000/
