@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Prediction
-from .models import FilePrediction
+from .models import Prediction, FilePrediction
 
 class PredictionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,4 +9,4 @@ class PredictionSerializer(serializers.ModelSerializer):
 class FilePredictionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FilePrediction
-        fiels = ('id', 'title', 'pairs', 'sequences', 'predictions')
+        fields = ('id', 'title', 'pairs', 'sequences', 'predictions')

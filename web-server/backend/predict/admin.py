@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Prediction
-from .models import FilePrediction
+from .models import Prediction, FilePrediction
 
 class PredictionAdmin(admin.ModelAdmin):
     # Displays within admin panel

@@ -3,8 +3,8 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import PredictionSerializer
-from .models import Prediction
+from .serializers import PredictionSerializer, FilePredictionSerializer
+from .models import Prediction, FilePrediction
 
 from .api import dscript
 
@@ -32,6 +32,16 @@ def prediction_list(request):
         else:
             print('NOT A  POST')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST'])
+def file_prediction_list(request):
+    """
+    List all file predictions, or create a new set of predictions
+    """
+    if request.method == 'GET':
+        file_predictions = FilePrediction.objects.all()
+        serializer = FilePredictionSerializer(file_predictions, many=True)
+        return Response(serializer.data)
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer

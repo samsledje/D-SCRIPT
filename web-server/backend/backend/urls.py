@@ -23,5 +23,6 @@ from predict import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/predictions/', views.prediction_list)
+    path('api/predictions/', views.prediction_list),
+    path('api/file_predictions/', views.file_prediction_list)
 ]
