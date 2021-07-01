@@ -105,10 +105,10 @@ def add_args(parser):
     train_grp.add_argument(
         "--epoch-scale",
         type=int,
-        default=5,
-        help="Report heldout performance every this many epochs (default: 5)",
+        default=1,
+        help="Report heldout performance every this many epochs (default: 1)",
     )
-    train_grp.add_argument("--num-epochs", type=int, default=100, help="Number of epochs (default: 100)")
+    train_grp.add_argument("--num-epochs", type=int, default=10, help="Number of epochs (default: 10)")
     train_grp.add_argument("--batch-size", type=int, default=25, help="Minibatch size (default: 25)")
     train_grp.add_argument("--weight-decay", type=float, default=0, help="L2 regularization (default: 0)")
     train_grp.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001)")
@@ -121,7 +121,7 @@ def add_args(parser):
     )
 
     # Output
-    misc_grp.add_argument("-o", "--output", help="Output file path (default: stdout)")
+    misc_grp.add_argument("-o", "--outfile", help="Output file path (default: stdout)")
     misc_grp.add_argument("--save-prefix", help="Path prefix for saving models")
     misc_grp.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
     misc_grp.add_argument("--checkpoint", help="Checkpoint model to start training from")
@@ -308,7 +308,7 @@ def main(args):
     :meta private:
     """
 
-    output = args.output
+    output = args.outfile
     if output is None:
         output = sys.stdout
     else:
@@ -346,7 +346,7 @@ def main(args):
     if augment:
         train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
         train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
-        train_y = torch.from_numpy(pd.concat((train_df[2], 1 - train_df[2])).values)
+        train_y = torch.from_numpy(pd.concat((train_df[2], train_df[2])).values)
     else:
         train_n0, train_n1 = train_df[0], train_df[1]
         train_y = torch.from_numpy(train_df[2].values)
@@ -355,13 +355,8 @@ def main(args):
     output.flush()
 
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
-    if augment:
-        test_n0 = pd.concat((test_df[0], test_df[1]), axis=0)
-        test_n1 = pd.concat((test_df[1], test_df[0]), axis=0)
-        test_y = torch.from_numpy(pd.concat((test_df[2], 1 - test_df[2])).values)
-    else:
-        test_n0, test_n1 = test_df[0], test_df[1]
-        test_y = torch.from_numpy(test_df[2].values)
+    test_n0, test_n1 = test_df[0], test_df[1]
+    test_y = torch.from_numpy(test_df[2].values)
     output.flush()
 
     train_pairs = PairedDataset(train_n0, train_n1, train_y)

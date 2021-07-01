@@ -97,7 +97,7 @@ Training
                         [--negative-ratio NEGATIVE_RATIO]
                         [--epoch-scale EPOCH_SCALE] [--num-epochs NUM_EPOCHS]
                         [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
-                        [--lr LR] [--lambda LAMBDA_] [-o OUTPUT]
+                        [--lr LR] [--lambda LAMBDA_] [-o OUTFILE]
                         [--save-prefix SAVE_PREFIX] [-d DEVICE]
                         [--checkpoint CHECKPOINT]
 

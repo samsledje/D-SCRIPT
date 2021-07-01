@@ -6,8 +6,19 @@ import pandas as pd
 import subprocess as sp
 import sys
 import gzip as gz
+from datetime import datetime
 from .fasta import parse
 
+def log(msg, file=sys.stderr):
+    """
+    Log datetime-stamped message to file
+    
+    :param msg: Message to log
+    :param f: Writable file object to log message to
+    """
+    timestr = datetime.utcnow().isoformat(sep='-', timespec='milliseconds')
+    file.write(f"[{timestr}] {msg}\n")
+    file.flush()
 
 def plot_PR_curve(y, phat, saveFile=None):
     """
