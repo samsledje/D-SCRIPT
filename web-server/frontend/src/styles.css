@@ -4,6 +4,10 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: column nowrap;
+          flex-flow: column nowrap;
 }
 
 .Predict-Container {
@@ -23,6 +27,10 @@
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+}
+
+.Predict-Container h1 {
+  margin-bottom: 8px;
 }
 
 .Predict-Container label {
@@ -48,7 +56,7 @@
   border-radius: 4px;
   border-width: 2px;
   cursor: pointer;
-  margin: 8px 0;
+  margin-top: 8px;
   width: 30%;
 }
 
@@ -77,6 +85,10 @@
   padding: 4px;
   outline: none;
   margin: 8px 0;
+}
+
+.FilePredict-Container {
+  margin: auto;
 }
 
 * {

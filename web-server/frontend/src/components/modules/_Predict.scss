@@ -9,6 +9,10 @@
     flex-flow: column wrap;
     justify-content: center;
 
+    h1 {
+        margin-bottom: 8px;
+    }
+
     label {
         font-size: 18px;
     }
@@ -32,7 +36,7 @@
         border-radius: 4px;
         border-width: 2px;
         cursor: pointer;
-        margin: 8px 0;
+        margin-top: 8px;
         width: 30%;
     }
 

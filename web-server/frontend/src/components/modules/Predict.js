@@ -51,6 +51,7 @@ export default function Predict() {
 
     return (
         <div className="Predict-Container">
+            <h1>Predict Interaction Between Two Proteins</h1>
             <form>
                 <label>Enter a job title: </label><br></br>
                 <input type="text" onChange={handleTitleChange}></input><br></br>
