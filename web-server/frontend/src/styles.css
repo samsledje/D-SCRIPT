@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap");
 .Home-Container {
+  padding: 24px;
   min-height: 100vh;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -11,12 +12,11 @@
 }
 
 .Predict-Container {
-  height: 480px;
   width: 750px;
   background-color: rgba(0, 255, 255, 0.4);
   border-radius: 16px;
   margin: auto;
-  padding: 0 24px;
+  padding: 36px 24px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -88,7 +88,52 @@
 }
 
 .FilePredict-Container {
+  width: 750px;
+  background-color: rgba(0, 255, 255, 0.4);
+  border-radius: 16px;
   margin: auto;
+  padding: 36px 24px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: column wrap;
+          flex-flow: column wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.FilePredict-Container h1 {
+  margin-bottom: 8px;
+}
+
+.FilePredict-Container label {
+  font-size: 18px;
+}
+
+.FilePredict-Container input {
+  border-radius: 4px;
+  height: 16px;
+  padding: 4px;
+  border-width: 1px;
+  outline: none;
+  margin: 8px 0;
+  width: 40%;
+}
+
+.FilePredict-Container form {
+  width: 100%;
+}
+
+.FilePredict-Container button {
+  padding: 4px;
+  border-radius: 4px;
+  border-width: 2px;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 30%;
 }
 
 * {
