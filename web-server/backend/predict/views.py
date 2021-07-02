@@ -33,7 +33,7 @@ def prediction_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            print('NOT A  POST')
+            print('NOT A VALID POST')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
@@ -47,16 +47,15 @@ def file_prediction_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        print(request.FILES)
-        print(request.data)
-        print(request.data['pairs'])
-        try:
-            pairs = pd.read_csv(request.data['pairs'], sep='\t', header=None)
-            all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
-            print(all_prots)
-        except:
-            pass
-        return Response(None)
+        data = request.data.copy()
+        data['predictions'] = dscript.file_predict(data['title'], data['pairs'], data['sequences'])
+        serializer = FilePredictionSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print('NOT A VALID POST')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer
