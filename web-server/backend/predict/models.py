@@ -15,7 +15,7 @@ class Prediction(models.Model):
 
 class FilePrediction(models.Model):
     title = models.CharField(max_length=120)
-    pairs = models.FileField()
+    pairs = models.FileField(upload_to='pairs/')
     sequences = models.FileField()
     predictions = models.FileField()
 

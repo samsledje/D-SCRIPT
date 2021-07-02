@@ -13,11 +13,23 @@ export default function FilePredict() {
     }
 
     const handlePairsChange = (e) => {
-        setItem({...item, 'pairs': e.target.value});
+        setItem({...item, 'pairs': e.target.files[0]});
     }
 
     const handleSequencesChange = (e) => {
-        setItem({...item, 'sequences': e.target.value})
+        setItem({...item, 'sequences': e.target.files[0]})
+    }
+
+    const handleSubmit = () => {
+        console.log(item)
+        const uploadData = new FormData()
+        uploadData.append('title', item.title)
+        uploadData.append('pairs', item.pairs)
+        uploadData.append('sequences', item.sequences)
+        axios
+            .post("http://localhost:8000/api/file_predictions/", uploadData)
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err))
     }
 
     return (
@@ -31,7 +43,7 @@ export default function FilePredict() {
                 <label>Protein sequences (.fasta)</label><br></br>
                 <input type="file" accept=".fasta" onChange={handleSequencesChange}></input><br></br>
             </form>
-            <button onClick={() => console.log(item)}>Compute Interaction Probability</button>
+            <button onClick={handleSubmit}>Compute Interaction Probability</button>
         </div>
     )
 }

@@ -3,12 +3,15 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import pandas as pd
+
 from .serializers import PredictionSerializer, FilePredictionSerializer
 from .models import Prediction, FilePrediction
 
 from .api import dscript
 
 import os
+
 
 # Create your views here.
 
@@ -42,6 +45,18 @@ def file_prediction_list(request):
         file_predictions = FilePrediction.objects.all()
         serializer = FilePredictionSerializer(file_predictions, many=True)
         return Response(serializer.data)
+
+    elif request.method == 'POST':
+        print(request.FILES)
+        print(request.data)
+        print(request.data['pairs'])
+        try:
+            pairs = pd.read_csv(request.data['pairs'], sep='\t', header=None)
+            all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
+            print(all_prots)
+        except:
+            pass
+        return Response(None)
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer
