@@ -8,6 +8,8 @@ import datetime
 import pandas as pd
 from tqdm import tqdm
 
+import os
+
 from dscript.fasta import parse
 from dscript.language_model import lm_embed
 
@@ -50,7 +52,8 @@ def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-m
     """
 
     # Set Outpath
-    outPath = f'web-server/backend/media/predictions/{title}'
+    print(os.getcwd())
+    outPath = f'media/predictions/{title}'
 
     # Set Device
     print('# Setting Device...')

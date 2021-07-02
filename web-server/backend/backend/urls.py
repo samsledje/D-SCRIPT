@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from predict import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # router = routers.DefaultRouter()
 # router.register(r'predictions', views.PredictionView, 'predict')
@@ -26,3 +28,6 @@ urlpatterns = [
     path('api/predictions/', views.prediction_list),
     path('api/file_predictions/', views.file_prediction_list)
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
