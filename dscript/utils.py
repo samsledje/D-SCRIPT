@@ -154,6 +154,42 @@ def gpu_mem(device):
     return gpu_memory[0], gpu_memory[1]
 
 
+class PairedDataset(torch.utils.data.Dataset):
+    """
+    Dataset to be used by the PyTorch data loader for pairs of sequences and their labels.
+    :param X0: List of first item in the pair
+    :param X1: List of second item in the pair
+    :param Y: List of labels
+    """
+
+    def __init__(self, X0, X1, Y):
+        self.X0 = X0
+        self.X1 = X1
+        self.Y = Y
+        assert len(X0) == len(X1), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
+        assert len(X0) == len(Y), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
+
+    def __len__(self):
+        return len(self.X0)
+
+    def __getitem__(self, i):
+        return self.X0[i], self.X1[i], self.Y[i]
+
+
 def collate_paired_sequences(args):
     """
     Collate function for PyTorch data loader.

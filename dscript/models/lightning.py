@@ -1,3 +1,4 @@
+import torch
 import pytorch_lightning as pl
 from .embedding import FullyConnectedEmbed
 from .contact import ContactCNN

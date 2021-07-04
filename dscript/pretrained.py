@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import torch
 from urllib.error import HTTPError
 
@@ -81,7 +82,7 @@ def get_pretrained(version="human_v1"):
     :return: Pre-trained model
     :rtype: dscript.models.*
     """
-    if not version in VALID_MODELS:
+    if version not in VALID_MODELS:
         raise ValueError("Model {} does not exist".format(version))
 
     state_dict_path = get_state_dict(version)

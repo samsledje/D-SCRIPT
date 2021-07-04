@@ -165,14 +165,18 @@ class ModelInteraction(nn.Module):
             N, M = C.shape[2:]
 
             x1 = torch.from_numpy(
-                -1 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))) ** 2
+                -1
+                * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+                ** 2
             ).float()
             if self.gamma.device.type == "cuda":
                 x1 = x1.cuda()
             x1 = torch.exp(self.lambda_ * x1)
 
             x2 = torch.from_numpy(
-                -1 * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))) ** 2
+                -1
+                * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+                ** 2
             ).float()
             if self.gamma.device.type == "cuda":
                 x2 = x2.cuda()

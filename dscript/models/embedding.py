@@ -100,7 +100,11 @@ class SkipLSTM(nn.Module):
         dim = nin
         for i in range(num_layers):
             f = nn.LSTM(
-                dim, hidden_dim, 1, batch_first=True, bidirectional=bidirectional
+                dim,
+                hidden_dim,
+                1,
+                batch_first=True,
+                bidirectional=bidirectional,
             )
             self.layers.append(f)
             if bidirectional:

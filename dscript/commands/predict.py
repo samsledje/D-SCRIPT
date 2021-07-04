@@ -1,7 +1,8 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
-import sys, os
+import os
+import sys
 import torch
 import h5py
 import argparse
@@ -64,17 +65,23 @@ def main(args):
 
     # Set Outpath
     if outPath is None:
-        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
+        outPath = datetime.datetime.now().strftime(
+            "%Y-%m-%d-%H:%M.predictions"
+        )
 
     logFilePath = outPath + ".log"
-    logg.basicConfig(filename=logFilePath, encoding="utf-8", level=logging.INFO)
+    logg.basicConfig(filename=logFilePath, encoding="utf-8", level=logg.INFO)
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
-        logg.info(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
+        logg.info(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
     else:
         print("# Using CPU")
         logg.info("# Using CPU")
@@ -134,7 +141,9 @@ def main(args):
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
+                for _, (n0, n1) in tqdm(
+                    pairs.iloc[:, :2].iterrows(), total=len(pairs)
+                ):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
@@ -158,7 +167,10 @@ def main(args):
                             dset[:] = cm_np
                             # cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
-                        logg.warning(f"{n0} x {n1} skipped - CUDA out of memory")
+                        logg.error(e)
+                        logg.warning(
+                            f"{n0} x {n1} skipped - CUDA out of memory"
+                        )
 
     cmap_file.close()
 

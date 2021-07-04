@@ -1,3 +1,6 @@
+import os
+
+
 def parse(f, comment="#"):
     """
     Parse a file in ``.fasta`` format.

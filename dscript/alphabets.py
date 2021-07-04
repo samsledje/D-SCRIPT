@@ -72,4 +72,6 @@ class Uniprot21(Alphabet):
         chars = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))
         encoding[21:] = [11, 4, 20, 20]  # encode 'OUBZ' as synonyms
-        super(Uniprot21, self).__init__(chars, encoding=encoding, mask=mask, missing=20)
+        super(Uniprot21, self).__init__(
+            chars, encoding=encoding, mask=mask, missing=20
+        )

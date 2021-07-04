@@ -91,7 +91,9 @@ class PPIDataModule(pl.LightningDataModule):
         # If sequence_path is a URL, prepare for download
         url_seq = urllib.parse.urlparse(sequence_path)
         if url_seq.scheme in ["http", "https"]:
-            self.sequence_path = self.data_dir / Path(os.path.basename(url_seq.path))
+            self.sequence_path = self.data_dir / Path(
+                os.path.basename(url_seq.path)
+            )
             self.sequence_url = sequence_path
         else:
             self.sequence_url = None
@@ -99,7 +101,9 @@ class PPIDataModule(pl.LightningDataModule):
         # If pair_path is a URL, prepare for download
         url_pair = urllib.parse.urlparse(pair_path)
         if url_pair.scheme in ["http", "https"]:
-            self.pair_path = self.data_dir / Path(os.path.basename(url_pair.path))
+            self.pair_path = self.data_dir / Path(
+                os.path.basename(url_pair.path)
+            )
             self.pair_url = pair_path
         else:
             self.pair_url = None
@@ -119,7 +123,9 @@ class PPIDataModule(pl.LightningDataModule):
         if not self.sequence_path.suffix == ".h5":
             assert not self.sequence_path.with_suffix(".h5").exists()
             embed_from_fasta(
-                self.sequence_path, self.sequence_path.with_suffix(".h5"), verbose=True
+                self.sequence_path,
+                self.sequence_path.with_suffix(".h5"),
+                verbose=True,
             )
             self.sequence_path = self.sequence_path.with_suffix(".h5")
 
@@ -136,7 +142,9 @@ class PPIDataModule(pl.LightningDataModule):
             test_size=self.train_val_split[1],
         )
 
-        self.data_train = PairedEmbeddingDataset(self.train_df, self.embeddings)
+        self.data_train = PairedEmbeddingDataset(
+            self.train_df, self.embeddings
+        )
 
         self.data_val = PairedEmbeddingDataset(self.val_df, self.embeddings)
 

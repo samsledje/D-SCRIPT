@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import subprocess as sp
 import random
 import torch
@@ -99,10 +100,12 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
         try:
             for (n, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
                 name = n.decode("utf-8")
-                if not name in h5fi:
+                if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)
-                    h5fi.create_dataset(name, data=z.cpu().numpy(), compression="lzf")
+                    h5fi.create_dataset(
+                        name, data=z.cpu().numpy(), compression="lzf"
+                    )
         except KeyboardInterrupt:
             h5fi.close()
             sys.exit(1)
