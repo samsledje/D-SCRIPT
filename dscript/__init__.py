@@ -7,4 +7,13 @@ import dscript.fasta
 import dscript.language_model
 import dscript.pretrained
 import dscript.utils
-__all__ = ["models","commands","alphabets","fasta","language_model","pretrained","utils"]
+
+__all__ = [
+    "models",
+    "commands",
+    "alphabets",
+    "fasta",
+    "language_model",
+    "pretrained",
+    "utils",
+]

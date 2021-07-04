@@ -14,10 +14,11 @@ from datetime import datetime
 from .fasta import parse
 from typing import Optional
 
+
 def get_local_or_download(destination: str, source: Optional[str] = None):
     """
     Return file path `destination`, and if it does not exist download from `source`.
-    
+
     :param destination: Destination path for downloaded file
     :type destination: str
     :param source: URL to download file from
@@ -28,23 +29,29 @@ def get_local_or_download(destination: str, source: Optional[str] = None):
     destination = os.path.realpath(destination)
     if not os.path.exists(destination):
         if source is not None:
-            with urllib.request.urlopen(source) as response, open(destination, 'wb') as out_file:
+            with urllib.request.urlopen(source) as response, open(
+                destination, "wb"
+            ) as out_file:
                 shutil.copyfileobj(response, out_file)
         else:
-            raise ValueError(f'{destination} does not exist locally and no download path provided.')
-        
+            raise ValueError(
+                f"{destination} does not exist locally and no download path provided."
+            )
+
     return destination
+
 
 def log(msg, file=sys.stderr):
     """
     Log datetime-stamped message to file
-    
+
     :param msg: Message to log
     :param f: Writable file object to log message to
     """
-    timestr = datetime.utcnow().isoformat(sep='-', timespec='milliseconds')
+    timestr = datetime.utcnow().isoformat(sep="-", timespec="milliseconds")
     file.write(f"[{timestr}] {msg}\n")
     file.flush()
+
 
 def plot_PR_curve(y, phat, saveFile=None):
     """
@@ -145,6 +152,7 @@ def gpu_mem(device):
     )
     gpu_memory = [int(x) for x in result.strip().split(",")]
     return gpu_memory[0], gpu_memory[1]
+
 
 def collate_paired_sequences(args):
     """

@@ -39,7 +39,7 @@ class Alphabet:
     def encode(self, x):
         """
         Encode a byte string into alphabet indices
-        
+
         :param x: Amino acid string
         :type x: byte str
         :return: Numeric encoding

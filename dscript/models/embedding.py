@@ -12,6 +12,7 @@ class IdentityEmbed(nn.Module):
     """
     Does not reduce the dimension of the language model embeddings, just passes them through to the contact model.
     """
+
     def forward(self, x):
         """
         :param x: Input language model embedding :math:`(b \\times N \\times d_0)`
@@ -35,6 +36,7 @@ class FullyConnectedEmbed(nn.Module):
     :param activation: Activation for linear projection model
     :type activation: torch.nn.Module
     """
+
     def __init__(self, nin, nout, dropout=0.5, activation=nn.ReLU()):
         super(FullyConnectedEmbed, self).__init__()
         self.nin = nin
@@ -77,7 +79,16 @@ class SkipLSTM(nn.Module):
     :param bidirectional: Whether to use biLSTM vs. LSTM
     :type bidirectional: bool
     """
-    def __init__(self, nin=21, nout=100, hidden_dim=1024, num_layers=3, dropout=0, bidirectional=True):
+
+    def __init__(
+        self,
+        nin=21,
+        nout=100,
+        hidden_dim=1024,
+        num_layers=3,
+        dropout=0,
+        bidirectional=True,
+    ):
         super(SkipLSTM, self).__init__()
 
         self.nin = nin
@@ -88,7 +99,9 @@ class SkipLSTM(nn.Module):
         self.layers = nn.ModuleList()
         dim = nin
         for i in range(num_layers):
-            f = nn.LSTM(dim, hidden_dim, 1, batch_first=True, bidirectional=bidirectional)
+            f = nn.LSTM(
+                dim, hidden_dim, 1, batch_first=True, bidirectional=bidirectional
+            )
             self.layers.append(f)
             if bidirectional:
                 dim = 2 * hidden_dim

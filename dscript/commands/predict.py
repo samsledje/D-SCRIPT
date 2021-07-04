@@ -17,6 +17,7 @@ from dscript.fasta import parse
 from dscript.language_model import lm_embed
 from dscript.utils import log
 
+
 def add_args(parser):
     """
     Create parser for command line utility
@@ -24,12 +25,16 @@ def add_args(parser):
     :meta private:
     """
 
-    parser.add_argument("--pairs", help="Candidate protein pairs to predict", required=True)
+    parser.add_argument(
+        "--pairs", help="Candidate protein pairs to predict", required=True
+    )
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("-o", "--outfile", help="File for predictions")
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     parser.add_argument(
         "--thresh",
         type=float,
@@ -62,7 +67,7 @@ def main(args):
         outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
 
     logFilePath = outPath + ".log"
-    logg.basicConfig(filename=logFilePath, encoding='utf-8', level=logging.INFO)
+    logg.basicConfig(filename=logFilePath, encoding="utf-8", level=logging.INFO)
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
@@ -147,9 +152,11 @@ def main(args):
                         if p >= threshold:
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
                             cm_np = cm.squeeze().cpu().numpy()
-                            dset = cmap_file.require_dataset(f"{n0}x{n1}", cm_np.shape, np.float32)
+                            dset = cmap_file.require_dataset(
+                                f"{n0}x{n1}", cm_np.shape, np.float32
+                            )
                             dset[:] = cm_np
-                            #cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                            # cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
                         logg.warning(f"{n0} x {n1} skipped - CUDA out of memory")
 

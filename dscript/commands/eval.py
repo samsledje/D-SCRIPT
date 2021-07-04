@@ -31,9 +31,13 @@ def add_args(parser):
 
     parser.add_argument("--model", help="Trained prediction model", required=True)
     parser.add_argument("--test", help="Test Data", required=True)
-    parser.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
+    parser.add_argument(
+        "--embedding", help="h5 file with embedded sequences", required=True
+    )
     parser.add_argument("-o", "--outfile", help="Output file to write results")
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     return parser
 
 
@@ -141,7 +145,9 @@ def main(args):
     with torch.no_grad():
         phats = []
         labels = []
-        for _, (n0, n1, label) in tqdm(test_df.iterrows(), total=len(test_df), desc="Predicting pairs"):
+        for _, (n0, n1, label) in tqdm(
+            test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
+        ):
             try:
                 p0 = seqEmbDict[n0]
                 p1 = seqEmbDict[n1]

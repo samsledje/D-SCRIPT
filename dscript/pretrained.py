@@ -32,10 +32,7 @@ def build_human_1(state_dict_path):
     return model
 
 
-VALID_MODELS = {
-        "lm_v1": build_lm_1,
-        "human_v1": build_human_1
-        }
+VALID_MODELS = {"lm_v1": build_lm_1, "human_v1": build_human_1}
 
 
 def get_state_dict(version="human_v1", verbose=True):
@@ -52,10 +49,13 @@ def get_state_dict(version="human_v1", verbose=True):
     state_dict_basename = f"dscript_{version}.pt"
     state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
     state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
-    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
+    state_dict_url = (
+        f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
+    )
     try:
-        if verbose: print(f"Downloading model {version} from {state_dict_url}...")
-        get_local_or_download(state_dict_fullname,state_dict_url)
+        if verbose:
+            print(f"Downloading model {version} from {state_dict_url}...")
+        get_local_or_download(state_dict_fullname, state_dict_url)
     except HTTPError as e:
         print("Unable to download model - {}".format(e))
         sys.exit(1)
