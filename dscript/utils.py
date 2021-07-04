@@ -4,10 +4,36 @@ import torch.utils.data
 import numpy as np
 import pandas as pd
 import subprocess as sp
+import os
 import sys
+import urllib
+import shutil
 import gzip as gz
+from pathlib import Path
 from datetime import datetime
 from .fasta import parse
+from typing import Optional
+
+def get_local_or_download(destination: str, source: Optional[str] = None):
+    """
+    Return file path `destination`, and if it does not exist download from `source`.
+    
+    :param destination: Destination path for downloaded file
+    :type destination: str
+    :param source: URL to download file from
+    :type source: str
+    :return: Path of local file
+    :rtype: str
+    """
+    destination = os.path.realpath(destination)
+    if not os.path.exists(destination):
+        if source is not None:
+            with urllib.request.urlopen(source) as response, open(destination, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+        else:
+            raise ValueError(f'{destination} does not exist locally and no download path provided.')
+        
+    return destination
 
 def log(msg, file=sys.stderr):
     """
@@ -119,29 +145,6 @@ def gpu_mem(device):
     )
     gpu_memory = [int(x) for x in result.strip().split(",")]
     return gpu_memory[0], gpu_memory[1]
-
-
-class PairedDataset(torch.utils.data.Dataset):
-    """
-    Dataset to be used by the PyTorch data loader for pairs of sequences and their labels.
-
-    :param X0: List of first item in the pair
-    :param X1: List of second item in the pair
-    :param Y: List of labels
-    """
-    def __init__(self, X0, X1, Y):
-        self.X0 = X0
-        self.X1 = X1
-        self.Y = Y
-        assert len(X0) == len(X1), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-        assert len(X0) == len(Y), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-
-    def __len__(self):
-        return len(self.X0)
-
-    def __getitem__(self, i):
-        return self.X0[i], self.X1[i], self.Y[i]
-
 
 def collate_paired_sequences(args):
     """
