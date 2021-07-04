@@ -21,13 +21,12 @@ from torch.utils.data import IterableDataset, DataLoader
 from sklearn.metrics import average_precision_score as average_precision
 
 import dscript
-from dscript.utils import PairedDataset, collate_paired_sequences
 from dscript.models.embedding import (
     IdentityEmbed,
     FullyConnectedEmbed,
 )
-from dscript.models.contact import ContactCNN
-from dscript.models.interaction import ModelInteraction
+from ..models.contact import ContactCNN
+from ..models.interaction import ModelInteraction
 
 
 def add_args(parser):

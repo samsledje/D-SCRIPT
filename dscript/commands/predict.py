@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import comb
 from tqdm import tqdm
+import logging as logg
 
 from dscript.alphabets import Uniprot21
 from dscript.fasta import parse
@@ -61,17 +62,17 @@ def main(args):
         outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
 
     logFilePath = outPath + ".log"
-    logFile = open(logFilePath,"w+")
+    logg.basicConfig(filename=logFilePath, encoding='utf-8', level=logging.INFO)
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
         print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
-        log(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=logFile)
+        logg.info(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
     else:
         print("# Using CPU")
-        log("# Using CPU", file=logFile)
+        logg.info("# Using CPU")
 
     # Load Model
     try:
@@ -82,8 +83,7 @@ def main(args):
             model.use_cuda = False
     except FileNotFoundError:
         print(f"# Model {modelPath} not found")
-        log(f"Model {modelPath} not found", file=logFile)
-        logFile.close()
+        logg.error(f"Model {modelPath} not found")
         sys.exit(1)
 
     # Load Pairs
@@ -92,8 +92,7 @@ def main(args):
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
         print(f"# Pairs File {csvPath} not found")
-        log(f"Pairs File {csvPath} not found", file=logFile)
-        logFile.close()
+        logg.error(f"Pairs File {csvPath} not found")
         sys.exit(1)
 
     # Load Sequences or Embeddings
@@ -103,17 +102,16 @@ def main(args):
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
             print(f"# Sequence File {seqPath} not found")
-            log(f"Sequence File {seqPath} not found", file=logFile)
-            logFile.close()
+            logg.error(f"Sequence File {seqPath} not found")
             sys.exit(1)
         print("# Generating Embeddings...")
-        log("Generating Embeddings...", file=logFile)
+        logg.info("Generating Embeddings...")
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         print("# Loading Embeddings...")
-        log("Loading Embeddings...", file=logFile)
+        logg.info("Loading Embeddings...")
         embedH5 = h5py.File(embPath, "r")
         embeddings = {}
         for n in tqdm(all_prots):
@@ -122,7 +120,7 @@ def main(args):
 
     # Make Predictions
     print("# Making Predictions...")
-    log("Making Predictions...", file=logFile)
+    logg.info("Making Predictions...")
     n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
@@ -153,9 +151,8 @@ def main(args):
                             dset[:] = cm_np
                             #cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
-                        log(f"{n0} x {n1} skipped - CUDA out of memory", file=logFile)
+                        logg.warning(f"{n0} x {n1} skipped - CUDA out of memory")
 
-    logFile.close()
     cmap_file.close()
 
 
