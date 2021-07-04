@@ -1,9 +1,11 @@
 import os, sys
 import torch
+from urllib.error import HTTPError
 
 from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.contact import ContactCNN
 from .models.interaction import ModelInteraction
+from .utils import get_local_or_download
 
 
 def build_lm_1(state_dict_path):
@@ -51,16 +53,12 @@ def get_state_dict(version="human_v1", verbose=True):
     state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
     state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
     state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
-    if not os.path.exists(state_dict_fullname):
-        try:
-            import urllib.request
-            import shutil
-            if verbose: print(f"Downloading model {version} from {state_dict_url}...")
-            with urllib.request.urlopen(state_dict_url) as response, open(state_dict_fullname, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
-        except Exception as e:
-            print("Unable to download model - {}".format(e))
-            sys.exit(1)
+    try:
+        if verbose: print(f"Downloading model {version} from {state_dict_url}...")
+        get_local_or_download(state_dict_fullname,state_dict_url)
+    except HTTPError as e:
+        print("Unable to download model - {}".format(e))
+        sys.exit(1)
     return state_dict_fullname
 
 
