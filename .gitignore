@@ -10,3 +10,4 @@ dist/*
 collect_env.py
 .env
 web-server/backend/media
+**/.DS_Store
