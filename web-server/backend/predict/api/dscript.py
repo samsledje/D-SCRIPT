@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 import os
 
-from dscript.fasta import parse
+from dscript.fasta import parse_bytes
 from dscript.language_model import lm_embed
 
 def pair_predict(seq1, seq2):
@@ -89,10 +89,16 @@ def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-m
     try:
         print(seqs_fasta.name)
         print(seqs_fasta.size)
-        for line in seqs_fasta.chunks():
-            print(line)
-        names, seqs = parse(seqs_fasta.read())
+        # for line in seqs_fasta.chunks():
+        #     print(line)
+        # print(type(seqs_fasta))
+        # for line in seqs_fasta:
+        #     print(line)
+        # file = seqs_fasta.read()
+        # print(type(file))
+        names, seqs = parse_bytes(seqs_fasta)
         seqDict = {n: s for n, s in zip(names, seqs)}
+        print(seqDict)
     except FileNotFoundError:
         print(f'# Sequence File not found')
         return
