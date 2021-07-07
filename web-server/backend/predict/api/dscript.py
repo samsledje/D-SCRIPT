@@ -44,7 +44,7 @@ def pair_predict(seq1, seq2):
     p = p.item()
     return round(p, 5)
 
-def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-models/human_v1.sav'):
+def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given a .tsv file of candidate pairs and a .fasta file of protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
