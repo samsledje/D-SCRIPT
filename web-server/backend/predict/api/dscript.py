@@ -52,7 +52,6 @@ def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-m
     """
 
     # Set Outpath
-    print(os.getcwd())
     outPath = f'media/predictions/{title}'
 
     # Set Device
@@ -87,15 +86,6 @@ def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-m
 
     # Load Sequences
     try:
-        print(seqs_fasta.name)
-        print(seqs_fasta.size)
-        # for line in seqs_fasta.chunks():
-        #     print(line)
-        # print(type(seqs_fasta))
-        # for line in seqs_fasta:
-        #     print(line)
-        # file = seqs_fasta.read()
-        # print(type(file))
         names, seqs = parse_bytes(seqs_fasta)
         seqDict = {n: s for n, s in zip(names, seqs)}
         print(seqDict)
