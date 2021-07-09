@@ -1,12 +1,12 @@
 import React from 'react'
 
-import Predict from '../modules/Predict'
+import SinglePair from '../modules/SinglePair'
 import FilePredict from '../modules/FilePredict'
 
 export default function Home() {
     return (
         <div className="Home-Container">
-            <Predict></Predict><br></br>
+            <SinglePair></SinglePair><br></br>
             <FilePredict></FilePredict>
         </div>
     )
