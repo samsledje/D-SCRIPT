@@ -12,7 +12,6 @@
 }
 
 .ManyPairsPredict-Container {
-  padding: 24px;
   min-height: 100vh;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -24,7 +23,6 @@
 }
 
 .SinglePairPredict-Container {
-  padding: 24px;
   min-height: 100vh;
   display: -webkit-box;
   display: -ms-flexbox;
