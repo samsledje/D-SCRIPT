@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function FilePredict() {
+export default function ManyPairs() {
     const [item, setItem] = useState({
         'title': '',
         'pairs': null,
@@ -33,7 +33,7 @@ export default function FilePredict() {
     }
 
     return (
-        <div className="FilePredict-Container">
+        <div className="ManyPairs-Container">
             <h1>Predict Interaction Between Protein Pairs</h1>
             <form>
                 <label>Enter a job title:</label><br></br>

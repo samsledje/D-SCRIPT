@@ -87,7 +87,7 @@
   margin: 8px 0;
 }
 
-.FilePredict-Container {
+.ManyPairs-Container {
   width: 750px;
   background-color: rgba(0, 255, 255, 0.4);
   border-radius: 16px;
@@ -105,15 +105,15 @@
           justify-content: center;
 }
 
-.FilePredict-Container h1 {
+.ManyPairs-Container h1 {
   margin-bottom: 8px;
 }
 
-.FilePredict-Container label {
+.ManyPairs-Container label {
   font-size: 18px;
 }
 
-.FilePredict-Container input {
+.ManyPairs-Container input {
   border-radius: 4px;
   height: 16px;
   padding: 4px;
@@ -123,11 +123,11 @@
   width: 40%;
 }
 
-.FilePredict-Container form {
+.ManyPairs-Container form {
   width: 100%;
 }
 
-.FilePredict-Container button {
+.ManyPairs-Container button {
   padding: 4px;
   border-radius: 4px;
   border-width: 2px;
