@@ -25,8 +25,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/predictions/', views.prediction_list),
-    path('api/file_predictions/', views.file_prediction_list)
+    path('api/pair/', views.single_pair_predict),
+    path('api/pairs/', views.many_pairs_predict)
 ]
 
 if settings.DEBUG:

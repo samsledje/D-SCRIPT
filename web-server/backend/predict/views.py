@@ -16,7 +16,7 @@ import os
 # Create your views here.
 
 @api_view(['GET', 'POST'])
-def prediction_list(request):
+def single_pair_predict(request):
     """
     List all predictions, or create a new prediction.
     """
@@ -37,7 +37,7 @@ def prediction_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
-def file_prediction_list(request):
+def many_pairs_predict(request):
     """
     List all file predictions, or create a new set of predictions
     """
