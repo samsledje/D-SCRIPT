@@ -13,7 +13,7 @@ import os
 from dscript.fasta import parse_bytes
 from dscript.language_model import lm_embed
 
-def pair_predict(seq1, seq2):
+def single_pair_predict(seq1, seq2):
     """
     Given a pair of protein sequences in .fasta format, outputs the probability of their interaction.
     """
@@ -44,7 +44,7 @@ def pair_predict(seq1, seq2):
     p = p.item()
     return round(p, 5)
 
-def file_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
+def many_pair_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given a .tsv file of candidate pairs and a .fasta file of protein sequences,
     Creates a .tsv file of interaction predictions and returns the url

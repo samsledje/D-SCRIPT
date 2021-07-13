@@ -27,7 +27,7 @@ def single_pair_predict(request):
 
     elif request.method == 'POST':
         data = request.data.copy() #dictionary
-        data['probability'] = dscript.pair_predict(data['sequence1'], data['sequence2'])
+        data['probability'] = dscript.single_pair_predict(data['sequence1'], data['sequence2'])
         serializer = SinglePairSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -48,7 +48,7 @@ def many_pairs_predict(request):
 
     elif request.method == 'POST':
         data = request.data.copy()
-        data['predictions'] = dscript.file_predict(data['title'], data['pairs'], data['sequences'])
+        data['predictions'] = dscript.many_pair_predict(data['title'], data['pairs'], data['sequences'])
         serializer = ManyPairSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
