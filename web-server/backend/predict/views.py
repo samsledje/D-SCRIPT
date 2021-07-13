@@ -37,7 +37,7 @@ def single_pair_predict(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
-def many_pairs_predict(request):
+def many_pair_predict(request):
     """
     List all file predictions, or create a new set of predictions
     """
