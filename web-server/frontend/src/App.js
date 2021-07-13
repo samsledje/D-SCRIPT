@@ -11,8 +11,8 @@ function App() {
     <Router>
       <div className="App">
         <Route path='/' exact component={Home}/>
-        <Route path='/pair' exact component={SinglePairPredict}/>
-        <Route path='/pairs' exact component={ManyPairPredict}/>
+        <Route path='/single-pair' exact component={SinglePairPredict}/>
+        <Route path='/many-pair' exact component={ManyPairPredict}/>
       </div>
     </Router>
   );

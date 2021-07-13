@@ -10,10 +10,10 @@ export default function NavBar() {
             </div>
             <ul className="NavBar-Links">
                 <li>
-                    <Link to='/pair'>Single Pair</Link>
+                    <Link to='/single-pair'>Single Pair</Link>
                 </li>
                 <li>
-                    <Link to='/pairs'>Many Pair</Link>
+                    <Link to='/many-pair'>Many Pair</Link>
                 </li>
             </ul>
         </div>

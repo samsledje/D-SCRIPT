@@ -12,7 +12,7 @@ export default function SinglePair() {
 
     const logPredictions = () => {
         axios
-            .get("http://localhost:8000/api/singlepair/")
+            .get("http://localhost:8000/api/single-pair/")
             .then((res) => console.log(res.data))
             .catch((err) => console.log(err))
     }
@@ -44,7 +44,7 @@ export default function SinglePair() {
     const handleSubmit = () => {
         console.log(item)
         axios
-            .post("http://localhost:8000/api/singlepair/", item)
+            .post("http://localhost:8000/api/single-pair/", item)
             .then((res) => console.log(res.data.probability))
             .catch((err) => console.log(err))
     }
