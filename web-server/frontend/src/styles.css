@@ -22,7 +22,12 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  margin: 24px 0 48px 0;
+  margin: 24px 0;
+}
+
+#Home-PredictionTypes {
+  text-align: center;
+  margin-bottom: 12px;
 }
 
 .Home-Usages {
@@ -50,8 +55,8 @@
 
 .Home-Usages .Home-Usage h2 {
   font-size: 20px;
-  font-style: italic;
   margin-bottom: 12px;
+  font-weight: strong;
 }
 
 .ManyPairPredict-Container {
