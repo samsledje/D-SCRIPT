@@ -27,7 +27,7 @@ export default function ManyPair() {
         uploadData.append('pairs', item.pairs)
         uploadData.append('sequences', item.sequences)
         axios
-            .post("http://localhost:8000/api/pairs/", uploadData)
+            .post("http://localhost:8000/api/manypair/", uploadData)
             .then((res) => console.log(res))
             .catch((err) => console.log(err))
     }
