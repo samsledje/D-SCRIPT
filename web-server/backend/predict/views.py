@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
 
-from .serializers import SinglePairSerializer, ManyPairSerializer
-from .models import SinglePair, ManyPair
+from .serializers import SinglePairSerializer, ManyPairSerializer, AllPairSerializer
+from .models import SinglePair, ManyPair, AllPair
 
 from .api import dscript
 
@@ -18,7 +18,7 @@ import os
 @api_view(['GET', 'POST'])
 def single_pair_predict(request):
     """
-    List all predictions, or create a new prediction.
+    List all single pair predictions, or create a new prediction.
     """
     if request.method == 'GET':
         predictions = SinglePair.objects.all()
@@ -39,7 +39,7 @@ def single_pair_predict(request):
 @api_view(['GET', 'POST'])
 def many_pair_predict(request):
     """
-    List all file predictions, or create a new set of predictions
+    List all many pair predictions, or create a new set of predictions
     """
     if request.method == 'GET':
         predictions = ManyPair.objects.all()
@@ -56,6 +56,28 @@ def many_pair_predict(request):
         else:
             print('NOT A VALID POST')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST'])
+def all_pair_predict(request):
+    """
+    List all 'all pair' predictions, or create a new set of predictions
+    """
+    if request.method == 'GET':
+        predictions = AllPair.objects.all()
+        serializer = AllPairSerializer(predictions, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        data = request.data.copy()
+        data['predictions'] = dscript.all_pair_predict(data['title'], data['sequences'])
+        serializer = AllPairSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print('NOT A VALID POST')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer
