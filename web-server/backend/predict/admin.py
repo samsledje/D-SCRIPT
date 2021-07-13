@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SinglePair, ManyPair
+from .models import SinglePair, ManyPair, AllPair
 
 class SinglePairAdmin(admin.ModelAdmin):
     # Displays within admin panel
@@ -8,7 +8,12 @@ class SinglePairAdmin(admin.ModelAdmin):
 class ManyPairAdmin(admin.ModelAdmin):
     list_display = ('title', 'pairs', 'sequences', 'predictions')
 
+class AllPairAdmin(admin.ModelAdmin):
+    list_display = ('title', 'sequences', 'predictions')
+
+
 # Register your models here.
 
 admin.site.register(SinglePair, SinglePairAdmin)
 admin.site.register(ManyPair, ManyPairAdmin)
+admin.site.register(AllPair, AllPairAdmin)
