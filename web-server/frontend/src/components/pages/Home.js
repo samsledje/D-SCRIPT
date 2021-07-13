@@ -12,6 +12,17 @@ export default function Home() {
                 <h1>D-SCRIPT</h1>
                 <p>D-SCRIPT (Deep Sequence Contact Residue Interaction Prediction Transfer) is a deep learning method for predicting protein-protein interaction based on the sequences of their amino acids.</p>
             </div>
+            <div className="Home-Usages">
+                <div className="Home-Usage">
+                    
+                </div>
+                <div className="Home-Usage">
+
+                </div>
+                <div className="Home-Usage">
+
+                </div>
+            </div>
         </div>
     )
 }
