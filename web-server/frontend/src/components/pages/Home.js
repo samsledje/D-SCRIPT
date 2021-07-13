@@ -14,13 +14,16 @@ export default function Home() {
             </div>
             <div className="Home-Usages">
                 <div className="Home-Usage">
-                    
+                    <h2>Single Pair</h2>
+                    <p>Provide the sequences of a single pair of proteins and compute the probability of these proteins interacting</p>
                 </div>
                 <div className="Home-Usage">
-
+                    <h2>Many Pairs</h2>
+                    <p>Provide multiple specified pairs of proteins as well as their sequences and compute the probability of each pair interacting</p>
                 </div>
                 <div className="Home-Usage">
-
+                    <h2>All Pairs</h2>
+                    <p>Provide sequences for a set of proteins and compute the probability of all pairs among these proteins interacting</p>
                 </div>
             </div>
         </div>
