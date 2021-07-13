@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
 
-from .serializers import PredictionSerializer, FilePredictionSerializer
-from .models import Prediction, FilePrediction
+from .serializers import SinglePairSerializer, ManyPairSerializer
+from .models import SinglePair, ManyPair
 
 from .api import dscript
 
@@ -21,14 +21,14 @@ def single_pair_predict(request):
     List all predictions, or create a new prediction.
     """
     if request.method == 'GET':
-        predictions = Prediction.objects.all()
-        serializer = PredictionSerializer(predictions, many=True)
+        predictions = SinglePair.objects.all()
+        serializer = SinglePairSerializer(predictions, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
         data = request.data.copy() #dictionary
         data['probability'] = dscript.pair_predict(data['sequence1'], data['sequence2'])
-        serializer = PredictionSerializer(data=data)
+        serializer = SinglePairSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -42,14 +42,14 @@ def many_pairs_predict(request):
     List all file predictions, or create a new set of predictions
     """
     if request.method == 'GET':
-        file_predictions = FilePrediction.objects.all()
-        serializer = FilePredictionSerializer(file_predictions, many=True)
+        predictions = ManyPair.objects.all()
+        serializer = ManyPairSerializer(predictions, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
         data = request.data.copy()
         data['predictions'] = dscript.file_predict(data['title'], data['pairs'], data['sequences'])
-        serializer = FilePredictionSerializer(data=data)
+        serializer = ManyPairSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

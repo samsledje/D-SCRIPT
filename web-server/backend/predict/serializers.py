@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Prediction, FilePrediction
+from .models import SinglePair, ManyPair
 
-class PredictionSerializer(serializers.ModelSerializer):
+class SinglePairSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Prediction
+        model = SinglePair
         fields = ('id', 'title', 'protein1', 'protein2', 'sequence1', 'sequence2', 'probability')
 
-class FilePredictionSerializer(serializers.ModelSerializer):
+class ManyPairSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FilePrediction
+        model = ManyPair
         fields = ('id', 'title', 'pairs', 'sequences', 'predictions')

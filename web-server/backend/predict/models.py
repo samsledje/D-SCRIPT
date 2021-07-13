@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class Prediction(models.Model):
+class SinglePair(models.Model):
     title = models.CharField(max_length=120)
     protein1 = models.CharField(max_length=60)
     protein2 = models.CharField(max_length=60)
@@ -13,12 +13,20 @@ class Prediction(models.Model):
     def __str__(self):
         return self.title
 
-class FilePrediction(models.Model):
+class ManyPair(models.Model):
     title = models.CharField(max_length=120)
     pairs = models.FileField(upload_to='pairs/')
     sequences = models.FileField(upload_to='sequences/')
     predictions = models.TextField()
     # predictions = models.FileField(upload_to='predictions/')
+
+    def __str__(self):
+        return self.title
+
+class AllPair(models.Model):
+    title = models.CharField(max_length=120)
+    sequences = models.FileField(upload_to='sequences/')
+    predictions = models.TextField()
 
     def __str__(self):
         return self.title
