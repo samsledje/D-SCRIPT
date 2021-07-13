@@ -1,6 +1,12 @@
 .Home-Container {
-    padding: 24px;
     min-height: 100vh;
     display: flex;
     flex-flow: column nowrap;
+}
+
+.Home-Description {
+    padding: 24px 192px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
 }
