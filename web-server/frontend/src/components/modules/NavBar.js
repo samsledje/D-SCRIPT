@@ -13,7 +13,7 @@ export default function NavBar() {
                     <Link to='/pair'>Single Pair</Link>
                 </li>
                 <li>
-                    <Link to='/pairs'>Many Pairs</Link>
+                    <Link to='/pairs'>Many Pair</Link>
                 </li>
             </ul>
         </div>

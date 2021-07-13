@@ -1,7 +1,7 @@
 import React from 'react'
 
 import SinglePair from '../modules/SinglePair'
-import ManyPairs from '../modules/ManyPairs'
+import ManyPair from '../modules/ManyPair'
 import NavBar from '../modules/NavBar'
 
 export default function Home() {
@@ -18,11 +18,11 @@ export default function Home() {
                     <p>Provide the sequences of a single pair of proteins and compute the probability of these proteins interacting</p>
                 </div>
                 <div className="Home-Usage">
-                    <h2>Many Pairs</h2>
+                    <h2>Many Pair</h2>
                     <p>Provide multiple specified pairs of proteins as well as their sequences and compute the probability of each pair interacting</p>
                 </div>
                 <div className="Home-Usage">
-                    <h2>All Pairs</h2>
+                    <h2>All Pair</h2>
                     <p>Provide sequences for a set of proteins and compute the probability of all pairs among these proteins interacting</p>
                 </div>
             </div>

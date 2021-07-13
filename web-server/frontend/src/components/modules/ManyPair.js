@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function ManyPairs() {
+export default function ManyPair() {
     const [item, setItem] = useState({
         'title': '',
         'pairs': null,
@@ -33,7 +33,7 @@ export default function ManyPairs() {
     }
 
     return (
-        <div className="ManyPairs-Container">
+        <div className="ManyPair-Container">
             <h1>Predict Interaction Between Protein Pairs</h1>
             <form>
                 <label>Enter a job title:</label><br></br>

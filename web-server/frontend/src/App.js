@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Home from './components/pages/Home';
 import SinglePairPredict from './components/pages/SinglePairPredict';
-import ManyPairsPredict from './components/pages/ManyPairsPredict';
+import ManyPairPredict from './components/pages/ManyPairPredict';
 import './styles.css';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
       <div className="App">
         <Route path='/' exact component={Home}/>
         <Route path='/pair' exact component={SinglePairPredict}/>
-        <Route path='/pairs' exact component={ManyPairsPredict}/>
+        <Route path='/pairs' exact component={ManyPairPredict}/>
       </div>
     </Router>
   );
