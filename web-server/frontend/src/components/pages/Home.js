@@ -1,7 +1,5 @@
 import React from 'react'
 
-import SinglePair from '../modules/SinglePair'
-import ManyPair from '../modules/ManyPair'
 import NavBar from '../modules/NavBar'
 
 export default function Home() {

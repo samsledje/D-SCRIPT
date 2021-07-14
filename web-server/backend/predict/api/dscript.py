@@ -196,7 +196,7 @@ def all_pair_predict(title, seqs_fasta, device=-1, modelPath = 'dscript-models/h
             with torch.no_grad():
                 # for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
                 for i in range(len(all_prots)-1):
-                    for j in range(i, len(all_prots)):
+                    for j in range(i+1, len(all_prots)):
                         n0 = str(all_prots[i])
                         n1 = str(all_prots[j])
                         if n % 50 == 0:
