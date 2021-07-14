@@ -51,7 +51,7 @@ export default function SinglePair() {
 
     return (
         <div className="SinglePair-Container">
-            <h1>Predict Interaction Between Two Proteins</h1>
+            <h1>Predict Interaction Between Single Pair</h1>
             <form>
                 <label>Enter a job title: </label><br></br>
                 <input type="text" onChange={handleTitleChange}></input><br></br>
