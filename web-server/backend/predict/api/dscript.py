@@ -130,6 +130,14 @@ def many_pair_predict(title, pairs_tsv, seqs_fasta, device=-1, modelPath = 'dscr
 
     return outPathAll
 
+def all_pairs(proteins):
+    """
+    Generator which yields each pair of distinct proteins from a list
+    """
+    for i in range(len(proteins)-1):
+        for j in range(i+1, len(proteins)):
+            yield (proteins[i], proteins[j])
+
 def all_pair_predict(title, seqs_fasta, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given a .fasta file of protein sequences,
@@ -195,27 +203,26 @@ def all_pair_predict(title, seqs_fasta, device=-1, modelPath = 'dscript-models/h
         with open(outPathPos, 'w+') as pos_f:
             with torch.no_grad():
                 # for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
-                for i in range(len(all_prots)-1):
-                    for j in range(i+1, len(all_prots)):
-                        n0 = str(all_prots[i])
-                        n1 = str(all_prots[j])
-                        if n % 50 == 0:
-                            f.flush()
-                        n += 1
-                        p0 = embeddings[n0]
-                        p1 = embeddings[n1]
-                        if use_cuda:
-                            p0 = p0.cuda()
-                            p1 = p1.cuda()
-                        try:
-                            cm, p = model.map_predict(p0, p1)
-                            p = p.item()
-                            f.write(f'{n0}\t{n1}\t{p}\n')
-                            if p >= threshhold:
-                                pos_f.write(f'{n0}\t{n1}\t{p}\n')
-                                cmap_file.create_dataset(f'{n0}x{n1}', data=cm.squeeze().cpu().numpy())
-                        except RuntimeError as e:
-                            print(f'{n0} x {n1} skipped - Out of Memory')
+                for (n0, n1) in tqdm(all_pairs(all_prots)):
+                    n0 = str(n0)
+                    n1 = str(n1)
+                    if n % 50 == 0:
+                        f.flush()
+                    n += 1
+                    p0 = embeddings[n0]
+                    p1 = embeddings[n1]
+                    if use_cuda:
+                        p0 = p0.cuda()
+                        p1 = p1.cuda()
+                    try:
+                        cm, p = model.map_predict(p0, p1)
+                        p = p.item()
+                        f.write(f'{n0}\t{n1}\t{p}\n')
+                        if p >= threshhold:
+                            pos_f.write(f'{n0}\t{n1}\t{p}\n')
+                            cmap_file.create_dataset(f'{n0}x{n1}', data=cm.squeeze().cpu().numpy())
+                    except RuntimeError as e:
+                        print(f'{n0} x {n1} skipped - Out of Memory')
     cmap_file.close()
 
     return outPathAll
