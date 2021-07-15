@@ -18,6 +18,9 @@ export default function NavBar() {
                 <li>
                     <Link to='/all-pair'>All Pair</Link>
                 </li>
+                <li>
+                    <Link to='/predict'>Predict</Link>
+                </li>
             </ul>
         </div>
     )

@@ -5,6 +5,7 @@ import Home from './components/pages/Home';
 import SinglePairPredict from './components/pages/SinglePairPredict';
 import ManyPairPredict from './components/pages/ManyPairPredict';
 import AllPairPredict from './components/pages/AllPairPredict';
+import Predict from './components/pages/Predict';
 import './styles.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path='/single-pair' exact component={SinglePairPredict}/>
         <Route path='/many-pair' exact component={ManyPairPredict}/>
         <Route path='/all-pair' exact component={AllPairPredict}/>
+        <Route path='/predict' exact component={Predict}/>
       </div>
     </Router>
   );

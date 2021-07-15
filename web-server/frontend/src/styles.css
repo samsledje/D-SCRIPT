@@ -92,6 +92,17 @@
           flex-flow: column nowrap;
 }
 
+.Predict-Container {
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: column nowrap;
+          flex-flow: column nowrap;
+}
+
 .SinglePair-Container {
   width: 750px;
   background-color: rgba(0, 255, 255, 0.4);
