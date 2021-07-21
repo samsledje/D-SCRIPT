@@ -2,4 +2,9 @@
     display: flex;
     flex-flow: column wrap;
     align-items: center;
+
+    form {
+        width: 50%;
+        min-width: 500px;
+    }
 }

@@ -7,21 +7,21 @@ import SequenceInput from './SequenceInput'
 export default function PredictInput() {
     return (
         <div className="PredictInput-Container">
-            <h1>Predict Interaction Between Many Pairs</h1>
+            <h1>Predict Protein Interactions</h1>
             <form autoComplete="off">
                 <TextField
                     label='Enter a job title'
                     variant='outlined'
                     margin='dense'
-                    fullWidth='true'
-                    required='true'>
+                    fullWidth={true}
+                    required={true}>
                 </TextField><br></br>
                 <TextField
                     label='Enter an email address'
                     variant='outlined'
                     margin='dense'
-                    fullWidth='true'
-                    required='true'>
+                    fullWidth={true}
+                    required={true}>
                 </TextField>
                 <PairInput></PairInput>
                 <SequenceInput></SequenceInput>
