@@ -26,7 +26,7 @@ export default function PredictInput() {
                 <PairInput></PairInput>
                 <SequenceInput></SequenceInput>
                 <Button variant='contained'>Compute Interaction Probability</Button>
-                <br></br>
+                {/* <br></br>
                 <label>Enter a job title:</label><br></br>
                 <input type="text"></input><br></br>
                 <label>Protein candidate pairs (.tsv)</label><br></br>
@@ -38,9 +38,9 @@ export default function PredictInput() {
                 <label>Protein sequences (.fasta)</label><br></br>
                 <input type="file" accept=".fasta"></input>
                 or
-                <textarea></textarea><br></br>
+                <textarea></textarea><br></br> */}
             </form>
-            <button>Compute Interaction Probability</button>
+            {/* <button>Compute Interaction Probability</button> */}
         </div>
     )
 }

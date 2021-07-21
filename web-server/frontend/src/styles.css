@@ -289,15 +289,36 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  margin: 24px;
 }
 
 .PredictInput-Container form {
   width: 50%;
-  min-width: 500px;
+  min-width: 480px;
 }
 
-#upload-pairs {
-  display: none;
+.PairInput-Upload {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.SequenceInput-Upload {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .NavBar-Container {

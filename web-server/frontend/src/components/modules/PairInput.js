@@ -11,8 +11,11 @@ export default function PairInput() {
     }
 
     const handleFileChange = (e) => {
-        console.log(e.target.files[0])
-        setFile(e.target.files[0].name)
+        if (typeof e.target.files[0] != 'undefined') {
+            setFile(e.target.files[0].name)
+        } else {
+            setFile('No file chosen')
+        }
     }
 
     return (
@@ -25,12 +28,12 @@ export default function PairInput() {
                 </TabList>
             </AppBar>
             <TabPanel value='1'>
-                <input id='upload-pairs' type="file" accept=".tsv" onChange={handleFileChange}/>
-                <label htmlFor='upload-pairs'>
+                <input id='upload-pairs' type="file" accept=".tsv" hidden onChange={handleFileChange}/>
+                <label htmlFor='upload-pairs' className='PairInput-Upload'>
                     <Button variant="contained" color="primary" component="span">
                         Upload .tsv
-                    </Button><br></br>
-                    {file}
+                    </Button>
+                    <em>{file}</em>
                 </label>
             </TabPanel>
             <TabPanel value='2'>
