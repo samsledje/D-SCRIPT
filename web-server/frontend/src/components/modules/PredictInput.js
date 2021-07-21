@@ -1,10 +1,26 @@
 import React from 'react'
+import { TextField } from '@material-ui/core'
 
 export default function PredictInput() {
     return (
         <div className="PredictInput-Container">
             <h1>Predict Interaction Between Many Pairs</h1>
-            <form>
+            <form autoComplete="off">
+                <TextField
+                    label='Enter a job title'
+                    variant='outlined'
+                    margin='dense'
+                    fullWidth='true'
+                    required='true'>
+                </TextField><br></br>
+                <TextField
+                    label='Enter an email address'
+                    variant='outlined'
+                    margin='dense'
+                    fullWidth='true'
+                    required='true'>
+                </TextField>
+                <br></br>
                 <label>Enter a job title:</label><br></br>
                 <input type="text"></input><br></br>
                 <label>Protein candidate pairs (.tsv)</label><br></br>
