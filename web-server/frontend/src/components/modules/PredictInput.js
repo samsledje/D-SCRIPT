@@ -13,7 +13,6 @@ export default function PredictInput() {
         'pairsUpload': null,
         'pairsFilename': 'No file chosen',
         'pairsInput': '',
-        'pairsAll': false,
         'seqsUpload': null,
         'seqsFilename': 'No file chosen',
         'seqsInput': ''
@@ -28,9 +27,6 @@ export default function PredictInput() {
     }
 
     const handlePairsIndexChange = (e, newIndex) => {
-        if (newIndex === '3') {
-            setItem({...item, 'pairsAll': true})
-        }
         setItem({...item, 'pairsIndex': newIndex})
     }
 
@@ -48,10 +44,6 @@ export default function PredictInput() {
 
     const handlePairsInputChange = (e) => {
         setItem({...item, 'pairsInput': e.target.value});
-    }
-
-    const handlePairsAllSelect = (e) => {
-        setItem({...item, 'pairsAll': true});
     }
 
     const handleSeqsUploadChange = (e) => {
@@ -98,7 +90,6 @@ export default function PredictInput() {
                     filename={item.pairsFilename}
                     handleUploadChange={handlePairsUploadChange}
                     handleInputChange={handlePairsInputChange}
-                    handleAllSelect={handlePairsAllSelect}
                 ></PairInput>
                 <SequenceInput
                     index={item.seqsIndex}

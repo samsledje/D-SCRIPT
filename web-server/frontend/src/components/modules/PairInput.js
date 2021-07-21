@@ -1,20 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { AppBar, Tab, Button, TextField } from '@material-ui/core'
 import { TabContext, TabList, TabPanel } from '@material-ui/lab'
 
 export default function PairInput(props) {
     // index: Current index of Tab
     // handleIndexChange: Changes index of current Tab
-
-    const [filename, setFilename] = useState('No file chosen')
-
-    const handleFilenameChange = (e) => {
-        if (typeof e.target.files[0] != 'undefined') {
-            setFilename(e.target.files[0].name)
-        } else {
-            setFilename('No file chosen')
-        }
-    }
+    // filename: Current uploaded filename
+    // handleUploadChange: Changes uploaded file
+    // handleInputChange: Changes pair input
 
     return (
         <TabContext value={props.index}>
@@ -26,12 +19,12 @@ export default function PairInput(props) {
                 </TabList>
             </AppBar>
             <TabPanel value='1'>
-                <input id='upload-pairs' type="file" accept=".tsv" hidden onChange={handleFilenameChange}/>
+                <input id='upload-pairs' type="file" accept=".tsv" hidden onChange={props.handleUploadChange}/>
                 <label htmlFor='upload-pairs' className='PairInput-Upload'>
                     <Button variant="contained" color="primary" component="span">
                         Upload .tsv
                     </Button>
-                    <em>{filename}</em>
+                    <em>{props.filename}</em>
                 </label>
             </TabPanel>
             <TabPanel value='2'>
@@ -42,6 +35,7 @@ export default function PairInput(props) {
                     fullWidth={true}
                     variant='outlined'
                     spellCheck='false'
+                    onChange={props.handleInputChange}
                 />
             </TabPanel>
             <TabPanel value='3'>
