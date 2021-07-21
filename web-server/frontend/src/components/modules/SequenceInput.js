@@ -6,13 +6,13 @@ export default function SequenceInput(props) {
     // index: Current index of Tab
     // handleIndexChange: Changes index of current Tab
 
-    const [file, setFile] = useState('No file chosen')
+    const [filename, setFilename] = useState('No file chosen')
 
-    const handleFileChange = (e) => {
+    const handleFilenameChange = (e) => {
         if (typeof e.target.files[0] != 'undefined') {
-            setFile(e.target.files[0].name)
+            setFilename(e.target.files[0].name)
         } else {
-            setFile('No file chosen')
+            setFilename('No file chosen')
         }
     }
 
@@ -25,12 +25,12 @@ export default function SequenceInput(props) {
                 </TabList>
             </AppBar>
             <TabPanel value='1'>
-                <input id='upload-seqs' type="file" accept=".fasta" onChange={handleFileChange} hidden/>
+                <input id='upload-seqs' type="file" accept=".fasta" onChange={handleFilenameChange} hidden/>
                 <label htmlFor='upload-seqs' className='SequenceInput-Upload'>
                     <Button variant="contained" color="primary" component="span">
                         Upload .fasta
                     </Button>
-                    <em>{file}</em>
+                    <em>{filename}</em>
                 </label>
             </TabPanel>
             <TabPanel value='2'>

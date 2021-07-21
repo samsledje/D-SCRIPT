@@ -11,9 +11,11 @@ export default function PredictInput() {
         'pairsIndex': '1',
         'seqsIndex': '1',
         'pairsUpload': null,
+        'pairsFilename': 'No file chosen',
         'pairsInput': '',
         'pairsAll': false,
         'seqsUpload': null,
+        'seqsFilename': 'No file chosen',
         'seqsInput': ''
     });
 
@@ -26,11 +28,42 @@ export default function PredictInput() {
     }
 
     const handlePairsIndexChange = (e, newIndex) => {
+        if (newIndex === '3') {
+            setItem({...item, 'pairsAll': true})
+        }
         setItem({...item, 'pairsIndex': newIndex})
     }
 
     const handleSeqsIndexChange = (e, newIndex) => {
         setItem({...item, 'seqsIndex': newIndex})
+    }
+
+    const handlePairsUploadChange = (e) => {
+        if (typeof e.target.files[0] != 'undefined') {
+            setItem({...item, 'pairsUpload': e.target.files[0], 'pairsFilename': e.target.files[0].name});
+        } else {
+            setItem({...item, 'pairsUpload': null, 'pairsFilename': 'No file chosen'})
+        }
+    }
+
+    const handlePairsInputChange = (e) => {
+        setItem({...item, 'pairsInput': e.target.value});
+    }
+
+    const handlePairsAllSelect = (e) => {
+        setItem({...item, 'pairsAll': true});
+    }
+
+    const handleSeqsUploadChange = (e) => {
+        if (typeof e.target.files[0] != 'undefined') {
+            setItem({...item, 'seqsUpload': e.target.files[0], 'seqsFilename': e.target.files[0].name});
+        } else {
+            setItem({...item, 'seqsUpload': null, 'seqsFilename': 'No file chosen'})
+        }
+    }
+
+    const handleSeqsInputChange = (e) => {
+        setItem({...item, 'seqsInput': e.target.value});
     }
 
     const handleSubmit = () => {
@@ -59,8 +92,21 @@ export default function PredictInput() {
                     required={true}
                     onChange={handleEmailChange}>
                 </TextField>
-                <PairInput index={item.pairsIndex} handleIndexChange={handlePairsIndexChange}></PairInput>
-                <SequenceInput index={item.seqsIndex} handleIndexChange={handleSeqsIndexChange}></SequenceInput>
+                <PairInput
+                    index={item.pairsIndex}
+                    handleIndexChange={handlePairsIndexChange}
+                    filename={item.pairsFilename}
+                    handleUploadChange={handlePairsUploadChange}
+                    handleInputChange={handlePairsInputChange}
+                    handleAllSelect={handlePairsAllSelect}
+                ></PairInput>
+                <SequenceInput
+                    index={item.seqsIndex}
+                    handleIndexChange={handleSeqsIndexChange}
+                    filename={item.seqsFilename}
+                    handleUploadChange={handleSeqsUploadChange}
+                    handleInputChange={handleSeqsInputChange}
+                ></SequenceInput>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
             </form>
         </div>
