@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextField } from '@material-ui/core'
+import { TextField, Tabs, Tab } from '@material-ui/core'
 
 export default function PredictInput() {
     return (
@@ -20,6 +20,11 @@ export default function PredictInput() {
                     fullWidth='true'
                     required='true'>
                 </TextField>
+                <Tabs variant='fullWidth'>
+                    <Tab label='Upload pairs'/>
+                    <Tab label='Input pairs'/>
+                    <Tab label='All pairs'/>
+                </Tabs>
                 <br></br>
                 <label>Enter a job title:</label><br></br>
                 <input type="text"></input><br></br>
