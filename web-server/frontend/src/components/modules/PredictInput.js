@@ -1,7 +1,8 @@
 import React from 'react'
-import { TextField, Tabs, Tab } from '@material-ui/core'
+import { TextField, Button } from '@material-ui/core'
 
 import PairInput from './PairInput'
+import SequenceInput from './SequenceInput'
 
 export default function PredictInput() {
     return (
@@ -23,6 +24,8 @@ export default function PredictInput() {
                     required='true'>
                 </TextField>
                 <PairInput></PairInput>
+                <SequenceInput></SequenceInput>
+                <Button variant='contained'>Compute Interaction Probability</Button>
                 <br></br>
                 <label>Enter a job title:</label><br></br>
                 <input type="text"></input><br></br>
