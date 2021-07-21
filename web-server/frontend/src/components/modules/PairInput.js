@@ -2,13 +2,11 @@ import React, { useState } from 'react'
 import { AppBar, Tab, Button, TextField } from '@material-ui/core'
 import { TabContext, TabList, TabPanel } from '@material-ui/lab'
 
-export default function PairInput() {
-    const [index, setIndex] = useState('1');
-    const [file, setFile] = useState('No file chosen')
+export default function PairInput(props) {
+    // index: Current index of Tab
+    // handleIndexChange: Changes index of current Tab
 
-    const handleIndexChange = (e, newIndex) => {
-        setIndex(newIndex)
-    }
+    const [file, setFile] = useState('No file chosen')
 
     const handleFileChange = (e) => {
         if (typeof e.target.files[0] != 'undefined') {
@@ -19,9 +17,9 @@ export default function PairInput() {
     }
 
     return (
-        <TabContext value={index}>
+        <TabContext value={props.index}>
             <AppBar position='static' color='primary'>
-                <TabList onChange={handleIndexChange} variant='fullWidth'>
+                <TabList onChange={props.handleIndexChange} variant='fullWidth'>
                     <Tab label='Upload pairs' value='1'/>
                     <Tab label='Input pairs' value='2'/>
                     <Tab label='All pairs' value='3'/>
