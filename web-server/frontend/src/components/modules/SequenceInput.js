@@ -14,7 +14,7 @@ export default function SequenceInput(props) {
             <AppBar position='static' color='primary'>
                 <TabList onChange={props.handleIndexChange} variant='fullWidth'>
                     <Tab label='Upload sequences' value='1'/>
-                    <Tab label='Input sequences' value='2'/>
+                    <Tab label='Enter sequences' value='2'/>
                 </TabList>
             </AppBar>
             <TabPanel value='1'>

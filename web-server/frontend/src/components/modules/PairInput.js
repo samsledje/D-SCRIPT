@@ -14,7 +14,7 @@ export default function PairInput(props) {
             <AppBar position='static' color='primary'>
                 <TabList onChange={props.handleIndexChange} variant='fullWidth'>
                     <Tab label='Upload pairs' value='1'/>
-                    <Tab label='Input pairs' value='2'/>
+                    <Tab label='Enter pairs' value='2'/>
                     <Tab label='All pairs' value='3'/>
                 </TabList>
             </AppBar>
@@ -30,7 +30,7 @@ export default function PairInput(props) {
             <TabPanel value='2'>
                 <TextField
                     multiline
-                    label='Proteins in .csv format'
+                    label='Proteins in comma-separated format'
                     rows={4}
                     fullWidth={true}
                     variant='outlined'

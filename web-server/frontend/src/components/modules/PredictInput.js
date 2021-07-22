@@ -60,12 +60,63 @@ export default function PredictInput() {
 
     const handleSubmit = () => {
         console.log(item)
+        const uploadData = new FormData()
+        uploadData.append('title', item.title)
+        uploadData.append('email', item.email)
+        uploadData.append('pairsIndex', item.pairsIndex)
+        uploadData.append('seqsIndex', item.seqsIndex)
+
+        // Handling pairs submission
+        if (item.pairsIndex === '1') {
+            if (item.pairsUpload != null) {
+                uploadData.append('pairs', item.pairsUpload)
+            } else {
+                alert('Upload a file of protein pairs!')
+            }
+        } else if (item.pairsIndex === '2') {
+            if (item.pairsInput !== '') {
+                uploadData.append('pairs', item.pairsInput)
+            } else {
+                alert('Enter protein pairs!')
+            }
+        }
+
+        // Handling sequences submission
+        if (item.seqsIndex === '1') {
+            if (item.seqsUpload != null) {
+                uploadData.append('seqs', item.seqsUpload)
+            } else {
+                alert('Upload a file of protein sequences!')
+            }
+        } else if (item.seqsIndex === '2') {
+            if (item.seqsInput !== '') {
+                uploadData.append('seqs', item.seqsInput)
+            } else {
+                alert('Enter protein sequences!')
+            }
+        }
+
+        console.log(uploadData.data)
     }
     
     return (
         <div className="PredictInput-Container">
             <h1>Predict Protein Interactions</h1>
             <form autoComplete="off">
+                <PairInput
+                    index={item.pairsIndex}
+                    handleIndexChange={handlePairsIndexChange}
+                    filename={item.pairsFilename}
+                    handleUploadChange={handlePairsUploadChange}
+                    handleInputChange={handlePairsInputChange}
+                ></PairInput>
+                <SequenceInput
+                    index={item.seqsIndex}
+                    handleIndexChange={handleSeqsIndexChange}
+                    filename={item.seqsFilename}
+                    handleUploadChange={handleSeqsUploadChange}
+                    handleInputChange={handleSeqsInputChange}
+                ></SequenceInput>
                 <TextField
                     label='Enter a job title'
                     value={item.title}
@@ -84,20 +135,6 @@ export default function PredictInput() {
                     required={true}
                     onChange={handleEmailChange}>
                 </TextField>
-                <PairInput
-                    index={item.pairsIndex}
-                    handleIndexChange={handlePairsIndexChange}
-                    filename={item.pairsFilename}
-                    handleUploadChange={handlePairsUploadChange}
-                    handleInputChange={handlePairsInputChange}
-                ></PairInput>
-                <SequenceInput
-                    index={item.seqsIndex}
-                    handleIndexChange={handleSeqsIndexChange}
-                    filename={item.seqsFilename}
-                    handleUploadChange={handleSeqsUploadChange}
-                    handleInputChange={handleSeqsInputChange}
-                ></SequenceInput>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
             </form>
         </div>
