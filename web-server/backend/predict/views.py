@@ -6,7 +6,9 @@ from rest_framework.response import Response
 import pandas as pd
 
 from .serializers import SinglePairSerializer, ManyPairSerializer, AllPairSerializer
+from .serializers import PairsUploadSerializer, PairsInputSerializer, SeqsUploadSerializer, SeqsInputSerializer, PredictionJobSerializer
 from .models import SinglePair, ManyPair, AllPair
+from .models import PairsUpload, PairsInput, SeqsUpload, SeqsInput, PredictionJob
 
 from .api import dscript
 
@@ -77,6 +79,26 @@ def all_pair_predict(request):
         else:
             print('NOT A VALID POST')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+pairsIndexToSerializer = {'1': PairsUploadSerializer, '2': PairsInputSerializer}
+seqsIndexToSerializer = {'1': SeqsUploadSerializer, '2': SeqsInputSerializer}
+
+@api_view(['GET', 'POST'])
+def predict(request):
+    if request.method == 'POST':
+        data = request.data
+        if data['pairsIndex'] in ['1', '2']:
+            pairsSerializer = pairsIndexToSerializer[data['pairsIndex']](data=data['pairs'])
+            if pairsSerializer.is_valid():
+                pairsSerializer.save()
+            else:
+                pass
+        seqsSerializer = seqsIndexToSerializer[data['seqsIndex']](data=data['seqs'])
+        if seqsSerializer.is_valid():
+            seqsSerializer.save()
+        else:
+            pass
+
 
 
 # class PredictionView(viewsets.ModelViewSet):
