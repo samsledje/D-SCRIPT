@@ -59,3 +59,4 @@ class PredictionJob(models.Model):
     """
     Class representing a prediction job
     """
+    email = models.TextField()

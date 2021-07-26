@@ -40,4 +40,4 @@ class SeqsInputSerializer(serializers.ModelSerializer):
 class PredictionJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = PredictionJob
-        field = ('id',)
+        field = ('id', 'email')

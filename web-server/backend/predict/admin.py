@@ -26,7 +26,7 @@ class SeqsInputAdmin(admin.ModelAdmin):
     list_display = ('seqs',)
 
 class PredictionJobAdmin(admin.ModelAdmin):
-    list_display = ()
+    list_display = ('email',)
 
 
 

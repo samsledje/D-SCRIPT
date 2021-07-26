@@ -98,6 +98,7 @@ def predict(request):
             seqsSerializer.save()
         else:
             pass
+        result = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'])
 
 
 
