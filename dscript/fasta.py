@@ -74,6 +74,19 @@ def parse_bytes(f):
 
     return names, sequences
 
+def parse_input(f, comment="#"):
+    """
+    Parse a text input in ``.fasta`` format
+
+    :param f: Input string object
+    :type f: str
+    :param comment: Character used for comments
+    :type comment: str
+
+    :return: names, sequence
+    :rtype: list[str], list[str]
+    """
+
 def parse_directory(directory, extension=".seq"):
     """
     Parse all files in a directory ending with ``extension``.

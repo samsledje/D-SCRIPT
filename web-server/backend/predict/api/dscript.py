@@ -235,7 +235,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     """
 
     # Set Outpath
-    outPath = f'media/predictions/{title}'
+    outPath = f'media/predictions/test'
 
     # Set Device
     print('# Setting Device...')
@@ -257,7 +257,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     except FileNotFoundError:
         print(f'# Model {modelPath} not found')
         return
-
+    
     # Load Pairs
     print('# Loading Pairs...')
     try:
@@ -267,6 +267,19 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
         print(f'# Pairs File not found')
         return
 
+
+    # Load Sequences
+    if seqsIndex == '1':
+        try:
+            names, sequences = parse_bytes(seqs)
+            seqDict = {n: s for n, s in zip(names, sequences)}
+        except FileNotFoundError:
+            print(f'# Sequence File not found')
+            return
+    elif seqsIndex == '2':
+
+
+
     # Load Sequences
     try:
         names, seqs = parse_bytes(seqs_fasta)
@@ -274,6 +287,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     except FileNotFoundError:
         print(f'# Sequence File not found')
         return
+        
     print('# Generating Embeddings...')
     embeddings = {}
     for n in tqdm(all_prots):
