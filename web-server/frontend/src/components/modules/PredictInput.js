@@ -79,6 +79,8 @@ export default function PredictInput() {
             } else {
                 alert('Enter protein pairs!')
             }
+        } else {
+            uploadData.append('pairs', '')
         }
 
         // Handling sequences submission
