@@ -30,3 +30,32 @@ class AllPair(models.Model):
 
     def __str__(self):
         return self.title
+
+class PairsUpload(models.Model):
+    """
+    Model for uploaded pairs file
+    """
+    pairs = models.FileField(upload_to='pairs/')
+
+class PairsInput(models.Model):
+    """
+    Model for inputted pairs
+    """
+    pairs = models.TextField()
+
+class SeqsUpload(models.Model):
+    """
+    Model for uploaded sequences file
+    """
+    seqs = models.FileField(upload_to='seqs/')
+
+class SeqsInput(models.Model):
+    """
+    Model for inputted sequences
+    """
+    seqs = models.TextField()
+
+class PredictionJob(models.Model):
+    """
+    Class representing a prediction job
+    """
