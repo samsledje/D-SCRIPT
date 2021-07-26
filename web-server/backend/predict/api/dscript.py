@@ -6,11 +6,12 @@ import h5py
 import dscript
 import datetime
 import pandas as pd
+from io import StringIO
 from tqdm import tqdm
 
 import os
 
-from dscript.fasta import parse_bytes
+from dscript.fasta import parse_bytes, parse_input
 from dscript.language_model import lm_embed
 
 def single_pair_predict(seq1, seq2):
@@ -257,18 +258,9 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     except FileNotFoundError:
         print(f'# Model {modelPath} not found')
         return
-    
-    # Load Pairs
-    print('# Loading Pairs...')
-    try:
-        pairs = pd.read_csv(pairs_tsv, sep='\t', header=None)
-        all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
-    except FileNotFoundError:
-        print(f'# Pairs File not found')
-        return
-
 
     # Load Sequences
+    print('# Loading Sequences...')
     if seqsIndex == '1':
         try:
             names, sequences = parse_bytes(seqs)
@@ -277,17 +269,37 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
             print(f'# Sequence File not found')
             return
     elif seqsIndex == '2':
+        try:
+            names, sequences = parse_input(seqs)
+            seqDict = {n: s for n, s in zip(names, sequences)}
+        except:
+            return
 
+    # Load Pairs
+    print('# Loading Pairs...')
+    if pairsIndex == '1':
+        try:
+            pairs_array = pd.read_csv(pairs, sep='\t', header=None)
+            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+        except FileNotFoundError:
+            print(f'# Pairs File not found')
+            return
+    elif pairsIndex == '2':
+        try:
+            pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
+            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+        except:
+            return
+    elif pairsIndex == '3':
+        try:
+            all_prots = list(seqDict.keys())
+            data = []
+            for i in range(len(all_prots-1)):
+                for j in range(i+1, len(all_prots)):
+                    data.append([all_prots[i], all_prots[j]])
+            pairs_array = pd.DataFrame(data)
 
-
-    # Load Sequences
-    try:
-        names, seqs = parse_bytes(seqs_fasta)
-        seqDict = {n: s for n, s in zip(names, seqs)}
-    except FileNotFoundError:
-        print(f'# Sequence File not found')
-        return
-        
+    # Generate Embeddings
     print('# Generating Embeddings...')
     embeddings = {}
     for n in tqdm(all_prots):
@@ -303,7 +315,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     with open(outPathAll, 'w+') as f:
         with open(outPathPos, 'w+') as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
+                for _, (n0, n1) in tqdm(pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
