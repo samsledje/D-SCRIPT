@@ -14,16 +14,16 @@ class AllPairAdmin(admin.ModelAdmin):
 
 
 class PairsUploadAdmin(admin.ModelAdmin):
-    list_display = ('pairs')
+    list_display = ('pairs',)
 
 class PairsInputAdmin(admin.ModelAdmin):
-    list_display = ('pairs')
+    list_display = ('pairs',)
 
 class SeqsUploadAdmin(admin.ModelAdmin):
-    list_display = ('seqs')
+    list_display = ('seqs',)
 
 class SeqsInputAdmin(admin.ModelAdmin):
-    list_display = ('seqs')
+    list_display = ('seqs',)
 
 class PredictionJobAdmin(admin.ModelAdmin):
     list_display = ()
