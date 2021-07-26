@@ -99,6 +99,7 @@ def predict(request):
         else:
             pass
         result = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'])
+        return Response(result)
 
 
 

@@ -298,6 +298,8 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
                 for j in range(i+1, len(all_prots)):
                     data.append([all_prots[i], all_prots[j]])
             pairs_array = pd.DataFrame(data)
+        except:
+            return
 
     # Generate Embeddings
     print('# Generating Embeddings...')

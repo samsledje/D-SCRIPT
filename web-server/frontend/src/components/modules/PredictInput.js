@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { TextField, Button } from '@material-ui/core'
+import axios from 'axios'
 
 import PairInput from './PairInput'
 import SequenceInput from './SequenceInput'
@@ -98,7 +99,10 @@ export default function PredictInput() {
             }
         }
 
-        console.log(uploadData.data)
+        axios
+            .post("http://localhost:8000/api/predict/", uploadData)
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err))
     }
     
     return (

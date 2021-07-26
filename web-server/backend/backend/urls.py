@@ -27,7 +27,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/single-pair/', views.single_pair_predict),
     path('api/many-pair/', views.many_pair_predict),
-    path('api/all-pair/', views.all_pair_predict)
+    path('api/all-pair/', views.all_pair_predict),
+    path('api/predict/', views.predict),
 ]
 
 if settings.DEBUG:

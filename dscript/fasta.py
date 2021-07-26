@@ -86,6 +86,29 @@ def parse_input(f, comment="#"):
     :return: names, sequence
     :rtype: list[str], list[str]
     """
+    starter = ">"
+    empty = ""
+    names = []
+    sequences = []
+    name = None
+    sequence = []
+    for line in f.split('\n'):
+        if line.startswith(comment):
+            continue
+        line = line.strip()
+        if line.startswith(starter):
+            if name is not None:
+                names.append(name)
+                sequences.append(empty.join(sequence))
+            name = line[1:]
+            sequence = []
+        else:
+            sequence.append(line.upper())
+    if name is not None:
+        names.append(name)
+        sequences.append(empty.join(sequence))
+
+    return names, sequences
 
 def parse_directory(directory, extension=".seq"):
     """
