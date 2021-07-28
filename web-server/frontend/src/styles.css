@@ -323,7 +323,7 @@
 
 .NavBar-Container {
   height: 60px;
-  background-color: rgba(0, 0, 255, 0.7);
+  background-color: #3f51b5;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -333,7 +333,7 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  padding: 0 12px;
+  padding: 0 24px;
 }
 
 .NavBar-Container a {
@@ -345,10 +345,6 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  width: 300px;
-  -webkit-box-pack: space-evenly;
-      -ms-flex-pack: space-evenly;
-          justify-content: space-evenly;
   list-style-type: none;
 }
 

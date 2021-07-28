@@ -9,7 +9,7 @@ export default function NavBar() {
                 <Link to='/'>D-SCRIPT</Link>
             </div>
             <ul className="NavBar-Links">
-                <li>
+                {/* <li>
                     <Link to='/single-pair'>Single Pair</Link>
                 </li>
                 <li>
@@ -17,7 +17,7 @@ export default function NavBar() {
                 </li>
                 <li>
                     <Link to='/all-pair'>All Pair</Link>
-                </li>
+                </li> */}
                 <li>
                     <Link to='/predict'>Predict</Link>
                 </li>

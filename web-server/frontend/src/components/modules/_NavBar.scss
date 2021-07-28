@@ -1,10 +1,11 @@
 .NavBar-Container {
     height: 60px;
-    background-color: rgba(0,0,255,0.7);
+    // background-color: rgba(0,0,255,0.7);
+    background-color: #3f51b5;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 24px;
 
     a {
         text-decoration: none;
@@ -14,7 +15,7 @@
 
 .NavBar-Links {
     display: flex;
-    width: 300px;
-    justify-content: space-evenly;
+    // width: 300px;
+    // justify-content: space-evenly;
     list-style-type: none;
 }
