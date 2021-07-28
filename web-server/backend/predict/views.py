@@ -105,8 +105,9 @@ def predict(request):
             seqsSerializer.save()
         else:
             pass
-        result = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'])
-        return Response(result)
+        outPathAll = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'])
+        dscript.email_results(data['email'], outPathAll)
+        return Response(outPathAll)
 
 
 
