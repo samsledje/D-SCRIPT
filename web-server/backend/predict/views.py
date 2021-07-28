@@ -17,6 +17,13 @@ import os
 
 # Create your views here.
 
+test = []
+
+@api_view(['POST'])
+def test_append(request):
+    test.append(1)
+    return Response(test)
+
 @api_view(['GET', 'POST'])
 def single_pair_predict(request):
     """

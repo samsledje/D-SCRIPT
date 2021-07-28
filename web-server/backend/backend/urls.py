@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/many-pair/', views.many_pair_predict),
     path('api/all-pair/', views.all_pair_predict),
     path('api/predict/', views.predict),
+    path('api/test', views.test_append),
 ]
 
 if settings.DEBUG:

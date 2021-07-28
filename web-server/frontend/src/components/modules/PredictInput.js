@@ -104,6 +104,13 @@ export default function PredictInput() {
             .then((res) => console.log(res))
             .catch((err) => console.log(err))
     }
+
+    const testSubmit = () => {
+        axios
+            .post("http://localhost:8000/api/test", {})
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err))
+    }
     
     return (
         <div className="PredictInput-Container">
@@ -142,6 +149,7 @@ export default function PredictInput() {
                     onChange={handleEmailChange}>
                 </TextField>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
+                <Button variant='contained' onClick={testSubmit}>Submit</Button>
             </form>
         </div>
     )
