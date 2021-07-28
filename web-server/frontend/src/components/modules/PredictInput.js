@@ -67,6 +67,21 @@ export default function PredictInput() {
         uploadData.append('pairsIndex', item.pairsIndex)
         uploadData.append('seqsIndex', item.seqsIndex)
 
+        // Handling sequences submission
+        if (item.seqsIndex === '1') {
+            if (item.seqsUpload != null) {
+                uploadData.append('seqs', item.seqsUpload)
+            } else {
+                alert('Upload a file of protein sequences!')
+            }
+        } else if (item.seqsIndex === '2') {
+            if (item.seqsInput !== '') {
+                uploadData.append('seqs', item.seqsInput)
+            } else {
+                alert('Enter protein sequences!')
+            }
+        }
+
         // Handling pairs submission
         if (item.pairsIndex === '1') {
             if (item.pairsUpload != null) {
@@ -82,21 +97,6 @@ export default function PredictInput() {
             }
         } else {
             uploadData.append('pairs', '')
-        }
-
-        // Handling sequences submission
-        if (item.seqsIndex === '1') {
-            if (item.seqsUpload != null) {
-                uploadData.append('seqs', item.seqsUpload)
-            } else {
-                alert('Upload a file of protein sequences!')
-            }
-        } else if (item.seqsIndex === '2') {
-            if (item.seqsInput !== '') {
-                uploadData.append('seqs', item.seqsInput)
-            } else {
-                alert('Enter protein sequences!')
-            }
         }
 
         axios
