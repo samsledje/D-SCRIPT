@@ -21,6 +21,10 @@ export default function PredictInput() {
     });
     const [modalOpen, setModalOpen] = useState(false);
 
+    const handleModalClose = () => {
+        setModalOpen(false)
+    }
+
     const handleTitleChange = (e) => {
         setItem({...item, 'title': e.target.value});
     }
@@ -155,7 +159,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 <Button variant='contained' onClick={testSubmit}>Submit</Button>
             </form>
-            <SubmissionModal open={modalOpen}></SubmissionModal>
+            <SubmissionModal open={modalOpen} handleClose={handleModalClose}></SubmissionModal>
         </div>
     )
 }

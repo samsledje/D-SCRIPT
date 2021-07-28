@@ -22,8 +22,8 @@ export default function SubmissionModal(props) {
             <Modal
                 className={classes.modal}
                 open={props.open}
-                // onClose={handleClose}
-                // closeAfterTransition
+                onClose={props.handleClose}
+                closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
                   timeout: 500,
