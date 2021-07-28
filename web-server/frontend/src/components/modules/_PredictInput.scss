@@ -7,5 +7,9 @@
     form {
         width: 50%;
         min-width: 480px;
+
+        > * {
+            margin: 8px;
+        }
     }
 }

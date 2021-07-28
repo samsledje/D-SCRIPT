@@ -297,6 +297,10 @@
   min-width: 480px;
 }
 
+.PredictInput-Container form > * {
+  margin: 8px;
+}
+
 .PairInput-Upload {
   display: -webkit-box;
   display: -ms-flexbox;
