@@ -131,15 +131,6 @@ export default function PredictInput() {
                     handleInputChange={handlePairsInputChange}
                 ></PairInput>
                 <TextField
-                    label='Enter a job title'
-                    value={item.title}
-                    variant='outlined'
-                    margin='dense'
-                    fullWidth={true}
-                    required={true}
-                    onChange={handleTitleChange}>
-                </TextField><br></br>
-                <TextField
                     label='Enter an email address'
                     value={item.email}
                     variant='outlined'
@@ -147,6 +138,14 @@ export default function PredictInput() {
                     fullWidth={true}
                     required={true}
                     onChange={handleEmailChange}>
+                </TextField>
+                <TextField
+                    label='Enter a job title'
+                    value={item.title}
+                    variant='outlined'
+                    margin='dense'
+                    fullWidth={true}
+                    onChange={handleTitleChange}>
                 </TextField>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 <Button variant='contained' onClick={testSubmit}>Submit</Button>
