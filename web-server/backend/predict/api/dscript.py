@@ -10,9 +10,21 @@ from io import StringIO
 from tqdm import tqdm
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 from dscript.fasta import parse_bytes, parse_input
 from dscript.language_model import lm_embed
+
+
+import email, smtplib, ssl
+
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+password = os.getenv('EMAIL_PWD')
 
 def single_pair_predict(seq1, seq2):
     """
