@@ -116,13 +116,6 @@ export default function PredictInput() {
         <div className="PredictInput-Container">
             <h1>Predict Protein Interactions</h1>
             <form autoComplete="off">
-                <PairInput
-                    index={item.pairsIndex}
-                    handleIndexChange={handlePairsIndexChange}
-                    filename={item.pairsFilename}
-                    handleUploadChange={handlePairsUploadChange}
-                    handleInputChange={handlePairsInputChange}
-                ></PairInput>
                 <SequenceInput
                     index={item.seqsIndex}
                     handleIndexChange={handleSeqsIndexChange}
@@ -130,6 +123,13 @@ export default function PredictInput() {
                     handleUploadChange={handleSeqsUploadChange}
                     handleInputChange={handleSeqsInputChange}
                 ></SequenceInput>
+                <PairInput
+                    index={item.pairsIndex}
+                    handleIndexChange={handlePairsIndexChange}
+                    filename={item.pairsFilename}
+                    handleUploadChange={handlePairsUploadChange}
+                    handleInputChange={handlePairsInputChange}
+                ></PairInput>
                 <TextField
                     label='Enter a job title'
                     value={item.title}
