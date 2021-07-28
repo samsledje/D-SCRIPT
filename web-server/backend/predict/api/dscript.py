@@ -360,7 +360,7 @@ def email_results(email, filename, id):
     """
     print('# Emailing Results ...')
     subject = f"D-SCRIPT Results for {id}"
-    body = "These are the results of your D-SCRIPT prediction on job {id}"
+    body = f"These are the results of your D-SCRIPT prediction on job {id}"
     sender_email = "dscript.results@gmail.com"
     receiver_email = email
     password = os.getenv('EMAIL_PWD')
