@@ -353,13 +353,16 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
 
     return outPathAll
 
-def email_results(email, filename, id):
+def email_results(email, filename, id, title=None):
     """
     Given a user email, target path for prediction file, and job id
     Emails the user the results of their job
     """
     print('# Emailing Results ...')
-    subject = f"D-SCRIPT Results for {id}"
+    if not title:
+        subject = f"D-SCRIPT Results for {id}"
+    else:
+        subject = f"D-SCRIPT Results for {title}"
     body = f"These are the results of your D-SCRIPT prediction on job {id}"
     sender_email = "dscript.results@gmail.com"
     receiver_email = email

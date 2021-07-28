@@ -108,7 +108,7 @@ def predict(request):
             pass
         id = uuid.uuid4()
         predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
-        dscript.email_results(data['email'], predict_file, id)
+        dscript.email_results(data['email'], predict_file, id, title=data['title'])
         return Response(predict_file)
 
 
