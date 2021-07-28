@@ -30,7 +30,7 @@ export default function SequenceInput(props) {
                 <TextField
                     multiline
                     label='Sequences in .fasta format'
-                    rows={4}
+                    rows={6}
                     fullWidth={true}
                     variant='outlined'
                     spellCheck='false'

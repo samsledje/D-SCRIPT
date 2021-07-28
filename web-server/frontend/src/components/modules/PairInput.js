@@ -31,7 +31,7 @@ export default function PairInput(props) {
                 <TextField
                     multiline
                     label='Proteins in comma-separated format'
-                    rows={4}
+                    rows={6}
                     fullWidth={true}
                     variant='outlined'
                     spellCheck='false'

@@ -4,6 +4,7 @@ import axios from 'axios'
 
 import PairInput from './PairInput'
 import SequenceInput from './SequenceInput'
+import SubmissionModal from './SubmissionModal'
 
 export default function PredictInput() {
     const [item, setItem] = useState({
@@ -18,6 +19,7 @@ export default function PredictInput() {
         'seqsFilename': 'No file chosen',
         'seqsInput': ''
     });
+    const [modalOpen, setModalOpen] = useState(false);
 
     const handleTitleChange = (e) => {
         setItem({...item, 'title': e.target.value});
@@ -103,6 +105,8 @@ export default function PredictInput() {
             .post("http://localhost:8000/api/predict/", uploadData)
             .then((res) => console.log(res))
             .catch((err) => console.log(err))
+
+        setModalOpen(true)
     }
 
     const testSubmit = () => {
@@ -114,7 +118,8 @@ export default function PredictInput() {
     
     return (
         <div className="PredictInput-Container">
-            <h1>Predict Protein Interactions</h1>
+            {/* <h1>Predict Protein Interactions</h1> */}
+            <h2>PREDICT PROTEIN INTERACTIONS</h2>
             <form autoComplete="off">
                 <SequenceInput
                     index={item.seqsIndex}
@@ -150,6 +155,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 <Button variant='contained' onClick={testSubmit}>Submit</Button>
             </form>
+            <SubmissionModal open={modalOpen}></SubmissionModal>
         </div>
     )
 }
