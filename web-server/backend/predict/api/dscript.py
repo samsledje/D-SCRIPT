@@ -248,7 +248,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
     """
 
     # Set Outpath
-    outPath = f'media/predictions/{id}'
+    outPath = f'tmp/predictions/{id}'
 
     # Set Device
     print('# Setting Device...')
