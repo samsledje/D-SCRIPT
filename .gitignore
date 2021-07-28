@@ -10,5 +10,6 @@ dist/*
 collect_env.py
 .env
 web-server/backend/media
-web-server/backend/tmp/*
+web-server/backend/tmp
+web-server/backend/tmp/predictions
 **/.DS_Store
