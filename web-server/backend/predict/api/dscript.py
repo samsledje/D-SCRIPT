@@ -240,7 +240,7 @@ def all_pair_predict(title, seqs_fasta, device=-1, modelPath = 'dscript-models/h
 
     return outPathAll
 
-def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
+def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given specified candidate pairs and protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
@@ -248,8 +248,7 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
     """
 
     # Set Outpath
-    location = 'test'
-    outPath = f'media/predictions/{location}'
+    outPath = f'media/predictions/{id}'
 
     # Set Device
     print('# Setting Device...')
@@ -352,11 +351,11 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, device=-1, modelPath = 'dscript-
                         print(f'{n0} x {n1} skipped - Out of Memory')
     cmap_file.close()
 
-    return f'{location}.tsv'
+    return outPathAll
 
-def email_results(email, filename):
+def email_results(email, filename, id):
     print('# Emailing Results ...')
-    subject = "D-SCRIPT Results"
+    subject = f"D-SCRIPT Results for {id}"
     body = "These are the results of your D-SCRIPT prediction"
     sender_email = "dscript.results@gmail.com"
     receiver_email = email
@@ -374,7 +373,7 @@ def email_results(email, filename):
     # filename
 
     # Open PDF file in binary mode
-    with open(f'media/predictions/{filename}', "rb") as attachment:
+    with open(filename, "rb") as attachment:
         # Add file as application/octet-stream
         # Email client can usually download this automatically as attachment
         part = MIMEBase("application", "octet-stream")
@@ -386,7 +385,7 @@ def email_results(email, filename):
     # Add header as key/value pair to attachment part
     part.add_header(
         "Content-Disposition",
-        f"attachment; filename= {filename}",
+        f"attachment; filename= {id}.tsv",
     )
 
     # Add attachment to message and convert message to string

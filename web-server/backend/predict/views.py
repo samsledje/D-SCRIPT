@@ -13,6 +13,7 @@ from .models import PairsUpload, PairsInput, SeqsUpload, SeqsInput, PredictionJo
 from .api import dscript
 
 import os
+import uuid
 
 
 # Create your views here.
@@ -105,9 +106,10 @@ def predict(request):
             seqsSerializer.save()
         else:
             pass
-        outPathAll = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'])
-        dscript.email_results(data['email'], outPathAll)
-        return Response(outPathAll)
+        id = uuid.uuid4()
+        predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
+        dscript.email_results(data['email'], predict_file, id)
+        return Response(predict_file)
 
 
 
