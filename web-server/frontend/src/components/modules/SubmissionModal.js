@@ -31,8 +31,8 @@ export default function SubmissionModal(props) {
               >
                 <Fade in={props.open}>
                   <div className={classes.paper}>
-                    <h2>Your job is queued</h2>
-                    <p>Job id: </p>
+                    <h2>Your job is queued in position {props.position}</h2>
+                    <p>Job id: {props.id}</p>
                   </div>
                 </Fade>
               </Modal>

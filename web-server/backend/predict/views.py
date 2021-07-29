@@ -124,11 +124,15 @@ def predict(request):
             pass
         id = uuid.uuid4()
         job = Job(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], data['email'], data['title'], id)
-        predict_file = job.process()
+        jobs.append(job)
+        response = {'id': id, 'first': False}
+        if len(jobs) == 1:
+            response['first'] = True
+        return Response(response)
         # jobs.append(job)
         # predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
         # dscript.email_results(data['email'], predict_file, id, title=data['title'])
-        return Response(predict_file)
+        # return Response(predict_file)
 
 
 
