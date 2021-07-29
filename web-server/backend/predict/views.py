@@ -18,7 +18,23 @@ import uuid
 
 # Create your views here.
 
-test = []
+jobs = []
+
+class Job():
+    def __init__(self, pairsIndex, seqsIndex, pairs, seqs, email, title, id):
+        self.pairsIndex = pairsIndex
+        self.seqsIndex = seqsIndex
+        self.pairs = pairs
+        self.seqs = seqs
+        self.email = email
+        self.title = title
+        self.id = id
+
+    def process(self):
+        predict_file = dscript.predict(self.pairsIndex, self.seqsIndex, self.pairs, self.seqs, self.id)
+        dscript.email_results(self.email, predict_file, self.id, title=self.title)
+        return predict_file
+    
 
 @api_view(['POST'])
 def test_append(request):
@@ -107,8 +123,11 @@ def predict(request):
         else:
             pass
         id = uuid.uuid4()
-        predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
-        dscript.email_results(data['email'], predict_file, id, title=data['title'])
+        job = Job(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], data['email'], data['title'], id)
+        predict_file = job.process()
+        # jobs.append(job)
+        # predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
+        # dscript.email_results(data['email'], predict_file, id, title=data['title'])
         return Response(predict_file)
 
 

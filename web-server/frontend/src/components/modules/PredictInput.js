@@ -107,7 +107,10 @@ export default function PredictInput() {
 
         axios
             .post("http://localhost:8000/api/predict/", uploadData)
-            .then((res) => console.log(res))
+            .then((res) => {
+                console.log(res)
+                setModalOpen(false)
+            })
             .catch((err) => console.log(err))
 
         setModalOpen(true)

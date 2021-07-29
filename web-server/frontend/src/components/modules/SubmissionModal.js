@@ -31,8 +31,8 @@ export default function SubmissionModal(props) {
               >
                 <Fade in={props.open}>
                   <div className={classes.paper}>
-                    <h2>Basic transition modal</h2>
-                    <p>This transitional modal is a placeholder right now</p>
+                    <h2>Your job is queued</h2>
+                    <p>Job id: </p>
                   </div>
                 </Fade>
               </Modal>
