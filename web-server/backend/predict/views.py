@@ -109,6 +109,10 @@ seqsIndexToSerializer = {'1': SeqsUploadSerializer, '2': SeqsInputSerializer}
 
 @api_view(['GET', 'POST'])
 def predict(request):
+    """
+    Given a prediction input, queues a job for the prediction
+    Returns the job id and whether the job comes first to the user
+    """
     if request.method == 'POST':
         data = request.data
         if data['pairsIndex'] in ['1', '2']:
@@ -134,6 +138,13 @@ def predict(request):
         # dscript.email_results(data['email'], predict_file, id, title=data['title'])
         # return Response(predict_file)
 
+@api_view(['POST'])
+def get_queue_pos(request):
+    id = request.data['id']
+    for i in range(len(jobs)):
+        if str(jobs[i].id) == id:
+            return Response({'position': i+1, 'inQueue': True})
+    return Response({'position': 0, 'inQueue': False})
 
 
 # class PredictionView(viewsets.ModelViewSet):

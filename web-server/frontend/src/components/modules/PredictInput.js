@@ -114,6 +114,18 @@ export default function PredictInput() {
                 setJobId(res.data.id)
                 if (res.data.first) {
                     setJobPosition(1)
+                } else {
+                    axios
+                        .post("http://localhost:8000/api/position", {'id': res.data.id})
+                        .then((res) => {
+                            if (res.data.inQueue) {
+                                setJobPosition(res.data.position)
+                            } else {
+                                setJobPosition('None')
+                            }
+                        })
+                        .catch((err) => console.log(err))
+
                 }
             })
             .catch((err) => console.log(err))
