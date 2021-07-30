@@ -117,8 +117,18 @@ export default function PredictInput() {
                     axios
                         .post("http://localhost:8000/api/process")
                 } else {
+                    // axios
+                    //     .post("http://localhost:8000/api/position", {'id': res.data.id})
+                    //     .then((res) => {
+                    //         if (res.data.inQueue) {
+                    //             setJobPosition(res.data.position)
+                    //         } else {
+                    //             setJobPosition('None')
+                    //         }
+                    //     })
+                    //     .catch((err) => console.log(err))
                     axios
-                        .post("http://localhost:8000/api/position", {'id': res.data.id})
+                        .get(`http://localhost:8000/api/position/${res.data.id}/`)
                         .then((res) => {
                             if (res.data.inQueue) {
                                 setJobPosition(res.data.position)
