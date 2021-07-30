@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/predict/', views.predict),
     path('api/test', views.test_append),
     path('api/position', views.get_queue_pos),
+    path('api/process', views.process_jobs),
 ]
 
 if settings.DEBUG:

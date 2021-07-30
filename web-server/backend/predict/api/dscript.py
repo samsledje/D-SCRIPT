@@ -362,7 +362,7 @@ def email_results(receiver_email, filename, id, title=None, sender_email='dscrip
     if not title:
         subject = f"D-SCRIPT Results for {id}"
     else:
-        subject = f"D-SCRIPT Results for {title}"
+        subject = f"D-SCRIPT Results for {title} ({id})"
     body = f"These are the results of your D-SCRIPT prediction on job {id}"
     password = os.getenv('EMAIL_PWD')
 

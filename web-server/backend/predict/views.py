@@ -146,6 +146,20 @@ def get_queue_pos(request):
             return Response({'position': i+1, 'inQueue': True})
     return Response({'position': 0, 'inQueue': False})
 
+@api_view(['POST'])
+def process_jobs(request):
+    run_jobs()
+    return Response({})
+
+def run_jobs():
+    job = jobs[0]
+    print(f' # Processing Job {job.id} ...')
+    job.process()
+    jobs.pop(0)
+    if jobs:
+        run_jobs()
+
+
 
 # class PredictionView(viewsets.ModelViewSet):
 #     serializer_class = PredictionSerializer
