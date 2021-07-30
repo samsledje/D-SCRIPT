@@ -39,7 +39,7 @@ export default function PairInput(props) {
                 />
             </TabPanel>
             <TabPanel value='3'>
-                By selecting this tab, predictions will be run across all distinct pairs of proteins whose sequences you provide below
+                By selecting this tab, predictions will be run across all distinct pairs of proteins whose sequences you provide above
             </TabPanel>
         </TabContext>
     )
