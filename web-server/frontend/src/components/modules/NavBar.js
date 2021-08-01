@@ -21,6 +21,9 @@ export default function NavBar() {
                 <li>
                     <Link to='/predict'>Predict</Link>
                 </li>
+                <li>
+                    <Link to='/lookup'>Lookup</Link>
+                </li>
             </ul>
         </div>
     )

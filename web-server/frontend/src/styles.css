@@ -352,6 +352,10 @@
   list-style-type: none;
 }
 
+.NavBar-Links li {
+  margin-left: 12px;
+}
+
 * {
   margin: 0;
   padding: 0;

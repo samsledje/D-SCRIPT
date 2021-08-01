@@ -6,6 +6,7 @@ import SinglePairPredict from './components/pages/SinglePairPredict';
 import ManyPairPredict from './components/pages/ManyPairPredict';
 import AllPairPredict from './components/pages/AllPairPredict';
 import Predict from './components/pages/Predict';
+import Lookup from './components/pages/Lookup';
 import './styles.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path='/many-pair' exact component={ManyPairPredict}/>
         <Route path='/all-pair' exact component={AllPairPredict}/>
         <Route path='/predict' exact component={Predict}/>
+        <Route path='/lookup' exact component={Lookup}/>
       </div>
     </Router>
   );
