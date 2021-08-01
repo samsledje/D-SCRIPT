@@ -42,6 +42,7 @@ export default function LookupInput() {
                     margin='dense'
                     fullWidth={true}
                     required={true}
+                    spellCheck={false}
                     onChange={handleInputChange}>
             </TextField>
             <Button variant='contained' onClick={handleLookup}>Look up</Button>

@@ -34,7 +34,7 @@ export default function PairInput(props) {
                     rows={6}
                     fullWidth={true}
                     variant='outlined'
-                    spellCheck='false'
+                    spellCheck={false}
                     onChange={props.handleInputChange}
                 />
             </TabPanel>
