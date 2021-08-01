@@ -15,6 +15,7 @@ from .api import dscript
 import os
 import uuid
 
+import time
 
 # Create your views here.
 
@@ -32,7 +33,8 @@ class Job():
 
     def process(self):
         predict_file = dscript.predict(self.pairsIndex, self.seqsIndex, self.pairs, self.seqs, self.id)
-        dscript.email_results(self.email, predict_file, self.id, title=self.title)
+        # dscript.email_results(self.email, predict_file, self.id, title=self.title)
+        time.sleep(60)
         return predict_file
     
 

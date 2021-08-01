@@ -23,9 +23,9 @@ export default function PredictInput() {
     const [jobId, setJobId] = useState('');
     const [jobPosition, setJobPosition] = useState('');
 
-    const handleModalClose = () => {
-        setModalOpen(false)
-    }
+    // const handleModalClose = () => {
+    //     setModalOpen(false)
+    // }
 
     const handleTitleChange = (e) => {
         setItem({...item, 'title': e.target.value});
@@ -114,6 +114,7 @@ export default function PredictInput() {
                 setJobId(res.data.id)
                 if (res.data.first) {
                     setJobPosition(1)
+                    setModalOpen(true)
                     axios
                         .post("http://localhost:8000/api/process")
                 } else {
@@ -131,9 +132,11 @@ export default function PredictInput() {
                         .get(`http://localhost:8000/api/position/${res.data.id}/`)
                         .then((res) => {
                             if (res.data.inQueue) {
+                                setModalOpen(true)
                                 setJobPosition(res.data.position)
                             } else {
                                 setJobPosition('None')
+                                setModalOpen(false)
                             }
                         })
                         .catch((err) => console.log(err))
@@ -142,7 +145,6 @@ export default function PredictInput() {
             })
             .catch((err) => console.log(err))
 
-        setModalOpen(true)
     }
 
     const testSubmit = () => {
@@ -191,7 +193,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 <Button variant='contained' onClick={testSubmit}>Submit</Button>
             </form>
-            <SubmissionModal open={modalOpen} handleClose={handleModalClose} id={jobId} position={jobPosition}></SubmissionModal>
+            <SubmissionModal open={modalOpen} id={jobId} position={jobPosition}></SubmissionModal>
         </div>
     )
 }
