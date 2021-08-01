@@ -180,6 +180,7 @@ export default function PredictInput() {
                     margin='dense'
                     fullWidth={true}
                     required={true}
+                    spellCheck={false}
                     onChange={handleEmailChange}>
                 </TextField>
                 <TextField
@@ -188,6 +189,7 @@ export default function PredictInput() {
                     variant='outlined'
                     margin='dense'
                     fullWidth={true}
+                    spellCheck={false}
                     onChange={handleTitleChange}>
                 </TextField>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
