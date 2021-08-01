@@ -26,7 +26,11 @@ export default function LookupInput() {
                     setJobPosition('None')
                 }
             })
-            .catch((err) => console.log(err))
+            .catch((err) => {
+                console.log(err)
+                setLookupValid(false)
+                setJobPosition('None')
+            })
     }
 
     return (
