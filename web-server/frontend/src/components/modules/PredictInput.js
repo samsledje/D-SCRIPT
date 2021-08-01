@@ -191,7 +191,7 @@ export default function PredictInput() {
                     onChange={handleTitleChange}>
                 </TextField>
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
-                <Button variant='contained' onClick={testSubmit}>Submit</Button>
+                {/* <Button variant='contained' onClick={testSubmit}>Submit</Button> */}
             </form>
             <SubmissionModal open={modalOpen} id={jobId} position={jobPosition}></SubmissionModal>
         </div>
