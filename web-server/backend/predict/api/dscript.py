@@ -273,27 +273,44 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
 
     # Load Sequences
     print('# Loading Sequences...')
-    if seqsIndex == '1':
-        try:
-            names, sequences = parse_bytes(seqs)
-            seqDict = {n: s for n, s in zip(names, sequences)}
-        except FileNotFoundError:
-            print(f'# Sequence File not found')
-            return
-    elif seqsIndex == '2':
-        try:
-            names, sequences = parse_input(seqs)
-            seqDict = {n: s for n, s in zip(names, sequences)}
-        except:
-            return
+    try:
+        names, sequences = parse_input(seqs)
+        seqDict = {n: s for n, s in zip(names, sequences)}
+    except:
+        return
+    # if seqsIndex == '1':
+    #     try:
+    #         names, sequences = parse_bytes(seqs)
+    #         seqDict = {n: s for n, s in zip(names, sequences)}
+    #     except FileNotFoundError:
+    #         print(f'# Sequence File not found')
+    #         return
+    # elif seqsIndex == '2':
+    #     try:
+    #         names, sequences = parse_input(seqs)
+    #         seqDict = {n: s for n, s in zip(names, sequences)}
+    #     except:
+    #         return
 
     # Load Pairs
     print('# Loading Pairs...')
-    try:
-        pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
-        all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
-    except:
-        return
+    if pairsIndex in ['1', '2']:
+        try:
+            pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
+            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+        except:
+            return
+    elif pairsIndex == '3':
+        try:
+            all_prots = list(seqDict.keys())
+            data = []
+            for i in range(len(all_prots)-1):
+                for j in range(i+1, len(all_prots)):
+                    data.append([all_prots[i], all_prots[j]])
+            pairs_array = pd.DataFrame(data)
+        except:
+            return
+
     # if pairsIndex == '1':
     #     try:
     #         pairs_array = pd.read_csv(pairs, sep='\t', header=None)

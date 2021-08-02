@@ -33,7 +33,12 @@ class Job():
             self.pairs = ''
             for line in pairs:
                 self.pairs += line.decode('utf-8').replace('\r', '').replace('\t', ',')
-        print(self.pairs)
+        if seqsIndex == '1':
+            self.seqs = ''
+            for line in seqs:
+                self.seqs += line.decode('utf-8')
+        print(self.seqs)
+
         # print(type(self.seqs))
         # for line in self.seqs:
         #     print(line)
