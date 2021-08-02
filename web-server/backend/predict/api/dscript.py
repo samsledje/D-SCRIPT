@@ -289,29 +289,34 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
 
     # Load Pairs
     print('# Loading Pairs...')
-    if pairsIndex == '1':
-        try:
-            pairs_array = pd.read_csv(pairs, sep='\t', header=None)
-            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
-        except FileNotFoundError:
-            print(f'# Pairs File not found')
-            return
-    elif pairsIndex == '2':
-        try:
-            pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
-            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
-        except:
-            return
-    elif pairsIndex == '3':
-        try:
-            all_prots = list(seqDict.keys())
-            data = []
-            for i in range(len(all_prots)-1):
-                for j in range(i+1, len(all_prots)):
-                    data.append([all_prots[i], all_prots[j]])
-            pairs_array = pd.DataFrame(data)
-        except:
-            return
+    try:
+        pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
+        all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+    except:
+        return
+    # if pairsIndex == '1':
+    #     try:
+    #         pairs_array = pd.read_csv(pairs, sep='\t', header=None)
+    #         all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+    #     except FileNotFoundError:
+    #         print(f'# Pairs File not found')
+    #         return
+    # elif pairsIndex == '2':
+    #     try:
+    #         pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
+    #         all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+    #     except:
+    #         return
+    # elif pairsIndex == '3':
+    #     try:
+    #         all_prots = list(seqDict.keys())
+    #         data = []
+    #         for i in range(len(all_prots)-1):
+    #             for j in range(i+1, len(all_prots)):
+    #                 data.append([all_prots[i], all_prots[j]])
+    #         pairs_array = pd.DataFrame(data)
+    #     except:
+    #         return
 
     # Generate Embeddings
     print('# Generating Embeddings...')

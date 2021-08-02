@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import QueryDict
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -15,8 +16,6 @@ from .api import dscript
 import os
 import uuid
 
-import time
-
 # Create your views here.
 
 jobs = []
@@ -30,8 +29,19 @@ class Job():
         self.email = email
         self.title = title
         self.id = id
+        if pairsIndex == '1':
+            self.pairs = ''
+            for line in pairs:
+                self.pairs += line.decode('utf-8').replace('\r', '').replace('\t', ',')
+        print(self.pairs)
+        # print(type(self.seqs))
+        # for line in self.seqs:
+        #     print(line)
 
     def process(self):
+        # print(type(self.seqs))
+        # for line in self.seqs:
+        #     print(line)
         predict_file = dscript.predict(self.pairsIndex, self.seqsIndex, self.pairs, self.seqs, self.id)
         dscript.email_results(self.email, predict_file, self.id, title=self.title)
         return predict_file
@@ -116,19 +126,25 @@ def predict(request):
     """
     if request.method == 'POST':
         data = request.data
-        if data['pairsIndex'] in ['1', '2']:
-            pairsSerializer = pairsIndexToSerializer[data['pairsIndex']](data=data['pairs'])
-            if pairsSerializer.is_valid():
-                pairsSerializer.save()
-            else:
-                pass
-        seqsSerializer = seqsIndexToSerializer[data['seqsIndex']](data=data['seqs'])
-        if seqsSerializer.is_valid():
-            seqsSerializer.save()
-        else:
-            pass
+        # if data['pairsIndex'] in ['1', '2']:
+        #     pairsSerializer = pairsIndexToSerializer[data['pairsIndex']](data=data['pairs'])
+        #     if pairsSerializer.is_valid():
+        #         pairsSerializer.save()
+        #     else:
+        #         pass
+        # seqsSerializer = seqsIndexToSerializer[data['seqsIndex']](data=data['seqs'])
+        # if seqsSerializer.is_valid():
+        #     seqsSerializer.save()
+        #     print(seqsSerializer)
+        #     print(seqsSerializer.data)
+        #     seqs = seqsSerializer.data['seqs']
+        # else:
+        #     print('not valid seqs serializer')
+        #     pass
         id = uuid.uuid4()
         job = Job(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], data['email'], data['title'], id)
+        # predict_file = dscript.predict(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], id)
+        # dscript.email_results(data['email'], predict_file, id, title=data['title'])
         jobs.append(job)
         response = {'id': id, 'first': False}
         if len(jobs) == 1:

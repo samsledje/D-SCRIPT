@@ -20,24 +20,24 @@ class AllPairSerializer(serializers.ModelSerializer):
 class PairsUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = PairsUpload
-        field = ('id', 'pairs')
+        fields = ('id', 'pairs')
 
 class PairsInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = PairsInput
-        field = ('id', 'pairs')
+        fields = ('id', 'pairs')
 
 class SeqsUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = SeqsUpload
-        field = ('id', 'seqs')
+        fields = ('id', 'seqs')
 
 class SeqsInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = SeqsInput
-        field = ('id', 'seqs')
+        fields = ('id', 'seqs')
 
 class PredictionJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = PredictionJob
-        field = ('id', 'email')
+        fields = ('id', 'email')

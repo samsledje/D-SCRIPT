@@ -56,6 +56,7 @@ def parse_bytes(f):
     name = None
     sequence = []
     for line in f:
+        print(line)
         line = line.decode('utf-8')
         if line.startswith(comment):
             continue
