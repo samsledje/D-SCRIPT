@@ -173,6 +173,8 @@ def get_queue_pos(request):
 @api_view(['GET'])
 def get_pos(request, id):
     print(f' # Getting Queue Position for {id} ...')
+    if id in processed:
+        return Response({'position': -1, 'inQueue': False})
     for i in range(len(jobs)):
         if jobs[i].id == id:
             return Response({'position': i+1, 'inQueue': True})
