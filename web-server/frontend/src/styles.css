@@ -336,6 +336,14 @@
           align-items: center;
 }
 
+.SubmissionModal-Info {
+  text-align: center;
+}
+
+.SubmissionModal-Info h2, .SubmissionModal-Info p {
+  margin: 8px;
+}
+
 .LookupInput-Container {
   display: -webkit-box;
   display: -ms-flexbox;

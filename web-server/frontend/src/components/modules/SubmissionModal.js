@@ -1,5 +1,5 @@
 import React from 'react'
-import { makeStyles, Modal, Backdrop, Fade } from '@material-ui/core'
+import { makeStyles, Modal, Backdrop, Fade, LinearProgress } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -31,8 +31,13 @@ export default function SubmissionModal(props) {
               >
                 <Fade in={props.open}>
                   <div className={classes.paper}>
-                    <h2>Your job is queued in position {props.position}</h2>
-                    <p>Job id: {props.id}</p>
+                    <div className='SubmissionModal-Info'>
+                      <p>Refreshing in 120 seconds...</p>
+                      <LinearProgress></LinearProgress>
+                      <h2>Your job is queued in position {props.position}</h2>
+                      <p>Job id: {props.id}</p>
+                      <p><em>Make note of this job id for the purpose of tracking your job.</em></p>
+                    </div>
                   </div>
                 </Fade>
               </Modal>
