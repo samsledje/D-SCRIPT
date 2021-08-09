@@ -20,6 +20,8 @@ import uuid
 
 jobs = []
 
+processed = set()
+
 class Job():
     def __init__(self, pairsIndex, seqsIndex, pairs, seqs, email, title, id):
         self.pairsIndex = pairsIndex
@@ -186,6 +188,7 @@ def run_jobs():
     job = jobs[0]
     print(f' # Processing Job {job.id} ...')
     job.process()
+    processed.add(job.id)
     jobs.pop(0)
     if jobs:
         run_jobs()
