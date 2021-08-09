@@ -35,6 +35,7 @@ export default function LookupInput() {
                 }
             })
             .catch((err) => {
+                alert('The job you attempted to look up does not exist!')
                 console.log(err)
                 setLookupValid(false)
                 setJobPosition(null)
