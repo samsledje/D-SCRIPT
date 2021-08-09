@@ -359,6 +359,14 @@
   margin: auto;
 }
 
+.LookupModal-Info {
+  text-align: center;
+}
+
+.LookupModal-Info h2, .LookupModal-Info p {
+  margin: 8px;
+}
+
 .NavBar-Container {
   height: 60px;
   background-color: #3f51b5;
