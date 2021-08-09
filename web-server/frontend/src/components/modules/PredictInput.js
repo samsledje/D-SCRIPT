@@ -20,8 +20,8 @@ export default function PredictInput() {
         'seqsInput': ''
     });
     const [modalOpen, setModalOpen] = useState(false);
-    const [jobId, setJobId] = useState('');
-    const [jobPosition, setJobPosition] = useState('');
+    const [jobId, setJobId] = useState(null);
+    const [jobPosition, setJobPosition] = useState(null);
 
     // const handleModalClose = () => {
     //     setModalOpen(false)
@@ -135,7 +135,7 @@ export default function PredictInput() {
                                 setModalOpen(true)
                                 setJobPosition(res.data.position)
                             } else {
-                                setJobPosition('None')
+                                setJobPosition(null)
                                 setModalOpen(false)
                             }
                         })
@@ -195,7 +195,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 {/* <Button variant='contained' onClick={testSubmit}>Submit</Button> */}
             </form>
-            <SubmissionModal open={modalOpen} id={jobId} position={jobPosition}></SubmissionModal>
+            { (modalOpen && jobPosition != null && jobId != null)  && <SubmissionModal open={modalOpen} id={jobId} position={jobPosition}></SubmissionModal>}
         </div>
     )
 }
