@@ -189,7 +189,10 @@ def process_jobs(request):
 def run_jobs():
     job = jobs[0]
     print(f' # Processing Job {job.id} ...')
-    job.process()
+    try:
+        job.process()
+    except:
+        pass
     processed.add(job.id)
     jobs.pop(0)
     if jobs:
