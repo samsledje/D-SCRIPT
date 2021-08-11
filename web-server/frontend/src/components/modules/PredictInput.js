@@ -199,7 +199,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 {/* <Button variant='contained' onClick={testSubmit}>Submit</Button> */}
             </form>
-            { (modalOpen && jobPosition != null && jobId != null)  && <SubmissionModal open={modalOpen} id={jobId} position={jobPosition}></SubmissionModal>}
+            { (modalOpen && jobPosition != null && jobId != null)  && <SubmissionModal open={modalOpen} id={jobId} position={jobPosition} email={item.email}></SubmissionModal>}
         </div>
     )
 }

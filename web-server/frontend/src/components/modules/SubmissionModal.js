@@ -24,6 +24,16 @@ export default function SubmissionModal(props) {
     const [position, setPosition] = useState(props.position);
     const [processed, setProcessed] = useState(false);
 
+    const protectEmail = (email) => {
+        let avg, splitted, p1, p2;
+        splitted = email.split("@");
+        p1 = splitted[0];
+        avg = p1.length / 2;
+        p1 = p1.substring(0, (p1.length - avg));
+        p2 = splitted[1];
+        return p1 + "...@" + p2;
+    }
+
     useEffect(() => {
       if (counter > 0) {
         setTimeout(() => {
@@ -67,7 +77,7 @@ export default function SubmissionModal(props) {
                         <LinearProgress variant='determinate' color='secondary' value='primary'></LinearProgress>
                         <h2>Your job has finished processing</h2>
                         <p>Job id: {props.id}</p>
-                        <p><em>Check your email to see the results of your prediction</em></p>
+                        <p><em>The results of your prediction have been emailed to {protectEmail(props.email)}</em></p>
                       </div> :
                       <div className='SubmissionModal-Info'> 
                         <p><em>Refreshing in {counter} seconds...</em></p>
