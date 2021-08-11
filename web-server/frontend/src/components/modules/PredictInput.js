@@ -159,6 +159,7 @@ export default function PredictInput() {
             {/* <h1>Predict Protein Interactions</h1> */}
             <h2>PREDICT PROTEIN INTERACTIONS</h2>
             <form autoComplete="off">
+                <h3>1. Provide Protein Sequences</h3>
                 <SequenceInput
                     index={item.seqsIndex}
                     handleIndexChange={handleSeqsIndexChange}
@@ -166,6 +167,7 @@ export default function PredictInput() {
                     handleUploadChange={handleSeqsUploadChange}
                     handleInputChange={handleSeqsInputChange}
                 ></SequenceInput>
+                <h3>2. Specify Protein Pairs</h3>
                 <PairInput
                     index={item.pairsIndex}
                     handleIndexChange={handlePairsIndexChange}
@@ -173,6 +175,7 @@ export default function PredictInput() {
                     handleUploadChange={handlePairsUploadChange}
                     handleInputChange={handlePairsInputChange}
                 ></PairInput>
+                <h3>3. Specify a receiving email</h3>
                 <TextField
                     label='Enter an email address'
                     value={item.email}
@@ -183,6 +186,7 @@ export default function PredictInput() {
                     spellCheck={false}
                     onChange={handleEmailChange}>
                 </TextField>
+                <h3>4. Provide a job title (optional)</h3>
                 <TextField
                     label='Enter a job title'
                     value={item.title}
