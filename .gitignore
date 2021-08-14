@@ -13,3 +13,4 @@ web-server/backend/media
 web-server/backend/tmp
 web-server/backend/tmp/predictions
 **/.DS_Store
+node_modules

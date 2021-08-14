@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { TextField, Button } from '@material-ui/core'
 import axios from 'axios'
 
-import LookupResult from './LookupResult'
 import LookupModal from './LookupModal'
 
 export default function LookupInput() {
