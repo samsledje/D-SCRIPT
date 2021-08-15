@@ -51,11 +51,18 @@ def predict(request):
         data = request.data
         id = uuid.uuid4()
         job = Job(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], data['email'], data['title'], id)
-        jobs.append(job)
-        response = {'id': id, 'first': False}
-        if len(jobs) == 1:
-            response['first'] = True
-        return Response(response)
+        job_data = {'uuid': job.id, 'title': job.title, 'email': job.email, 'seqsIndex': job.seqsIndex, 'pairsIndex': job.pairsIndex, 'seqs': job.seqs, 'pairs': job.pairs, 'completed': False}
+        serializer = JobSerializer(data=job_data)
+        if serializer.is_valid():
+            serializer.save()
+            jobs.append(job)
+            response = {'id': id, 'first': False}
+            if len(jobs) == 1:
+                response['first'] = True
+            return Response(response)
+        else:
+            print(serializer.errors)
+            print('NOT A VALID SERIALIZER')
 
 @api_view(['GET'])
 def get_pos(request, id):

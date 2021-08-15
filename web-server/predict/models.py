@@ -4,12 +4,12 @@ from django.db import models
 
 class Job(models.Model):
     uuid = models.UUIDField()
-    title = models.TextField()
+    title = models.TextField(blank=True)
     email = models.EmailField()
     seqsIndex = models.CharField(max_length=1)
     pairsIndex = models.CharField(max_length=1)
     seqs = models.TextField()
-    pairs = models.TextField()
+    pairs = models.TextField(blank=True)
     completed = models.BooleanField()
 
     def __str__(self):
