@@ -26,7 +26,7 @@ from email.mime.text import MIMEText
 
 password = os.getenv('EMAIL_PWD')
 
-def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
+def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given specified candidate pairs and protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
