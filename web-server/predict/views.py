@@ -6,6 +6,8 @@ import pandas as pd
 
 from .commands import dscript
 
+from .serializers import JobSerializer
+
 import os
 import uuid
 
