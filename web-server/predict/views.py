@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import pandas as pd
 
@@ -38,10 +40,14 @@ class Job():
 
     def process(self):
         predict_file = dscript.predict(self.seqs, self.pairsIndex, self.pairs, self.id)
-        dscript.email_results(self.email, predict_file, self.id, title=self.title)
+        try:
+            dscript.email_results(self.email, predict_file, self.id, title=self.title)
+        except:
+            print('Not a valid email')
         return predict_file
 
 @api_view(['GET', 'POST'])
+@csrf_exempt
 def predict(request):
     """
     Given a prediction input, queues a job for the prediction
