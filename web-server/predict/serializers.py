@@ -4,4 +4,4 @@ from .models import Job
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
-        fields = ('id', 'uuid', 'title', 'email', 'seqsIndex', 'pairsIndex', 'seqs', 'pairs', 'completed')
+        fields = ('uuid', 'title', 'email', 'seqsIndex', 'pairsIndex', 'seqs', 'pairs', 'completed')
