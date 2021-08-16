@@ -240,11 +240,11 @@ def all_pair_predict(title, seqs_fasta, device=-1, modelPath = 'dscript-models/h
 
     return outPathAll
 
-def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
+def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given specified candidate pairs and protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
-    within 'web-server/backend/media'
+    within 'server/tmp/predictions'
     """
 
     # Set Outpath
@@ -279,19 +279,6 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
     except:
         return
     print(seqDict)
-    # if seqsIndex == '1':
-    #     try:
-    #         names, sequences = parse_bytes(seqs)
-    #         seqDict = {n: s for n, s in zip(names, sequences)}
-    #     except FileNotFoundError:
-    #         print(f'# Sequence File not found')
-    #         return
-    # elif seqsIndex == '2':
-    #     try:
-    #         names, sequences = parse_input(seqs)
-    #         seqDict = {n: s for n, s in zip(names, sequences)}
-    #     except:
-    #         return
 
     # Load Pairs
     print('# Loading Pairs...')
@@ -311,30 +298,6 @@ def predict(pairsIndex, seqsIndex, pairs, seqs, id, device=-1, modelPath = 'dscr
             pairs_array = pd.DataFrame(data)
         except:
             return
-
-    # if pairsIndex == '1':
-    #     try:
-    #         pairs_array = pd.read_csv(pairs, sep='\t', header=None)
-    #         all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
-    #     except FileNotFoundError:
-    #         print(f'# Pairs File not found')
-    #         return
-    # elif pairsIndex == '2':
-    #     try:
-    #         pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
-    #         all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
-    #     except:
-    #         return
-    # elif pairsIndex == '3':
-    #     try:
-    #         all_prots = list(seqDict.keys())
-    #         data = []
-    #         for i in range(len(all_prots)-1):
-    #             for j in range(i+1, len(all_prots)):
-    #                 data.append([all_prots[i], all_prots[j]])
-    #         pairs_array = pd.DataFrame(data)
-    #     except:
-    #         return
 
     # Generate Embeddings
     print('# Generating Embeddings...')

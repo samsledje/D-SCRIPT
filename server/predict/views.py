@@ -62,7 +62,7 @@ class Job():
         print(self.seqs)
 
     def process(self):
-        predict_file = dscript.predict(self.pairsIndex, self.seqsIndex, self.pairs, self.seqs, self.id)
+        predict_file = dscript.predict(self.seqs, self.pairsIndex, self.pairs, self.id)
         try:
             dscript.email_results(self.email, predict_file, self.id, title=self.title)
         except:
