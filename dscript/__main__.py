@@ -4,6 +4,7 @@ D-SCRIPT: Structure Aware PPI Prediction
 import os
 import sys
 import argparse
+from omegaconf import OmegaConf
 
 
 class CitationAction(argparse.Action):
@@ -40,25 +41,23 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    import dscript.commands.train
-    import dscript.commands.eval
-    import dscript.commands.embed
-    import dscript.commands.predict
+    from .commands import train, evaluate, embed, predict
 
     modules = {
-        "train": dscript.commands.train,
-        "eval": dscript.commands.eval,
-        "embed": dscript.commands.embed,
-        "predict": dscript.commands.predict,
+        "train": train,
+        "eval": evaluate,
+        "embed": embed,
+        "predict": predict,
     }
 
     for name, module in modules.items():
         sp = subparsers.add_parser(name, description=module.__doc__)
         module.add_args(sp)
-        sp.set_defaults(func=module.main)
+        sp.set_defaults(cmd=name)
 
     args = parser.parse_args()
-    args.func(args)
+    oc = OmegaConf.create(vars(args))
+    modules[args.cmd].main(oc)
 
 
 if __name__ == "__main__":

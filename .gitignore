@@ -7,7 +7,7 @@ scratch
 dist
 node_modules
 htmlcov
-# Remove this later when the server is merged
+## Remove this later when the server is merged
 server/
 
 # DotFiles
@@ -20,4 +20,3 @@ server/
 **/*.h5
 **/.ipynb_checkpoints/**
 **/__pycache__/**
-

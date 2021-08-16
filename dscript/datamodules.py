@@ -80,6 +80,7 @@ class PPIDataModule(pl.LightningDataModule):
         data_dir: str = os.getcwd(),
         batch_size: int = 64,
         shuffle: bool = True,
+        augment_train: bool = True,
         train_val_split: List[float] = [0.9, 0.1],
     ):
         super(PPIDataModule).__init__()
@@ -141,6 +142,13 @@ class PPIDataModule(pl.LightningDataModule):
             train_size=self.train_val_split[0],
             test_size=self.train_val_split[1],
         )
+
+        if self.augment_train:
+            train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
+            train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
+            train_y = torch.from_numpy(
+                pd.concat((train_df[2], train_df[2])).values
+            )
 
         self.data_train = PairedEmbeddingDataset(
             self.train_df, self.embeddings

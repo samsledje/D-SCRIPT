@@ -2,6 +2,7 @@
 Train a new model.
 """
 
+import os
 import sys
 import argparse
 import h5py
@@ -20,13 +21,11 @@ from torch.autograd import Variable
 from torch.utils.data import IterableDataset, DataLoader
 from sklearn.metrics import average_precision_score as average_precision
 
-import dscript
-from dscript.models.embedding import (
+from ..utils import PairedDataset, collate_paired_sequences
+from ..models.embedding import (
     IdentityEmbed,
     FullyConnectedEmbed,
 )
-
-from ..utils import PairedDataset, collate_paired_sequences
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
 
@@ -46,8 +45,8 @@ def add_args(parser):
     misc_grp = parser.add_argument_group("Output and Device")
 
     # Data
-    data_grp.add_argument("--train", help="Training data", required=True)
-    data_grp.add_argument("--val", help="Validation data", required=True)
+    data_grp.add_argument("--data", help="Training data", required=True)
+    #     data_grp.add_argument("--val", help="Validation data", required=True)
     data_grp.add_argument(
         "--embedding", help="h5 file with embedded sequences", required=True
     )
@@ -55,6 +54,11 @@ def add_args(parser):
         "--augment",
         action="store_true",
         help="Set flag to augment data by adding (B A) for all pairs (A B)",
+    )
+    data_grp.add_argument(
+        "--val_split",
+        default=0.1,
+        help="Proportion of data to use for validation",
     )
 
     # Embedding model
@@ -366,25 +370,25 @@ def main(args):
 
     batch_size = args.batch_size
 
-    train_fi = args.train
-    test_fi = args.val
+    data_fi = args.data
     augment = args.augment
     embedding_h5 = args.embedding
+    sys.exit(1)
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {train_fi}...", file=output)
+    print(f"# Loading training pairs from {data_fi}...", file=output)
     output.flush()
 
-    train_df = pd.read_csv(train_fi, sep="\t", header=None)
-    if augment:
-        train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
-        train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
-        train_y = torch.from_numpy(
-            pd.concat((train_df[2], train_df[2])).values
-        )
-    else:
-        train_n0, train_n1 = train_df[0], train_df[1]
-        train_y = torch.from_numpy(train_df[2].values)
+    data_df = pd.read_csv(train_fi, sep="\t", header=None)
+    #if augment:
+    #    train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
+    #    train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
+    #    train_y = torch.from_numpy(
+    #        pd.concat((train_df[2], train_df[2])).values
+    #    )
+    #else:
+     #   train_n0, train_n1 = train_df[0], train_df[1]
+     #   train_y = torch.from_numpy(train_df[2].values)
 
     print(f"# Loading testing pairs from {test_fi}...", file=output)
     output.flush()
