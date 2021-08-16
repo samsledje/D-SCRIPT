@@ -1,10 +1,23 @@
-build/*
-scratch/*
-dist/*
-**/*.pt
-.vscode/**
+# Single Files
+collect_env.py
+
+# Directories
+build
+scratch
+dist
+node_modules
+htmlcov
+# Remove this later when the server is merged
+server/
+
+# DotFiles
+.coverage
+.vscode
+
+# Binaries
 *.egg-info
+**/*.pt
 **/*.h5
 **/.ipynb_checkpoints/**
 **/__pycache__/**
-collect_env.py
+
