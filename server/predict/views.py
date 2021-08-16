@@ -8,6 +8,8 @@ import pandas as pd
 
 from .api import dscript
 
+from .serializers import JobSerializer
+
 import os
 import uuid
 import logging
@@ -77,11 +79,6 @@ def predict(request):
         data = request.data
         id = uuid.uuid4()
         job = Job(data['pairsIndex'], data['seqsIndex'], data['pairs'], data['seqs'], data['email'], data['title'], id)
-        jobs.append(job)
-        response = {'id': id, 'first': False}
-        if len(jobs) == 1:
-            response['first'] = True
-        return Response(response)
         job_data = {'uuid': job.id, 'title': job.title, 'email': job.email, 'seqsIndex': job.seqsIndex, 'pairsIndex': job.pairsIndex, 'seqs': job.seqs, 'pairs': job.pairs, 'completed': False}
         serializer = JobSerializer(data=job_data)
         if serializer.is_valid():
