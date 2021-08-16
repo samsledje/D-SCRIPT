@@ -26,7 +26,7 @@ Table of contents
 
 .. toctree::
    :maxdepth: 1
-   
+
    installation
    usage
    data

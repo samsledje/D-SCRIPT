@@ -21,7 +21,7 @@ Set up environment
 ------------------
 
 .. code-block:: bash
- 
+
     $ git clone https://github.com/samsledje/D-SCRIPT.git
 
     $ cd D-SCRIPT
@@ -45,5 +45,5 @@ Build from source
     $ git clone https://github.com/samsledje/D-SCRIPT.git
 
     $ cd D-SCRIPT
-    
+
     $ python setup.py build; python setup.py install

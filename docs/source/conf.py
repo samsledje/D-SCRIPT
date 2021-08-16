@@ -13,9 +13,7 @@
 import os.path
 import sys
 
-sys.path[:0] = [os.path.dirname(os.path.abspath(__file__)) + "/../../"]
 import dscript
-
 
 # -- Project information -----------------------------------------------------
 
