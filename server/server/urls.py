@@ -15,22 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls import url
-from django.conf.urls.static import static
-from rest_framework import routers
 from predict import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.FrontendAppView.as_view()),
-    path('api/single-pair/', views.single_pair_predict),
-    path('api/many-pair/', views.many_pair_predict),
-    path('api/all-pair/', views.all_pair_predict),
     path('api/predict/', views.predict),
-    path('api/test', views.test_append),
     path('api/process', views.process_jobs),
     path('api/position/<uuid:id>/', views.get_pos),
 ]
