@@ -10,8 +10,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-import torch
-import torch.utils.data
 
 from .fasta import parse
 
@@ -54,7 +52,7 @@ def log(msg, file=sys.stderr):
     file.flush()
 
 
-def plot_PR_curve(y, phat, saveFile=None):
+def plot_PR_curve(y, phat, saveFile=None, show=False):
     """
     Plot precision-recall curve.
 
@@ -79,12 +77,12 @@ def plot_PR_curve(y, phat, saveFile=None):
     plt.xlim([0.0, 1.0])
     plt.title("Precision-Recall (AUPR: {:.3})".format(aupr))
     if saveFile:
-        plt.savefig(saveFile)
-    else:
+        plt.savefig(saveFile, bbox_inches=True)
+    if show:
         plt.show()
 
 
-def plot_ROC_curve(y, phat, saveFile=None):
+def plot_ROC_curve(y, phat, saveFile=None, show=False):
     """
     Plot receiver operating characteristic curve.
 
@@ -111,8 +109,8 @@ def plot_ROC_curve(y, phat, saveFile=None):
     plt.xlim([0.0, 1.0])
     plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
     if saveFile:
-        plt.savefig(saveFile)
-    else:
+        plt.savefig(saveFile, bbox_inches=True)
+    if show:
         plt.show()
 
 
@@ -142,60 +140,17 @@ def gpu_mem(device):
     :return: memory used, memory total
     :rtype: int, int
     """
-    result = sp.check_output(
-        [
-            "nvidia-smi",
-            "--query-gpu=memory.used,memory.total",
-            "--format=csv,nounits,noheader",
-            "--id={}".format(device),
-        ],
-        encoding="utf-8",
-    )
-    gpu_memory = [int(x) for x in result.strip().split(",")]
+    try:
+        result = sp.check_output(
+            [
+                "nvidia-smi",
+                "--query-gpu=memory.used,memory.total",
+                "--format=csv,nounits,noheader",
+                "--id={}".format(device),
+            ],
+            encoding="utf-8",
+        )
+        gpu_memory = [int(x) for x in result.strip().split(",")]
+    except FileNotFoundError:
+        gpu_memory = [0, 0]
     return gpu_memory[0], gpu_memory[1]
-
-
-class PairedDataset(torch.utils.data.Dataset):
-    """
-    Dataset to be used by the PyTorch data loader for pairs of sequences and their labels.
-    :param X0: List of first item in the pair
-    :param X1: List of second item in the pair
-    :param Y: List of labels
-    """
-
-    def __init__(self, X0, X1, Y):
-        self.X0 = X0
-        self.X1 = X1
-        self.Y = Y
-        assert len(X0) == len(X1), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
-        )
-        assert len(X0) == len(Y), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
-        )
-
-    def __len__(self):
-        return len(self.X0)
-
-    def __getitem__(self, i):
-        return self.X0[i], self.X1[i], self.Y[i]
-
-
-def collate_paired_sequences(args):
-    """
-    Collate function for PyTorch data loader.
-    """
-    x0 = [a[0] for a in args]
-    x1 = [a[1] for a in args]
-    y = [a[2] for a in args]
-    return x0, x1, torch.stack(y, 0)

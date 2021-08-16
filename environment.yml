@@ -10,6 +10,7 @@ dependencies:
   - cudatoolkit=10.2
   - python=3.7
   - pytorch=1.7
+  - pytorch-lightning
   - h5py
   - matplotlib
   - numpy
