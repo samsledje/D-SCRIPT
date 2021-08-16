@@ -11,6 +11,6 @@ collect_env.py
 .env
 web-server/media
 web-server/tmp
-web-server/tmp/predictions
+server/tmp
 **/.DS_Store
 node_modules
