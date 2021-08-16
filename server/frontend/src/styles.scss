@@ -1,19 +1,12 @@
 @import './components/pages/Home';
-@import './components/pages/ManyPairPredict';
-@import './components/pages/SinglePairPredict';
-@import './components/pages/AllPairPredict';
 @import './components/pages/Predict';
 @import './components/pages/Lookup';
 
-@import './components/modules/SinglePair';
-@import './components/modules/ManyPair';
-@import './components/modules/AllPair';
 @import './components/modules/PredictInput';
 @import './components/modules/PairInput';
 @import './components/modules/SequenceInput';
 @import './components/modules/SubmissionModal';
 @import './components/modules/LookupInput';
-@import './components/modules/LookupResult';
 @import './components/modules/LookupModal';
 @import './components/modules/NavBar';
 
