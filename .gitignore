@@ -9,8 +9,8 @@ dist/*
 **/__pycache__/**
 collect_env.py
 .env
-web-server/backend/media
-web-server/backend/tmp
-web-server/backend/tmp/predictions
+web-server/media
+web-server/tmp
+web-server/tmp/predictions
 **/.DS_Store
 node_modules
