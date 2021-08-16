@@ -1,10 +1,11 @@
 import os
 import sys
-import torch
 from urllib.error import HTTPError
 
-from .models.embedding import FullyConnectedEmbed, SkipLSTM
+import torch
+
 from .models.contact import ContactCNN
+from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.interaction import ModelInteraction
 from .utils import get_local_or_download
 

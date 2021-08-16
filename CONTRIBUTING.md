@@ -8,7 +8,7 @@ conda activate dscript
 - Download required development packages
 
 ```
-pip install pre-commit pytest coverage flake8 black 
+pip install pre-commit isort flake8 black pytest coverage
 ```
 
 - Install pre-commit

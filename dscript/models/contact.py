@@ -3,8 +3,8 @@ Contact model classes.
 """
 
 import torch
-import torch.nn as nn
 import torch.functional as F
+import torch.nn as nn
 
 
 class FullyConnected(nn.Module):

@@ -2,32 +2,31 @@
 Train a new model.
 """
 
-import os
-import sys
 import argparse
-import h5py
 import datetime
+import gzip as gz
+import os
 import subprocess as sp
+import sys
+
+import h5py
 import numpy as np
 import pandas as pd
-import gzip as gz
-from tqdm import tqdm
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optimizers
-from torch.autograd import Variable
-from torch.utils.data import IterableDataset, DataLoader
+from scipy.sparse import data
 from sklearn.metrics import average_precision_score as average_precision
+from torch.autograd import Variable
+from torch.utils.data import DataLoader, IterableDataset
+from tqdm import tqdm
 
-from ..utils import PairedDataset, collate_paired_sequences
-from ..models.embedding import (
-    IdentityEmbed,
-    FullyConnectedEmbed,
-)
+from ..datamodules import PPIDataModule
 from ..models.contact import ContactCNN
+from ..models.embedding import FullyConnectedEmbed, IdentityEmbed
 from ..models.interaction import ModelInteraction
+from ..utils import PairedDataset, collate_paired_sequences
 
 
 def add_args(parser):
@@ -103,12 +102,6 @@ def add_args(parser):
     )
 
     # Training
-    train_grp.add_argument(
-        "--negative-ratio",
-        type=int,
-        default=10,
-        help="Number of negative training samples for each positive training sample (default: 10)",
-    )
     train_grp.add_argument(
         "--epoch-scale",
         type=int,
@@ -368,64 +361,23 @@ def main(args):
         print("# Using CPU", file=output)
         device = "cpu"
 
-    batch_size = args.batch_size
-
-    data_fi = args.data
-    augment = args.augment
-    embedding_h5 = args.embedding
-    sys.exit(1)
-    h5fi = h5py.File(embedding_h5, "r")
-
-    print(f"# Loading training pairs from {data_fi}...", file=output)
+    print(
+        f"# Loading PPI data from {args.embedding,args.data}...", file=output
+    )
     output.flush()
 
-    data_df = pd.read_csv(train_fi, sep="\t", header=None)
-    #if augment:
-    #    train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
-    #    train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
-    #    train_y = torch.from_numpy(
-    #        pd.concat((train_df[2], train_df[2])).values
-    #    )
-    #else:
-     #   train_n0, train_n1 = train_df[0], train_df[1]
-     #   train_y = torch.from_numpy(train_df[2].values)
-
-    print(f"# Loading testing pairs from {test_fi}...", file=output)
-    output.flush()
-
-    test_df = pd.read_csv(test_fi, sep="\t", header=None)
-    test_n0, test_n1 = test_df[0], test_df[1]
-    test_y = torch.from_numpy(test_df[2].values)
-    output.flush()
-
-    train_pairs = PairedDataset(train_n0, train_n1, train_y)
-    pairs_train_iterator = torch.utils.data.DataLoader(
-        train_pairs,
-        batch_size=batch_size,
-        collate_fn=collate_paired_sequences,
+    ppi_datamodule = PPIDataModule(
+        sequence_path=args.embedding,
+        pair_path=args.data,
+        batch_size=args.batch_size,
         shuffle=True,
+        augment_train=args.augment,
+        train_val_split=[1 - args.val_split, args.val_split],
     )
 
-    test_pairs = PairedDataset(test_n0, test_n1, test_y)
-    pairs_test_iterator = torch.utils.data.DataLoader(
-        test_pairs,
-        batch_size=batch_size,
-        collate_fn=collate_paired_sequences,
-        shuffle=True,
-    )
-
-    output.flush()
-
-    print("# Loading embeddings", file=output)
-    tensors = {}
-    all_proteins = (
-        set(train_n0)
-        .union(set(train_n1))
-        .union(set(test_n0))
-        .union(set(test_n1))
-    )
-    for prot_name in tqdm(all_proteins):
-        tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    pairs_train_iterator = ppi_datamodule.train_dataloader()
+    pairs_test_iterator = ppi_datamodule.val_dataloader()
+    tensors = ppi_datamodule.embeddings
 
     use_cuda = (args.device > -1) and torch.cuda.is_available()
 

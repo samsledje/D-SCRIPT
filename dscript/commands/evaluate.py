@@ -2,22 +2,22 @@
 Evaluate a trained model.
 """
 
+import argparse
+import datetime
 import os
 import sys
-import argparse
+
+import h5py
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-import h5py
-import datetime
-import matplotlib
-import matplotlib.pyplot as plt
-
 from sklearn.metrics import (
-    precision_recall_curve,
     average_precision_score,
-    roc_curve,
+    precision_recall_curve,
     roc_auc_score,
+    roc_curve,
 )
 from tqdm import tqdm
 

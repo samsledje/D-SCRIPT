@@ -1,9 +1,10 @@
 """
 D-SCRIPT: Structure Aware PPI Prediction
 """
+import argparse
 import os
 import sys
-import argparse
+
 from omegaconf import OmegaConf
 
 
@@ -41,7 +42,7 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    from .commands import train, evaluate, embed, predict
+    from .commands import embed, evaluate, predict, train
 
     modules = {
         "train": train,

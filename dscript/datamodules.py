@@ -1,24 +1,22 @@
+import atexit
 import os
 import urllib
-import shutil
-import atexit
+from functools import lru_cache
+from pathlib import Path
+from typing import List, Optional
+
 import h5py
 import pandas as pd
-from typing import Optional, List
-from pathlib import Path
-from functools import lru_cache
-
-from sklearn.model_selection import train_test_split
-
-import torch
-from torch.utils.data import Dataset, DataLoader
-from torch.nn.utils.rnn import pad_sequence
 import pytorch_lightning as pl
+import torch
+from sklearn.model_selection import train_test_split
+from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import DataLoader, Dataset
 
 from . import __version__
 from .fasta import parse
-from .utils import get_local_or_download
 from .language_model import embed_from_fasta
+from .utils import get_local_or_download
 
 
 def collate_pairs_fn(args):
@@ -83,11 +81,12 @@ class PPIDataModule(pl.LightningDataModule):
         augment_train: bool = True,
         train_val_split: List[float] = [0.9, 0.1],
     ):
-        super(PPIDataModule).__init__()
+        super().__init__()
 
         self.data_dir = Path(data_dir)
         self.sequence_path = Path(sequence_path)
         self.pair_path = Path(pair_path)
+        self.augment_train = augment_train
 
         # If sequence_path is a URL, prepare for download
         url_seq = urllib.parse.urlparse(sequence_path)
@@ -144,11 +143,10 @@ class PPIDataModule(pl.LightningDataModule):
         )
 
         if self.augment_train:
-            train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
-            train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
-            train_y = torch.from_numpy(
-                pd.concat((train_df[2], train_df[2])).values
-            )
+            train_n0 = pd.concat((self.train_df[0], self.train_df[1]), axis=0)
+            train_n1 = pd.concat((self.train_df[1], self.train_df[0]), axis=0)
+            train_y = pd.concat((self.train_df[2], self.train_df[2]), axis=0)
+            self.train_df = pd.concat([train_n0, train_n1, train_y], axis=1)
 
         self.data_train = PairedEmbeddingDataset(
             self.train_df, self.embeddings

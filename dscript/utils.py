@@ -1,18 +1,19 @@
-import torch
-import torch.utils.data
+import gzip as gz
+import os
+import shutil
+import subprocess as sp
+import sys
+import urllib
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-import subprocess as sp
-import os
-import sys
-import urllib
-import shutil
-import gzip as gz
-from pathlib import Path
-from datetime import datetime
+import torch
+import torch.utils.data
+
 from .fasta import parse
-from typing import Optional
 
 
 def get_local_or_download(destination: str, source: Optional[str] = None):
@@ -65,7 +66,7 @@ def plot_PR_curve(y, phat, saveFile=None):
     :type saveFile: str
     """
     import matplotlib.pyplot as plt
-    from sklearn.metrics import precision_recall_curve, average_precision_score
+    from sklearn.metrics import average_precision_score, precision_recall_curve
 
     aupr = average_precision_score(y, phat)
     precision, recall, _ = precision_recall_curve(y, phat)
@@ -95,7 +96,7 @@ def plot_ROC_curve(y, phat, saveFile=None):
     :type saveFile: str
     """
     import matplotlib.pyplot as plt
-    from sklearn.metrics import roc_curve, roc_auc_score
+    from sklearn.metrics import roc_auc_score, roc_curve
 
     auroc = roc_auc_score(y, phat)
 

@@ -1,7 +1,8 @@
-import torch
 import pytorch_lightning as pl
-from .embedding import FullyConnectedEmbed
+import torch
+
 from .contact import ContactCNN
+from .embedding import FullyConnectedEmbed
 from .interaction import ModelInteraction
 
 

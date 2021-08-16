@@ -1,15 +1,17 @@
 import os
-import sys
-import subprocess as sp
 import random
-import torch
-import h5py
-from tqdm import tqdm
-from .fasta import parse, parse_directory, write
-from .pretrained import get_pretrained
-from .alphabets import Uniprot21
-from .models.embedding import SkipLSTM
+import subprocess as sp
+import sys
 from datetime import datetime
+
+import h5py
+import torch
+from tqdm import tqdm
+
+from .alphabets import Uniprot21
+from .fasta import parse, parse_directory, write
+from .models.embedding import SkipLSTM
+from .pretrained import get_pretrained
 
 
 def lm_embed(sequence, use_cuda=False):

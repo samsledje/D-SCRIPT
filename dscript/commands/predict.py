@@ -1,17 +1,18 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
-import os
-import sys
-import torch
-import h5py
 import argparse
 import datetime
+import logging as logg
+import os
+import sys
+
+import h5py
 import numpy as np
 import pandas as pd
+import torch
 from scipy.special import comb
 from tqdm import tqdm
-import logging as logg
 
 from dscript.alphabets import Uniprot21
 from dscript.fasta import parse

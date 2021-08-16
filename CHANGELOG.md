@@ -10,7 +10,7 @@
 ## v0.1
 
 ### v0.1.5: 2021-06-23 -- Bug Fix - Augment and Documentation
-- Updated package level imports 
+- Updated package level imports
 - Updated documentation
 - Fixed issue #13: improper augmentation of data
 - Fixed issue #12: overwrites cmap data sets if they already exist

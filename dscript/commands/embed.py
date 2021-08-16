@@ -3,6 +3,7 @@ Generate new embeddings using pre-trained language model.
 """
 
 import argparse
+
 from dscript.language_model import embed_from_fasta
 
 
