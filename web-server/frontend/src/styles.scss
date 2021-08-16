@@ -1,0 +1,21 @@
+@import './components/pages/Home';
+@import './components/pages/Predict';
+@import './components/pages/Lookup';
+
+@import './components/modules/PredictInput';
+@import './components/modules/PairInput';
+@import './components/modules/SequenceInput';
+@import './components/modules/SubmissionModal';
+@import './components/modules/LookupInput';
+@import './components/modules/LookupModal';
+@import './components/modules/NavBar';
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
+
+* {
+	margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto';
+}

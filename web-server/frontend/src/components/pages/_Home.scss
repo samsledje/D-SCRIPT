@@ -1,0 +1,39 @@
+.Home-Container {
+    min-height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.Home-Description {
+    padding: 24px 192px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    margin: 24px 0;
+}
+
+#Home-PredictionTypes {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.Home-Usages {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+
+    .Home-Usage {
+        width: 240px;
+        height: 300px;
+        border-radius: 12px;
+        box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+        text-align: center;
+        padding: 8px;
+        margin: 12px;
+
+        h2 {
+            font-size: 20px;
+            margin: 12px;
+        }
+    }
+}
