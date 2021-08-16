@@ -1,0 +1,14 @@
+.Home-Container {
+    display: flex;
+    justify-content: center;
+    flex-flow: column wrap;
+    
+    div {
+        width: 50%;
+        min-width: 480px;
+
+        > * {
+            margin: 8px;
+        }
+    }
+}
