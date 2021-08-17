@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import Job
 
 
+@admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     list_display = (
         "uuid",
@@ -14,8 +15,3 @@ class JobAdmin(admin.ModelAdmin):
         "pairs",
         "completed",
     )
-
-
-# Register your models here.
-
-admin.site.register(Job, JobAdmin)

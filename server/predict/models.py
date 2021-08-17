@@ -14,4 +14,4 @@ class Job(models.Model):
     completed = models.BooleanField()
 
     def __str__(self):
-        return self.uuid
+        return f"{self.title} ({self.uuid})"

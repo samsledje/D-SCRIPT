@@ -2,20 +2,8 @@ import sys
 
 sys.path.append("../")
 
+import logging
 import os
-from io import StringIO
-
-import h5py
-import pandas as pd
-import torch
-from dotenv import load_dotenv
-from tqdm import tqdm
-
-import dscript
-
-load_dotenv()
-
-import email
 import smtplib
 import ssl
 import tempfile
@@ -23,9 +11,18 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from io import StringIO
 
+import pandas as pd
+import torch
+from dotenv import load_dotenv
+from tqdm import tqdm
+
+import dscript
 from dscript.fasta import parse_input
 from dscript.language_model import lm_embed
+
+load_dotenv()
 
 
 def predict(
@@ -48,18 +45,18 @@ def predict(
     outPath = f"{tempfile.gettempdir()}/predictions/{id}"
 
     # Set Device
-    print("# Setting Device...")
+    logging.info("# Setting Device...")
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
+        logging.info(
             f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
         )
     else:
-        print("# Using CPU")
+        logging.info("# Using CPU")
 
     # Load Model
-    print("# Loading Model...")
+    logging.info("# Loading Model...")
     try:
         if use_cuda:
             model = torch.load(modelPath).cuda()
@@ -67,20 +64,20 @@ def predict(
             model = torch.load(modelPath).cpu()
             model.use_cuda = False
     except FileNotFoundError:
-        print(f"# Model {modelPath} not found")
+        logging.info(f"# Model {modelPath} not found")
         return
 
     # Load Sequences
-    print("# Loading Sequences...")
+    logging.info("# Loading Sequences...")
     try:
         names, sequences = parse_input(seqs)
         seqDict = {n: s for n, s in zip(names, sequences)}
     except:
         return
-    print(seqDict)
+    logging.info(seqDict)
 
     # Load Pairs
-    print("# Loading Pairs...")
+    logging.info("# Loading Pairs...")
     if pairsIndex in ["1", "2"]:
         try:
             pairs_array = pd.read_csv(StringIO(pairs), sep=",", header=None)
@@ -101,14 +98,14 @@ def predict(
             return
 
     # Generate Embeddings
-    print("# Generating Embeddings...")
+    logging.info("# Generating Embeddings...")
     embeddings = {}
     for n in tqdm(all_prots):
         embeddings[n] = lm_embed(seqDict[n], use_cuda)
-    print(embeddings)
+    logging.info(embeddings)
 
     # Make Predictions
-    print("# Making Predictions...")
+    logging.info("# Making Predictions...")
     n = 0
     outPathAll = f"{outPath}.tsv"
     model.eval()
@@ -128,11 +125,10 @@ def predict(
                     p0 = p0.cuda()
                     p1 = p1.cuda()
                 try:
-                    _, p = model.map_predict(p0, p1)
-                    p = p.item()
+                    p = model.predict(p0, p1).item()
                     f.write(f"{n0}\t{n1}\t{p}\n")
                 except RuntimeError as e:
-                    print(f"{n0} x {n1} skipped - Out of Memory")
+                    logging.info(f"{n0} x {n1} skipped - Out of Memory")
 
     return outPathAll
 
@@ -148,7 +144,7 @@ def email_results(
     Given a user email, target path for prediction file, and job id
     Emails the user the results of their job
     """
-    print("# Emailing Results ...")
+    logging.info("# Emailing Results ...")
     if not title:
         subject = f"D-SCRIPT Results for {id}"
     else:

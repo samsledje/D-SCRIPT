@@ -13,8 +13,6 @@ from rest_framework.response import Response
 from .api import dscript as dscript_api
 from .serializers import JobSerializer
 
-# Create your views here.
-
 
 class FrontendAppView(View):
     """
@@ -67,20 +65,20 @@ class Job:
             self.seqs = ""
             for line in seqs:
                 self.seqs += line.decode("utf-8")
-        print(self.seqs)
+        logging.info(f"New job submitted: {self.title}, ({self.id})")
 
     def process(self):
         predict_file = dscript_api.predict(
             self.seqs, self.pairsIndex, self.pairs, self.id
         )
         try:
-            print("Trying to email")
+            logging.info("Trying to email")
             dscript_api.email_results(
                 self.email, predict_file, self.id, title=self.title
             )
         except Exception as err:
-            print("Not a valid email")
-            print(err)
+            logging.info("Not a valid email")
+            logging.info(err)
         return predict_file
 
 
@@ -121,13 +119,13 @@ def predict(request):
                 response["first"] = True
             return Response(response)
         else:
-            print(serializer.errors)
-            print("NOT A VALID SERIALIZER")
+            logging.info(serializer.errors)
+            logging.info("NOT A VALID SERIALIZER")
 
 
 @api_view(["GET"])
 def get_pos(request, id):
-    print(f" # Getting Queue Position for {id} ...")
+    logging.info(f" # Getting Queue Position for {id} ...")
     if id in processed:
         return Response({"position": -1, "inQueue": False})
     for i in range(len(jobs)):
@@ -144,11 +142,11 @@ def process_jobs(request):
 
 def run_jobs():
     job = jobs[0]
-    print(f" # Processing Job {job.id} ...")
+    logging.info(f" # Processing Job {job.id} ...")
     try:
         job.process()
     except Exception as err:
-        print(err)
+        logging.info(err)
     processed.add(job.id)
     jobs.pop(0)
     if jobs:
