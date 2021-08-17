@@ -14,3 +14,5 @@ web-server/tmp
 server/tmp
 **/.DS_Store
 node_modules
+.coverage
+htmlcov
