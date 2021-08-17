@@ -2,7 +2,7 @@
 
 - Install conda environment
 ```
-conda env create -f environment.yml`
+conda env create -f environment.yml
 conda activate dscript
 ```
 - Download required development packages
