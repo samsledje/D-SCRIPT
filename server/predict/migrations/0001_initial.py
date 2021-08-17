@@ -7,20 +7,30 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Prediction',
+            name="Prediction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=120)),
-                ('protein1', models.CharField(max_length=60)),
-                ('protein2', models.CharField(max_length=60)),
-                ('sequence1', models.TextField()),
-                ('sequence2', models.TextField()),
-                ('probability', models.DecimalField(decimal_places=5, max_digits=6)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=120)),
+                ("protein1", models.CharField(max_length=60)),
+                ("protein2", models.CharField(max_length=60)),
+                ("sequence1", models.TextField()),
+                ("sequence2", models.TextField()),
+                (
+                    "probability",
+                    models.DecimalField(decimal_places=5, max_digits=6),
+                ),
             ],
         ),
     ]

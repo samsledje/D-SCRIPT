@@ -6,34 +6,50 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('predict', '0002_fileprediction'),
+        ("predict", "0002_fileprediction"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AllPair',
+            name="AllPair",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=120)),
-                ('sequences', models.FileField(upload_to='sequences/')),
-                ('predictions', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=120)),
+                ("sequences", models.FileField(upload_to="sequences/")),
+                ("predictions", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='ManyPair',
+            name="ManyPair",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=120)),
-                ('pairs', models.FileField(upload_to='pairs/')),
-                ('sequences', models.FileField(upload_to='sequences/')),
-                ('predictions', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=120)),
+                ("pairs", models.FileField(upload_to="pairs/")),
+                ("sequences", models.FileField(upload_to="sequences/")),
+                ("predictions", models.TextField()),
             ],
         ),
         migrations.RenameModel(
-            old_name='Prediction',
-            new_name='SinglePair',
+            old_name="Prediction",
+            new_name="SinglePair",
         ),
         migrations.DeleteModel(
-            name='FilePrediction',
+            name="FilePrediction",
         ),
     ]

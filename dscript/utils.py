@@ -1,24 +1,27 @@
-import torch
-import torch.utils.data
+import gzip as gz
+import subprocess as sp
+import sys
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import subprocess as sp
-import sys
-import gzip as gz
-from datetime import datetime
+import torch
+import torch.utils.data
+
 from .fasta import parse
+
 
 def log(msg, file=sys.stderr):
     """
     Log datetime-stamped message to file
-    
+
     :param msg: Message to log
     :param f: Writable file object to log message to
     """
-    timestr = datetime.utcnow().isoformat(sep='-', timespec='milliseconds')
+    timestr = datetime.utcnow().isoformat(sep="-", timespec="milliseconds")
     file.write(f"[{timestr}] {msg}\n")
     file.flush()
+
 
 def plot_PR_curve(y, phat, saveFile=None):
     """
@@ -32,7 +35,7 @@ def plot_PR_curve(y, phat, saveFile=None):
     :type saveFile: str
     """
     import matplotlib.pyplot as plt
-    from sklearn.metrics import precision_recall_curve, average_precision_score
+    from sklearn.metrics import average_precision_score, precision_recall_curve
 
     aupr = average_precision_score(y, phat)
     precision, recall, _ = precision_recall_curve(y, phat)
@@ -62,7 +65,7 @@ def plot_ROC_curve(y, phat, saveFile=None):
     :type saveFile: str
     """
     import matplotlib.pyplot as plt
-    from sklearn.metrics import roc_curve, roc_auc_score
+    from sklearn.metrics import roc_auc_score, roc_curve
 
     auroc = roc_auc_score(y, phat)
 
@@ -129,12 +132,27 @@ class PairedDataset(torch.utils.data.Dataset):
     :param X1: List of second item in the pair
     :param Y: List of labels
     """
+
     def __init__(self, X0, X1, Y):
         self.X0 = X0
         self.X1 = X1
         self.Y = Y
-        assert len(X0) == len(X1), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-        assert len(X0) == len(Y), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
+        assert len(X0) == len(X1), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
+        assert len(X0) == len(Y), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
 
     def __len__(self):
         return len(self.X0)

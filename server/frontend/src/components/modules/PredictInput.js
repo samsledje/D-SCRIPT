@@ -75,7 +75,7 @@ export default function PredictInput() {
         uploadData.append('email', item.email)
         uploadData.append('pairsIndex', item.pairsIndex)
         uploadData.append('seqsIndex', item.seqsIndex)
-        
+
 
         // Handling sequences submission
         if (item.seqsIndex === '1') {
@@ -111,7 +111,7 @@ export default function PredictInput() {
 
         axios
             .post(
-                "http://localhost:8000/api/predict/", 
+                "http://localhost:8000/api/predict/",
                 uploadData,
                 {
                     headers: {'X-CSRFToken': csrftoken}
@@ -155,7 +155,7 @@ export default function PredictInput() {
             .catch((err) => console.log(err))
 
     }
-    
+
     return (
         <div className="PredictInput-Container">
             {/* <h1>Predict Protein Interactions</h1> */}

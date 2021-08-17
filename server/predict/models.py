@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Job(models.Model):
     uuid = models.UUIDField()
     title = models.TextField(blank=True)

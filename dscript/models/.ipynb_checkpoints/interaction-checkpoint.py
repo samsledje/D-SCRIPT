@@ -1,8 +1,8 @@
 import numpy as np
-
 import torch
-import torch.nn as nn
 import torch.functional as F
+import torch.nn as nn
+
 
 class LogisticActivation(nn.Module):
     """
@@ -22,7 +22,7 @@ class LogisticActivation(nn.Module):
         >>> x = logAct(x)
     """
 
-    def __init__(self, x0 = 0, k = 1, train=False):
+    def __init__(self, x0=0, k=1, train=False):
         """
         Initialization
         INPUT:
@@ -32,7 +32,7 @@ class LogisticActivation(nn.Module):
             x0 and k are initialized to 0,1 respectively
             Behaves the same as torch.sigmoid by default
         """
-        super(LogisticActivation,self).__init__()
+        super(LogisticActivation, self).__init__()
         self.x0 = x0
         self.k = nn.Parameter(torch.FloatTensor([float(k)]))
         self.k.requiresGrad = train
@@ -41,18 +41,31 @@ class LogisticActivation(nn.Module):
         """
         Applies the function to the input elementwise
         """
-        o = torch.clamp(1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1).squeeze()
+        o = torch.clamp(
+            1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1
+        ).squeeze()
         return o
 
     def clip(self):
         self.k.data.clamp_(min=0)
 
+
 class ModelInteraction(nn.Module):
-    def __init__(self, embedding, contact, use_cuda, pool_size=9, theta_init=1, lambda_init = 0, gamma_init = 0, use_W=True):
+    def __init__(
+        self,
+        embedding,
+        contact,
+        use_cuda,
+        pool_size=9,
+        theta_init=1,
+        lambda_init=0,
+        gamma_init=0,
+        use_W=True,
+    ):
         super(ModelInteraction, self).__init__()
         self.use_cuda = use_cuda
         self.use_W = use_W
-        self.activation = LogisticActivation(x0=0.5, k = 20)
+        self.activation = LogisticActivation(x0=0.5, k=20)
 
         self.embedding = embedding
         self.contact = contact
@@ -61,7 +74,7 @@ class ModelInteraction(nn.Module):
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
 
-        self.maxPool = nn.MaxPool2d(pool_size,padding=pool_size//2)
+        self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
 
         self.clip()
@@ -96,12 +109,20 @@ class ModelInteraction(nn.Module):
             # Create contact weighting matrix
             N, M = C.shape[2:]
 
-            x1 = torch.from_numpy(-1 * ((np.arange(N)+1 - ((N+1)/2)) / (-1 * ((N+1)/2)))**2).float()
+            x1 = torch.from_numpy(
+                -1
+                * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+                ** 2
+            ).float()
             if self.use_cuda:
                 x1 = x1.cuda()
             x1 = torch.exp(self.lambda_ * x1)
 
-            x2 = torch.from_numpy(-1 * ((np.arange(M)+1 - ((M+1)/2)) / (-1 * ((M+1)/2)))**2).float()
+            x2 = torch.from_numpy(
+                -1
+                * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+                ** 2
+            ).float()
             if self.use_cuda:
                 x2 = x2.cuda()
             x2 = torch.exp(self.lambda_ * x2)
@@ -125,6 +146,5 @@ class ModelInteraction(nn.Module):
         return C, phat
 
     def predict(self, z0, z1):
-        _, phat = self.map_predict(z0,z1)
+        _, phat = self.map_predict(z0, z1)
         return phat
-

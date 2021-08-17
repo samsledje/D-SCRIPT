@@ -7,22 +7,29 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField()),
-                ('title', models.TextField()),
-                ('email', models.EmailField(max_length=254)),
-                ('seqsIndex', models.CharField(max_length=1)),
-                ('pairsIndex', models.CharField(max_length=1)),
-                ('seqs', models.TextField()),
-                ('pairs', models.TextField()),
-                ('completed', models.BooleanField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField()),
+                ("title", models.TextField()),
+                ("email", models.EmailField(max_length=254)),
+                ("seqsIndex", models.CharField(max_length=1)),
+                ("pairsIndex", models.CharField(max_length=1)),
+                ("seqs", models.TextField()),
+                ("pairs", models.TextField()),
+                ("completed", models.BooleanField()),
             ],
         ),
     ]

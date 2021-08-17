@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('predict', '0001_initial'),
+        ("predict", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FilePrediction',
+            name="FilePrediction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=120)),
-                ('pairs', models.FileField(upload_to='')),
-                ('sequences', models.FileField(upload_to='')),
-                ('predictions', models.FileField(upload_to='')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=120)),
+                ("pairs", models.FileField(upload_to="")),
+                ("sequences", models.FileField(upload_to="")),
+                ("predictions", models.FileField(upload_to="")),
             ],
         ),
     ]

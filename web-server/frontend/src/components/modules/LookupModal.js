@@ -78,14 +78,14 @@ export default function LookupModal(props) {
                 <Fade in={props.open}>
                   <div className={classes.paper}>
                       { processed ?
-                      <div className='LookupModal-Info'> 
+                      <div className='LookupModal-Info'>
                         <p><em>Finished refreshing</em></p>
                         <LinearProgress variant='determinate' color='secondary' value='primary'></LinearProgress>
                         <h2>Your job has finished processing</h2>
                         <p>Job id: {props.id}</p>
                         <p><em>The results of your prediction have been emailed.</em></p>
                       </div> :
-                      <div className='LookupModal-Info'> 
+                      <div className='LookupModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>
                         <LinearProgress></LinearProgress>
                         <h2>Your job is queued in position {position}</h2>

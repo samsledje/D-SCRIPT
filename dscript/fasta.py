@@ -38,6 +38,7 @@ def parse(f, comment="#"):
 
     return names, sequences
 
+
 def parse_bytes(f):
     """
     Parse a file in ``.fasta`` format in UploadedFile format.
@@ -57,7 +58,7 @@ def parse_bytes(f):
     sequence = []
     for line in f:
         print(line)
-        line = line.decode('utf-8')
+        line = line.decode("utf-8")
         if line.startswith(comment):
             continue
         line = line.strip()
@@ -74,6 +75,7 @@ def parse_bytes(f):
         sequences.append(empty.join(sequence))
 
     return names, sequences
+
 
 def parse_input(f, comment="#"):
     """
@@ -93,7 +95,7 @@ def parse_input(f, comment="#"):
     sequences = []
     name = None
     sequence = []
-    for line in f.split('\n'):
+    for line in f.split("\n"):
         if line.startswith(comment):
             continue
         line = line.strip()
@@ -110,6 +112,7 @@ def parse_input(f, comment="#"):
         sequences.append(empty.join(sequence))
 
     return names, sequences
+
 
 def parse_directory(directory, extension=".seq"):
     """

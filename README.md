@@ -10,33 +10,33 @@
 
 
  D-SCRIPT is a deep learning method for predicting a physical interaction between two proteins given just their sequences. It generalizes well to new species and is robust to limitations in training data size. Its design reflects the intuition that for two proteins to physically interact, a subset of amino acids from each protein should be in con-tact with the other. The intermediate stages of D-SCRIPT directly implement this intuition, with the penultimate stage in D-SCRIPT being a rough estimate of the inter-protein contact map of the protein dimer. This structurally-motivated design enhances the interpretability of the results and, since structure is more conserved evolutionarily than sequence, improves generalizability across species.
- 
+
  - D-SCRIPT is described in the paper [“Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model”](https://www.biorxiv.org/content/10.1101/2021.01.22.427866v1) by Sam Sledzieski, Rohit Singh, Lenore Cowen and Bonnie Berger.
- 
+
  - [Homepage](http://dscript.csail.mit.edu)
- 
+
  - [Documentation](https://d-script.readthedocs.io/en/main/)
- 
+
  # Running Web Server Locally
- 
+
  Navigate to D-SCRIPT/web-server and create the current dscript_web conda environment with
- 
+
  ### `conda env create -f web_environment.yml`
- 
+
  To start the backend server, activate the created conda environment with
- 
+
  ### `conda activate dscript_web`
- 
+
  and navigate to D-SCRIPT/web-server/backend and run
- 
+
  ### `python manage.py runserver`
- 
+
  You can currently access a list of all created predictions at http://localhost:8000/api/predictions/  -- to start the React frontend, install Node.js, navigate to D-SCRIPT/web-server/frontend and run
- 
+
  ### `npm install`
- 
+
  as well as
- 
+
  ### `npm start`
- 
+
  At this point, both the backend and frontend should be up and running. You can access the webpage currently at http://localhost:3000/

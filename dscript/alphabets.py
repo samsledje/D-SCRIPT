@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from __future__ import division, print_function
 
 import numpy as np
 
@@ -39,7 +39,7 @@ class Alphabet:
     def encode(self, x):
         """
         Encode a byte string into alphabet indices
-        
+
         :param x: Amino acid string
         :type x: byte str
         :return: Numeric encoding
@@ -72,4 +72,6 @@ class Uniprot21(Alphabet):
         chars = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))
         encoding[21:] = [11, 4, 20, 20]  # encode 'OUBZ' as synonyms
-        super(Uniprot21, self).__init__(chars, encoding=encoding, mask=mask, missing=20)
+        super(Uniprot21, self).__init__(
+            chars, encoding=encoding, mask=mask, missing=20
+        )

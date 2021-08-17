@@ -1,8 +1,10 @@
-import os, sys
+import os
+import sys
+
 import torch
 
-from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.contact import ContactCNN
+from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.interaction import ModelInteraction
 
 
@@ -30,10 +32,7 @@ def build_human_1(state_dict_path):
     return model
 
 
-VALID_MODELS = {
-        "lm_v1": build_lm_1,
-        "human_v1": build_human_1
-        }
+VALID_MODELS = {"lm_v1": build_lm_1, "human_v1": build_human_1}
 
 
 def get_state_dict(version="human_v1", verbose=True):
@@ -50,13 +49,19 @@ def get_state_dict(version="human_v1", verbose=True):
     state_dict_basename = f"dscript_{version}.pt"
     state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
     state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
-    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
+    state_dict_url = (
+        f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
+    )
     if not os.path.exists(state_dict_fullname):
         try:
-            import urllib.request
             import shutil
-            if verbose: print(f"Downloading model {version} from {state_dict_url}...")
-            with urllib.request.urlopen(state_dict_url) as response, open(state_dict_fullname, 'wb') as out_file:
+            import urllib.request
+
+            if verbose:
+                print(f"Downloading model {version} from {state_dict_url}...")
+            with urllib.request.urlopen(state_dict_url) as response, open(
+                state_dict_fullname, "wb"
+            ) as out_file:
                 shutil.copyfileobj(response, out_file)
         except Exception as e:
             print("Unable to download model - {}".format(e))

@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('predict', '0004_pairsinput_pairsupload_predictionjob_seqsinput_seqsupload'),
+        (
+            "predict",
+            "0004_pairsinput_pairsupload_predictionjob_seqsinput_seqsupload",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='predictionjob',
-            name='email',
+            model_name="predictionjob",
+            name="email",
             field=models.TextField(default=0),
             preserve_default=False,
         ),

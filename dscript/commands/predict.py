@@ -1,12 +1,14 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
-import sys, os
-import torch
-import h5py
 import argparse
 import datetime
+import os
+import sys
+
+import h5py
 import pandas as pd
+import torch
 from scipy.special import comb
 from tqdm import tqdm
 
@@ -15,6 +17,7 @@ from dscript.fasta import parse
 from dscript.language_model import lm_embed
 from dscript.utils import log
 
+
 def add_args(parser):
     """
     Create parser for command line utility
@@ -22,12 +25,16 @@ def add_args(parser):
     :meta private:
     """
 
-    parser.add_argument("--pairs", help="Candidate protein pairs to predict", required=True)
+    parser.add_argument(
+        "--pairs", help="Candidate protein pairs to predict", required=True
+    )
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("-o", "--outfile", help="File for predictions")
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     parser.add_argument(
         "--thresh",
         type=float,
@@ -57,21 +64,28 @@ def main(args):
 
     # Set Outpath
     if outPath is None:
-        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
-    
+        outPath = datetime.datetime.now().strftime(
+            "%Y-%m-%d-%H:%M.predictions"
+        )
+
     logFilePath = outPath + ".log"
-    logFile = open(logFilePath,"w+")
+    logFile = open(logFilePath, "w+")
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
-        log(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=logFile)
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
+        log(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+            file=logFile,
+        )
     else:
         print("# Using CPU")
         log("# Using CPU", file=logFile)
-        
+
     # Load Model
     try:
         if use_cuda:
@@ -130,7 +144,9 @@ def main(args):
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
+                for _, (n0, n1) in tqdm(
+                    pairs.iloc[:, :2].iterrows(), total=len(pairs)
+                ):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
@@ -147,9 +163,14 @@ def main(args):
                         f.write(f"{n0}\t{n1}\t{p}\n")
                         if p >= threshold:
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                            cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
+                            cmap_file.create_dataset(
+                                f"{n0}x{n1}", data=cm.squeeze().cpu().numpy()
+                            )
                     except RuntimeError as e:
-                        log(f"{n0} x {n1} skipped - CUDA out of memory", file=logFile)
+                        log(
+                            f"{n0} x {n1} skipped - CUDA out of memory",
+                            file=logFile,
+                        )
 
     logFile.close()
     cmap_file.close()

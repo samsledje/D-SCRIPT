@@ -54,7 +54,7 @@ export default function LookupInput() {
                     onChange={handleInputChange}>
             </TextField>
             <Button variant='contained' onClick={handleLookup}>Look up</Button>
-            { (lookupValid && jobPosition != null)  ? 
+            { (lookupValid && jobPosition != null)  ?
             <LookupModal open={lookupValid} id={input} position={jobPosition} handleClose={handleModalClose}></LookupModal>
              : <div></div>}
         </div>

@@ -2,22 +2,24 @@
 Evaluate a trained model.
 """
 
-import sys, os
 import argparse
+import datetime
+import os
+import sys
+
+import h5py
+import matplotlib
 import numpy as np
 import pandas as pd
 import torch
-import h5py
-import datetime
-import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.metrics import (
-    precision_recall_curve,
     average_precision_score,
-    roc_curve,
+    precision_recall_curve,
     roc_auc_score,
+    roc_curve,
 )
 from tqdm import tqdm
 
@@ -29,11 +31,17 @@ def add_args(parser):
     :meta private:
     """
 
-    parser.add_argument("--model", help="Trained prediction model", required=True)
+    parser.add_argument(
+        "--model", help="Trained prediction model", required=True
+    )
     parser.add_argument("--test", help="Test Data", required=True)
-    parser.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
+    parser.add_argument(
+        "--embedding", help="h5 file with embedded sequences", required=True
+    )
     parser.add_argument("-o", "--outfile", help="Output file to write results")
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     return parser
 
 
@@ -106,7 +114,9 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
     else:
         print("# Using CPU")
 
@@ -141,7 +151,9 @@ def main(args):
     with torch.no_grad():
         phats = []
         labels = []
-        for _, (n0, n1, label) in tqdm(test_df.iterrows(), total=len(test_df), desc="Predicting pairs"):
+        for _, (n0, n1, label) in tqdm(
+            test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
+        ):
             try:
                 p0 = seqEmbDict[n0]
                 p1 = seqEmbDict[n1]
@@ -152,7 +164,10 @@ def main(args):
                 pred = model.predict(p0, p1).item()
                 phats.append(pred)
                 labels.append(label)
-                print("{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred), file=outFile)
+                print(
+                    "{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred),
+                    file=outFile,
+                )
             except Exception as e:
                 sys.stderr.write("{} x {} - {}".format(n0, n1, e))
 

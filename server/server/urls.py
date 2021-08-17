@@ -18,9 +18,9 @@ from django.urls import path
 from predict import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.FrontendAppView.as_view()),
-    path('api/predict/', views.predict),
-    path('api/process', views.process_jobs),
-    path('api/position/<uuid:id>/', views.get_pos),
+    path("admin/", admin.site.urls),
+    path("", views.FrontendAppView.as_view()),
+    path("api/predict/", views.predict),
+    path("api/process", views.process_jobs),
+    path("api/position/<uuid:id>/", views.get_pos),
 ]

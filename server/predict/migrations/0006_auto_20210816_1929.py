@@ -6,46 +6,54 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('predict', '0005_predictionjob_email'),
+        ("predict", "0005_predictionjob_email"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField()),
-                ('title', models.TextField(blank=True)),
-                ('email', models.EmailField(max_length=254)),
-                ('seqsIndex', models.CharField(max_length=1)),
-                ('pairsIndex', models.CharField(max_length=1)),
-                ('seqs', models.TextField()),
-                ('pairs', models.TextField(blank=True)),
-                ('completed', models.BooleanField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField()),
+                ("title", models.TextField(blank=True)),
+                ("email", models.EmailField(max_length=254)),
+                ("seqsIndex", models.CharField(max_length=1)),
+                ("pairsIndex", models.CharField(max_length=1)),
+                ("seqs", models.TextField()),
+                ("pairs", models.TextField(blank=True)),
+                ("completed", models.BooleanField()),
             ],
         ),
         migrations.DeleteModel(
-            name='AllPair',
+            name="AllPair",
         ),
         migrations.DeleteModel(
-            name='ManyPair',
+            name="ManyPair",
         ),
         migrations.DeleteModel(
-            name='PairsInput',
+            name="PairsInput",
         ),
         migrations.DeleteModel(
-            name='PairsUpload',
+            name="PairsUpload",
         ),
         migrations.DeleteModel(
-            name='PredictionJob',
+            name="PredictionJob",
         ),
         migrations.DeleteModel(
-            name='SeqsInput',
+            name="SeqsInput",
         ),
         migrations.DeleteModel(
-            name='SeqsUpload',
+            name="SeqsUpload",
         ),
         migrations.DeleteModel(
-            name='SinglePair',
+            name="SinglePair",
         ),
     ]

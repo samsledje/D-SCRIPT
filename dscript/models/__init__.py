@@ -1,1 +1,1 @@
-__all__ = ["contact","embedding","interaction"]
+__all__ = ["contact", "embedding", "interaction"]

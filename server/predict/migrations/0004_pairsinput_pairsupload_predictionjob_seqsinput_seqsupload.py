@@ -6,42 +6,82 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('predict', '0003_auto_20210713_2052'),
+        ("predict", "0003_auto_20210713_2052"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PairsInput',
+            name="PairsInput",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pairs', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("pairs", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='PairsUpload',
+            name="PairsUpload",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pairs', models.FileField(upload_to='pairs/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("pairs", models.FileField(upload_to="pairs/")),
             ],
         ),
         migrations.CreateModel(
-            name='PredictionJob',
+            name="PredictionJob",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SeqsInput',
+            name="SeqsInput",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('seqs', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("seqs", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='SeqsUpload',
+            name="SeqsUpload",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('seqs', models.FileField(upload_to='seqs/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("seqs", models.FileField(upload_to="seqs/")),
             ],
         ),
     ]

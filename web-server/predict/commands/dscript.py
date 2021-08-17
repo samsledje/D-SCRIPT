@@ -1,32 +1,43 @@
 import os
-
 import sys
-sys.path.append('../')
 
-import torch
-import h5py
-import dscript
-import pandas as pd
+sys.path.append("../")
+
 from io import StringIO
+
+import h5py
+import pandas as pd
+import torch
+from dotenv import load_dotenv
 from tqdm import tqdm
 
-from dotenv import load_dotenv
+import dscript
+
 load_dotenv()
 
-from dscript.fasta import parse_bytes, parse_input
-from dscript.language_model import lm_embed
-
-
-import email, smtplib, ssl
-
+import email
+import smtplib
+import ssl
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-password = os.getenv('EMAIL_PWD')
+from dscript.fasta import parse_bytes, parse_input
+from dscript.language_model import lm_embed
 
-def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
+password = os.getenv("EMAIL_PWD")
+
+
+def predict(
+    seqs,
+    pairsIndex,
+    pairs,
+    id,
+    device=-1,
+    modelPath="dscript-models/human_v1.sav",
+    threshhold=0.5,
+):
     """
     Given specified candidate pairs and protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
@@ -34,19 +45,21 @@ def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/
     """
 
     # Set Outpath
-    outPath = f'tmp/predictions/{id}'
+    outPath = f"tmp/predictions/{id}"
 
     # Set Device
-    print('# Setting Device...')
+    print("# Setting Device...")
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f'# Using CUDA device {device} - {torch.cuda.get_device_name(device)}')
+        print(
+            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
     else:
-        print('# Using CPU')
+        print("# Using CPU")
 
     # Load Model
-    print('# Loading Model...')
+    print("# Loading Model...")
     try:
         if use_cuda:
             model = torch.load(modelPath).cuda()
@@ -54,11 +67,11 @@ def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/
             model = torch.load(modelPath).cpu()
             model.use_cuda = False
     except FileNotFoundError:
-        print(f'# Model {modelPath} not found')
+        print(f"# Model {modelPath} not found")
         return
 
     # Load Sequences
-    print('# Loading Sequences...')
+    print("# Loading Sequences...")
     try:
         names, sequences = parse_input(seqs)
         seqDict = {n: s for n, s in zip(names, sequences)}
@@ -67,42 +80,46 @@ def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/
     print(seqDict)
 
     # Load Pairs
-    print('# Loading Pairs...')
-    if pairsIndex in ['1', '2']:
+    print("# Loading Pairs...")
+    if pairsIndex in ["1", "2"]:
         try:
-            pairs_array = pd.read_csv(StringIO(pairs), sep=',', header=None)
-            all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+            pairs_array = pd.read_csv(StringIO(pairs), sep=",", header=None)
+            all_prots = set(pairs_array.iloc[:, 0]).union(
+                set(pairs_array.iloc[:, 1])
+            )
         except:
             return
-    elif pairsIndex == '3':
+    elif pairsIndex == "3":
         try:
             all_prots = list(seqDict.keys())
             data = []
-            for i in range(len(all_prots)-1):
-                for j in range(i+1, len(all_prots)):
+            for i in range(len(all_prots) - 1):
+                for j in range(i + 1, len(all_prots)):
                     data.append([all_prots[i], all_prots[j]])
             pairs_array = pd.DataFrame(data)
         except:
             return
 
     # Generate Embeddings
-    print('# Generating Embeddings...')
+    print("# Generating Embeddings...")
     embeddings = {}
     for n in tqdm(all_prots):
         embeddings[n] = lm_embed(seqDict[n], use_cuda)
     print(embeddings)
 
     # Make Predictions
-    print('# Making Predictions...')
+    print("# Making Predictions...")
     n = 0
-    outPathAll = f'{outPath}.tsv'
-    outPathPos = f'{outPath}.positive.tsv'
-    cmap_file = h5py.File(f'{outPath}.cmaps.h5', 'w')
+    outPathAll = f"{outPath}.tsv"
+    outPathPos = f"{outPath}.positive.tsv"
+    cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
     model.eval()
-    with open(outPathAll, 'w+') as f:
-        with open(outPathPos, 'w+') as pos_f:
+    with open(outPathAll, "w+") as f:
+        with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)):
+                for _, (n0, n1) in tqdm(
+                    pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)
+                ):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
@@ -116,28 +133,37 @@ def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/
                     try:
                         cm, p = model.map_predict(p0, p1)
                         p = p.item()
-                        f.write(f'{n0}\t{n1}\t{p}\n')
+                        f.write(f"{n0}\t{n1}\t{p}\n")
                         if p >= threshhold:
-                            pos_f.write(f'{n0}\t{n1}\t{p}\n')
-                            cmap_file.create_dataset(f'{n0}x{n1}', data=cm.squeeze().cpu().numpy())
+                            pos_f.write(f"{n0}\t{n1}\t{p}\n")
+                            cmap_file.create_dataset(
+                                f"{n0}x{n1}", data=cm.squeeze().cpu().numpy()
+                            )
                     except RuntimeError as e:
-                        print(f'{n0} x {n1} skipped - Out of Memory')
+                        print(f"{n0} x {n1} skipped - Out of Memory")
     cmap_file.close()
 
     return outPathAll
 
-def email_results(receiver_email, filename, id, title=None, sender_email='dscript.results@gmail.com'):
+
+def email_results(
+    receiver_email,
+    filename,
+    id,
+    title=None,
+    sender_email="dscript.results@gmail.com",
+):
     """
     Given a user email, target path for prediction file, and job id
     Emails the user the results of their job
     """
-    print('# Emailing Results ...')
+    print("# Emailing Results ...")
     if not title:
         subject = f"D-SCRIPT Results for {id}"
     else:
         subject = f"D-SCRIPT Results for {title} ({id})"
     body = f"These are the results of your D-SCRIPT prediction on job {id}"
-    password = os.getenv('EMAIL_PWD')
+    password = os.getenv("EMAIL_PWD")
 
     # Create a multipart message and set headers
     message = MIMEMultipart()
@@ -157,7 +183,7 @@ def email_results(receiver_email, filename, id, title=None, sender_email='dscrip
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
 
-    # Encode file in ASCII characters to send by email    
+    # Encode file in ASCII characters to send by email
     encoders.encode_base64(part)
 
     # Add header as key/value pair to attachment part

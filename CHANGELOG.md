@@ -9,7 +9,7 @@
 ## v0.1
 
 ### v0.1.5: Active
-- Updated package level imports 
+- Updated package level imports
 - Updated documentation
 
 ### v0.1.4: 2021-03-05 -- Bug Fix - Typo in `ContactModule.forward()`
