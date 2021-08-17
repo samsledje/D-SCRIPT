@@ -4,7 +4,7 @@ import {BrowserRouter as Router, Route } from 'react-router-dom';
 import Home from './components/pages/Home';
 import Predict from './components/pages/Predict';
 import Lookup from './components/pages/Lookup';
-import './styles.css';
+import './assets/styles.css';
 
 function App() {
   return (

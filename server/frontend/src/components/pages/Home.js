@@ -1,12 +1,15 @@
 import React from 'react'
 
 import NavBar from '../modules/NavBar'
+import '../../assets/styles_home.css'
+import architecture from '../../assets/dscript_architecture1.png'
+
 
 export default function Home() {
     return (
         <div className="Home-Container">
             <NavBar></NavBar>
-            <img src="dscript_architecture1.png" alt="D-SCIPRT Architecture"/><br/>
+            <img src={architecture} alt="D-SCIPRT Architecture"/><br/>
 
             <div class="about sans_font">
             <p class="home_body">
@@ -22,7 +25,7 @@ export default function Home() {
             <div class="about home_body">
             <div class="sans_font">Installation:</div> <div class="title_font">pip install dscript</div>
             </div>
-  
+
         </div>
     )
 }
