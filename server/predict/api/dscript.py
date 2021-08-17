@@ -18,6 +18,7 @@ load_dotenv()
 import email
 import smtplib
 import ssl
+import tempfile
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -34,16 +35,17 @@ def predict(
     id,
     device=-1,
     modelPath="dscript-models/human_v1.sav",
-    threshhold=0.5,
+    **kwargs,
 ):
     """
     Given specified candidate pairs and protein sequences,
     Creates a .tsv file of interaction predictions and returns the url
-    within 'server/tmp/predictions'
+    within the temporary directory
     """
 
     # Set Outpath
-    outPath = f"tmp/predictions/{id}"
+    os.makedirs(f"{tempfile.gettempdir()}/predictions/", exist_ok=True)
+    outPath = f"{tempfile.gettempdir()}/predictions/{id}"
 
     # Set Device
     print("# Setting Device...")
@@ -109,37 +111,28 @@ def predict(
     print("# Making Predictions...")
     n = 0
     outPathAll = f"{outPath}.tsv"
-    outPathPos = f"{outPath}.positive.tsv"
-    cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
     model.eval()
     with open(outPathAll, "w+") as f:
-        with open(outPathPos, "w+") as pos_f:
-            with torch.no_grad():
-                for _, (n0, n1) in tqdm(
-                    pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)
-                ):
-                    n0 = str(n0)
-                    n1 = str(n1)
-                    if n % 50 == 0:
-                        f.flush()
-                    n += 1
-                    p0 = embeddings[n0]
-                    p1 = embeddings[n1]
-                    if use_cuda:
-                        p0 = p0.cuda()
-                        p1 = p1.cuda()
-                    try:
-                        cm, p = model.map_predict(p0, p1)
-                        p = p.item()
-                        f.write(f"{n0}\t{n1}\t{p}\n")
-                        if p >= threshhold:
-                            pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                            cmap_file.create_dataset(
-                                f"{n0}x{n1}", data=cm.squeeze().cpu().numpy()
-                            )
-                    except RuntimeError as e:
-                        print(f"{n0} x {n1} skipped - Out of Memory")
-    cmap_file.close()
+        with torch.no_grad():
+            for _, (n0, n1) in tqdm(
+                pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)
+            ):
+                n0 = str(n0)
+                n1 = str(n1)
+                if n % 50 == 0:
+                    f.flush()
+                n += 1
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
+                if use_cuda:
+                    p0 = p0.cuda()
+                    p1 = p1.cuda()
+                try:
+                    _, p = model.map_predict(p0, p1)
+                    p = p.item()
+                    f.write(f"{n0}\t{n1}\t{p}\n")
+                except RuntimeError as e:
+                    print(f"{n0} x {n1} skipped - Out of Memory")
 
     return outPathAll
 

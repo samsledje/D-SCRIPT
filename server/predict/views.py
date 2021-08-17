@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .api import dscript
+from .api import dscript as dscript_api
 from .serializers import JobSerializer
 
 # Create your views here.
@@ -22,7 +22,7 @@ class FrontendAppView(View):
     run build`).
     """
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         logging.info(
             os.path.join(settings.REACT_APP_DIR, "build", "index.html")
         )
@@ -70,15 +70,17 @@ class Job:
         print(self.seqs)
 
     def process(self):
-        predict_file = dscript.predict(
+        predict_file = dscript_api.predict(
             self.seqs, self.pairsIndex, self.pairs, self.id
         )
         try:
-            dscript.email_results(
+            print("Trying to email")
+            dscript_api.email_results(
                 self.email, predict_file, self.id, title=self.title
             )
-        except:
+        except Exception as err:
             print("Not a valid email")
+            print(err)
         return predict_file
 
 
@@ -145,8 +147,8 @@ def run_jobs():
     print(f" # Processing Job {job.id} ...")
     try:
         job.process()
-    except:
-        pass
+    except Exception as err:
+        print(err)
     processed.add(job.id)
     jobs.pop(0)
     if jobs:
