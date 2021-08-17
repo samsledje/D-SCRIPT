@@ -208,7 +208,7 @@ class ModelInteraction(nn.Module):
         :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
         :type z1: torch.Tensor
         :return: Predicted probability of interaction
-        :rtype: torch.Tensor, torch.Tensor
+        :rtype: torch.Tensor
         """
         _, phat = self.map_predict(z0, z1)
         return phat
