@@ -23,8 +23,6 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-password = os.getenv('EMAIL_PWD')
-
 def predict(seqs, pairsIndex, pairs, id, device=-1, modelPath = 'dscript-models/human_v1.sav', threshhold=0.5):
     """
     Given specified candidate pairs and protein sequences,
@@ -156,7 +154,7 @@ def email_results(receiver_email, filename, id, title=None, sender_email='dscrip
         part = MIMEBase("application", "octet-stream")
         part.set_payload(attachment.read())
 
-    # Encode file in ASCII characters to send by email    
+    # Encode file in ASCII characters to send by email
     encoders.encode_base64(part)
 
     # Add header as key/value pair to attachment part
