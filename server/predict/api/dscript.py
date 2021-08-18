@@ -18,18 +18,20 @@ import torch
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-import dscript
 from dscript.fasta import parse_input
 from dscript.language_model import lm_embed
 
 load_dotenv()
 
 
-def predict(
-    seqs,
-    pairsIndex,
-    pairs,
-    id,
+def validate_inputs():
+    pass
+
+
+def predict_pairs(
+    uuid,
+    seq_file,
+    pair_file,
     device=-1,
     modelPath="dscript-models/human_v1.sav",
     **kwargs,
@@ -40,9 +42,13 @@ def predict(
     within the temporary directory
     """
 
+    validate_inputs()
+
     # Set Outpath
-    os.makedirs(f"{tempfile.gettempdir()}/predictions/", exist_ok=True)
-    outPath = f"{tempfile.gettempdir()}/predictions/{id}"
+    os.makedirs(f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True)
+    out_file = (
+        f"{tempfile.gettempdir()}/dscript-predictions/{uuid}_results.tsv"
+    )
 
     # Set Device
     logging.info("# Setting Device...")
@@ -69,47 +75,27 @@ def predict(
 
     # Load Sequences
     logging.info("# Loading Sequences...")
-    try:
-        names, sequences = parse_input(seqs)
-        seqDict = {n: s for n, s in zip(names, sequences)}
-    except:
-        return
+    with open(seq_file, "r") as f:
+        names, sequences = parse_input(f.read())
+    seqDict = {n: s for n, s in zip(names, sequences)}
     logging.info(seqDict)
 
     # Load Pairs
     logging.info("# Loading Pairs...")
-    if pairsIndex in ["1", "2"]:
-        try:
-            pairs_array = pd.read_csv(StringIO(pairs), sep=",", header=None)
-            all_prots = set(pairs_array.iloc[:, 0]).union(
-                set(pairs_array.iloc[:, 1])
-            )
-        except:
-            return
-    elif pairsIndex == "3":
-        try:
-            all_prots = list(seqDict.keys())
-            data = []
-            for i in range(len(all_prots) - 1):
-                for j in range(i + 1, len(all_prots)):
-                    data.append([all_prots[i], all_prots[j]])
-            pairs_array = pd.DataFrame(data)
-        except:
-            return
+    pairs_array = pd.read_csv(pair_file, sep="\t", header=None)
+    all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
 
     # Generate Embeddings
     logging.info("# Generating Embeddings...")
     embeddings = {}
     for n in tqdm(all_prots):
         embeddings[n] = lm_embed(seqDict[n], use_cuda)
-    logging.info(embeddings)
 
     # Make Predictions
     logging.info("# Making Predictions...")
     n = 0
-    outPathAll = f"{outPath}.tsv"
-    model.eval()
-    with open(outPathAll, "w+") as f:
+    model = model.eval()
+    with open(out_file, "w+") as f:
         with torch.no_grad():
             for _, (n0, n1) in tqdm(
                 pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)
@@ -128,9 +114,9 @@ def predict(
                     p = model.predict(p0, p1).item()
                     f.write(f"{n0}\t{n1}\t{p}\n")
                 except RuntimeError as e:
-                    logging.info(f"{n0} x {n1} skipped - Out of Memory")
+                    logging.error(f"{n0} x {n1} skipped - Out of Memory")
 
-    return outPathAll
+    return out_file
 
 
 def email_results(

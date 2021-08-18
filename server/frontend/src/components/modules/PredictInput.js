@@ -120,37 +120,29 @@ export default function PredictInput() {
             .then((res) => {
                 console.log(res)
                 setJobId(res.data.id)
-                console.log(res.data.id)
-                if (res.data.first) {
-                    setJobPosition(1)
-                    setModalOpen(true)
-                    axios
-                        .post("http://localhost:8000/api/process")
-                } else {
-                    // axios
-                    //     .post("http://localhost:8000/api/position", {'id': res.data.id})
-                    //     .then((res) => {
-                    //         if (res.data.inQueue) {
-                    //             setJobPosition(res.data.position)
-                    //         } else {
-                    //             setJobPosition('None')
-                    //         }
-                    //     })
-                    //     .catch((err) => console.log(err))
-                    axios
-                        .get(`http://localhost:8000/api/position/${res.data.id}/`)
-                        .then((res) => {
-                            if (res.data.inQueue) {
-                                setModalOpen(true)
-                                setJobPosition(res.data.position)
-                            } else {
-                                setJobPosition(null)
-                                setModalOpen(false)
-                            }
-                        })
-                        .catch((err) => console.log(err))
+                console.log('about to get position')
+                axios
+                    .get(`http://localhost:8000/api/position/${res.data.id}/`)
+                    .then((res) => {
+                        console.log('just got position')
+                        console.log(res)
+                        setJobId(res.data.id)
+                        if (res.data.status == 'PENDING') {
+                            setModalOpen(true)
+                            setJobPosition(42)
+                        } else if (res.data.status == 'STARTED') {
+                            setModalOpen(true)
+                            setJobPosition(0)
+                        } else if (res.data.status == 'SUCCESS') {
+                            setModalOpen(false)
+                            setJobPosition(null)
+                        } else if (res.data.status == 'FAILURE') {
+                            setModalOpen(true)
+                            setJobPosition(-1)
+                        }
+                    })
+                    .catch((err) => console.log(err))
 
-                }
             })
             .catch((err) => console.log(err))
 

@@ -3,9 +3,6 @@ import { makeStyles, Modal, Backdrop, Fade, LinearProgress } from '@material-ui/
 
 import axios from 'axios'
 
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-
 const useStyles = makeStyles((theme) => ({
     modal: {
       display: 'flex',
