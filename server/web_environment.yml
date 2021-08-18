@@ -18,7 +18,7 @@ dependencies:
   - seaborn
   - setuptools
   - tqdm
-  - celery
+  - celery[redis]
   - django
   - djangorestframework
   - django-celery-results
