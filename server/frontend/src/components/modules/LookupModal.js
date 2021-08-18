@@ -62,7 +62,7 @@ export default function LookupModal(props) {
                 } else if (res.data.status == 'SUCCESS') {
                   setProcessed(true)
                   setViewPath(`http://localhost:8000/view/${props.id}`)
-                } else if (res.data.status == 'FAILED') {
+                } else if (res.data.status == 'FAILURE') {
                   setProcessed(true)
                 }
             } else {

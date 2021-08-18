@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 from celery import shared_task
+from celery.local import fun_of_method
 
 from .api import dscript as dscript_api
 from .models import Job

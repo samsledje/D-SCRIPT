@@ -147,6 +147,8 @@ def get_position(request, id):
     if id in async_job_dict.keys():
         job_async = async_job_dict[id]
         job_state = job_async.state
+        if job_state == "SUCCESS" or job_state == "FAILURE":
+            _ = job_async.get()
     else:
         job = Job.objects.get(pk=id)
         job_state = job.task_status
@@ -154,20 +156,6 @@ def get_position(request, id):
     logging.debug(f"Job {id} status {job_state}")
     logging.info("# Sending response")
     return Response({"id": id, "status": job_state})
-
-    # if job_state == "PENDING":
-    #     return Response({
-    #         "id": id,
-    #         "status": job_state
-    #         })
-    # elif job_state == "STARTED":
-    #     return Response({"position": 0, "inQueue": False})
-    # elif job_state == "SUCCESS":
-    #     rslt = job_async.get()
-    #     return Response({"position": -1, "inQueue": False})
-    # elif job_state == "FAILURE":
-    #     rslt = job_async.get()
-    #     return Response({"position": -1, "inQueue": False})
 
 
 @api_view(["POST"])

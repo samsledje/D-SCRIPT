@@ -23,5 +23,5 @@ dependencies:
   - djangorestframework
   - django-celery-results
   - django-cors-headers
-  - redis-server
+  - redis
   - python-dotenv
