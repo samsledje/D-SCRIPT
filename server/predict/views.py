@@ -1,17 +1,24 @@
+import itertools
 import logging
 import os
+import tempfile
 import uuid
+from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponse
 from django.views.generic import View
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .api import dscript as dscript_api
-from .serializers import JobSerializer
+from dscript.fasta import parse_input
+
+from .models import Job
+from .tasks import process_job
 
 
 class FrontendAppView(View):
@@ -41,45 +48,34 @@ class FrontendAppView(View):
             )
 
 
-jobs = []
-
-processed = set()
+async_job_dict = {}
 
 
-class Job:
-    def __init__(self, pairsIndex, seqsIndex, pairs, seqs, email, title, id):
-        self.pairsIndex = pairsIndex
-        self.seqsIndex = seqsIndex
-        self.pairs = pairs
-        self.seqs = seqs
-        self.email = email
-        self.title = title
-        self.id = id
-        if pairsIndex == "1":
-            self.pairs = ""
-            for line in pairs:
-                self.pairs += (
-                    line.decode("utf-8").replace("\r", "").replace("\t", ",")
-                )
-        if seqsIndex == "1":
-            self.seqs = ""
-            for line in seqs:
-                self.seqs += line.decode("utf-8")
-        logging.info(f"New job submitted: {self.title}, ({self.id})")
+def upload_stream_to_local(in_file, out_file):
+    with open(out_file, "w+", newline="\n") as out_f:
+        if isinstance(in_file, UploadedFile):
+            for chunk in in_file.chunks():
+                content = chunk.decode("utf-8").strip().replace(",", "\t")
+                out_f.write(content)
+        elif isinstance(in_file, str):
+            out_f.write(in_file.replace(",", "\t"))
+    return out_file
 
-    def process(self):
-        predict_file = dscript_api.predict(
-            self.seqs, self.pairsIndex, self.pairs, self.id
-        )
-        try:
-            logging.info("Trying to email")
-            dscript_api.email_results(
-                self.email, predict_file, self.id, title=self.title
-            )
-        except Exception as err:
-            logging.info("Not a valid email")
-            logging.info(err)
-        return predict_file
+
+def get_all_pairs(seq_file):
+    with open(seq_file, "r") as f:
+        nam, _ = parse_input(f.read())
+        pairs = "\n".join("\t".join(p) for p in itertools.combinations(nam, 2))
+        return pairs
+
+
+def validate_inputs(seq_path, pair_path):
+    with open(seq_path, "r") as f:
+        nam, _ = parse_input(f.read())
+    df = pd.read_csv(pair_path, sep="\t", header=None)
+    n_seqs = len(nam)
+    n_pairs = len(df)
+    return n_seqs, n_pairs
 
 
 @api_view(["GET", "POST"])
@@ -90,48 +86,88 @@ def predict(request):
     """
     if request.method == "POST":
         data = request.data
-        id = uuid.uuid4()
-        job = Job(
-            data["pairsIndex"],
-            data["seqsIndex"],
-            data["pairs"],
-            data["seqs"],
-            data["email"],
-            data["title"],
-            id,
-        )
-        job_data = {
-            "uuid": job.id,
-            "title": job.title,
-            "email": job.email,
-            "seqsIndex": job.seqsIndex,
-            "pairsIndex": job.pairsIndex,
-            "seqs": job.seqs,
-            "pairs": job.pairs,
-            "completed": False,
-        }
-        serializer = JobSerializer(data=job_data)
-        if serializer.is_valid():
-            serializer.save()
-            jobs.append(job)
-            response = {"id": id, "first": False}
-            if len(jobs) == 1:
-                response["first"] = True
-            return Response(response)
-        else:
-            logging.info(serializer.errors)
-            logging.info("NOT A VALID SERIALIZER")
+        job_id = uuid.uuid4()
+
+        try:
+            seqs_upload = data["seqs"]
+            pairs_upload = data["pairs"]
+
+            seq_path = upload_stream_to_local(
+                seqs_upload, f"{tempfile.gettempdir()}/{job_id}.fasta"
+            )
+            if int(data["pairsIndex"]) == 3:
+                pairs_upload = get_all_pairs(seq_path)
+            pair_path = upload_stream_to_local(
+                pairs_upload, f"{tempfile.gettempdir()}/{job_id}.tsv"
+            )
+
+            n_seqs, n_pairs = validate_inputs(seq_path, pair_path)
+
+            logging.info(seq_path)
+            logging.info(pair_path)
+            logging.debug("seqs:")
+            with open(seq_path, "r") as f:
+                logging.debug(f.read())
+            logging.debug("pairs:")
+            with open(pair_path, "r") as f:
+                logging.debug(f.read())
+
+            job_data = {
+                "uuid": job_id,
+                "title": data["title"],
+                "email": data["email"],
+                "seq_fi": seq_path,
+                "pair_fi": pair_path,
+                "n_seqs": n_seqs,
+                "n_pairs": n_pairs,
+                "submission_time": datetime.utcnow(),
+                "n_pairs_done": 0,
+                "is_running": False,
+                "is_completed": False,
+            }
+
+            job_m = Job(**job_data)
+            job_m.save()
+            job_async = process_job.delay(job_m.uuid)
+            async_job_dict[job_id] = job_async
+
+            data = {"id": job_m.uuid, "submitted": True, "error": None}
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as err:
+            logging.debug(err)
+            data = {"id": job_id, "submitted": False, "error": str(err)}
+            return Response(data, status=status.HTTP_417_EXPECTATION_FAILED)
 
 
 @api_view(["GET"])
-def get_pos(request, id):
-    logging.info(f" # Getting Queue Position for {id} ...")
-    if id in processed:
-        return Response({"position": -1, "inQueue": False})
-    for i in range(len(jobs)):
-        if jobs[i].id == id:
-            return Response({"position": i + 1, "inQueue": True})
-    return Response({"position": 0, "inQueue": False})
+def get_position(request, id):
+    logging.info(f" # Getting Position for {id} ...")
+
+    if id in async_job_dict.keys():
+        job_async = async_job_dict[id]
+        job_state = job_async.state
+    else:
+        job = Job.objects.get(pk=id)
+        job_state = job.task_status
+
+    logging.debug(f"Job {id} status {job_state}")
+    logging.info("# Sending response")
+    return Response({"id": id, "status": job_state})
+
+    # if job_state == "PENDING":
+    #     return Response({
+    #         "id": id,
+    #         "status": job_state
+    #         })
+    # elif job_state == "STARTED":
+    #     return Response({"position": 0, "inQueue": False})
+    # elif job_state == "SUCCESS":
+    #     rslt = job_async.get()
+    #     return Response({"position": -1, "inQueue": False})
+    # elif job_state == "FAILURE":
+    #     rslt = job_async.get()
+    #     return Response({"position": -1, "inQueue": False})
 
 
 @api_view(["POST"])
@@ -141,13 +177,14 @@ def process_jobs(request):
 
 
 def run_jobs():
-    job = jobs[0]
-    logging.info(f" # Processing Job {job.id} ...")
-    try:
-        job.process()
-    except Exception as err:
-        logging.info(err)
-    processed.add(job.id)
-    jobs.pop(0)
-    if jobs:
-        run_jobs()
+    pass
+    # job = jobs[0]
+    # logging.info(f" # Processing Job {job.id} ...")
+    # try:
+    #     job.process()
+    # except Exception as err:
+    #     logging.info(err)
+    # processed.add(job.id)
+    # jobs.pop(0)
+    # if jobs:
+    #     run_jobs()

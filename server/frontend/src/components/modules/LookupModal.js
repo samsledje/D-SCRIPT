@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { makeStyles, Modal, Backdrop, Fade, LinearProgress } from '@material-ui/core'
 import axios from 'axios'
 
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-
 const useStyles = makeStyles((theme) => ({
     modal: {
       display: 'flex',
@@ -22,9 +19,11 @@ const useStyles = makeStyles((theme) => ({
 export default function LookupModal(props) {
     const classes = useStyles();
 
-    const [counter, setCounter] = useState(15);
-    const [position, setPosition] = useState(props.position);
+    const [counter, setCounter] = useState(0);
+    const [status, setJobStatus] = useState(props.status);
     const [processed, setProcessed] = useState(false);
+    const [_, setLookupValid] = useState(true);
+    const [viewPath, setViewPath] = useState(null);
 
     // const protectEmail = (email) => {
     //     let avg, splitted, p1, p2;
@@ -37,10 +36,10 @@ export default function LookupModal(props) {
     // }
 
     useEffect(() => {
-        if (props.position === -1) {
-            setProcessed(true)
+        if (props.status === 'SUCCESS') {
+            setJobStatus(true)
         }
-    }, [props.position])
+    }, [props.status])
 
     useEffect(() => {
       if (counter > 0) {
@@ -51,15 +50,25 @@ export default function LookupModal(props) {
         axios
           .get(`http://localhost:8000/api/position/${props.id}/`)
           .then((res) => {
-              if (res.data.inQueue) {
-                  setPosition(res.data.position)
-                  setCounter(15);
-              } else {
-                  if (res.data.position === -1) {
-                    setProcessed(true);
-                  }
-                  setPosition('None')
-              }
+            if (res.status === 200) {
+                setLookupValid(true)
+                setJobStatus(res.data.status)
+                if (res.data.status == 'PENDING') {
+                  setProcessed(false)
+                  setCounter(10)
+                } else if (res.data.status == 'STARTED') {
+                  setProcessed(false)
+                  setCounter(10)
+                } else if (res.data.status == 'SUCCESS') {
+                  setProcessed(true)
+                  setViewPath(`http://localhost:8000/view/${props.id}`)
+                } else if (res.data.status == 'FAILED') {
+                  setProcessed(true)
+                }
+            } else {
+                setLookupValid(false)
+                setJobStatus(null)
+            }
           })
           .catch((err) => console.log(err))
       }
@@ -86,11 +95,12 @@ export default function LookupModal(props) {
                         <h2>Your job has finished processing</h2>
                         <p>Job id: {props.id}</p>
                         <p><em>The results of your prediction have been emailed.</em></p>
+                        <p><em>View and analyze results <a href={viewPath}>here</a></em></p>
                       </div> :
                       <div className='LookupModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>
                         <LinearProgress></LinearProgress>
-                        <h2>Your job is queued in position {position}</h2>
+                        <h2>Your job is queued with status {status}</h2>
                         <p>Job id: {props.id}</p>
                         <p><em>Make note of this job id for the purpose of tracking your job.</em></p>
                       </div>

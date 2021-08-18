@@ -21,7 +21,7 @@ export default function PredictInput() {
     });
     const [modalOpen, setModalOpen] = useState(false);
     const [jobId, setJobId] = useState(null);
-    const [jobPosition, setJobPosition] = useState(null);
+    const [jobStatus, setJobStatus] = useState(null);
 
     // const handleModalClose = () => {
     //     setModalOpen(false)
@@ -120,37 +120,27 @@ export default function PredictInput() {
             .then((res) => {
                 console.log(res)
                 setJobId(res.data.id)
-                console.log(res.data.id)
-                if (res.data.first) {
-                    setJobPosition(1)
-                    setModalOpen(true)
-                    axios
-                        .post("http://localhost:8000/api/process")
-                } else {
-                    // axios
-                    //     .post("http://localhost:8000/api/position", {'id': res.data.id})
-                    //     .then((res) => {
-                    //         if (res.data.inQueue) {
-                    //             setJobPosition(res.data.position)
-                    //         } else {
-                    //             setJobPosition('None')
-                    //         }
-                    //     })
-                    //     .catch((err) => console.log(err))
-                    axios
-                        .get(`http://localhost:8000/api/position/${res.data.id}/`)
-                        .then((res) => {
-                            if (res.data.inQueue) {
-                                setModalOpen(true)
-                                setJobPosition(res.data.position)
-                            } else {
-                                setJobPosition(null)
-                                setModalOpen(false)
-                            }
-                        })
-                        .catch((err) => console.log(err))
+                axios
+                    .get(`http://localhost:8000/api/position/${res.data.id}/`)
+                    .then((res) => {
+                        console.log(res)
+                        setJobId(res.data.id)
+                        if (res.data.status === 'PENDING') {
+                            setModalOpen(true)
+                            setJobStatus('PENDING')
+                        } else if (res.data.status === 'STARTED') {
+                            setModalOpen(true)
+                            setJobStatus('STARTED')
+                        } else if (res.data.status === 'SUCCESS') {
+                            setModalOpen(false)
+                            setJobStatus('SUCCESS')
+                        } else if (res.data.status === 'FAILURE') {
+                            setModalOpen(true)
+                            setJobStatus('FAILURE')
+                        }
+                    })
+                    .catch((err) => console.log(err))
 
-                }
             })
             .catch((err) => console.log(err))
 
@@ -201,7 +191,7 @@ export default function PredictInput() {
                 <Button variant='contained' onClick={handleSubmit}>Compute Interaction Probability</Button>
                 {/* <Button variant='contained' onClick={testSubmit}>Submit</Button> */}
             </form>
-            { (modalOpen && jobPosition != null && jobId != null)  && <SubmissionModal open={modalOpen} id={jobId} position={jobPosition} email={item.email}></SubmissionModal>}
+            { (modalOpen && jobStatus != null && jobId != null)  && <SubmissionModal open={modalOpen} id={jobId} status={jobStatus} email={item.email}></SubmissionModal>}
         </div>
     )
 }

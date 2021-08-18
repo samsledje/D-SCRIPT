@@ -8,7 +8,7 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
 export default function LookupInput() {
     const [input, setInput] = useState('');
-    const [jobPosition, setJobPosition] = useState(null);
+    const [jobStatus, setJobStatus] = useState(null);
     const [lookupValid, setLookupValid] = useState(false)
 
     const handleInputChange = (e) => {
@@ -20,26 +20,23 @@ export default function LookupInput() {
     }
 
     const handleLookup = () => {
-        setJobPosition(null)
+        setJobStatus(null)
         axios
             .get(`http://localhost:8000/api/position/${input}/`)
             .then((res) => {
-                if (res.data.inQueue) {
+                if (res.status === 200) {
                     setLookupValid(true)
-                    setJobPosition(res.data.position)
-                } else if (res.data.position === -1 ) {
-                    setLookupValid(true)
-                    setJobPosition(res.data.position)
+                    setJobStatus(res.data.status)
                 } else {
                     setLookupValid(false)
-                    setJobPosition(null)
+                    setJobStatus(null)
                 }
             })
             .catch((err) => {
                 alert('The job you attempted to look up does not exist!')
                 console.log(err)
                 setLookupValid(false)
-                setJobPosition(null)
+                setJobStatus(null)
             })
     }
 
@@ -56,8 +53,8 @@ export default function LookupInput() {
                     onChange={handleInputChange}>
             </TextField>
             <Button variant='contained' onClick={handleLookup}>Look up</Button>
-            { (lookupValid && jobPosition != null)  ?
-            <LookupModal open={lookupValid} id={input} position={jobPosition} handleClose={handleModalClose}></LookupModal>
+            { (lookupValid && jobStatus != null)  ?
+            <LookupModal open={lookupValid} id={input} status={jobStatus} handleClose={handleModalClose}></LookupModal>
              : <div></div>}
         </div>
     )

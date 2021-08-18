@@ -3,9 +3,6 @@ import { makeStyles, Modal, Backdrop, Fade, LinearProgress } from '@material-ui/
 
 import axios from 'axios'
 
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-
 const useStyles = makeStyles((theme) => ({
     modal: {
       display: 'flex',
@@ -23,9 +20,10 @@ const useStyles = makeStyles((theme) => ({
 export default function SubmissionModal(props) {
     const classes = useStyles();
 
-    const [counter, setCounter] = useState(15);
-    const [position, setPosition] = useState(props.position);
+    const [status, setStatus] = useState(props.status);
     const [processed, setProcessed] = useState(false);
+    const [backoff_i, setBackoffI] = useState(0)
+    const [counter, setCounter] = useState(Math.min(128, 2 ** backoff_i));
 
     const protectEmail = (email) => {
         let avg, splitted, p1, p2;
@@ -46,14 +44,19 @@ export default function SubmissionModal(props) {
         axios
           .get(`http://localhost:8000/api/position/${props.id}/`)
           .then((res) => {
-              if (res.data.inQueue) {
-                  setPosition(res.data.position)
-                  setCounter(15);
-              } else {
-                  if (res.data.position === -1) {
-                    setProcessed(true);
-                  }
-                  setPosition('None')
+              setBackoffI(backoff_i + 1)
+              if (res.data.status === 'PENDING') {
+                  setStatus('Pending')
+                  setCounter(Math.min(128, 2**backoff_i));
+              } else if (res.data.status === 'STARTED') {
+                  setStatus('Started')
+                  setCounter(Math.min(128, 2**backoff_i));
+              } else if (res.data.status === 'SUCCESS') {
+                  setProcessed(true);
+                  setStatus('Success')
+              } else if (res.data.status === 'FAILURE') {
+                  setProcessed(true);
+                  setStatus('Job failed')
               }
           })
           .catch((err) => console.log(err))
@@ -85,7 +88,7 @@ export default function SubmissionModal(props) {
                       <div className='SubmissionModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>
                         <LinearProgress></LinearProgress>
-                        <h2>Your job is queued in position {position}</h2>
+                        <h2>Your job is queued with status {status}</h2>
                         <p>Job id: {props.id}</p>
                         <p><em>Make note of this job id for the purpose of tracking your job.</em></p>
                       </div>
