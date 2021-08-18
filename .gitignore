@@ -16,3 +16,4 @@ server/tmp
 node_modules
 .coverage
 htmlcov
+*.rdb

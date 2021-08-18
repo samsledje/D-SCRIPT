@@ -25,12 +25,12 @@ class Job(models.Model):
     submission_time = models.DateTimeField("Submission Time")
     start_time = models.DateTimeField("Start Time", blank=True, null=True)
 
-    queue_pos = models.IntegerField("Queue Position", default=0)
     n_pairs_done = models.PositiveIntegerField(
         "Number of Pairs Done", blank=True, default=0
     )
     is_running = models.BooleanField("Is Running", default=False)
     is_completed = models.BooleanField("Is Completed", default=False)
+    task_status = models.TextField("Task Status", default="PENDING")
 
     def __str__(self):
         return f"{self.title} ({self.uuid})"

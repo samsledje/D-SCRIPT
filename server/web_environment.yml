@@ -18,7 +18,10 @@ dependencies:
   - seaborn
   - setuptools
   - tqdm
+  - celery
   - django
   - djangorestframework
+  - django-celery-results
   - django-cors-headers
+  - redis-server
   - python-dotenv

@@ -17,9 +17,7 @@ from rest_framework.response import Response
 
 from dscript.fasta import parse_input
 
-from .api import dscript as dscript_api
 from .models import Job
-from .serializers import JobSerializer
 from .tasks import process_job
 
 
@@ -71,6 +69,15 @@ def get_all_pairs(seq_file):
         return pairs
 
 
+def validate_inputs(seq_path, pair_path):
+    with open(seq_path, "r") as f:
+        nam, _ = parse_input(f.read())
+    df = pd.read_csv(pair_path, sep="\t", header=None)
+    n_seqs = len(nam)
+    n_pairs = len(df)
+    return n_seqs, n_pairs
+
+
 @api_view(["GET", "POST"])
 def predict(request):
     """
@@ -81,56 +88,68 @@ def predict(request):
         data = request.data
         job_id = uuid.uuid4()
 
-        seqs_upload = data["seqs"]
-        pairs_upload = data["pairs"]
+        try:
+            seqs_upload = data["seqs"]
+            pairs_upload = data["pairs"]
 
-        seq_path = upload_stream_to_local(
-            seqs_upload, f"{tempfile.gettempdir()}/{job_id}.fasta"
-        )
-        if int(data["pairsIndex"]) == 3:
-            pairs_upload = get_all_pairs(seq_path)
-        pair_path = upload_stream_to_local(
-            pairs_upload, f"{tempfile.gettempdir()}/{job_id}.tsv"
-        )
+            seq_path = upload_stream_to_local(
+                seqs_upload, f"{tempfile.gettempdir()}/{job_id}.fasta"
+            )
+            if int(data["pairsIndex"]) == 3:
+                pairs_upload = get_all_pairs(seq_path)
+            pair_path = upload_stream_to_local(
+                pairs_upload, f"{tempfile.gettempdir()}/{job_id}.tsv"
+            )
 
-        logging.info(seq_path)
-        logging.info(pair_path)
-        logging.debug("seqs:")
-        with open(seq_path, "r") as f:
-            logging.debug(f.read())
-        logging.debug("pairs:")
-        with open(pair_path, "r") as f:
-            logging.debug(f.read())
+            n_seqs, n_pairs = validate_inputs(seq_path, pair_path)
 
-        job_data = {
-            "uuid": job_id,
-            "title": data["title"],
-            "email": data["email"],
-            "seq_fi": seq_path,
-            "pair_fi": pair_path,
-            "n_seqs": 0,
-            "n_pairs": 0,
-            "submission_time": datetime.utcnow(),
-            "n_pairs_done": 0,
-            "is_running": False,
-            "is_completed": False,
-        }
+            logging.info(seq_path)
+            logging.info(pair_path)
+            logging.debug("seqs:")
+            with open(seq_path, "r") as f:
+                logging.debug(f.read())
+            logging.debug("pairs:")
+            with open(pair_path, "r") as f:
+                logging.debug(f.read())
 
-        job_m = Job(**job_data)
-        job_m.save()
-        job_async = process_job.delay(job_m.uuid)
-        async_job_dict[job_id] = job_async
+            job_data = {
+                "uuid": job_id,
+                "title": data["title"],
+                "email": data["email"],
+                "seq_fi": seq_path,
+                "pair_fi": pair_path,
+                "n_seqs": n_seqs,
+                "n_pairs": n_pairs,
+                "submission_time": datetime.utcnow(),
+                "n_pairs_done": 0,
+                "is_running": False,
+                "is_completed": False,
+            }
 
-        response = {"id": job_m.uuid, "first": job_m.is_running}
-        return Response(response)
+            job_m = Job(**job_data)
+            job_m.save()
+            job_async = process_job.delay(job_m.uuid)
+            async_job_dict[job_id] = job_async
+
+            data = {"id": job_m.uuid, "submitted": True, "error": None}
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as err:
+            logging.debug(err)
+            data = {"id": job_id, "submitted": False, "error": str(err)}
+            return Response(data, status=status.HTTP_417_EXPECTATION_FAILED)
 
 
 @api_view(["GET"])
 def get_position(request, id):
-    logging.info(f" # Getting Queue Position for {id} ...")
+    logging.info(f" # Getting Position for {id} ...")
 
-    job_async = async_job_dict[id]
-    job_state = job_async.state
+    if id in async_job_dict.keys():
+        job_async = async_job_dict[id]
+        job_state = job_async.state
+    else:
+        job = Job.objects.get(pk=id)
+        job_state = job.task_status
 
     logging.debug(f"Job {id} status {job_state}")
     logging.info("# Sending response")

@@ -11,7 +11,6 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from io import StringIO
 
 import pandas as pd
 import torch
@@ -21,11 +20,9 @@ from tqdm import tqdm
 from dscript.fasta import parse_input
 from dscript.language_model import lm_embed
 
+from ..models import Job
+
 load_dotenv()
-
-
-def validate_inputs():
-    pass
 
 
 def predict_pairs(
@@ -42,7 +39,7 @@ def predict_pairs(
     within the temporary directory
     """
 
-    validate_inputs()
+    job = Job.objects.get(pk=uuid)
 
     # Set Outpath
     os.makedirs(f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True)
@@ -88,7 +85,7 @@ def predict_pairs(
     # Generate Embeddings
     logging.info("# Generating Embeddings...")
     embeddings = {}
-    for n in tqdm(all_prots):
+    for n in all_prots:
         embeddings[n] = lm_embed(seqDict[n], use_cuda)
 
     # Make Predictions
@@ -97,12 +94,12 @@ def predict_pairs(
     model = model.eval()
     with open(out_file, "w+") as f:
         with torch.no_grad():
-            for _, (n0, n1) in tqdm(
-                pairs_array.iloc[:, :2].iterrows(), total=len(pairs_array)
-            ):
+            for _, (n0, n1) in pairs_array.iloc[:, :2].iterrows():
                 n0 = str(n0)
                 n1 = str(n1)
                 if n % 50 == 0:
+                    job.n_pairs_done = n
+                    job.save()
                     f.flush()
                 n += 1
                 p0 = embeddings[n0]

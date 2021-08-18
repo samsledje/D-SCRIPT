@@ -15,8 +15,9 @@ class JobAdmin(admin.ModelAdmin):
         "n_pairs",
         "submission_time",
         "start_time",
-        "queue_pos",
         "n_pairs_done",
         "is_running",
         "is_completed",
+        "task_status",
     )
+    ordering = ("-submission_time",)
