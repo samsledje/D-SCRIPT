@@ -17,26 +17,36 @@
 
  - [Documentation](https://d-script.readthedocs.io/en/main/)
 
- # Running Web Server Locally
+ # Running Web Server
 
- Navigate to D-SCRIPT/web-server and create the current dscript_web conda environment with
+ - Navigate to `D-SCRIPT/server` and create the current dscript_web conda environment with
 
- ### `conda env create -f web_environment.yml`
+ ```
+ $ conda env create -f web_environment.yml
+ ``` 
 
- To start the backend server, activate the created conda environment with
+ - Activate the created conda environment with
 
- ### `conda activate dscript_web`
+ ```
+ $ conda activate dscript_web
+ ```
 
- and navigate to D-SCRIPT/web-server/backend and run
+- Build the front end:
+```
+$ cd frontend
+$ npm install
+$ npm run build
+$ cd ..
+```
 
- ### `python manage.py runserver`
+- Run `redis-server` in a separate tab (note: should still run from the `server` directory and in the `dscript_web` environment).
 
- You can currently access a list of all created predictions at http://localhost:8000/api/predictions/  -- to start the React frontend, install Node.js, navigate to D-SCRIPT/web-server/frontend and run
+- Run `celery -A server worker -l info` in a separate tab (same note as above)
 
- ### `npm install`
+- Launch the server with 
 
- as well as
+```
+$ python manage.py runserver
+```
 
- ### `npm start`
-
- At this point, both the backend and frontend should be up and running. You can access the webpage currently at http://localhost:3000/
+For development, the server can be access at `http://localhost:8000/`, and the admin panel at `http://localhost:8000/admin`.
