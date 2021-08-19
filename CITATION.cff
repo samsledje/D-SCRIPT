@@ -29,6 +29,7 @@ preferred-citation:
     orcid: "https://orcid.org/0000-0002-2724-7228"
   doi: "10.1101/2021.01.22.427866"
   journal: "bioRxiv"
+  publisher: "Cold Spring Harbor Laboratory"
   month: 1
   title: "Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model"
   year: 2021
