@@ -87,7 +87,7 @@ def predict_pairs(
     # Load Pairs
     logging.info("# Loading Pairs...")
     pairs_array = pd.read_csv(pair_file, sep="\t", header=None)
-    all_prots = set(pairs_array.iloc[:, 0]).union(set(pairs_array.iloc[:, 1]))
+    all_prots = set(pairs_array.iloc[:, 0]).union(pairs_array.iloc[:, 1])
 
     # Generate Embeddings
     logging.info("# Generating Embeddings...")

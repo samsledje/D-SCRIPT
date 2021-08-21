@@ -21,6 +21,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     re_path("(^(?!(api|admin|view)).*$)", views.FrontendAppView.as_view()),
     path("api/predict/", views.predict),
-    path("api/process", views.process_jobs),
-    path("api/position/<uuid:id>/", views.get_position),
+    path("api/position/<uuid:uuid>/", views.get_position),
 ]
