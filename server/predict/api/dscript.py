@@ -6,7 +6,6 @@ import logging
 import os
 import smtplib
 import ssl
-import tempfile
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -14,11 +13,12 @@ from email.mime.text import MIMEText
 
 import pandas as pd
 import torch
+from django.conf import settings
 from dotenv import load_dotenv
-from tqdm import tqdm
 
 from dscript.fasta import parse_input
 from dscript.language_model import lm_embed
+from dscript.pretrained import get_pretrained
 
 from ..models import Job
 
@@ -27,10 +27,8 @@ load_dotenv()
 
 def predict_pairs(
     uuid,
-    seq_file,
-    pair_file,
-    device=-1,
-    modelPath="dscript-models/human_v1.sav",
+    device=settings.DSCRIPT_DEVICE,
+    model_version=settings.DSCRIPT_MODEL_VERSION,
     **kwargs,
 ):
     """
@@ -41,11 +39,19 @@ def predict_pairs(
 
     job = Job.objects.get(pk=uuid)
 
-    # Set Outpath
-    os.makedirs(f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True)
-    out_file = (
-        f"{tempfile.gettempdir()}/dscript-predictions/{uuid}_results.tsv"
-    )
+    n_complete = job.n_pairs_done
+    seq_file = job.seq_fi
+    pair_file = job.pair_fi
+    result_file = job.result_fi
+
+    if os.path.exists(result_file):
+        if n_complete == job.n_pairs:
+            logging.warning(
+                f"Job {uuid} started with pairs_done {n_complete} == total_pairs {job.n_pairs}"
+            )
+        mode = "a"
+    else:
+        mode = "w+"
 
     # Set Device
     logging.info("# Setting Device...")
@@ -61,13 +67,14 @@ def predict_pairs(
     # Load Model
     logging.info("# Loading Model...")
     try:
+        model = get_pretrained(model_version)
         if use_cuda:
-            model = torch.load(modelPath).cuda()
+            model = model.cuda()
         else:
-            model = torch.load(modelPath).cpu()
+            model = model.cpu()
             model.use_cuda = False
-    except FileNotFoundError:
-        logging.info(f"# Model {modelPath} not found")
+    except ValueError:
+        logging.warning(f"# Model {model_version} not available")
         return
 
     # Load Sequences
@@ -90,18 +97,17 @@ def predict_pairs(
 
     # Make Predictions
     logging.info("# Making Predictions...")
-    n = 0
     model = model.eval()
-    with open(out_file, "w+") as f:
+    with open(result_file, mode) as f:
         with torch.no_grad():
-            for _, (n0, n1) in pairs_array.iloc[:, :2].iterrows():
+            for _, (n0, n1) in pairs_array.iloc[n_complete:, :2].iterrows():
                 n0 = str(n0)
                 n1 = str(n1)
-                if n % 50 == 0:
-                    job.n_pairs_done = n
+                if n_complete % 50 == 0:
+                    job.n_pairs_done = n_complete
                     job.save()
                     f.flush()
-                n += 1
+                n_complete += 1
                 p0 = embeddings[n0]
                 p1 = embeddings[n1]
                 if use_cuda:
@@ -113,26 +119,30 @@ def predict_pairs(
                 except RuntimeError as e:
                     logging.error(f"{n0} x {n1} skipped - Out of Memory")
 
-    return out_file
+    return result_file
 
 
 def email_results(
-    receiver_email,
-    filename,
-    id,
-    title=None,
-    sender_email="dscript.results@gmail.com",
+    uuid,
+    sender_email=settings.DSCRIPT_SENDER_EMAIL,
 ):
     """
     Given a user email, target path for prediction file, and job id
     Emails the user the results of their job
     """
+
+    job = Job.objects.get(pk=uuid)
+
+    title = job.title
+    receiver_email = job.email
+    filename = job.result_fi
+
     logging.info("# Emailing Results ...")
     if not title:
-        subject = f"D-SCRIPT Results for {id}"
+        subject = f"D-SCRIPT Results for {uuid}"
     else:
-        subject = f"D-SCRIPT Results for {title} ({id})"
-    body = f"These are the results of your D-SCRIPT prediction on job {id}"
+        subject = f"D-SCRIPT Results for {title} ({uuid})"
+    body = f"These are the results of your D-SCRIPT prediction on job {uuid}"
     password = os.getenv("EMAIL_PWD")
 
     # Create a multipart message and set headers

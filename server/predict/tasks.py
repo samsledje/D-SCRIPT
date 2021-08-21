@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 from celery import shared_task
-from celery.local import fun_of_method
+from django.db.models import Q
 
 from .api import dscript as dscript_api
 from .models import Job
@@ -19,12 +19,10 @@ def process_job(uuid):
     job.task_status = "STARTED"
     job.save()
 
-    results_file = dscript_api.predict_pairs(job.uuid, job.seq_fi, job.pair_fi)
+    results_file = dscript_api.predict_pairs(job.uuid)
     try:
         logging.info("Trying to email")
-        dscript_api.email_results(
-            job.email, results_file, job.uuid, title=job.title
-        )
+        dscript_api.email_results(job.uuid)
     except Exception as err:
         logging.info("Not a valid email")
         logging.info(err)
@@ -36,4 +34,15 @@ def process_job(uuid):
     job.n_pairs_done = len(res_df)
     job.save()
 
-    return results_file
+    return
+
+
+@shared_task
+def sweep_incomplete_jobs():
+    logging.info("Sweeping incomplete jobs into the queue...")
+    hanging_jobs = Job.objects.filter(
+        Q(task_status="PENDING") | Q(task_status="STARTED")
+    )
+    for j in hanging_jobs:
+        logging.info(f"Queuing job {j.uuid}")
+        process_job.delay(j.uuid)

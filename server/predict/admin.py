@@ -9,8 +9,9 @@ class JobAdmin(admin.ModelAdmin):
         "uuid",
         "title",
         "email",
-        "seq_fi",
-        "pair_fi",
+        # "seq_fi",
+        # "pair_fi",
+        # "result_fi",
         "n_seqs",
         "n_pairs",
         "submission_time",
@@ -20,4 +21,12 @@ class JobAdmin(admin.ModelAdmin):
         "is_completed",
         "task_status",
     )
+    list_filter = (
+        "is_running",
+        "is_completed",
+        "task_status",
+        "submission_time",
+    )
     ordering = ("-submission_time",)
+    date_hierarchy = "submission_time"
+    search_fields = ("uuid", "title", "email")

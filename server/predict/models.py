@@ -1,4 +1,4 @@
-import logging
+import tempfile
 
 from django.core.validators import EmailValidator, FileExtensionValidator
 from django.db import models
@@ -11,11 +11,19 @@ class Job(models.Model):
 
     seq_fi = models.FilePathField(
         "Sequence File Path",
+        path=f"{tempfile.gettempdir()}/dscript-predictions/",
         validators=[FileExtensionValidator(".fasta")],
         null=True,
     )
     pair_fi = models.FilePathField(
         "Pair File Path",
+        path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        validators=[FileExtensionValidator(".tsv")],
+        null=True,
+    )
+    result_fi = models.FilePathField(
+        "Result File Path",
+        path=f"{tempfile.gettempdir()}/dscript-predictions/",
         validators=[FileExtensionValidator(".tsv")],
         null=True,
     )

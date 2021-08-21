@@ -44,7 +44,7 @@ class FrontendAppView(View):
                     version of the app. Visit http://localhost:3000/ instead, or
                     run `yarn run build` to test the production version.
                     """,
-                status=501,
+                status=status.HTTP_501_NOT_IMPLEMENTED,
             )
 
 
@@ -78,6 +78,18 @@ def validate_inputs(seq_path, pair_path):
     return n_seqs, n_pairs
 
 
+class PredictionServerException(Exception):
+    def __init__(
+        self, status_code, message="Unspecified PredictionServerException"
+    ):
+        self.status_code = status_code
+        self.message = message
+        super().__init__(self.message)
+
+    def __repr__(self):
+        return f"<PredictionServerException:{self.status_code}> {self.message}"
+
+
 @api_view(["GET", "POST"])
 def predict(request):
     """
@@ -92,16 +104,35 @@ def predict(request):
             seqs_upload = data["seqs"]
             pairs_upload = data["pairs"]
 
+            os.makedirs(
+                f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True
+            )
+
             seq_path = upload_stream_to_local(
-                seqs_upload, f"{tempfile.gettempdir()}/{job_id}.fasta"
+                seqs_upload,
+                f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.fasta",
             )
             if int(data["pairsIndex"]) == 3:
                 pairs_upload = get_all_pairs(seq_path)
             pair_path = upload_stream_to_local(
-                pairs_upload, f"{tempfile.gettempdir()}/{job_id}.tsv"
+                pairs_upload,
+                f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.tsv",
             )
 
+            # Set Outpath
+            result_path = f"{tempfile.gettempdir()}/dscript-predictions/{job_id}_results.tsv"
+
             n_seqs, n_pairs = validate_inputs(seq_path, pair_path)
+            if n_seqs > settings.DSCRIPT_MAX_SEQS:
+                raise PredictionServerException(
+                    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    f"Number of sequences {n_seqs} is larger than the maximum allowed ({settings.DSCRIPT_MAX_SEQS}).",
+                )
+            if n_pairs > settings.DSCRIPT_MAX_PAIRS:
+                raise PredictionServerException(
+                    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    f"Number of sequences {n_pairs} is larger than the maximum allowed ({settings.DSCRIPT_MAX_PAIRS}).",
+                )
 
             logging.info(seq_path)
             logging.info(pair_path)
@@ -118,6 +149,7 @@ def predict(request):
                 "email": data["email"],
                 "seq_fi": seq_path,
                 "pair_fi": pair_path,
+                "result_fi": result_path,
                 "n_seqs": n_seqs,
                 "n_pairs": n_pairs,
                 "submission_time": datetime.utcnow(),
@@ -134,10 +166,14 @@ def predict(request):
             data = {"id": job_m.uuid, "submitted": True, "error": None}
             return Response(data, status=status.HTTP_200_OK)
 
+        except PredictionServerException as err:
+            logging.debug(err)
+            data = {"id": job_id, "submitted": False, "error": err.message}
+            return Response(data, status=err.status_code)
         except Exception as err:
             logging.debug(err)
             data = {"id": job_id, "submitted": False, "error": str(err)}
-            return Response(data, status=status.HTTP_417_EXPECTATION_FAILED)
+            return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])

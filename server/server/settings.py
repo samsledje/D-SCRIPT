@@ -158,3 +158,10 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# D-SCRIPT Specific Default Variables
+DSCRIPT_MODEL_VERSION = "human_v1"
+DSCRIPT_DEVICE = -1
+DSCRIPT_SENDER_EMAIL = "dscript.results@gmail.com"
+DSCRIPT_MAX_SEQS = 500
+DSCRIPT_MAX_PAIRS = 100000
