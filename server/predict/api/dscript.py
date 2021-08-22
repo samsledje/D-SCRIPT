@@ -175,8 +175,8 @@ def email_results(
     sender_email=settings.DSCRIPT_SENDER_EMAIL,
 ):
     """
-    Creates an email message with the appropriate headers
-    Returns the message converted to a string
+    Given a user email, target path for prediction file, and job id
+    Emails the user the results of their job
     """
 
     job = Job.objects.get(pk=uuid)
@@ -233,33 +233,3 @@ def email_confirmation(
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
-
-
-# def email_results(
-#     receiver_email,
-#     filename,
-#     id,
-#     title=None,
-#     sender_email="dscript.results@gmail.com",
-# ):
-#     """
-#     Given a user email, target path for prediction file, job id, and potential title,
-#     Emails the user the results of their job
-#     """
-#     logging.info("# Emailing Results ...")
-#     if not title:
-#         subject = f"D-SCRIPT Results for {id}"
-#     else:
-#         subject = f"D-SCRIPT Results for {title} ({id})"
-#     body = f"These are the results of your D-SCRIPT prediction on job {id}"
-#     password = os.getenv("EMAIL_PWD")
-
-#     text = create_message(
-#         sender_email, receiver_email, subject, body, id, filename
-#     )
-
-#     # Log in to server using secure context and send email
-#     context = ssl.create_default_context()
-#     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-#         server.login(sender_email, password)
-#         server.sendmail(sender_email, receiver_email, text)
