@@ -17,6 +17,7 @@ from rest_framework.response import Response
 
 from dscript.fasta import parse_input
 
+from .api import dscript as dscript_api
 from .models import Job
 from .tasks import process_job
 

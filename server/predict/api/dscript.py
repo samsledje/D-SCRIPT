@@ -122,13 +122,61 @@ def predict_pairs(
     return result_file
 
 
+def create_message(
+    sender_email,
+    receiver_email,
+    subject,
+    body,
+    uuid,
+    filename=None,
+):
+    """
+    Creates an email message with the appropriate headers
+    Returns the message converted to a string
+    """
+    # Create a multipart message and set headers
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = subject
+
+    # Add body to email
+    message.attach(MIMEText(body, "plain"))
+
+    if filename:
+
+        # Open PDF file in binary mode
+        with open(filename, "rb") as attachment:
+            # Add file as application/octet-stream
+            # Email client can usually download this automatically as attachment
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(attachment.read())
+
+        # Encode file in ASCII characters to send by email
+        encoders.encode_base64(part)
+
+        # Add header as key/value pair to attachment part
+        part.add_header(
+            "Content-Disposition",
+            f"attachment; filename= {uuid}.tsv",
+        )
+
+        # Add attachment to message
+        message.attach(part)
+
+    # Convert message to string
+    text = message.as_string()
+
+    return text
+
+
 def email_results(
     uuid,
     sender_email=settings.DSCRIPT_SENDER_EMAIL,
 ):
     """
-    Given a user email, target path for prediction file, and job id
-    Emails the user the results of their job
+    Creates an email message with the appropriate headers
+    Returns the message converted to a string
     """
 
     job = Job.objects.get(pk=uuid)
@@ -145,39 +193,73 @@ def email_results(
     body = f"These are the results of your D-SCRIPT prediction on job {uuid}"
     password = os.getenv("EMAIL_PWD")
 
-    # Create a multipart message and set headers
-    message = MIMEMultipart()
-    message["From"] = sender_email
-    message["To"] = receiver_email
-    message["Subject"] = subject
-
-    # Add body to email
-    message.attach(MIMEText(body, "plain"))
-
-    # filename
-
-    # Open PDF file in binary mode
-    with open(filename, "rb") as attachment:
-        # Add file as application/octet-stream
-        # Email client can usually download this automatically as attachment
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(attachment.read())
-
-    # Encode file in ASCII characters to send by email
-    encoders.encode_base64(part)
-
-    # Add header as key/value pair to attachment part
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename= {id}.tsv",
+    text = create_message(
+        sender_email, receiver_email, subject, body, uuid, filename
     )
-
-    # Add attachment to message and convert message to string
-    message.attach(part)
-    text = message.as_string()
 
     # Log in to server using secure context and send email
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
+
+
+def email_confirmation(
+    uuid,
+    sender_email=settings.DSCRIPT_SENDER_EMAIL,
+):
+    """
+    Given a user email, job id, and potential title,
+    Emails the user confirming that their job has been submitted.
+    """
+
+    job = Job.objects.get(pk=uuid)
+
+    title = job.title
+    receiver_email = job.email
+
+    logging.info("# Emailing Confirmation ...")
+    if not title:
+        subject = f"D-SCRIPT Job {uuid} Submission"
+    else:
+        subject = f"D-SCRIPT Job {title} ({uuid}) Submission"
+    body = f"You have successfully submitted a job with id {uuid} for D-SCRIPT prediction. Keep track of this id to monitor your job status."
+    password = os.getenv("EMAIL_PWD")
+
+    text = create_message(sender_email, receiver_email, subject, body, uuid)
+
+    # Log in to server using secure context and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, text)
+
+
+# def email_results(
+#     receiver_email,
+#     filename,
+#     id,
+#     title=None,
+#     sender_email="dscript.results@gmail.com",
+# ):
+#     """
+#     Given a user email, target path for prediction file, job id, and potential title,
+#     Emails the user the results of their job
+#     """
+#     logging.info("# Emailing Results ...")
+#     if not title:
+#         subject = f"D-SCRIPT Results for {id}"
+#     else:
+#         subject = f"D-SCRIPT Results for {title} ({id})"
+#     body = f"These are the results of your D-SCRIPT prediction on job {id}"
+#     password = os.getenv("EMAIL_PWD")
+
+#     text = create_message(
+#         sender_email, receiver_email, subject, body, id, filename
+#     )
+
+#     # Log in to server using secure context and send email
+#     context = ssl.create_default_context()
+#     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+#         server.login(sender_email, password)
+#         server.sendmail(sender_email, receiver_email, text)
