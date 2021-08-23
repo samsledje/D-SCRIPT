@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 from celery import shared_task
+from django.conf import settings
 from django.db.models import Q
 
 from .api import dscript as dscript_api
@@ -11,8 +12,15 @@ from .models import Job
 
 @shared_task(track_started=True)
 def process_job(uuid):
-    logging.info(uuid)
+    logging.info(f"Launching job {uuid}")
     job = Job.objects.get(pk=uuid)
+
+    if settings.DSCRIPT_CONFIRM_SUBMISSION_EMAIL:
+        logging.info(f"Sending confirmation email for {uuid}")
+        try:
+            dscript_api.email_confirmation(job.uuid)
+        except Exception as err:
+            logging.error(str(err))
 
     job.is_running = True
     job.start_time = datetime.utcnow()
@@ -21,11 +29,10 @@ def process_job(uuid):
 
     results_file = dscript_api.predict_pairs(job.uuid)
     try:
-        logging.info("Trying to email")
+        logging.debug("Trying to email")
         dscript_api.email_results(job.uuid)
     except Exception as err:
-        logging.info("Not a valid email")
-        logging.info(err)
+        logging.error(err)
 
     job.is_running = False
     job.is_completed = True
