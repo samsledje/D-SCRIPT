@@ -12,6 +12,7 @@ collect_env.py
 web-server/media
 web-server/tmp
 server/tmp
+server/static
 **/.DS_Store
 node_modules
 .coverage
