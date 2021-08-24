@@ -4,6 +4,7 @@
 <!--- #![GitHub release (latest by date)](https://img.shields.io/github/v/release/samsledje/D-SCRIPT) --->
 [![D-SCRIPT](https://img.shields.io/github/v/release/samsledje/D-SCRIPT?include_prereleases)](https://github.com/samsledje/D-SCRIPT/releases)
 [![PyPI](https://img.shields.io/pypi/v/dscript)](https://pypi.org/project/dscript/)
+[![DOI](https://zenodo.org/badge/308463847.svg)](https://zenodo.org/badge/latestdoi/308463847)
 [![Documentation Status](https://readthedocs.org/projects/d-script/badge/?version=main)](https://d-script.readthedocs.io/en/main/?badge=main)
 [![License](https://img.shields.io/github/license/samsledje/D-SCRIPT)](https://github.com/samsledje/D-SCRIPT/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
