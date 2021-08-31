@@ -7,6 +7,7 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
 export default function LookupInput() {
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
     const [input, setInput] = useState('');
     const [jobStatus, setJobStatus] = useState(null);
     const [lookupValid, setLookupValid] = useState(false)
@@ -22,7 +23,7 @@ export default function LookupInput() {
     const handleLookup = () => {
         setJobStatus(null)
         axios
-            .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${input}/`)
+            .get(`${BASE_URL}/api/position/${input}/`)
             .then((res) => {
                 if (res.status === 200) {
                     setLookupValid(true)

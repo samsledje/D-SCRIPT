@@ -22,7 +22,6 @@ export default function LookupModal(props) {
     const [counter, setCounter] = useState(0);
     const [status, setJobStatus] = useState(props.status);
     const [processed, setProcessed] = useState(false);
-    const [_, setLookupValid] = useState(true);
     const [viewPath, setViewPath] = useState(null);
 
     // const protectEmail = (email) => {
@@ -42,31 +41,30 @@ export default function LookupModal(props) {
     }, [props.status])
 
     useEffect(() => {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
       if (counter > 0) {
         setTimeout(() => {
           setCounter(counter - 1)
         }, 1000);
       } else {
         axios
-          .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${props.id}/`)
+          .get(`${BASE_URL}/api/position/${props.id}/`)
           .then((res) => {
             if (res.status === 200) {
-                setLookupValid(true)
                 setJobStatus(res.data.status)
-                if (res.data.status == 'PENDING') {
+                if (res.data.status === 'PENDING') {
                   setProcessed(false)
                   setCounter(10)
-                } else if (res.data.status == 'STARTED') {
+                } else if (res.data.status === 'STARTED') {
                   setProcessed(false)
                   setCounter(10)
-                } else if (res.data.status == 'SUCCESS') {
+                } else if (res.data.status === 'SUCCESS') {
                   setProcessed(true)
-                  setViewPath(`http://dscript-predict.csail.mit.edu:8000/view/${props.id}`)
-                } else if (res.data.status == 'FAILURE') {
+                  setViewPath(`${BASE_URL}/analysis/${props.id}`)
+                } else if (res.data.status === 'FAILURE') {
                   setProcessed(true)
                 }
             } else {
-                setLookupValid(false)
                 setJobStatus(null)
             }
           })
@@ -95,7 +93,7 @@ export default function LookupModal(props) {
                         <h2>Your job has finished processing</h2>
                         <p>Job id: {props.id}</p>
                         <p><em>The results of your prediction have been emailed.</em></p>
-                        <p><em>View and analyze results <a href={viewPath}>here</a></em></p>
+                        {/* <p><em>View and analyze results <a href={viewPath}>here</a></em></p> */}
                       </div> :
                       <div className='LookupModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>

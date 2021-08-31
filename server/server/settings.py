@@ -40,7 +40,7 @@ logging.basicConfig(
     ],
 )
 
-ALLOWED_HOSTS = ['dscript-predict.csail.mit.edu']
+ALLOWED_HOSTS = ["dscript-predict.csail.mit.edu", "localhost"]
 
 
 # Application definition
@@ -162,9 +162,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # D-SCRIPT Specific Default Variables
 DSCRIPT_MODEL_VERSION = "human_v1"
 DSCRIPT_DEVICE = -1
-#DSCRIPT_SENDER_EMAIL = "dscript.results@gmail.com"
-DSCRIPT_SENDER_EMAIL = "no-reply@dscript-predict.csail.mit.edu"
+DSCRIPT_DEPLOY_ENV = False
+if DSCRIPT_DEPLOY_ENV:
+    DSCRIPT_SENDER_EMAIL = "no-reply@dscript-predict.csail.mit.edu"
+else:
+    DSCRIPT_SENDER_EMAIL = "dscript.results@gmail.com"
 DSCRIPT_MAX_SEQS = 500
 DSCRIPT_MAX_PAIRS = 100000
 DSCRIPT_CONFIRM_SUBMISSION_EMAIL = True
-SECRET_KEY = 'django-insecure-x7ncjt3_(-q1qcph92&8zx7f9_g(yc0t#cd!vgx3uw40813n62'
+SECRET_KEY = (
+    "django-insecure-x7ncjt3_(-q1qcph92&8zx7f9_g(yc0t#cd!vgx3uw40813n62"
+)

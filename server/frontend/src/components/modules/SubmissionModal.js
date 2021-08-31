@@ -20,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
 export default function SubmissionModal(props) {
     const classes = useStyles();
 
+    const [backoff_i, setBackoffI] = useState(0);
     const [status, setStatus] = useState(props.status);
     const [processed, setProcessed] = useState(false);
-    const [backoff_i, setBackoffI] = useState(0)
     const [counter, setCounter] = useState(Math.min(128, 2 ** backoff_i));
 
     const protectEmail = (email) => {
@@ -36,13 +36,14 @@ export default function SubmissionModal(props) {
     }
 
     useEffect(() => {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
       if (counter > 0) {
         setTimeout(() => {
           setCounter(counter - 1)
         }, 1000);
       } else {
         axios
-          .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${props.id}/`)
+          .get(`${BASE_URL}/api/position/${props.id}/`)
           .then((res) => {
               setBackoffI(backoff_i + 1)
               if (res.data.status === 'PENDING') {
