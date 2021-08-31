@@ -16,7 +16,7 @@ import torch
 from django.conf import settings
 from dotenv import load_dotenv
 
-from dscript.fasta import parse_input
+from dscript.fasta import parse
 from dscript.language_model import lm_embed
 from dscript.pretrained import get_pretrained
 
@@ -24,6 +24,8 @@ from ..models import Job
 
 load_dotenv()
 
+outgoing_mail_server = "outgoing.csail.mit.edu"
+outgoing_mail_port = 25
 
 def predict_pairs(
     uuid,
@@ -80,7 +82,7 @@ def predict_pairs(
     # Load Sequences
     logging.info("# Loading Sequences...")
     with open(seq_file, "r") as f:
-        names, sequences = parse_input(f.read())
+        names, sequences = parse(f)
     seqDict = {n: s for n, s in zip(names, sequences)}
     logging.info(seqDict)
 
@@ -198,9 +200,11 @@ def email_results(
     )
 
     # Log in to server using secure context and send email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
+#    context = ssl.create_default_context()
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    with smtplib.SMTP(outgoing_mail_server, outgoing_mail_port) as server:
+#        server.login(sender_email, password)
+        server.starttls(context=context)
         server.sendmail(sender_email, receiver_email, text)
 
 
@@ -229,7 +233,9 @@ def email_confirmation(
     text = create_message(sender_email, receiver_email, subject, body, uuid)
 
     # Log in to server using secure context and send email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
+#    context = ssl.create_default_context()
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    with smtplib.SMTP(outgoing_mail_server, outgoing_mail_port) as server:
+#        server.login(sender_email, password)
+        server.starttls(context=context)
         server.sendmail(sender_email, receiver_email, text)

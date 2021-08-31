@@ -42,7 +42,7 @@ export default function SubmissionModal(props) {
         }, 1000);
       } else {
         axios
-          .get(`http://localhost:8000/api/position/${props.id}/`)
+          .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${props.id}/`)
           .then((res) => {
               setBackoffI(backoff_i + 1)
               if (res.data.status === 'PENDING') {

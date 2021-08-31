@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from dscript.fasta import parse_input
+from dscript.fasta import parse
 
 from .models import Job
 from .tasks import process_job
@@ -64,7 +64,7 @@ def upload_stream_to_local(in_file, out_file):
 
 def get_all_pairs(seq_file):
     with open(seq_file, "r") as f:
-        nam, _ = parse_input(f.read())
+        nam, _ = parse(f)
         pairs = "\n".join("\t".join(p) for p in itertools.combinations(nam, 2))
         return pairs
 
@@ -84,7 +84,7 @@ class PredictionServerException(Exception):
 def validate_inputs(seq_path, pair_path):
     try:
         with open(seq_path, "r") as f:
-            nam, _ = parse_input(f.read())
+            nam, _ = parse(f)
         assert len(nam), "You must provide at least one sequence."
         assert (
             len(nam) < settings.DSCRIPT_MAX_SEQS

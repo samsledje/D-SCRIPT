@@ -48,7 +48,7 @@ export default function LookupModal(props) {
         }, 1000);
       } else {
         axios
-          .get(`http://localhost:8000/api/position/${props.id}/`)
+          .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${props.id}/`)
           .then((res) => {
             if (res.status === 200) {
                 setLookupValid(true)
@@ -61,7 +61,7 @@ export default function LookupModal(props) {
                   setCounter(10)
                 } else if (res.data.status == 'SUCCESS') {
                   setProcessed(true)
-                  setViewPath(`http://localhost:8000/view/${props.id}`)
+                  setViewPath(`http://dscript-predict.csail.mit.edu:8000/view/${props.id}`)
                 } else if (res.data.status == 'FAILURE') {
                   setProcessed(true)
                 }

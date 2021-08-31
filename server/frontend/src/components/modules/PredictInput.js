@@ -111,7 +111,7 @@ export default function PredictInput() {
 
         axios
             .post(
-                "http://localhost:8000/api/predict/",
+                "http://dscript-predict.csail.mit.edu:8000/api/predict/",
                 uploadData,
                 {
                     headers: {'X-CSRFToken': csrftoken}
@@ -121,7 +121,7 @@ export default function PredictInput() {
                 console.log(res)
                 setJobId(res.data.id)
                 axios
-                    .get(`http://localhost:8000/api/position/${res.data.id}/`)
+                    .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${res.data.id}/`)
                     .then((res) => {
                         console.log(res)
                         setJobId(res.data.id)

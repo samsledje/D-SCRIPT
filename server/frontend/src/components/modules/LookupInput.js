@@ -22,7 +22,7 @@ export default function LookupInput() {
     const handleLookup = () => {
         setJobStatus(null)
         axios
-            .get(`http://localhost:8000/api/position/${input}/`)
+            .get(`http://dscript-predict.csail.mit.edu:8000/api/position/${input}/`)
             .then((res) => {
                 if (res.status === 200) {
                     setLookupValid(true)
