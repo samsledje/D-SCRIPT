@@ -1,3 +1,4 @@
+import logging as logg
 import os
 import sys
 from urllib.error import HTTPError
@@ -56,15 +57,15 @@ def get_state_dict(version="human_v1", verbose=True):
     )
     try:
         if verbose:
-            print(f"Downloading model {version} from {state_dict_url}...")
+            logg.info(f"Downloading model {version} from {state_dict_url}...")
         get_local_or_download(state_dict_fullname, state_dict_url)
     except HTTPError as e:
-        print("Unable to download model - {}".format(e))
+        logg.error("Unable to download model - {}".format(e))
         sys.exit(1)
     return state_dict_fullname
 
 
-def get_pretrained(version="human_v1"):
+def get_pretrained(version="human_v1", verbose=True):
     """
     Get pre-trained model object.
 
@@ -86,5 +87,5 @@ def get_pretrained(version="human_v1"):
     if version not in VALID_MODELS:
         raise ValueError("Model {} does not exist".format(version))
 
-    state_dict_path = get_state_dict(version)
+    state_dict_path = get_state_dict(version, verbose=verbose)
     return VALID_MODELS[version](state_dict_path)

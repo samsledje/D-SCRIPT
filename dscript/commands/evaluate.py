@@ -4,24 +4,17 @@ Evaluate a trained model.
 
 import argparse
 import datetime
-import os
+import logging as logg
 import sys
 
-import h5py
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import (
-    average_precision_score,
-    precision_recall_curve,
-    roc_auc_score,
-    roc_curve,
-)
 from tqdm import tqdm
 
-matplotlib.use("Agg")
+from ..datamodules import CachedH5
+from ..utils import plot_eval_predictions
 
 
 def add_args(parser):
@@ -45,63 +38,6 @@ def add_args(parser):
     return parser
 
 
-def plot_eval_predictions(labels, predictions, path="figure"):
-    """
-    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.
-
-    :param y: Labels
-    :type y: np.ndarray
-    :param phat: Predicted probabilities
-    :type phat: np.ndarray
-    :param path: File prefix for plots to be saved to [default: figure]
-    :type path: str
-    """
-
-    pos_phat = predictions[labels == 1]
-    neg_phat = predictions[labels == 0]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    fig.suptitle("Distribution of Predictions")
-    ax1.hist(pos_phat)
-    ax1.set_xlim(0, 1)
-    ax1.set_title("Positive")
-    ax1.set_xlabel("p-hat")
-    ax2.hist(neg_phat)
-    ax2.set_xlim(0, 1)
-    ax2.set_title("Negative")
-    ax2.set_xlabel("p-hat")
-    plt.savefig(path + ".phat_dist.png")
-    plt.close()
-
-    precision, recall, pr_thresh = precision_recall_curve(labels, predictions)
-    aupr = average_precision_score(labels, predictions)
-    print("AUPR:", aupr)
-
-    plt.step(recall, precision, color="b", alpha=0.2, where="post")
-    plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
-    plt.xlabel("Recall")
-    plt.ylabel("Precision")
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title("Precision-Recall (AUPR: {:.3})".format(aupr))
-    plt.savefig(path + ".aupr.png")
-    plt.close()
-
-    fpr, tpr, roc_thresh = roc_curve(labels, predictions)
-    auroc = roc_auc_score(labels, predictions)
-    print("AUROC:", auroc)
-
-    plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
-    plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
-    plt.savefig(path + ".auroc.png")
-    plt.close()
-
-
 def main(args):
     """
     Run model evaluation from arguments.
@@ -109,74 +45,97 @@ def main(args):
     :meta private:
     """
 
+    if args.outfile is None:
+        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    else:
+        outPath = args.outfile
+    logPath = f"{outPath}.log"
+
+    logg.basicConfig(
+        level=logg.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[logg.FileHandler(logPath), logg.StreamHandler(sys.stdout)],
+    )
+
     # Set Device
     device = args.device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
-            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        logg.info(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
         )
     else:
-        print("# Using CPU")
+        print("Using CPU")
 
     # Load Model
-    model_path = args.model
+    modelPath = args.model
+    try:
+        model = torch.load(modelPath).eval()
+    except FileNotFoundError:
+        logg.error(f"Model {modelPath} not found")
+        sys.exit(1)
     if use_cuda:
-        model = torch.load(model_path).cuda()
+        model = model.cuda()
+        model.use_cuda = True
     else:
-        model = torch.load(model_path).cpu()
+        model = model.cpu()
         model.use_cuda = False
+    model.eval()
 
-    embeddingPath = args.embedding
-    h5fi = h5py.File(embeddingPath, "r")
+    # Load Embeddings
+    embPath = args.embedding
+    embeddings = CachedH5(embPath)
 
     # Load Pairs
     test_fi = args.test
-    test_df = pd.read_csv(test_fi, sep="\t", header=None)
+    try:
+        test_df = pd.read_csv(test_fi, sep="\t", header=None)
+        all_prots = set(test_df.iloc[:, 0]).union(set(test_df.iloc[:, 1]))
+    except FileNotFoundError:
+        logg.error(f"Pairs File {test_fi} not found")
+        sys.exit(1)
 
-    if args.outfile is None:
-        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    else:
-        outPath = args.outfile
-    outFile = open(outPath + ".predictions.tsv", "w+")
+    if test_df.shape[1] != 3:
+        logg.error(
+            f"Pairs file should have three columns (has {test_df.shape[1]}"
+        )
+        sys.exit(1)
 
-    allProteins = set(test_df[0]).union(test_df[1])
+    if all_prots.difference(embeddings.seqs):
+        logg.error(
+            "Sequences requested in pairs file not present in sequence file."
+        )
+        logg.debug(all_prots.difference(embeddings.seqs))
+        logg.debug(list(embeddings.seqMap.keys()))
+        sys.exit(1)
 
-    seqEmbDict = {}
-    for i in tqdm(allProteins, desc="Loading embeddings"):
-        seqEmbDict[i] = torch.from_numpy(h5fi[i][:]).float()
-
-    model.eval()
-    with torch.no_grad():
+    with open(f"{outPath}.evaluation.tsv", "w+") as out_f, torch.no_grad():
         phats = []
         labels = []
-        for _, (n0, n1, label) in tqdm(
+        for i, (n0, n1, label) in tqdm(
             test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
         ):
+            if i % 50 == 0:
+                out_f.flush()
             try:
-                p0 = seqEmbDict[n0]
-                p1 = seqEmbDict[n1]
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
-
                 pred = model.predict(p0, p1).item()
                 phats.append(pred)
                 labels.append(label)
-                print(
+                out_f.write(
                     "{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred),
-                    file=outFile,
                 )
             except Exception as e:
-                sys.stderr.write("{} x {} - {}".format(n0, n1, e))
+                logg.error("{} x {} - {}".format(n0, n1, e))
 
     phats = np.array(phats)
     labels = np.array(labels)
     plot_eval_predictions(labels, phats, outPath)
-
-    outFile.close()
-    h5fi.close()
 
 
 if __name__ == "__main__":

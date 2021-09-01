@@ -3,6 +3,8 @@ Generate new embeddings using pre-trained language model.
 """
 
 import argparse
+import logging as logg
+import sys
 
 from dscript.language_model import embed_from_fasta
 
@@ -34,6 +36,16 @@ def main(args):
     inPath = args.seqs
     outPath = args.outfile
     device = args.device
+
+    logg.basicConfig(
+        level=logg.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logg.FileHandler(f"{outPath}.log"),
+            logg.StreamHandler(sys.stdout),
+        ],
+    )
+
     embed_from_fasta(inPath, outPath, device, verbose=True)
 
 

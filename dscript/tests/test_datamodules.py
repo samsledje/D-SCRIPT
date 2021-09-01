@@ -1,6 +1,6 @@
 import torch
 
-from dscript.datamodules import collate_pairs_fn
+from dscript.datamodules import CachedFasta, CachedH5, collate_pairs_fn
 
 
 def test_collate_pairs_fn():

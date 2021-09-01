@@ -9,13 +9,13 @@ import h5py
 import pandas as pd
 import pytorch_lightning as pl
 import torch
+from Bio import SeqIO
 from sklearn.model_selection import train_test_split
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader, Dataset
 
 from . import __version__
-from .fasta import parse
-from .language_model import embed_from_fasta
+from .language_model import embed_from_fasta, lm_embed
 from .utils import get_local_or_download
 
 
@@ -30,17 +30,33 @@ def collate_pairs_fn(args):
 
 
 class CachedH5:
-    def __init__(self, filePath: str):
+    def __init__(self, filePath: str, verbose: bool = False):
         self.filePath = filePath
-        self.h5file = h5py.File(self.filePath, "r")
+        self.seqMap = h5py.File(self.filePath, "r")
+        self.seqs = self.seqMap.keys()
+        self.verbose = verbose
         atexit.register(self.cleanup)
 
     def cleanup(self):
-        self.h5file.close()
+        self.seqMap.close()
 
-    @lru_cache(maxsize=1000)
+    @lru_cache(maxsize=5000)
     def __getitem__(self, x):
-        return torch.from_numpy(self.h5file[x][:]).squeeze()
+        return torch.from_numpy(self.seqMap[x][:])
+
+
+class CachedFasta:
+    def __init__(self, filePath: str, verbose: bool = False):
+        self.filePath = filePath
+        self.seqMap = {
+            r.name: str(r.seq) for r in SeqIO.parse(self.filePath, "fasta")
+        }
+        self.seqs = list(self.seqMap.keys())
+        self.verbose = verbose
+
+    @lru_cache(maxsize=5000)
+    def __getitem__(self, x):
+        return lm_embed(self.seqMap[x], verbose=self.verbose)
 
 
 class PairedEmbeddingDataset(Dataset):

@@ -5,6 +5,7 @@ Train a new model.
 import argparse
 import datetime
 import gzip as gz
+import logging as logg
 import os
 import subprocess as sp
 import sys
@@ -344,24 +345,26 @@ def main(args):
     else:
         output = open(output, "w")
 
-    log(f'# Called as: {" ".join(sys.argv)}', file=output)
+    logg.info(f'Called as: {" ".join(sys.argv)}', file=output)
     if output is not sys.stdout:
-        log(f'Called as: {" ".join(sys.argv)}')
+        logg.info(f'Called as: {" ".join(sys.argv)}')
 
     # Set device
     device = args.device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        log(
-            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+        logg.info(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=output,
         )
     else:
-        log("# Using CPU", file=output)
+        logg.info("Using CPU", file=output)
         device = "cpu"
 
-    log(f"# Loading PPI data from {args.embedding,args.data}...", file=output)
+    logg.info(
+        f"Loading PPI data from {args.embedding,args.data}...", file=output
+    )
     output.flush()
 
     ppi_datamodule = PPIDataModule(
@@ -386,34 +389,34 @@ def main(args):
         embedding = FullyConnectedEmbed(
             6165, projection_dim, dropout=dropout_p
         )
-        log("# Initializing embedding model with:", file=output)
-        log(f"\tprojection_dim: {projection_dim}", file=output)
-        log(f"\tdropout_p: {dropout_p}", file=output)
+        logg.info("Initializing embedding model with:", file=output)
+        logg.info(f"\tprojection_dim: {projection_dim}", file=output)
+        logg.info(f"\tdropout_p: {dropout_p}", file=output)
 
         # Create contact model
         hidden_dim = args.hidden_dim
         kernel_width = args.kernel_width
-        log("# Initializing contact model with:", file=output)
-        log(f"\thidden_dim: {hidden_dim}", file=output)
-        log(f"\tkernel_width: {kernel_width}", file=output)
+        logg.info("Initializing contact model with:", file=output)
+        logg.info(f"\thidden_dim: {hidden_dim}", file=output)
+        logg.info(f"\tkernel_width: {kernel_width}", file=output)
 
         contact = ContactCNN(projection_dim, hidden_dim, kernel_width)
 
         # Create the full model
         use_W = args.use_w
         pool_width = args.pool_width
-        log("# Initializing interaction model with:", file=output)
-        log(f"\tpool_width: {pool_width}", file=output)
-        log(f"\tuse_w: {use_W}", file=output)
+        logg.info("Initializing interaction model with:", file=output)
+        logg.info(f"\tpool_width: {pool_width}", file=output)
+        logg.info(f"\tuse_w: {use_W}", file=output)
         model = ModelInteraction(
             embedding, contact, use_W=use_W, pool_size=pool_width
         )
 
-        log(model, file=output)
+        logg.info(model, file=output)
 
     else:
-        log(
-            "# Loading model from checkpoint {}".format(args.checkpoint),
+        logg.info(
+            "Loading model from checkpoint {}".format(args.checkpoint),
             file=output,
         )
         model = torch.load(args.checkpoint)
@@ -438,19 +441,19 @@ def main(args):
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optimizers.Adam(params, lr=lr, weight_decay=wd)
 
-    log(f'# Using save prefix "{save_prefix}"', file=output)
-    log(f"# Training with Adam: lr={lr}, weight_decay={wd}", file=output)
-    log(f"\tnum_epochs: {num_epochs}", file=output)
-    log(f"\tepoch_scale: {report_steps}", file=output)
-    log(f"\tbatch_size: {batch_size}", file=output)
-    log(f"\tinteraction weight: {inter_weight}", file=output)
-    log(f"\tcontact map weight: {cmap_weight}", file=output)
+    logg.info(f'Using save prefix "{save_prefix}"', file=output)
+    logg.info(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
+    logg.info(f"\tnum_epochs: {num_epochs}", file=output)
+    logg.info(f"\tepoch_scale: {report_steps}", file=output)
+    logg.info(f"\tbatch_size: {batch_size}", file=output)
+    logg.info(f"\tinteraction weight: {inter_weight}", file=output)
+    logg.info(f"\tcontact map weight: {cmap_weight}", file=output)
     output.flush()
 
     batch_report_fmt = (
-        "# [{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
+        "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     )
-    epoch_report_fmt = "# Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
+    epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     N = len(pairs_train_iterator) * batch_size
     for epoch in range(num_epochs):
@@ -540,7 +543,7 @@ def main(args):
                     + str(epoch + 1).zfill(digits)
                     + ".sav"
                 )
-                log(f"# Saving model to {save_path}", file=output)
+                log(f"Saving model to {save_path}", file=output)
                 model.cpu()
                 torch.save(model, save_path)
                 if use_cuda:
@@ -550,7 +553,7 @@ def main(args):
 
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
-        log(f"# Saving final model to {save_path}", file=output)
+        log(f"Saving final model to {save_path}", file=output)
         model.cpu()
         torch.save(model, save_path)
         if use_cuda:

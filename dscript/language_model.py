@@ -1,20 +1,16 @@
-import os
-import random
-import subprocess as sp
+import logging as logg
 import sys
-from datetime import datetime
 
 import h5py
 import torch
+from Bio import SeqIO
 from tqdm import tqdm
 
 from .alphabets import Uniprot21
-from .fasta import parse, parse_directory, write
-from .models.embedding import SkipLSTM
 from .pretrained import get_pretrained
 
 
-def lm_embed(sequence, use_cuda=False):
+def lm_embed(sequence, use_cuda=False, verbose=True):
     """
     Embed a single sequence using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
 
@@ -26,7 +22,7 @@ def lm_embed(sequence, use_cuda=False):
     :rtype: torch.Tensor
     """
 
-    model = get_pretrained("lm_v1")
+    model = get_pretrained("lm_v1", verbose=verbose)
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
     if use_cuda:
@@ -60,15 +56,16 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if use_cuda:
         torch.cuda.set_device(device)
         if verbose:
-            print(
-                f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+            logg.info(
+                f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
             )
     else:
         if verbose:
-            print("# Using CPU")
+            logg.info("Using CPU")
 
     if verbose:
-        print("# Loading Model...")
+        logg.info("Loading Model...")
+
     model = get_pretrained("lm_v1")
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
@@ -77,63 +74,37 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     model.eval()
     if verbose:
-        print("# Loading Sequences...")
-    names, seqs = parse(open(fastaPath, "rb"))
+        logg.info("Loading Sequences...")
+
+    seq_records = list(SeqIO.parse(fastaPath, "fasta"))
+
     alphabet = Uniprot21()
-    encoded_seqs = []
-    for s in tqdm(seqs):
-        es = torch.from_numpy(alphabet.encode(s))
+    encoded_seqs = {}
+    for rec in tqdm(seq_records):
+        es = torch.from_numpy(alphabet.encode(rec.seq.encode("utf-8")))
         if use_cuda:
             es = es.cuda()
-        encoded_seqs.append(es)
+        encoded_seqs[rec.name] = es
     if verbose:
         num_seqs = len(encoded_seqs)
-        print("# {} Sequences Loaded".format(num_seqs))
-        print(
-            "# Approximate Storage Required (varies by average sequence length): ~{}GB".format(
+        logg.info("{} Sequences Loaded".format(num_seqs))
+        logg.info(
+            "Approximate Storage Required (varies by average sequence length): ~{}GB".format(
                 num_seqs * (1 / 125)
             )
         )
 
-    h5fi = h5py.File(outputPath, "w")
-
-    print("# Storing to {}...".format(outputPath))
-    with torch.no_grad():
+    logg.info("Storing to {}...".format(outputPath))
+    with h5py.File(outputPath, "w") as h5fi, torch.no_grad():
         try:
-            for (n, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
-                name = n.decode("utf-8")
-                if name not in h5fi:
-                    x = x.long().unsqueeze(0)
+            for req in tqdm(seq_records, total=len(seq_records)):
+                if req.name not in h5fi:
+                    enc = alphabet.encode(req.seq.encode("utf-8"))
+                    x = torch.from_numpy(enc).long().unsqueeze(0)
                     z = model.transform(x)
                     h5fi.create_dataset(
-                        name, data=z.cpu().numpy(), compression="lzf"
+                        req.name, data=z.cpu().numpy(), compression="lzf"
                     )
         except KeyboardInterrupt:
             h5fi.close()
             sys.exit(1)
-    h5fi.close()
-
-
-def embed_from_directory(
-    directory, outputPath, device=0, verbose=False, extension=".seq"
-):
-    """
-    Embed all files in a directory in ``.fasta`` format using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
-
-    :param directory: Input directory (``.fasta`` format)
-    :type directory: str
-    :param outputPath: Output embedding file (``.h5`` format)
-    :type outputPath: str
-    :param device: Compute device to use for embeddings [default: 0]
-    :type device: int
-    :param verbose: Print embedding progress
-    :type verbose: bool
-    :param extension: Extension of all files to read in
-    :type extension: str
-    """
-    nam, seq = parse_directory(directory, extension=extension)
-    fastaPath = f"{directory}/allSeqs.fa"
-    if os.path.exists(fastaPath):
-        fastaPath = f"{fastaPath}.{int(datetime.utcnow().timestamp())}"
-    write(nam, seq, open(fastaPath, "w"))
-    embed_from_fasta(fastaPath, outputPath, device, verbose)

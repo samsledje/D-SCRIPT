@@ -4,7 +4,6 @@ Make new predictions with a pre-trained model. One of --seqs or --embeddings is 
 import argparse
 import datetime
 import logging as logg
-import os
 import sys
 
 import h5py
@@ -14,10 +13,7 @@ import torch
 from scipy.special import comb
 from tqdm import tqdm
 
-from dscript.alphabets import Uniprot21
-from dscript.fasta import parse
-from dscript.language_model import lm_embed
-from dscript.utils import log
+from ..datamodules import CachedFasta, CachedH5
 
 
 def add_args(parser):
@@ -52,128 +48,119 @@ def main(args):
 
     :meta private:
     """
+    # Set Outpath
+    outPath = args.outfile
+    if outPath is None:
+        outPath = datetime.datetime.now().strftime(
+            "%Y-%m-%d-%H-%M.predictions"
+        )
+
+    logFilePath = outPath + ".log"
+    logg.basicConfig(
+        level=logg.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logg.FileHandler(logFilePath),
+            logg.StreamHandler(sys.stdout),
+        ],
+    )
+
     if args.seqs is None and args.embeddings is None:
-        print("One of --seqs or --embeddings is required.")
-        sys.exit(0)
+        logg.error("One of --seqs or --embeddings is required.")
+        sys.exit(1)
 
     csvPath = args.pairs
     modelPath = args.model
-    outPath = args.outfile
     seqPath = args.seqs
     embPath = args.embeddings
     device = args.device
     threshold = args.thresh
 
-    # Set Outpath
-    if outPath is None:
-        outPath = datetime.datetime.now().strftime(
-            "%Y-%m-%d-%H:%M.predictions"
-        )
-
-    logFilePath = outPath + ".log"
-    logg.basicConfig(filename=logFilePath, encoding="utf-8", level=logg.INFO)
-
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
-            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-        )
         logg.info(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
         )
     else:
-        print("# Using CPU")
-        logg.info("# Using CPU")
+        logg.info("Using CPU")
 
     # Load Model
     try:
-        if use_cuda:
-            model = torch.load(modelPath).cuda()
-        else:
-            model = torch.load(modelPath).cpu()
-            model.use_cuda = False
+        model = torch.load(modelPath).eval()
     except FileNotFoundError:
-        print(f"# Model {modelPath} not found")
         logg.error(f"Model {modelPath} not found")
         sys.exit(1)
+    if use_cuda:
+        model = model.cuda()
+        model.use_cuda = True
+    else:
+        model = model.cpu()
+        model.use_cuda = False
 
     # Load Pairs
     try:
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
-        print(f"# Pairs File {csvPath} not found")
         logg.error(f"Pairs File {csvPath} not found")
+        sys.exit(1)
+
+    if pairs.shape[1] > 2:
+        logg.error(f"Pairs file should have two columns (has {pairs.shape[1]}")
         sys.exit(1)
 
     # Load Sequences or Embeddings
     if embPath is None:
         try:
-            names, seqs = parse(open(seqPath, "r"))
-            seqDict = {n: s for n, s in zip(names, seqs)}
+            embeddings = CachedFasta(seqPath)
         except FileNotFoundError:
-            print(f"# Sequence File {seqPath} not found")
             logg.error(f"Sequence File {seqPath} not found")
             sys.exit(1)
-        print("# Generating Embeddings...")
-        logg.info("Generating Embeddings...")
-        embeddings = {}
-        for n in tqdm(all_prots):
-            embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
-        print("# Loading Embeddings...")
-        logg.info("Loading Embeddings...")
-        embedH5 = h5py.File(embPath, "r")
-        embeddings = {}
-        for n in tqdm(all_prots):
-            embeddings[n] = torch.from_numpy(embedH5[n][:])
-        embedH5.close()
+        embeddings = CachedH5(embPath)
+
+    if all_prots.difference(embeddings.seqs):
+        logg.error(
+            "Sequences requested in pairs file not present in sequence file."
+        )
+        logg.debug(all_prots.difference(embeddings.seqs))
+        logg.debug(list(embeddings.seqMap.keys()))
+        sys.exit(1)
 
     # Make Predictions
-    print("# Making Predictions...")
     logg.info("Making Predictions...")
-    n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
-    cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
-    model.eval()
-    with open(outPathAll, "w+") as f:
-        with open(outPathPos, "w+") as pos_f:
-            with torch.no_grad():
-                for _, (n0, n1) in tqdm(
-                    pairs.iloc[:, :2].iterrows(), total=len(pairs)
-                ):
-                    n0 = str(n0)
-                    n1 = str(n1)
-                    if n % 50 == 0:
-                        f.flush()
-                    n += 1
-                    p0 = embeddings[n0]
-                    p1 = embeddings[n1]
-                    if use_cuda:
-                        p0 = p0.cuda()
-                        p1 = p1.cuda()
-                    try:
-                        cm, p = model.map_predict(p0, p1)
-                        p = p.item()
-                        f.write(f"{n0}\t{n1}\t{p}\n")
-                        if p >= threshold:
-                            pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                            cm_np = cm.squeeze().cpu().numpy()
-                            dset = cmap_file.require_dataset(
-                                f"{n0}x{n1}", cm_np.shape, np.float32
-                            )
-                            dset[:] = cm_np
-                            # cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
-                    except RuntimeError as e:
-                        logg.error(e)
-                        logg.warning(
-                            f"{n0} x {n1} skipped - CUDA out of memory"
-                        )
 
-    cmap_file.close()
+    with open(outPathAll, "w+") as out_f, open(
+        outPathPos, "w+"
+    ) as pos_f, h5py.File(
+        f"{outPath}.cmaps.h5", "w"
+    ) as cmap_file, torch.no_grad():
+        for i, (n0, n1) in tqdm(pairs.iterrows(), total=len(pairs)):
+            if i % 50 == 0:
+                out_f.flush()
+            p0 = embeddings[n0]
+            p1 = embeddings[n1]
+            if use_cuda:
+                p0 = p0.cuda()
+                p1 = p1.cuda()
+            try:
+                cm, p = model.map_predict(p0, p1)
+                p = p.item()
+                out_f.write(f"{n0}\t{n1}\t{p}\n")
+                if p >= threshold:
+                    pos_f.write(f"{n0}\t{n1}\t{p}\n")
+                    cm_np = cm.squeeze().cpu().numpy()
+                    dset = cmap_file.require_dataset(
+                        f"{n0}x{n1}", cm_np.shape, np.float32
+                    )
+                    dset[:] = cm_np
+            except RuntimeError as e:
+                logg.warning(e)
+                logg.warning(f"{n0} x {n1} skipped - CUDA out of memory")
 
 
 if __name__ == "__main__":

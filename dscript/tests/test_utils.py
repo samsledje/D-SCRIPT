@@ -9,7 +9,6 @@ from dscript.utils import (
     RBF,
     get_local_or_download,
     gpu_mem,
-    log,
     plot_PR_curve,
     plot_ROC_curve,
 )
@@ -35,10 +34,6 @@ def test_get_local_or_download():
         destination=str(destination_path), source=source_path
     )
     assert Path(pth_local).resolve() == destination_path.resolve()
-
-
-def test_log():
-    log("Testing logging")
 
 
 def test_gpu_mem():

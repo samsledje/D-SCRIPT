@@ -1,17 +1,21 @@
-import gzip as gz
+import logging as logg
 import os
 import shutil
 import subprocess as sp
-import sys
 import urllib
-from datetime import datetime
-from pathlib import Path
 from typing import Optional
 
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+from sklearn.metrics import (
+    average_precision_score,
+    precision_recall_curve,
+    roc_auc_score,
+    roc_curve,
+)
 
-from .fasta import parse
+matplotlib.use("Agg")
 
 
 def get_local_or_download(destination: str, source: Optional[str] = None):
@@ -38,18 +42,6 @@ def get_local_or_download(destination: str, source: Optional[str] = None):
             )
 
     return destination
-
-
-def log(msg, file=sys.stderr):
-    """
-    Log datetime-stamped message to file
-
-    :param msg: Message to log
-    :param f: Writable file object to log message to
-    """
-    timestr = datetime.utcnow().isoformat(sep="-", timespec="milliseconds")
-    file.write(f"[{timestr}] {msg}\n")
-    file.flush()
 
 
 def plot_PR_curve(y, phat, saveFile=None, show=False):
@@ -112,6 +104,63 @@ def plot_ROC_curve(y, phat, saveFile=None, show=False):
         plt.savefig(saveFile, bbox_inches=True)
     if show:
         plt.show()
+
+
+def plot_eval_predictions(labels, predictions, path="figure"):
+    """
+    Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.
+
+    :param y: Labels
+    :type y: np.ndarray
+    :param phat: Predicted probabilities
+    :type phat: np.ndarray
+    :param path: File prefix for plots to be saved to [default: figure]
+    :type path: str
+    """
+
+    pos_phat = predictions[labels == 1]
+    neg_phat = predictions[labels == 0]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.suptitle("Distribution of Predictions")
+    ax1.hist(pos_phat)
+    ax1.set_xlim(0, 1)
+    ax1.set_title("Positive")
+    ax1.set_xlabel("p-hat")
+    ax2.hist(neg_phat)
+    ax2.set_xlim(0, 1)
+    ax2.set_title("Negative")
+    ax2.set_xlabel("p-hat")
+    plt.savefig(path + ".phat_dist.png")
+    plt.close()
+
+    precision, recall, pr_thresh = precision_recall_curve(labels, predictions)
+    aupr = average_precision_score(labels, predictions)
+    logg.info("AUPR:", aupr)
+
+    plt.step(recall, precision, color="b", alpha=0.2, where="post")
+    plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.title("Precision-Recall (AUPR: {:.3})".format(aupr))
+    plt.savefig(path + ".aupr.png")
+    plt.close()
+
+    fpr, tpr, roc_thresh = roc_curve(labels, predictions)
+    auroc = roc_auc_score(labels, predictions)
+    logg.info("AUROC:", auroc)
+
+    plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
+    plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
+    plt.savefig(path + ".auroc.png")
+    plt.close()
 
 
 def RBF(D, sigma=None):
