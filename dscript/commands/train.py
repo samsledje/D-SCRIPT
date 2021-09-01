@@ -27,7 +27,6 @@ from ..datamodules import PPIDataModule
 from ..models.contact import ContactCNN
 from ..models.embedding import FullyConnectedEmbed, IdentityEmbed
 from ..models.interaction import ModelInteraction
-from ..utils import log
 
 
 def add_args(parser):
@@ -502,7 +501,7 @@ def main(args):
                     mse_accum,
                 ]
                 if output is not sys.stdout:
-                    log(batch_report_fmt.format(*tokens), file=output)
+                    logg.info(batch_report_fmt.format(*tokens))
                     output.flush()
 
         if (epoch + 1) % report_steps == 0:
@@ -532,7 +531,7 @@ def main(args):
                     inter_f1,
                     inter_aupr,
                 ]
-                log(epoch_report_fmt.format(*tokens), file=output)
+                logg.info(epoch_report_fmt.format(*tokens))
                 output.flush()
 
             # Save the model
@@ -543,7 +542,7 @@ def main(args):
                     + str(epoch + 1).zfill(digits)
                     + ".sav"
                 )
-                log(f"Saving model to {save_path}", file=output)
+                logg.info(f"Saving model to {save_path}")
                 model.cpu()
                 torch.save(model, save_path)
                 if use_cuda:
@@ -553,7 +552,7 @@ def main(args):
 
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
-        log(f"Saving final model to {save_path}", file=output)
+        logg.info(f"Saving final model to {save_path}")
         model.cpu()
         torch.save(model, save_path)
         if use_cuda:
