@@ -31,6 +31,12 @@ def add_args(parser):
     parser.add_argument(
         "--embedding", help="h5 file with embedded sequences", required=True
     )
+    parser.add_argument(
+        "--preload",
+        type=bool,
+        default=False,
+        help="h5 file with embedded sequences",
+    )
     parser.add_argument("-o", "--outfile", help="Output file to write results")
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
@@ -69,6 +75,7 @@ def main(args):
         print("Using CPU")
 
     # Load Model
+    logg.info("Loading model...")
     modelPath = args.model
     try:
         model = torch.load(modelPath).eval()
@@ -84,10 +91,13 @@ def main(args):
     model.eval()
 
     # Load Embeddings
+    logg.info("Loading embeddings...")
     embPath = args.embedding
-    embeddings = CachedH5(embPath)
+    preload = args.preload
+    embeddings = CachedH5(embPath, preload)
 
     # Load Pairs
+    logg.info("Loading pairs...")
     test_fi = args.test
     try:
         test_df = pd.read_csv(test_fi, sep="\t", header=None)
@@ -110,6 +120,7 @@ def main(args):
         logg.debug(list(embeddings.seqMap.keys()))
         sys.exit(1)
 
+    logg.info("Beginning evaluation...")
     with open(f"{outPath}.evaluation.tsv", "w+") as out_f, torch.no_grad():
         phats = []
         labels = []

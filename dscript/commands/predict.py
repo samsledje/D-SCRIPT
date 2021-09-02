@@ -29,6 +29,12 @@ def add_args(parser):
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
+    parser.add_argument(
+        "--preload",
+        type=bool,
+        default=False,
+        help="h5 file with embedded sequences",
+    )
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
@@ -75,6 +81,7 @@ def main(args):
     embPath = args.embeddings
     device = args.device
     threshold = args.thresh
+    preload = args.preload
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
@@ -114,12 +121,12 @@ def main(args):
     # Load Sequences or Embeddings
     if embPath is None:
         try:
-            embeddings = CachedFasta(seqPath)
+            embeddings = CachedFasta(seqPath, preload)
         except FileNotFoundError:
             logg.error(f"Sequence File {seqPath} not found")
             sys.exit(1)
     else:
-        embeddings = CachedH5(embPath)
+        embeddings = CachedH5(embPath, preload)
 
     if all_prots.difference(embeddings.seqs):
         logg.error(

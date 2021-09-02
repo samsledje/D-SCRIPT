@@ -13,6 +13,7 @@ from Bio import SeqIO
 from sklearn.model_selection import train_test_split
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
 
 from . import __version__
 from .language_model import embed_from_fasta, lm_embed
@@ -30,11 +31,18 @@ def collate_pairs_fn(args):
 
 
 class CachedH5:
-    def __init__(self, filePath: str, verbose: bool = False):
+    def __init__(
+        self, filePath: str, preload: bool = False, verbose: bool = False
+    ):
         self.filePath = filePath
         self.seqMap = h5py.File(self.filePath, "r")
         self.seqs = self.seqMap.keys()
+        self.preload = preload
         self.verbose = verbose
+        if self.preload:
+            self._embDict = {}
+            for (n, s) in tqdm(self.seqMap):
+                self._embDict[n] = torch.from_numpy(self.seqMap[s][:])
         atexit.register(self.cleanup)
 
     def cleanup(self):
@@ -42,21 +50,34 @@ class CachedH5:
 
     @lru_cache(maxsize=5000)
     def __getitem__(self, x):
-        return torch.from_numpy(self.seqMap[x][:])
+        if self.preload:
+            return self._embDict[x]
+        else:
+            return torch.from_numpy(self.seqMap[x][:])
 
 
 class CachedFasta:
-    def __init__(self, filePath: str, verbose: bool = False):
+    def __init__(
+        self, filePath: str, preload: bool = False, verbose: bool = False
+    ):
         self.filePath = filePath
         self.seqMap = {
             r.name: str(r.seq) for r in SeqIO.parse(self.filePath, "fasta")
         }
         self.seqs = list(self.seqMap.keys())
+        self.preload = preload
         self.verbose = verbose
+        if self.preload:
+            self._embDict = {}
+            for (n, s) in tqdm(self.seqMap):
+                self._embDict[n] = lm_embed(s, verbose=self.verbose)
 
     @lru_cache(maxsize=5000)
     def __getitem__(self, x):
-        return lm_embed(self.seqMap[x], verbose=self.verbose)
+        if self.preload:
+            return self._embDict[x]
+        else:
+            return lm_embed(self.seqMap[x], verbose=self.verbose)
 
 
 class PairedEmbeddingDataset(Dataset):
