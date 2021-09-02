@@ -33,8 +33,7 @@ def add_args(parser):
     )
     parser.add_argument(
         "--preload",
-        type=bool,
-        default=False,
+        action="store_true",
         help="h5 file with embedded sequences",
     )
     parser.add_argument("-o", "--outfile", help="Output file to write results")

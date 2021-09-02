@@ -41,7 +41,7 @@ class CachedH5:
         self.verbose = verbose
         if self.preload:
             self._embDict = {}
-            for (n, s) in tqdm(self.seqMap):
+            for (n, s) in tqdm(self.seqMap.items()):
                 self._embDict[n] = torch.from_numpy(self.seqMap[s][:])
         atexit.register(self.cleanup)
 
@@ -69,7 +69,7 @@ class CachedFasta:
         self.verbose = verbose
         if self.preload:
             self._embDict = {}
-            for (n, s) in tqdm(self.seqMap):
+            for (n, s) in tqdm(self.seqMap.items()):
                 self._embDict[n] = lm_embed(s, verbose=self.verbose)
 
     @lru_cache(maxsize=5000)
