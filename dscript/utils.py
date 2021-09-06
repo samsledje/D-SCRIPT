@@ -136,7 +136,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     precision, recall, pr_thresh = precision_recall_curve(labels, predictions)
     aupr = average_precision_score(labels, predictions)
-    logg.info("AUPR:", aupr)
+    logg.info(f"AUPR: {aupr}")
 
     plt.step(recall, precision, color="b", alpha=0.2, where="post")
     plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
@@ -150,7 +150,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     fpr, tpr, roc_thresh = roc_curve(labels, predictions)
     auroc = roc_auc_score(labels, predictions)
-    logg.info("AUROC:", auroc)
+    logg.info(f"AUROC: {auroc}")
 
     plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
     plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")

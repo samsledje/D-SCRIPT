@@ -1,4 +1,5 @@
 import atexit
+import logging as logg
 import os
 import urllib
 from functools import lru_cache
@@ -41,8 +42,8 @@ class CachedH5:
         self.verbose = verbose
         if self.preload:
             self._embDict = {}
-            for (n, s) in tqdm(self.seqMap):
-                self._embDict[n] = torch.from_numpy(self.seqMap[s][:])
+            for n in tqdm(self.seqs):
+                self._embDict[n] = torch.from_numpy(self.seqMap[n][:])
         atexit.register(self.cleanup)
 
     def cleanup(self):
@@ -69,7 +70,7 @@ class CachedFasta:
         self.verbose = verbose
         if self.preload:
             self._embDict = {}
-            for (n, s) in tqdm(self.seqMap):
+            for (n, s) in tqdm(self.seqMap.items()):
                 self._embDict[n] = lm_embed(s, verbose=self.verbose)
 
     @lru_cache(maxsize=5000)
