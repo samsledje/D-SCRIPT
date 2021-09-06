@@ -1,4 +1,4 @@
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __citation__ = "Sledzieski, Singh, Cowen, Berger. Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model. Under Review. 2020."
 import dscript.models
 import dscript.commands

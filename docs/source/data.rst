@@ -29,7 +29,7 @@ Interactions
 - `Fly Test`_
 - `Yeast Test`_
 - `Worm Test`_
-- `E.coli Test`_
+- `E. coli Test`_
 
 .. _`Human`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/human.fasta
 .. _`Mouse`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/mouse.fasta
@@ -43,5 +43,5 @@ Interactions
 .. _`Fly Test`: https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/fly_test.tsv
 .. _`Yeast Test`: https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/yeast_test.tsv
 .. _`Worm Test`: https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/worm_test.tsv
-.. _'E.coli Test': https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/ecoli_test.tsv
+.. _`E. coli Test`: https://github.com/samsledje/D-SCRIPT/blob/main/data/pairs/ecoli_test.tsv
 

@@ -49,9 +49,10 @@ def add_args(parser):
     data_grp.add_argument("--val", help="Validation data", required=True)
     data_grp.add_argument("--embedding", help="h5 file with embedded sequences", required=True)
     data_grp.add_argument(
-        "--augment",
-        action="store_true",
-        help="Set flag to augment data by adding (B A) for all pairs (A B)",
+        "--no-augment",
+        action="store_false",
+        dest='augment',
+        help="Set flag to not augment data by adding (B A) for all pairs (A B)",
     )
 
     # Embedding model
@@ -84,9 +85,10 @@ def add_args(parser):
 
     # Interaction Model
     inter_grp.add_argument(
-        "--use-w",
-        action="store_true",
-        help="Use weight matrix in interaction prediction model",
+        "--no-w",
+        action="store_false",
+        dest='use_w',
+        help="Don't use weight matrix in interaction prediction model",
     )
     inter_grp.add_argument(
         "--pool-width",
@@ -344,8 +346,8 @@ def main(args):
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     if augment:
-        train_n0 = pd.concat((train_df[0], train_df[1]), axis=0)
-        train_n1 = pd.concat((train_df[1], train_df[0]), axis=0)
+        train_n0 = pd.concat((train_df[0], train_df[1]), axis=0).reset_index(drop=True)
+        train_n1 = pd.concat((train_df[1], train_df[0]), axis=0).reset_index(drop=True)
         train_y = torch.from_numpy(pd.concat((train_df[2], train_df[2])).values)
     else:
         train_n0, train_n1 = train_df[0], train_df[1]

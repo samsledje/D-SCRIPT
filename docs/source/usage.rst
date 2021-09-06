@@ -90,9 +90,9 @@ Training
 .. code-block:: bash
 
     usage: dscript train [-h] --train TRAIN --val VAL --embedding EMBEDDING
-                        [--augment] [--projection-dim PROJECTION_DIM]
+                        [--no-augment] [--projection-dim PROJECTION_DIM]
                         [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
-                        [--kernel-width KERNEL_WIDTH] [--use-w]
+                        [--kernel-width KERNEL_WIDTH] [--no-w]
                         [--pool-width POOL_WIDTH]
                         [--negative-ratio NEGATIVE_RATIO]
                         [--epoch-scale EPOCH_SCALE] [--num-epochs NUM_EPOCHS]
@@ -111,7 +111,7 @@ Training
     --val VAL             Validation data
     --embedding EMBEDDING
                             h5 file with embedded sequences
-    --augment             Set flag to augment data by adding (B A) for all pairs
+    --no-augment            Set flag to not augment data by adding (B A) for all pairs
                             (A B)
 
     Projection Module:
@@ -129,7 +129,7 @@ Training
                             (default: 7)
 
     Interaction Module:
-    --use-w               Use weight matrix in interaction prediction model
+    --no-w                  Don't use weight matrix in interaction prediction model
     --pool-width POOL_WIDTH
                             Size of max-pool in interaction model (default: 9)
 

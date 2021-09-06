@@ -215,7 +215,7 @@ optional arguments:
 -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
 --pairs PAIRS         Candidate protein pairs to predict
 --model MODEL         Pretrained Model
---seqs SEQS           Protein sequences in .fasta format
+--seqs SEQS           Protein sequences <span class="k">in</span> .fasta format
 --embeddings EMBEDDINGS
                         h5 file with embedded sequences
 -o OUTFILE, --outfile OUTFILE
@@ -223,7 +223,7 @@ optional arguments:
 -d DEVICE, --device DEVICE
                         Compute device to use
 --thresh THRESH       Positive prediction threshold - used to store contact
-                        maps and predictions in a separate file. <span class="o">[</span>default:
+                        maps and predictions <span class="k">in</span> a separate file. <span class="o">[</span>default:
                         <span class="m">0</span>.5<span class="o">]</span>
 </pre></div>
 </div>
@@ -245,75 +245,75 @@ optional arguments:
 </div>
 <div class="section" id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: dscript train <span class="o">[</span>-h<span class="o">]</span> --train TRAIN --val VAL --embedding EMBEDDING
-                    <span class="o">[</span>--augment<span class="o">]</span> <span class="o">[</span>--projection-dim PROJECTION_DIM<span class="o">]</span>
-                    <span class="o">[</span>--dropout-p DROPOUT_P<span class="o">]</span> <span class="o">[</span>--hidden-dim HIDDEN_DIM<span class="o">]</span>
-                    <span class="o">[</span>--kernel-width KERNEL_WIDTH<span class="o">]</span> <span class="o">[</span>--use-w<span class="o">]</span>
-                    <span class="o">[</span>--pool-width POOL_WIDTH<span class="o">]</span>
-                    <span class="o">[</span>--negative-ratio NEGATIVE_RATIO<span class="o">]</span>
-                    <span class="o">[</span>--epoch-scale EPOCH_SCALE<span class="o">]</span> <span class="o">[</span>--num-epochs NUM_EPOCHS<span class="o">]</span>
-                    <span class="o">[</span>--batch-size BATCH_SIZE<span class="o">]</span> <span class="o">[</span>--weight-decay WEIGHT_DECAY<span class="o">]</span>
-                    <span class="o">[</span>--lr LR<span class="o">]</span> <span class="o">[</span>--lambda LAMBDA_<span class="o">]</span> <span class="o">[</span>-o OUTFILE<span class="o">]</span>
-                    <span class="o">[</span>--save-prefix SAVE_PREFIX<span class="o">]</span> <span class="o">[</span>-d DEVICE<span class="o">]</span>
-                    <span class="o">[</span>--checkpoint CHECKPOINT<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: dscript train [-h] --train TRAIN --val VAL --embedding EMBEDDING
+                    [--no-augment] [--projection-dim PROJECTION_DIM]
+                    [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
+                    [--kernel-width KERNEL_WIDTH] [--no-w]
+                    [--pool-width POOL_WIDTH]
+                    [--negative-ratio NEGATIVE_RATIO]
+                    [--epoch-scale EPOCH_SCALE] [--num-epochs NUM_EPOCHS]
+                    [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
+                    [--lr LR] [--lambda LAMBDA_] [-o OUTFILE]
+                    [--save-prefix SAVE_PREFIX] [-d DEVICE]
+                    [--checkpoint CHECKPOINT]
 
 Train a new model
 
 optional arguments:
--h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+-h, --help            show this help message and exit
 
 Data:
 --train TRAIN         Training data
 --val VAL             Validation data
 --embedding EMBEDDING
                         h5 file with embedded sequences
---augment             Set flag to augment data by adding <span class="o">(</span>B A<span class="o">)</span> <span class="k">for</span> all pairs
-                        <span class="o">(</span>A B<span class="o">)</span>
+--no-augment            Set flag to not augment data by adding (B A) for all pairs
+                        (A B)
 
 Projection Module:
 --projection-dim PROJECTION_DIM
-                        Dimension of embedding projection layer <span class="o">(</span>default: <span class="m">100</span><span class="o">)</span>
+                        Dimension of embedding projection layer (default: 100)
 --dropout-p DROPOUT_P
-                        Parameter p <span class="k">for</span> embedding dropout layer <span class="o">(</span>default: <span class="m">0</span>.5<span class="o">)</span>
+                        Parameter p for embedding dropout layer (default: 0.5)
 
 Contact Module:
 --hidden-dim HIDDEN_DIM
-                        Number of hidden units <span class="k">for</span> comparison layer in contact
-                        prediction <span class="o">(</span>default: <span class="m">50</span><span class="o">)</span>
+                        Number of hidden units for comparison layer in contact
+                        prediction (default: 50)
 --kernel-width KERNEL_WIDTH
-                        Width of convolutional filter <span class="k">for</span> contact prediction
-                        <span class="o">(</span>default: <span class="m">7</span><span class="o">)</span>
+                        Width of convolutional filter for contact prediction
+                        (default: 7)
 
 Interaction Module:
---use-w               Use weight matrix in interaction prediction model
+--no-w                  Don&#39;t use weight matrix in interaction prediction model
 --pool-width POOL_WIDTH
-                        Size of max-pool in interaction model <span class="o">(</span>default: <span class="m">9</span><span class="o">)</span>
+                        Size of max-pool in interaction model (default: 9)
 
 Training:
 --negative-ratio NEGATIVE_RATIO
-                        Number of negative training samples <span class="k">for</span> each positive
-                        training sample <span class="o">(</span>default: <span class="m">10</span><span class="o">)</span>
+                        Number of negative training samples for each positive
+                        training sample (default: 10)
 --epoch-scale EPOCH_SCALE
                         Report heldout performance every this many epochs
-                        <span class="o">(</span>default: <span class="m">5</span><span class="o">)</span>
+                        (default: 5)
 --num-epochs NUM_EPOCHS
-                        Number of epochs <span class="o">(</span>default: <span class="m">100</span><span class="o">)</span>
+                        Number of epochs (default: 100)
 --batch-size BATCH_SIZE
-                        Minibatch size <span class="o">(</span>default: <span class="m">25</span><span class="o">)</span>
+                        Minibatch size (default: 25)
 --weight-decay WEIGHT_DECAY
-                        L2 regularization <span class="o">(</span>default: <span class="m">0</span><span class="o">)</span>
---lr LR               Learning rate <span class="o">(</span>default: <span class="m">0</span>.001<span class="o">)</span>
---lambda LAMBDA_      Weight on the similarity objective <span class="o">(</span>default: <span class="m">0</span>.35<span class="o">)</span>
+                        L2 regularization (default: 0)
+--lr LR               Learning rate (default: 0.001)
+--lambda LAMBDA_      Weight on the similarity objective (default: 0.35)
 
 Output and Device:
 -o OUTPUT, --output OUTPUT
-                        Output file path <span class="o">(</span>default: stdout<span class="o">)</span>
+                        Output file path (default: stdout)
 --save-prefix SAVE_PREFIX
-                        Path prefix <span class="k">for</span> saving models
+                        Path prefix for saving models
 -d DEVICE, --device DEVICE
                         Compute device to use
 --checkpoint CHECKPOINT
-                        Checkpoint model to start training from<span class="sb">``</span>
+                        Checkpoint model to start training from``
 </pre></div>
 </div>
 </div>

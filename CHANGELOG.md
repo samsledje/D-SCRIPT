@@ -9,6 +9,10 @@
 
 ## v0.1
 
+### v0.1.6: 2021-09-06 -- Bug Fix - Augmentation and proper defaults
+- Augmentation fix in v0.1.5 was bugged still and would throw an error, now resets index
+- Change `--use-w` and `--augment` to `--no-w` and `--no-augment` with store false
+
 ### v0.1.5: 2021-06-23 -- Bug Fix - Augment and Documentation
 - Updated package level imports 
 - Updated documentation
