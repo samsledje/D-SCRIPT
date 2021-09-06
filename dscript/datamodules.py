@@ -42,8 +42,8 @@ class CachedH5:
         self.verbose = verbose
         if self.preload:
             self._embDict = {}
-            for n in tqdm(self.seqs):
-                self._embDict[n] = torch.from_numpy(self.seqMap[n][:])
+            for (n, s) in tqdm(self.seqMap.items()):
+                self._embDict[n] = torch.from_numpy(self.seqMap[s][:])
         atexit.register(self.cleanup)
 
     def cleanup(self):
