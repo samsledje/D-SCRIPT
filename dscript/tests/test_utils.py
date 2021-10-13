@@ -2,11 +2,13 @@ import os
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 import torch
 
 from dscript.utils import (
     RBF,
+    augment_data,
     get_local_or_download,
     gpu_mem,
     plot_PR_curve,
@@ -37,14 +39,28 @@ def test_get_local_or_download():
 
 
 def test_gpu_mem():
-    return
-    in_use, total = gpu_mem(0)
     if torch.cuda.is_available():
+        in_use, total = gpu_mem(0)
         assert in_use >= 0
         assert total > 0
     else:
-        assert in_use == 0
-        assert total == 0
+        return True
+
+
+def test_augment_data():
+    df = pd.DataFrame([["a", "b", 0], ["c", "d", 0], ["e", "f", 1]])
+    aug_df = augment_data(df)
+    aug_test = pd.DataFrame(
+        [
+            ["a", "b", 0],
+            ["c", "d", 0],
+            ["e", "f", 1],
+            ["b", "a", 0],
+            ["d", "c", 0],
+            ["f", "e", 1],
+        ]
+    )
+    pd.testing.assert_frame_equal(aug_test, aug_df)
 
 
 def test_plotting():

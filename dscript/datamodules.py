@@ -18,15 +18,12 @@ from tqdm import tqdm
 
 from . import __version__
 from .language_model import embed_from_fasta, lm_embed
-from .utils import get_local_or_download
+from .utils import augment_data, get_local_or_download
 
 
 def collate_pairs_fn(args):
-    """
-    Collate function for PyTorch data loader.
-    """
-    x0 = pad_sequence([a[0] for a in args], batch_first=True)
-    x1 = pad_sequence([a[1] for a in args], batch_first=True)
+    x0 = [a[0] for a in args]
+    x1 = [a[1] for a in args]
     y = [a[2] for a in args]
     return x0, x1, torch.stack(y, 0)
 
@@ -112,50 +109,53 @@ class PPIDataModule(pl.LightningDataModule):
     def __init__(
         self,
         sequence_path: str,
-        pair_path: str,
+        pair_train: str,
+        pair_val: str,
+        pair_test: str,
         data_dir: str = os.getcwd(),
         batch_size: int = 64,
         shuffle: bool = True,
         augment_train: bool = True,
-        train_val_split: List[float] = [0.9, 0.1],
     ):
         super().__init__()
 
         self.data_dir = Path(data_dir)
         self.sequence_path = Path(sequence_path)
-        self.pair_path = Path(pair_path)
+        self.pair_train_path = Path(pair_train)
+        self.pair_val_path = Path(pair_val)
+        self.pair_test_path = Path(pair_test)
         self.augment_train = augment_train
 
-        # If sequence_path is a URL, prepare for download
-        url_seq = urllib.parse.urlparse(sequence_path)
-        if url_seq.scheme in ["http", "https"]:
-            self.sequence_path = self.data_dir / Path(
-                os.path.basename(url_seq.path)
-            )
-            self.sequence_url = sequence_path
-        else:
-            self.sequence_url = None
+        # # If sequence_path is a URL, prepare for download
+        # url_seq = urllib.parse.urlparse(sequence_path)
+        # if url_seq.scheme in ["http", "https"]:
+        #     self.sequence_path = self.data_dir / Path(
+        #         os.path.basename(url_seq.path)
+        #     )
+        #     self.sequence_url = sequence_path
+        # else:
+        #     self.sequence_url = None
 
-        # If pair_path is a URL, prepare for download
-        url_pair = urllib.parse.urlparse(pair_path)
-        if url_pair.scheme in ["http", "https"]:
-            self.pair_path = self.data_dir / Path(
-                os.path.basename(url_pair.path)
-            )
-            self.pair_url = pair_path
-        else:
-            self.pair_url = None
+        # # If pair_path is a URL, prepare for download
+        # url_pair = urllib.parse.urlparse(pair_path)
+        # if url_pair.scheme in ["http", "https"]:
+        #     self.pair_path = self.data_dir / Path(
+        #         os.path.basename(url_pair.path)
+        #     )
+        #     self.pair_url = pair_path
+        # else:
+        #     self.pair_url = None
 
         # Hyperparams
         self.batch_size = batch_size
         self.shuffle = shuffle
-        self.train_val_split = train_val_split
+        # self.train_val_split = train_val_split
 
     def prepare_data(self):
         """
         Prepare data for DataModule.
         """
-        get_local_or_download(self.sequence_path, self.sequence_url)
+        # get_local_or_download(self.sequence_path, self.sequence_url)
 
         # If sequence_path is not embeddings, embed
         if not self.sequence_path.suffix == ".h5":
@@ -171,26 +171,24 @@ class PPIDataModule(pl.LightningDataModule):
 
         self.embeddings = CachedH5(self.sequence_path)
 
-        self.full_df = pd.read_csv(self.pair_path, sep="\t", header=None)
-        self.full_df = self.full_df.sort_values([0, 1])
-
-        self.train_df, self.val_df = train_test_split(
-            self.full_df,
-            train_size=self.train_val_split[0],
-            test_size=self.train_val_split[1],
+        self.train_df = pd.read_table(
+            self.pair_train_path, names=["X0", "X1", "Y"]
+        )
+        self.val_df = pd.read_table(
+            self.pair_val_path, names=["X0", "X1", "Y"]
+        )
+        self.test_df = pd.read_table(
+            self.pair_test_path, names=["X0", "X1", "Y"]
         )
 
         if self.augment_train:
-            train_n0 = pd.concat((self.train_df[0], self.train_df[1]), axis=0)
-            train_n1 = pd.concat((self.train_df[1], self.train_df[0]), axis=0)
-            train_y = pd.concat((self.train_df[2], self.train_df[2]), axis=0)
-            self.train_df = pd.concat([train_n0, train_n1, train_y], axis=1)
+            self.train_df = augment_data(self.train_df)
 
         self.data_train = PairedEmbeddingDataset(
             self.train_df, self.embeddings
         )
-
         self.data_val = PairedEmbeddingDataset(self.val_df, self.embeddings)
+        self.data_test = PairedEmbeddingDataset(self.test_df, self.embeddings)
 
     def train_dataloader(self):
         return DataLoader(

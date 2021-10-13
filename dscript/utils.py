@@ -8,6 +8,7 @@ from typing import Optional
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from sklearn.metrics import (
     average_precision_score,
     precision_recall_curve,
@@ -203,3 +204,19 @@ def gpu_mem(device):
     except FileNotFoundError:
         gpu_memory = [0, 0]
     return gpu_memory[0], gpu_memory[1]
+
+
+def augment_data(df):
+    """
+    For all pairs (A B), also add pairs (B A)
+
+    :param df: Data frame with 3 columns - pair1, pair2, label
+    :type df: pd.DataFrame
+    :return: Augmented data frame
+    :rtype: pd.DataFrame
+    """
+    x0 = pd.concat((df[0], df[1]), axis=0)
+    x1 = pd.concat((df[1], df[0]), axis=0)
+    y = pd.concat((df[2], df[2]), axis=0)
+    augmented_df = pd.concat([x0, x1, y], axis=1).reset_index(drop=True)
+    return augmented_df
