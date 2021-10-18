@@ -1,5 +1,5 @@
 import atexit
-import logging as logg
+import logging as lg
 import os
 import urllib
 from functools import lru_cache
@@ -20,6 +20,8 @@ from . import __version__
 from .language_model import embed_from_fasta, lm_embed
 from .utils import augment_data, get_local_or_download
 
+logg = lg.getLogger("D-SCRIPT")
+
 
 def collate_pairs_fn(args):
     x0 = [a[0] for a in args]
@@ -34,13 +36,14 @@ class CachedH5:
     ):
         self.filePath = filePath
         self.seqMap = h5py.File(self.filePath, "r")
-        self.seqs = self.seqMap.keys()
+        self.seqs = list(self.seqMap.keys())
         self.preload = preload
         self.verbose = verbose
         if self.preload:
+            logg.info("Preloading embeddings")
             self._embDict = {}
-            for (n, s) in tqdm(self.seqMap.items()):
-                self._embDict[n] = torch.from_numpy(self.seqMap[s][:])
+            for n in tqdm(self.seqs):
+                self._embDict[n] = torch.from_numpy(self.seqMap[n][:])
         atexit.register(self.cleanup)
 
     def cleanup(self):
@@ -89,9 +92,9 @@ class PairedEmbeddingDataset(Dataset):
     """
 
     def __init__(self, pair_df: pd.DataFrame, embedding: CachedH5):
-        self.x0 = pair_df[0]
-        self.x1 = pair_df[1]
-        self.y = pair_df[2]
+        self.x0 = pair_df["X0"]
+        self.x1 = pair_df["X1"]
+        self.y = pair_df["Y"]
         self.embedding = embedding
 
     def __len__(self):
@@ -113,8 +116,10 @@ class PPIDataModule(pl.LightningDataModule):
         pair_val: str,
         pair_test: str,
         data_dir: str = os.getcwd(),
+        preload: bool = False,
         batch_size: int = 64,
         shuffle: bool = True,
+        num_workers: int = 0,
         augment_train: bool = True,
     ):
         super().__init__()
@@ -124,7 +129,6 @@ class PPIDataModule(pl.LightningDataModule):
         self.pair_train_path = Path(pair_train)
         self.pair_val_path = Path(pair_val)
         self.pair_test_path = Path(pair_test)
-        self.augment_train = augment_train
 
         # # If sequence_path is a URL, prepare for download
         # url_seq = urllib.parse.urlparse(sequence_path)
@@ -149,6 +153,9 @@ class PPIDataModule(pl.LightningDataModule):
         # Hyperparams
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self.preload = preload
+        self.num_workers = num_workers
+        self.augment_train = augment_train
         # self.train_val_split = train_val_split
 
     def prepare_data(self):
@@ -169,7 +176,7 @@ class PPIDataModule(pl.LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
 
-        self.embeddings = CachedH5(self.sequence_path)
+        self.embeddings = CachedH5(self.sequence_path, preload=self.preload)
 
         self.train_df = pd.read_table(
             self.pair_train_path, names=["X0", "X1", "Y"]
@@ -195,6 +202,7 @@ class PPIDataModule(pl.LightningDataModule):
             self.data_train,
             batch_size=self.batch_size,
             shuffle=self.shuffle,
+            num_workers=self.num_workers,
             collate_fn=collate_pairs_fn,
         )
 
@@ -202,7 +210,7 @@ class PPIDataModule(pl.LightningDataModule):
         return DataLoader(
             self.data_val,
             batch_size=self.batch_size,
-            shuffle=self.shuffle,
+            num_workers=self.num_workers,
             collate_fn=collate_pairs_fn,
         )
 
@@ -210,9 +218,9 @@ class PPIDataModule(pl.LightningDataModule):
         return DataLoader(
             self.data_val,
             batch_size=self.batch_size,
-            shuffle=self.shuffle,
+            num_workers=self.num_workers,
             collate_fn=collate_pairs_fn,
         )
 
-    def teardown(self):
+    def teardown(self, stage: Optional[str] = None):
         self.embeddings.cleanup()

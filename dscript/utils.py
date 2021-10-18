@@ -1,7 +1,9 @@
 import logging as logg
+import logging as lg
 import os
 import shutil
 import subprocess as sp
+import sys
 import urllib
 from typing import Optional
 
@@ -215,8 +217,29 @@ def augment_data(df):
     :return: Augmented data frame
     :rtype: pd.DataFrame
     """
-    x0 = pd.concat((df[0], df[1]), axis=0)
-    x1 = pd.concat((df[1], df[0]), axis=0)
-    y = pd.concat((df[2], df[2]), axis=0)
+    x0 = pd.concat((df["X0"], df["X1"]), axis=0)
+    x1 = pd.concat((df["X1"], df["X0"]), axis=0)
+    y = pd.concat((df["Y"], df["Y"]), axis=0)
     augmented_df = pd.concat([x0, x1, y], axis=1).reset_index(drop=True)
+    augmented_df.columns = ["X0", "X1", "Y"]
     return augmented_df
+
+
+logLevels = {0: lg.ERROR, 1: lg.WARNING, 2: lg.INFO, 3: lg.DEBUG}
+
+
+def config_logger(file, fmt, level=2, use_stdout=True):
+    module_logger = lg.getLogger("D-SCRIPT")
+    module_logger.setLevel(logLevels[level])
+    formatter = lg.Formatter(fmt)
+
+    fh = lg.FileHandler(file)
+    fh.setFormatter(formatter)
+    module_logger.addHandler(fh)
+
+    if use_stdout:
+        sh = lg.StreamHandler(sys.stdout)
+        sh.setFormatter(formatter)
+        module_logger.addHandler(sh)
+
+    return module_logger
