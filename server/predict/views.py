@@ -59,6 +59,7 @@ def upload_stream_to_local(in_file, out_file):
                 out_f.write(content)
         elif isinstance(in_file, str):
             out_f.write(in_file.replace(",", "\t"))
+
     return out_file
 
 
@@ -85,10 +86,10 @@ def validate_inputs(seq_path, pair_path):
     try:
         with open(seq_path, "r") as f:
             nam, _ = parse(f)
-        assert len(nam), "You must provide at least one sequence."
-        assert (
-            len(nam) < settings.DSCRIPT_MAX_SEQS
-        ), f"Number of sequences {len(nam)} is larger than the maximum allowed ({settings.DSCRIPT_MAX_SEQS})."
+            assert len(nam), "You must provide at least one sequence."
+            assert (
+                len(nam) < settings.DSCRIPT_MAX_SEQS
+            ), f"Number of sequences {len(nam)} is larger than the maximum allowed ({settings.DSCRIPT_MAX_SEQS})."
     except AssertionError as err:
         raise PredictionServerException(
             status.HTTP_406_NOT_ACCEPTABLE, f"Sequence parse error: {str(err)}"
@@ -106,6 +107,8 @@ def validate_inputs(seq_path, pair_path):
             status.HTTP_406_NOT_ACCEPTABLE, f"Pairs parse error: {str(err)}"
         )
 
+    df[0] = df[0].apply(lambda x: x.split()[0])
+    df[1] = df[1].apply(lambda x: x.split()[0])
     names_in_pairs = set(df.iloc[:, 0]).union(df.iloc[:, 1])
     names_in_seqs = set([i.split()[0] for i in nam])
     logging.debug(names_in_pairs)
@@ -133,18 +136,22 @@ def predict(request):
         job_id = uuid.uuid4()
 
         try:
+            files_path = "/var/www/D-SCRIPT/tmp"
             seqs_upload = data["seqs"]
+
             pairs_upload = data["pairs"]
 
             # Make temporary directory if one does not exist
             os.makedirs(
-                f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True
+                #f"{tempfile.gettempdir()}/dscript-predictions/", exist_ok=True
+                f"{files_path}/", exist_ok=True
             )
 
             # Write seqs to local file
             seq_path = upload_stream_to_local(
                 seqs_upload,
-                f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.fasta",
+                #f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.fasta",
+                f"{files_path}/{job_id}.fasta",
             )
 
             # Write pairs to local file
@@ -152,11 +159,13 @@ def predict(request):
                 pairs_upload = get_all_pairs(seq_path)
             pair_path = upload_stream_to_local(
                 pairs_upload,
-                f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.tsv",
+                #f"{tempfile.gettempdir()}/dscript-predictions/{job_id}.tsv",
+                f"{files_path}/{job_id}.tsv",
             )
 
             # Set result path
-            result_path = f"{tempfile.gettempdir()}/dscript-predictions/{job_id}_results.tsv"
+            #result_path = f"{tempfile.gettempdir()}/dscript-predictions/{job_id}_results.tsv"
+            result_path = f"{files_path}/{job_id}_results.tsv"
 
             # Validate inputs are properly formatted and allowed
             n_seqs, n_pairs = validate_inputs(seq_path, pair_path)
@@ -169,6 +178,8 @@ def predict(request):
             logging.debug(err)
             data = {"id": job_id, "submitted": False, "error": str(err)}
             return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        f = open(seq_path, "r")
 
         job_data = {
             "uuid": job_id,
@@ -190,7 +201,6 @@ def predict(request):
         job_m.save()
         job_async = process_job.delay(job_m.uuid)
         async_job_dict[job_id] = job_async
-
         data = {"id": job_m.uuid, "submitted": True, "error": None}
         return Response(data, status=status.HTTP_200_OK)
 
@@ -200,8 +210,10 @@ def get_position(request, uuid):
     logging.info(f" # Getting Position for {uuid} ...")
 
     if uuid in async_job_dict.keys():
+
         job_async = async_job_dict[uuid]
         job_state = job_async.state
+
         if job_state == "SUCCESS" or job_state == "FAILURE":
             _ = job_async.get()
             del async_job_dict[uuid]

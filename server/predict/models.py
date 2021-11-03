@@ -9,21 +9,25 @@ class Job(models.Model):
     title = models.TextField("Title", blank=True)
     email = models.EmailField("Email", validators=[EmailValidator()])
 
+    files_path = "/var/www/D-SCRIPT/tmp"
     seq_fi = models.FilePathField(
         "Sequence File Path",
-        path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        #path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        path=f"{files_path}/",
         validators=[FileExtensionValidator(".fasta")],
         null=True,
     )
     pair_fi = models.FilePathField(
         "Pair File Path",
-        path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        #path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        path=f"{files_path}/",
         validators=[FileExtensionValidator(".tsv")],
         null=True,
     )
     result_fi = models.FilePathField(
         "Result File Path",
-        path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        #path=f"{tempfile.gettempdir()}/dscript-predictions/",
+        path=f"{files_path}/",
         validators=[FileExtensionValidator(".tsv")],
         null=True,
     )

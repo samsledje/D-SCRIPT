@@ -40,7 +40,11 @@ logging.basicConfig(
     ],
 )
 
-ALLOWED_HOSTS = ["dscript-predict.csail.mit.edu", "localhost"]
+ALLOWED_HOSTS = [
+        "dscript-predict.csail.mit.edu",
+        "localhost",
+        "128.52.131.228"
+        ]
 
 
 # Application definition
@@ -153,7 +157,8 @@ REACT_APP_DIR = os.path.join(BASE_DIR, "frontend")
 STATICFILES_DIRS = [
     os.path.join(REACT_APP_DIR, "build", "static"),
 ]
-
+#needed for admin pages css and static files
+#STATIC_ROOT = os.path.join(REACT_APP_DIR, "build", "static")
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -162,7 +167,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # D-SCRIPT Specific Default Variables
 DSCRIPT_MODEL_VERSION = "human_v1"
 DSCRIPT_DEVICE = -1
-DSCRIPT_DEPLOY_ENV = False
+DSCRIPT_DEPLOY_ENV = True
 if DSCRIPT_DEPLOY_ENV:
     DSCRIPT_SENDER_EMAIL = "no-reply@dscript-predict.csail.mit.edu"
 else:

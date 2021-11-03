@@ -48,6 +48,7 @@ def predict_pairs(
 
     n_complete = job.n_pairs_done
     seq_file = job.seq_fi
+    logging.info("# DEBUG: job.seq_fi is %s", job.seq_fi)
     pair_file = job.pair_fi
     result_file = job.result_fi
 
@@ -86,6 +87,7 @@ def predict_pairs(
 
     # Load Sequences
     logging.info("# Loading Sequences...")
+    logging.info("# DEBUG: sequence file is %s", seq_file)
     with open(seq_file, "r") as f:
         names, sequences = parse(f)
     seqDict = {n.split()[0]: s for n, s in zip(names, sequences)}
@@ -94,13 +96,15 @@ def predict_pairs(
     # Load Pairs
     logging.info("# Loading Pairs...")
     pairs_array = pd.read_csv(pair_file, sep="\t", header=None)
+    pairs_array[0] = pairs_array[0].apply(lambda x: x.split()[0])
+    pairs_array[1] = pairs_array[1].apply(lambda x: x.split()[0])
     all_prots = set(pairs_array.iloc[:, 0]).union(pairs_array.iloc[:, 1])
 
     # Generate Embeddings
-    # logging.info("# Generating Embeddings...")
-    # embeddings = {}
-    # for n in all_prots:
-    #     embeddings[n] = lm_embed(seqDict[n], use_cuda)
+    logging.info("# Generating Embeddings...")
+    embeddings = {}
+    for n in all_prots:
+        embeddings[n] = lm_embed(seqDict[n], use_cuda)
 
     # Make Predictions
     logging.info("# Making Predictions...")
@@ -115,10 +119,10 @@ def predict_pairs(
                     job.save()
                     f.flush()
                 n_complete += 1
-                # p0 = embeddings[n0]
-                # p1 = embeddings[n1]
-                p0 = lm_embed(seqDict[n0], use_cuda)
-                p1 = lm_embed(seqDict[n1], use_cuda)
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
+                #p0 = lm_embed(seqDict[n0], use_cuda)
+                #p1 = lm_embed(seqDict[n1], use_cuda)
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
