@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { makeStyles, Modal, Backdrop, Fade, LinearProgress } from '@material-ui/core'
+import { makeStyles, Modal, Backdrop, Fade, LinearProgress, Button } from '@material-ui/core'
 import axios from 'axios'
 
 const useStyles = makeStyles((theme) => ({
@@ -24,6 +24,7 @@ export default function LookupModal(props) {
     const [processed, setProcessed] = useState(false);
     const [_, setLookupValid] = useState(true);
     const [viewPath, setViewPath] = useState(null);
+    const [filePath, setFilePath] = useState('');
 
     // const protectEmail = (email) => {
     //     let avg, splitted, p1, p2;
@@ -62,6 +63,13 @@ export default function LookupModal(props) {
                 } else if (res.data.status == 'SUCCESS') {
                   setProcessed(true)
                   setViewPath(`http://localhost:8000/view/${props.id}`)
+                  axios
+                    .get(`http://localhost:8000/api/download_loc/${props.id}/`)
+                    .then((res) => {
+                      console.log(res)
+                      setFilePath(res)
+                    })
+                    .catch((err) => console.log(err))
                 } else if (res.data.status == 'FAILURE') {
                   setProcessed(true)
                 }
@@ -73,6 +81,15 @@ export default function LookupModal(props) {
           .catch((err) => console.log(err))
       }
     }, [counter, props.id]);
+
+    const downloadFile = () => {
+      axios
+        .get(`http://localhost:8000/api/download/${props.id}/`)
+        .then((res) => {
+          console.log(res)
+        })
+        .catch((err) => console.log(err))
+    }
 
     return (
         <div className='LookupModal-Container'>
@@ -96,6 +113,7 @@ export default function LookupModal(props) {
                         <p>Job id: {props.id}</p>
                         <p><em>The results of your prediction have been emailed.</em></p>
                         <p><em>View and analyze results <a href={viewPath}>here</a></em></p>
+                        <p><Button variant='contained' onClick={downloadFile}><a href="" download={filePath}>Download</a></Button></p>
                       </div> :
                       <div className='LookupModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>

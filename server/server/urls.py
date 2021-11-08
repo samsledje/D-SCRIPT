@@ -22,4 +22,6 @@ urlpatterns = [
     re_path("(^(?!(api|admin|view)).*$)", views.FrontendAppView.as_view()),
     path("api/predict/", views.predict),
     path("api/position/<uuid:uuid>/", views.get_position),
+    path("api/download/<uuid:uuid>/", views.get_download),
+    path("api/download_loc/<uuid:uuid>", views.get_download_loc),
 ]

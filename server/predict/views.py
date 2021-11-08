@@ -1,3 +1,4 @@
+import csv
 import itertools
 import logging
 import os
@@ -8,8 +9,10 @@ from pathlib import Path
 
 import pandas as pd
 from django.conf import settings
+from django.core.files import File
 from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponse
+from django.utils.encoding import smart_str
 from django.views.generic import View
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -213,3 +216,43 @@ def get_position(request, uuid):
     logging.debug(f"Job {uuid} status {job_state}")
     logging.info("# Sending response")
     return Response({"id": uuid, "status": job_state})
+
+
+@api_view(["GET"])
+def get_download(request, uuid):
+    logging.info(f" # Getting Download for {uuid} ...")
+    job = Job.objects.get(pk=uuid)
+    result_path = job.result_fi
+    logging.debug(result_path)
+
+    with open(result_path, "r") as f:
+        logging.debug(f)
+        logging.debug("opened file successfully")
+        return HttpResponse(
+            f,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Content-Disposition": 'attachment; filename="test.tsv"',
+            },
+        )
+
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{uuid}.csv"'},
+    )
+    writer = csv.writer(response)
+    with open(result_path, "r") as f:
+        logging.debug("Opened file")
+        logging.debug("Trying to use lines")
+        for line in f:
+            logging.debug(line)
+            writer.writerow(line.strip().split("\t"))
+    return response
+
+
+@api_view(["GET"])
+def get_download_loc(request, uuid):
+    logging.info(f" # Getting Download Location for {uuid} ...")
+    job = Job.objects.get(pk=uuid)
+    result_path = job.result_fi
+    return result_path
