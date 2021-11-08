@@ -19,7 +19,7 @@ from predict import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path("(^(?!(api|admin|view)).*$)", views.FrontendAppView.as_view()),
+    re_path("(^(?!(api|admin)).*$)", views.FrontendAppView.as_view()),
     path("api/predict/", views.predict),
     path("api/position/<uuid:uuid>/", views.get_position),
     path("api/download/<uuid:uuid>/", views.get_download),

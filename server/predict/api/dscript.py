@@ -16,13 +16,20 @@ import torch
 from django.conf import settings
 from dotenv import load_dotenv
 
-from dscript.fasta import parse_input
+from dscript.fasta import parse
 from dscript.language_model import lm_embed
 from dscript.pretrained import get_pretrained
 
 from ..models import Job
 
 load_dotenv()
+
+if settings.DSCRIPT_DEPLOY_ENV:
+    outgoing_mail_server = "outgoing.csail.mit.edu"
+    outgoing_mail_port = 25
+else:
+    outgoing_mail_server = "smtp.gmail.com"
+    outgoing_mail_port = 465
 
 
 def predict_pairs(
@@ -80,8 +87,8 @@ def predict_pairs(
     # Load Sequences
     logging.info("# Loading Sequences...")
     with open(seq_file, "r") as f:
-        names, sequences = parse_input(f.read())
-    seqDict = {n: s for n, s in zip(names, sequences)}
+        names, sequences = parse(f)
+    seqDict = {n.split()[0]: s for n, s in zip(names, sequences)}
     logging.info(seqDict)
 
     # Load Pairs
@@ -90,10 +97,10 @@ def predict_pairs(
     all_prots = set(pairs_array.iloc[:, 0]).union(pairs_array.iloc[:, 1])
 
     # Generate Embeddings
-    logging.info("# Generating Embeddings...")
-    embeddings = {}
-    for n in all_prots:
-        embeddings[n] = lm_embed(seqDict[n], use_cuda)
+    # logging.info("# Generating Embeddings...")
+    # embeddings = {}
+    # for n in all_prots:
+    #     embeddings[n] = lm_embed(seqDict[n], use_cuda)
 
     # Make Predictions
     logging.info("# Making Predictions...")
@@ -108,8 +115,10 @@ def predict_pairs(
                     job.save()
                     f.flush()
                 n_complete += 1
-                p0 = embeddings[n0]
-                p1 = embeddings[n1]
+                # p0 = embeddings[n0]
+                # p1 = embeddings[n1]
+                p0 = lm_embed(seqDict[n0], use_cuda)
+                p1 = lm_embed(seqDict[n1], use_cuda)
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
@@ -170,6 +179,23 @@ def create_message(
     return text
 
 
+def send_message(sender_email, receiver_email, text):
+    # Log in to server using secure context and send email
+    if settings.DSCRIPT_DEPLOY_ENV:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        with smtplib.SMTP(outgoing_mail_server, outgoing_mail_port) as server:
+            server.starttls(context=context)
+            server.sendmail(sender_email, receiver_email, text)
+    else:
+        context = ssl.create_default_context()
+        password = os.getenv("EMAIL_PWD")
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com", 465, context=context
+        ) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, text)
+
+
 def email_results(
     uuid,
     sender_email=settings.DSCRIPT_SENDER_EMAIL,
@@ -191,17 +217,12 @@ def email_results(
     else:
         subject = f"D-SCRIPT Results for {title} ({uuid})"
     body = f"These are the results of your D-SCRIPT prediction on job {uuid}"
-    password = os.getenv("EMAIL_PWD")
 
     text = create_message(
         sender_email, receiver_email, subject, body, uuid, filename
     )
 
-    # Log in to server using secure context and send email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, text)
+    send_message(sender_email, receiver_email, text)
 
 
 def email_confirmation(
@@ -224,12 +245,7 @@ def email_confirmation(
     else:
         subject = f"D-SCRIPT Job {title} ({uuid}) Submission"
     body = f"You have successfully submitted a job with id {uuid} for D-SCRIPT prediction. Keep track of this id to monitor your job status."
-    password = os.getenv("EMAIL_PWD")
 
     text = create_message(sender_email, receiver_email, subject, body, uuid)
 
-    # Log in to server using secure context and send email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, text)
+    send_message(sender_email, receiver_email, text)

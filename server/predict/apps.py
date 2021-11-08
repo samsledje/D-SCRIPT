@@ -15,4 +15,4 @@ class PredictConfig(AppConfig):
         from .tasks import sweep_incomplete_jobs
 
         rslt = sweep_incomplete_jobs.delay()
-        rslt.get()
+        rslt.forget()

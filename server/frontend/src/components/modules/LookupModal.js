@@ -22,7 +22,6 @@ export default function LookupModal(props) {
     const [counter, setCounter] = useState(0);
     const [status, setJobStatus] = useState(props.status);
     const [processed, setProcessed] = useState(false);
-    const [_, setLookupValid] = useState(true);
     const [viewPath, setViewPath] = useState(null);
     const [filePath, setFilePath] = useState('');
 
@@ -43,26 +42,26 @@ export default function LookupModal(props) {
     }, [props.status])
 
     useEffect(() => {
+      const BASE_URL = process.env.REACT_APP_BASE_URL;
       if (counter > 0) {
         setTimeout(() => {
           setCounter(counter - 1)
         }, 1000);
       } else {
         axios
-          .get(`http://localhost:8000/api/position/${props.id}/`)
+          .get(`${BASE_URL}/api/position/${props.id}/`)
           .then((res) => {
             if (res.status === 200) {
-                setLookupValid(true)
                 setJobStatus(res.data.status)
-                if (res.data.status == 'PENDING') {
+                if (res.data.status === 'PENDING') {
                   setProcessed(false)
                   setCounter(10)
-                } else if (res.data.status == 'STARTED') {
+                } else if (res.data.status === 'STARTED') {
                   setProcessed(false)
                   setCounter(10)
-                } else if (res.data.status == 'SUCCESS') {
+                } else if (res.data.status === 'SUCCESS') {
                   setProcessed(true)
-                  setViewPath(`http://localhost:8000/view/${props.id}`)
+                  setViewPath(`${BASE_URL}/analysis/${props.id}`)
                   axios
                     .get(`http://localhost:8000/api/download_loc/${props.id}/`)
                     .then((res) => {
@@ -70,11 +69,10 @@ export default function LookupModal(props) {
                       setFilePath(res)
                     })
                     .catch((err) => console.log(err))
-                } else if (res.data.status == 'FAILURE') {
+                } else if (res.data.status === 'FAILURE') {
                   setProcessed(true)
                 }
             } else {
-                setLookupValid(false)
                 setJobStatus(null)
             }
           })

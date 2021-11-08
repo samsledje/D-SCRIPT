@@ -18,7 +18,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from dscript.fasta import parse_input
+from dscript.fasta import parse
 
 from .models import Job
 from .tasks import process_job
@@ -67,7 +67,7 @@ def upload_stream_to_local(in_file, out_file):
 
 def get_all_pairs(seq_file):
     with open(seq_file, "r") as f:
-        nam, _ = parse_input(f.read())
+        nam, _ = parse(f)
         pairs = "\n".join("\t".join(p) for p in itertools.combinations(nam, 2))
         return pairs
 
@@ -87,7 +87,7 @@ class PredictionServerException(Exception):
 def validate_inputs(seq_path, pair_path):
     try:
         with open(seq_path, "r") as f:
-            nam, _ = parse_input(f.read())
+            nam, _ = parse(f)
         assert len(nam), "You must provide at least one sequence."
         assert (
             len(nam) < settings.DSCRIPT_MAX_SEQS
@@ -104,13 +104,15 @@ def validate_inputs(seq_path, pair_path):
         assert (
             df.shape[0] < settings.DSCRIPT_MAX_PAIRS
         ), f"Number of pairs {df.shape[0]} is larger than the maximum allowed ({settings.DSCRIPT_MAX_PAIRS})."
-    except AssertionError as err:
+    except (AssertionError, pd.errors.ParserError) as err:
         raise PredictionServerException(
             status.HTTP_406_NOT_ACCEPTABLE, f"Pairs parse error: {str(err)}"
         )
 
     names_in_pairs = set(df.iloc[:, 0]).union(df.iloc[:, 1])
-    names_in_seqs = set(nam)
+    names_in_seqs = set([i.split()[0] for i in nam])
+    logging.debug(names_in_pairs)
+    logging.debug(names_in_seqs)
     if len(names_in_pairs.difference(names_in_seqs)):
         raise PredictionServerException(
             status.HTTP_406_NOT_ACCEPTABLE,
@@ -161,9 +163,6 @@ def predict(request):
 
             # Validate inputs are properly formatted and allowed
             n_seqs, n_pairs = validate_inputs(seq_path, pair_path)
-
-            logging.debug(n_seqs, seq_path)
-            logging.debug(n_pairs, pair_path)
 
         except PredictionServerException as err:
             logging.debug(err)

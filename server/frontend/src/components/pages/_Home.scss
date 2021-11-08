@@ -4,11 +4,24 @@
     flex-flow: column wrap;
 
     div {
+        min-width: 480px;
+        > * {
+            margin: 8px;
+        }
+    }
+
+    form {
         width: 50%;
         min-width: 480px;
 
         > * {
             margin: 8px;
         }
+    }
+
+
+    img {
+        max-width: 100%;
+        height: auto;
     }
 }
