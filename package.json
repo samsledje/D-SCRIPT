@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "js-cookie": "^3.0.0",
-    "reach": "^1.0.1",
-    "router": "^1.3.5"
-  }
-}

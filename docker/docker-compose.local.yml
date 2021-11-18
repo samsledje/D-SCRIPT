@@ -1,0 +1,46 @@
+version: '3.3'
+services:
+  mit-csail-dscript-app:
+    container_name: mit-csail-dscript-app
+    image: mit-csail-dscript-app:local
+    #restart: always
+    depends_on:
+     - "mit-csail-dscript-redis"
+    build:
+      context: ../.
+      dockerfile: Dockerfile.app
+    volumes:
+     - ../data:/usr/app/data
+     - ../dscript:/usr/app/dscript
+     #SERVER files we want to work on locally that we want mapped into the container
+     - ../server/dscript-models:/usr/app/server/dscript-models
+     - ../server/predict:/usr/app/server/predict
+     - ../server/server:/usr/app/server/server
+     - ../server/db.sqlite3:/usr/app/server/db.sqlite3
+     - ../server/manage.py:/usr/app/server/manage.py
+     #FRONTEND files we want to work on locally that we want mapped into the container
+     - ../server/frontend/public:/usr/app/server/frontend/public
+     - ../server/frontend/src:/usr/app/server/frontend/src
+     - ../server/frontend/package.json:/usr/app/server/frontend/package.json
+
+    command: sh -c "cd /usr/app/server/frontend && npm run dev-server"
+    #command: sh -c "tail -f /dev/null"
+    ports:
+     - 3030:80
+     - 3031:3031
+    env_file:
+      - ./local.env
+
+  mit-csail-dscript-redis:
+    container_name: mit-csail-dscript-redis
+    build:
+      context: ../.
+      dockerfile: Dockerfile.redis
+    #command: [ "bash", "-c", 'docker-entrypoint.sh --requirepass "$$(cat $$REDIS_PASS_FILE)"' ]
+    environment:
+      REDIS_PASS_FILE: /run/secrets/REDIS_PASS
+    volumes:
+     - ./secrets/REDIS_PASS:/run/secrets/REDIS_PASS
+     - ./volume/redis_data:/data
+    ports:
+     - 3032:6379

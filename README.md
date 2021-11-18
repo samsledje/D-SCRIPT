@@ -23,7 +23,7 @@
 
  ```
  $ conda env create -f web_environment.yml
- ``` 
+ ```
 
  - Activate the created conda environment with
 
@@ -43,10 +43,21 @@ $ cd ..
 
 - Run `celery -A server worker -l info` in a separate tab (same note as above)
 
-- Launch the server with 
+- Launch the server with
 
 ```
 $ python manage.py runserver
 ```
 
 For development, the server can be access at `http://localhost:8000/`, and the admin panel at `http://localhost:8000/admin`.
+
+
+########
+
+## Docker
+
+### Local Setup
+
+1. Run
+python manage.py runserver 0.0.0.0:8000
+gunicorn -w 1 -b 0.0.0.0:80 server.wsgi

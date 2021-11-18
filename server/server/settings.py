@@ -43,6 +43,7 @@ logging.basicConfig(
 ALLOWED_HOSTS = [
         "dscript-predict.csail.mit.edu",
         "localhost",
+        "localhost:3030",
         "128.52.131.228"
         ]
 
@@ -110,7 +111,9 @@ DATABASES = {
 }
 
 # Celery
-CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_BROKER_URL = os.getenv("CELERY_REDIS_CONNECTION", default="redis://localhost:6379/0")
+
+
 # CELERY_RESULT_BACKEND = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = "django-db"
 

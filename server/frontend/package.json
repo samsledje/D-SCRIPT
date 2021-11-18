@@ -18,12 +18,17 @@
     "web-vitals": "^1.1.2",
     "yarn": "^1.22.11"
   },
+  "devDependencies": {
+    "nodemon": "1.19.1"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev-server": "cd .. && nodemon --watch ../server --watch ../dscript --ignore frontend --ignore db.sqlite3 --exec python manage.py runserver 0.0.0.0:80"
   },
+  "proxy": "http://localhost:3021/",
   "eslintConfig": {
     "extends": [
       "react-app",

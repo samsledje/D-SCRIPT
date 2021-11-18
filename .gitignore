@@ -18,3 +18,7 @@ node_modules
 .coverage
 htmlcov
 *.rdb
+
+#DOCKER
+docker/secrets
+docker/volume
