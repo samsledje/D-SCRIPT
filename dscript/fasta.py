@@ -1,21 +1,30 @@
-def parse(f, comment="#"):
-    """
-    Parse a file in ``.fasta`` format.
+from __future__ import print_function, division
 
-    :param f: Input file object
-    :type f: _io.TextIOWrapper
-    :param comment: Character used for comments
-    :type comment: str
+def parse_stream(f, comment=b'#'):
 
-    :return: names, sequence
-    :rtype: list[str], list[str]
-    """
-    starter = ">"
-    empty = ""
-    if "b" in f.mode:
-        comment = b"#"
-        starter = b">"
-        empty = b""
+    name = None
+    sequence = []
+    for line in f:
+        if line.startswith(comment):
+            continue
+        line = line.strip()
+        if line.startswith(b'>'):
+            if name is not None:
+                yield name, b''.join(sequence)
+            name = line[1:]
+            sequence = []
+        else:
+            sequence.append(line.upper())
+    if name is not None:
+        yield name, b''.join(sequence)
+
+def parse(f, comment='#'):
+    starter = '>'
+    empty = ''
+    if 'b' in f.mode:
+        comment = b'#'
+        starter = b'>'
+        empty = b''
     names = []
     sequences = []
     name = None
@@ -38,41 +47,50 @@ def parse(f, comment="#"):
 
     return names, sequences
 
-
-def parse_directory(directory, extension=".seq"):
-    """
-    Parse all files in a directory ending with ``extension``.
-
-    :param directory: Input directory
-    :type directory: str
-    :param extension: Extension of all files to read in
-    :type extension: str
-
-    :return: names, sequence
-    :rtype: list[str], list[str]
-    """
+def parse_directory(directory, extension='.seq'):
     names = []
     sequences = []
 
     for seqPath in os.listdir(directory):
         if seqPath.endswith(extension):
-            n, s = parse(open(f"{directory}/{seqPath}", "rb"))
-            names.append(n[0].decode("utf-8").strip())
-            sequences.append(s[0].decode("utf-8").strip())
+            n, s = parse(open(f"{directory}/{seqPath}","rb"))
+            names.append(n[0].decode('utf-8').strip())
+            sequences.append(s[0].decode('utf-8').strip())
     return names, sequences
 
-
 def write(nam, seq, f):
-    """
-    Write a file in ``.fasta`` format.
+    for n,s in zip(nam,seq):
+        f.write('>{}\n'.format(n))
+        f.write('{}\n'.format(s))
+        
+def count_bins(array, bins):
+    # Check bins make sense
+    lastB = 0
+    for b in bins:
+            assert b > lastB
+            lastB = b
+    if bins[0] > min(array) and min(array) < 0:
+            bins = [min(array)] + bins
+    if bins[-1] < max(array):
+            bins.append(max(array))
 
-    :param nam: List of names
-    :type nam: list[str]
-    :param seq: List of sequences
-    :type seq: list[str]
-    :param f: Output file object
-    :type f: _io.TextIOWrapper
-    """
-    for n, s in zip(nam, seq):
-        f.write(">{}\n".format(n))
-        f.write("{}\n".format(s))
+    binDict = {b: [] for b in bins}
+
+    for i in array:
+            for b in range(len(bins)):
+                    if i > bins[b]:
+                            continue
+                    else:
+                            binDict[bins[b]].append(i)
+                            break
+
+    binLens = {b: len(binDict[b]) for b in bins}
+
+    s = 0
+    for b in binDict.keys():
+            s += binLens[b]
+    assert s == len(array)
+
+    return binLens
+
+

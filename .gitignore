@@ -8,3 +8,5 @@ dist/*
 **/.ipynb_checkpoints/**
 **/__pycache__/**
 collect_env.py
+devCoral/*
+htmlcov/*

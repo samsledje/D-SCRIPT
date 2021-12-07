@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import gzip as gz
 
+from  .. import fasta as fa
 from tqdm import tqdm
 from ..alphabets import Uniprot21
 from ..utils import PairedDataset, collate_paired_sequences
@@ -158,9 +159,6 @@ def get_pair_names(path):
     return n0, n1
 
 def add_args(parser):
-    # Defaults
-    # parser = argparse.ArgumentParser('Script for training protein interaction prediction model')
-    #parser.add_argument('--config', help='yaml config file - command line options supercede config file')
 
     # Data
     parser.add_argument('--pos-pairs', required=True, help='list of true positive pairs')
@@ -168,36 +166,32 @@ def add_args(parser):
     parser.add_argument('--pos-test', required=True, help='list of true positive pairs for evaluation')
     parser.add_argument('--neg-test', required=True, help='list of true negative (or random) pairs for evaluation')
     parser.add_argument('--embedding', required=True, help='h5py path containing embedded sequences')
-    parser.add_argument('--augment',action='store_true',help='set flag to augment data by adding (B A) for all pairs (A B)')
-    #parser.add_argument('--embedding-size', default=100, help='dimension of embeddings (default: 100)')
-    parser.add_argument('--protein-size', default=800, help='maximum protein size to use in training data (default: 800)')
+    parser.add_argument('--no-augment',action='store_true', default=False, help='set flag to not augment data by adding (B A) for all pairs (A B)')
 
     # Embedding model
-    parser.add_argument('--dumb-embed-switch',action='store_true', help='use last 100 dimensions of embedding naively')
     parser.add_argument('--projection-dim', type=int, default=100, help='dimension of embedding projection layer (default: 100)')
     parser.add_argument('--dropout-p', type=float, default=0.5, help='parameter p for embedding dropout layer (default: 0.5)')
-    
+
     # Contact model
     parser.add_argument('--hidden-dim', type=int, default=50, help='number of hidden units for comparison layer in contact prediction (default: 50)')
     parser.add_argument('--kernel-width', type=int, default=7, help='width of convolutional filter for contact prediction (default: 7)')
 
     # Interaction Model
-    parser.add_argument('--use-w', action='store_true', help='use weight matrix in interaction prediction model')
-    parser.add_argument('--do-pool', action='store_true', help='use max pool layer in interaction prediction model')
+    parser.add_argument('--no-w', action='store_true', default=False, help='dont use weight matrix in interaction prediction model')
+    parser.add_argument('--no-pool', action='store_true', default=False, help='dont use max pool layer in interaction prediction model')
     parser.add_argument('--pool-width', type=int, default=9, help='size of max-pool in interaction model (default: 9)')
-    parser.add_argument('--sigmoid', action='store_true', help='use sigmoid activation at end of interaction model')
+    parser.add_argument('--no-sigmoid', action='store_true', default=False, help='set to not use sigmoid activation at end of interaction model')
 
     # Training
-    parser.add_argument('--negative-ratio', type=int, default=10, help='number of negative training samples for each positive training sample (default: 10)')
-    parser.add_argument('--epoch-scale', type=int, default=5, help='report heldout performance every this many epochs (default: 5)')
-    parser.add_argument('--num-epochs', type=int, default=100, help='number of epochs (default: 100)')
+    parser.add_argument('--epoch-scale', type=int, default=1, help='report heldout performance every this many epochs (default: 1)')
+    parser.add_argument('--num-epochs', type=int, default=10, help='number of epochs (default: 10)')
 
     parser.add_argument('--batch-size', type=int, default=25, help='minibatch size (default: 25)')
     parser.add_argument('--weight-decay', type=float, default=0, help='L2 regularization (default: 0)')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate (default: 0.001)')
-    parser.add_argument('--lambda', dest='lambda_', type=float, default=0.65, help='weight on the similarity objective (default: 0.65)')
-    parser.add_argument('--pred-skew',type=float,default=0.5,help='raise predictions to pred_skew before computing loss (default: 0.5)')
-    parser.add_argument('--skew-alpha',type=float,default=0,help='p = (alpha)(phat) + (1-alpha)(phat ** skew) (default: 0)')
+    parser.add_argument('--lambda', dest='lambda_', type=float, default=0.35, help='weight on the similarity objective (default: 0.35)')
+    parser.add_argument('--pred-skew',type=float,default=1,help='raise predictions to pred_skew before computing loss (default: 1)')
+    parser.add_argument('--skew-alpha',type=float,default=1,help='p = (alpha)(phat) + (1-alpha)(phat ** skew) (default: 1)')
 
     # Output
     parser.add_argument('-o', '--output', help='output file path (default: stdout)')
@@ -215,8 +209,7 @@ def load_embeddings_from_args(args, output):
     neg_train = args.neg_pairs
     pos_test = args.pos_test
     neg_test = args.neg_test
-    augment = args.augment
-    protein_size = args.protein_size
+    augment = not args.no_augment
 
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, 'r')
@@ -225,40 +218,36 @@ def load_embeddings_from_args(args, output):
     output.flush()
 
     n0_pos, n1_pos = get_pair_names(pos_train)
-    #z0_pos, z1_pos = get_embeddings(h5fi, n0_pos, n1_pos,thresh=protein_size)
     if augment:
         n0_pos_new = n0_pos + n1_pos
         n1_pos_new = n1_pos + n0_pos
         n0_pos = n0_pos_new
         n1_pos = n1_pos_new
     y_pos = torch.ones(len(n0_pos), dtype=torch.float32)
-    
+
     print(f'# Loaded {len(n0_pos)} positive training pairs', file=output)
     output.flush()
 
     n0_neg, n1_neg = get_pair_names(neg_train)
-    #z0_neg, z1_neg = get_embeddings(h5fi, n0_neg, n1_neg,thresh=protein_size)
     if augment:
         n0_neg_new = n0_neg + n1_neg
         n1_neg_new = n1_neg + n0_neg
         n0_neg = n0_neg_new
         n1_neg = n1_neg_new
     y_neg = torch.zeros(len(n0_neg), dtype=torch.float32)
-    
+
     print(f'# Loaded {len(n0_neg)} negative training pairs', file=output)
 
     print(f'# Loading testing pairs from {pos_test},{neg_test}...', file=output)
     output.flush()
 
     n0_pos_test, n1_pos_test = get_pair_names(pos_test)
-    #z0_pos_test, z1_pos_test = get_embeddings(h5fi, n0_pos_test, n1_pos_test,thresh=protein_size)
     y_pos_test = torch.ones(len(n0_pos_test), dtype=torch.float32)
 
     print(f'# Loaded {len(n0_pos_test)} positive test pairs', file=output)
     output.flush()
 
     n0_neg_test, n1_neg_test = get_pair_names(neg_test)
-    #z0_neg_test, z1_neg_test = get_embeddings(h5fi, n0_neg_test, n1_neg_test,thresh=protein_size)
     y_neg_test = torch.zeros(len(n0_neg_test), dtype=torch.float32)
 
     print(f'# Loaded {len(n0_neg_test)} negative test pairs', file=output)
@@ -277,16 +266,13 @@ def load_embeddings_from_args(args, output):
                                                        shuffle=True)
 
     output.flush()
-    
+
     print(f'# Loading Tensors',file=output)
     tensors = {}
     all_proteins = set(n0_pos).union(set(n1_pos)).union(set(n0_neg)).union(set(n1_neg)).union(set(n0_pos_test)).union(set(n1_pos_test)).union(set(n0_neg_test)).union(set(n1_neg_test))
     for prot_name in tqdm(all_proteins):
-        if args.dumb_embed_switch:
-            tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,-100:])
-        else:
-            tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,:])
-    
+        tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:,:])
+
     return pairs_train_iterator, pairs_test_iterator, tensors
 
 def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tensors, output):
@@ -296,22 +282,16 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
     if args.checkpoint is None:
 
         # Create embedding model
-        if args.dumb_embed_switch:
-            print('# Using last 100 dim of embeddings',file=output)
-            embedding = None
-            projection_dim = 100
-        else:
-            projection_dim = args.projection_dim
-            dropout_p = args.dropout_p
-            embedding = FullyConnectedEmbed(6165, projection_dim, dropout = dropout_p)
-            print('# Initializing embedding model with:', file=output)
-            print(f'\tprojection_dim: {projection_dim}', file=output)
-            print(f'\tdropout_p: {dropout_p}', file=output)
-        
+        projection_dim = args.projection_dim
+        dropout_p = args.dropout_p
+        embedding = FullyConnectedEmbed(6165, projection_dim, dropout = dropout_p)
+        print('# Initializing embedding model with:', file=output)
+        print(f'\tprojection_dim: {projection_dim}', file=output)
+        print(f'\tdropout_p: {dropout_p}', file=output)
+
         # Create contact model
         hidden_dim = args.hidden_dim
         kernel_width = args.kernel_width
-        #embedding_size = args.embedding_size
         print('# Initializing contact model with:', file=output)
         print(f'\thidden_dim: {hidden_dim}', file=output)
         print(f'\tkernel_width: {kernel_width}', file=output)
@@ -319,20 +299,20 @@ def run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tens
         contact = ContactCNN(projection_dim, hidden_dim, kernel_width)
 
         # Create the full model
-        use_W = args.use_w
-        do_pool = args.do_pool
+        use_W = not args.no_w
+        do_pool = not args.no_pool
         pool_width = args.pool_width
-        sigmoid = args.sigmoid
+        sigmoid = not args.no_sigmoid
         print('# Initializing interaction model with:', file=output)
         if do_pool:
             print(f'\tdo_poool: {do_pool}', file=output)
             print(f'\tpool_width: {pool_width}', file=output)
         print(f'\tuse_w: {use_W}', file=output)
         print(f'\tsigmoid: {sigmoid}',file=output)
-        model = ModelInteraction(embedding, contact, use_cuda, use_W = use_W, pool_size=pool_width, do_pool=do_pool, do_sigmoid=sigmoid)
+        model = ModelInteraction(embedding, contact, use_W = use_W, pool_size=pool_width)
 
         print(model,file=output)
-        
+
     else:
         #embedding_size = args.embedding_size
         print('# Loading model from checkpoint {}'.format(args.checkpoint), file=output)
@@ -448,7 +428,7 @@ def main(args):
     print(f'# Called as: {" ".join(sys.argv)}',file=output)
     if output is not sys.stdout:
         print(f'Called as: {" ".join(sys.argv)}')
-        
+
     ## Set the device
     device = args.device
     use_cuda = (device > -1) and torch.cuda.is_available()
@@ -463,6 +443,5 @@ def main(args):
     run_training_from_args(args, pairs_train_iterator, pairs_test_iterator, tensors, output)
 
     output.close()
-
 if __name__ == "__main__":
     main(parse_args())

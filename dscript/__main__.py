@@ -17,11 +17,11 @@ class CitationAction(argparse.Action):
 
 
 def main():
-    import dscript
-
+    from . import __version__
+    
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument("-v", "--version", action="version", version="D-SCRIPT " + dscript.__version__)
+    parser.add_argument("-v", "--version", action="version", version="D-SCRIPT " + __version__)
     parser.add_argument(
         "-c",
         "--citation",
@@ -33,16 +33,16 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    import dscript.commands.train
-    import dscript.commands.eval
-    import dscript.commands.embed
-    import dscript.commands.predict
+    from .commands import train as train
+    from .commands import evaluate as evaluate
+    from .commands import embed as embed
+    from .commands import predict as predict
 
     modules = {
-        "train": dscript.commands.train,
-        "eval": dscript.commands.eval,
-        "embed": dscript.commands.embed,
-        "predict": dscript.commands.predict,
+        "train": train,
+        "eval": evaluate,
+        "embed": embed,
+        "predict": predict,
     }
 
     for name, module in modules.items():

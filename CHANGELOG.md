@@ -2,12 +2,18 @@
 - Full logging system (issue #5)
 - Add multi-gpu support (issue #6)
 - Use multiple workers to load embeddings / support for loading embeddings on the fly to reduce memory usage (issue #8/11)
-- Add convenience function to generate candidates - all pairs from a list / cartesian produt of multiple lists
+- Add convenience function to generate candidates - all pairs from a list / cartesian product of multiple lists
 - Add error handling for calledProcessError in utils.gpu_mem
 
 # v0
 
 ## v0.1
+
+### v0.1.7-dev: 2021** -- Major overhaul in training
+
+- Fixed significant bug in how training was run by reverting to older code
+- Should address issue #24: unable to replicate paper results
+- To do: code cleaning to bring up to formatting standards while maintaining performance
 
 ### v0.1.6: 2021-09-06 -- Bug Fix - Augmentation and proper defaults
 - Augmentation fix in v0.1.5 was bugged still and would throw an error, now resets index

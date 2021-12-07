@@ -11,10 +11,10 @@ import pandas as pd
 from scipy.special import comb
 from tqdm import tqdm
 
-from dscript.alphabets import Uniprot21
-from dscript.fasta import parse
-from dscript.language_model import lm_embed
-from dscript.utils import log
+from ..alphabets import Uniprot21
+from ..fasta import parse
+from ..language_model import lm_embed
+from ..utils import log
 
 def add_args(parser):
     """
