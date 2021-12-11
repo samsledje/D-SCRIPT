@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { makeStyles, Modal, Backdrop, Fade, LinearProgress, Button } from '@material-ui/core'
 import axios from 'axios'
 
+var fileDownload = require('js-file-download');
+
 const useStyles = makeStyles((theme) => ({
     modal: {
       display: 'flex',
@@ -43,6 +45,7 @@ export default function LookupModal(props) {
 
     useEffect(() => {
       const BASE_URL = process.env.REACT_APP_BASE_URL;
+      // fileUrl = `http://localhost:8000/api/download/${props.id}/`;
       if (counter > 0) {
         setTimeout(() => {
           setCounter(counter - 1)
@@ -80,6 +83,17 @@ export default function LookupModal(props) {
       }
     }, [counter, props.id]);
 
+    const handleDownload = () => {
+      axios.get(`http://localhost:8000/api/download/${props.id}/`, {
+          responseType: 'blob',
+      }).then(res => {
+          fileDownload(res.data, 'download.tsv');
+          console.log(res);
+      }).catch(err => {
+          console.log(err);
+      })
+    }
+
     const downloadFile = () => {
       axios
         .get(`http://localhost:8000/api/download/${props.id}/`)
@@ -111,7 +125,7 @@ export default function LookupModal(props) {
                         <p>Job id: {props.id}</p>
                         <p><em>The results of your prediction have been emailed.</em></p>
                         <p><em>View and analyze results <a href={viewPath}>here</a></em></p>
-                        <p><Button variant='contained' onClick={downloadFile}><a href="" download={filePath}>Download</a></Button></p>
+                        <p><Button variant='contained' onClick={handleDownload}>Download</Button></p>
                       </div> :
                       <div className='LookupModal-Info'>
                         <p><em>Refreshing in {counter} seconds...</em></p>
@@ -126,4 +140,4 @@ export default function LookupModal(props) {
               </Modal>
         </div>
     )
-}
+  }
