@@ -11,10 +11,6 @@ import pandas as pd
 import subprocess as sp
 import sys
 import gzip as gz
-from Bio.Align import PairwiseAligner, substitution_matrices
-from Bio.pairwise2 import format_alignment
-from Bio.pairwise2 import align as Bio_align
-from Bio.SubsMat import MatrixInfo as matlist
         
 def log(m,file=None):
     if file is None:

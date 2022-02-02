@@ -9,9 +9,9 @@ class CitationAction(argparse.Action):
         super(CitationAction, self).__init__(option_strings, dest, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        import dscript
+        from . import __citation__
 
-        print(dscript.__citation__)
+        print(__citation__)
         setattr(namespace, self.dest, values)
         sys.exit(0)
 
