@@ -9,7 +9,11 @@
 
 ## v0.1
 
-### v0.1.7-dev: 2021** -- Major overhaul in training
+### v0.1.7-dev9: 2022-02-07 -- Update training code to be clean again
+
+- Following previous update, addresses #24 by fixing model training while maintaining preferred API and command line usage 
+
+### v0.1.7-dev1: 2021-12-16 -- Major overhaul in training
 
 - Fixed significant bug in how training was run by reverting to older code
 - Should address issue #24: unable to replicate paper results

@@ -46,7 +46,7 @@ class LogisticActivation(nn.Module):
         self.k.data.clamp_(min=0)
 
 class ModelInteraction(nn.Module):
-    def __init__(self, embedding, contact, use_cuda, do_pool=True, pool_size=9, theta_init=1, lambda_init = 0, gamma_init = 0, use_W=True, do_sigmoid = False):
+    def __init__(self, embedding, contact, use_cuda, do_pool=True, pool_size=9, theta_init=1, lambda_init = 0, gamma_init = 0, do_w=True, do_sigmoid = False):
         """
         Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.
 
@@ -64,12 +64,12 @@ class ModelInteraction(nn.Module):
         :type lambda_init: float
         :param gamma_init: initialization value of :math:`\\gamma` for global pooling [default: 0]
         :type gamma_init: float
-        :param use_W: whether to use the weighting matrix [default: True]
-        :type use_W: bool
+        :param do_w: whether to use the weighting matrix [default: True]
+        :type do_w: bool
         """
         super(ModelInteraction, self).__init__()
         self.use_cuda = use_cuda
-        self.use_W = use_W
+        self.do_w = do_w
         self.do_sigmoid = do_sigmoid
         if do_sigmoid:
             self.activation = LogisticActivation(x0=0.5, k = 20)
@@ -77,11 +77,9 @@ class ModelInteraction(nn.Module):
         self.embedding = embedding
         self.contact = contact
 
-        if self.use_W:
+        if self.do_w:
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
-            #self.lambda1 = nn.Parameter(torch.FloatTensor([lambda1_init]))
-            #self.lambda2 = nn.Parameter(torch.FloatTensor([lambda2_init]))
 
         self.doPool = do_pool
         self.maxPool = nn.MaxPool2d(pool_size,padding=pool_size//2)
@@ -98,11 +96,9 @@ class ModelInteraction(nn.Module):
         """
         self.contact.clip()
 
-        if self.use_W:
+        if self.do_w:
             self.theta.data.clamp_(min=0, max=1)
             self.lambda_.data.clamp_(min=0)
-            #self.lambda1.data.clamp_(min=0)
-            #self.lambda2.data.clamp_(min=0)
 
         self.gamma.data.clamp_(min=0)
 
@@ -151,7 +147,7 @@ class ModelInteraction(nn.Module):
 
         C = self.cpred(z0, z1)
 
-        if self.use_W:
+        if self.do_w:
             # Create contact weighting matrix
             N, M = C.shape[2:]
 

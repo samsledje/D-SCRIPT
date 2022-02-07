@@ -236,6 +236,28 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.get_kmer">
+<code class="sig-name descname"><span class="pre">get_kmer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.get_kmer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.get_kmer" title="Permalink to this definition">¶</a></dt>
+<dd><p>retrieve byte string of length k decoded from integer h</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.alphabets.Alphabet.unpack">
+<code class="sig-name descname"><span class="pre">unpack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#Alphabet.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.alphabets.Alphabet.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpack integer h into array of this alphabet with length k</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.alphabets.SDM12">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.alphabets.</span></code><code class="sig-name descname"><span class="pre">SDM12</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/alphabets.html#SDM12"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.alphabets.SDM12" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscript.alphabets.Alphabet" title="dscript.alphabets.Alphabet"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscript.alphabets.Alphabet</span></code></a></p>
+<p>A D KER N TSQ YF LIVM C W H G P</p>
+<p>See <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732308/#B33">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732308/#B33</a>
+“Reduced amino acid alphabets exhibit an improved sensitivity and selectivity in fold assignment”
+Peterson et al. 2009. Bioinformatics.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -250,59 +272,29 @@
 <div class="section" id="module-dscript.fasta">
 <span id="dscript-fasta"></span><h2>dscript.fasta<a class="headerlink" href="#module-dscript.fasta" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
+<dt id="dscript.fasta.count_bins">
+<code class="sig-prename descclassname"><span class="pre">dscript.fasta.</span></code><code class="sig-name descname"><span class="pre">count_bins</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#count_bins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.fasta.count_bins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="dscript.fasta.parse">
 <code class="sig-prename descclassname"><span class="pre">dscript.fasta.</span></code><code class="sig-name descname"><span class="pre">parse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.fasta.parse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a file in <code class="docutils literal notranslate"><span class="pre">.fasta</span></code> format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>f</strong> (<em>_io.TextIOWrapper</em>) – Input file object</p></li>
-<li><p><strong>comment</strong> (<em>str</em>) – Character used for comments</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>names, sequence</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list[str], list[str]</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt id="dscript.fasta.parse_directory">
 <code class="sig-prename descclassname"><span class="pre">dscript.fasta.</span></code><code class="sig-name descname"><span class="pre">parse_directory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.seq'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.fasta.parse_directory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse all files in a directory ending with <code class="docutils literal notranslate"><span class="pre">extension</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>directory</strong> (<em>str</em>) – Input directory</p></li>
-<li><p><strong>extension</strong> (<em>str</em>) – Extension of all files to read in</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>names, sequence</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list[str], list[str]</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="dscript.fasta.parse_stream">
+<code class="sig-prename descclassname"><span class="pre">dscript.fasta.</span></code><code class="sig-name descname"><span class="pre">parse_stream</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">b'#'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#parse_stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.fasta.parse_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt id="dscript.fasta.write">
 <code class="sig-prename descclassname"><span class="pre">dscript.fasta.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/fasta.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.fasta.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a file in <code class="docutils literal notranslate"><span class="pre">.fasta</span></code> format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>nam</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of names</p></li>
-<li><p><strong>seq</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of sequences</p></li>
-<li><p><strong>f</strong> (<em>_io.TextIOWrapper</em>) – Output file object</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-dscript.language_model">
@@ -412,7 +404,7 @@
 <dl class="py class">
 <dt id="dscript.utils.PairedDataset">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">PairedDataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#PairedDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.PairedDataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.dataset.T_co</span></code>]</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
 <p>Dataset to be used by the PyTorch data loader for pairs of sequences and their labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -453,65 +445,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="dscript.utils.gpu_mem">
-<code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">gpu_mem</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#gpu_mem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.gpu_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get current memory usage for GPU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>device</strong> (<em>int</em>) – GPU device number</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>memory used, memory total</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int, int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="dscript.utils.log">
-<code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">msg</span></em>, <em class="sig-param"><span class="pre">file=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stderr&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='UTF-8'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log datetime-stamped message to file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – Message to log</p></li>
-<li><p><strong>f</strong> – Writable file object to log message to</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="dscript.utils.plot_PR_curve">
-<code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">plot_PR_curve</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveFile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#plot_PR_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.plot_PR_curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot precision-recall curve.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>np.ndarray</em>) – Labels</p></li>
-<li><p><strong>phat</strong> (<em>np.ndarray</em>) – Predicted probabilities</p></li>
-<li><p><strong>saveFile</strong> (<em>str</em>) – File for plot of curve to be saved to</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="dscript.utils.plot_ROC_curve">
-<code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">plot_ROC_curve</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveFile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#plot_ROC_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.plot_ROC_curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot receiver operating characteristic curve.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>np.ndarray</em>) – Labels</p></li>
-<li><p><strong>phat</strong> (<em>np.ndarray</em>) – Predicted probabilities</p></li>
-<li><p><strong>saveFile</strong> (<em>str</em>) – File for plot of curve to be saved to</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-prename descclassname"><span class="pre">dscript.utils.</span></code><code class="sig-name descname"><span class="pre">log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/utils.html#log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.utils.log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 </div>

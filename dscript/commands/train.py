@@ -43,29 +43,18 @@ def add_args(parser):
 
     # Data
     data_grp.add_argument(
-        "--pos-pairs", required=True, help="list of true positive pairs"
+        "--train", required=True, help="list of training pairs"
     )
     data_grp.add_argument(
-        "--neg-pairs", required=True, help="list of true negative pairs"
-    )
-    data_grp.add_argument(
-        "--pos-test", required=True, help="list of true positive pairs for evaluation"
-    )
-    data_grp.add_argument(
-        "--neg-test", required=True, help="list of true negative pairs for evaluation"
+        "--test", required=True, help="list of validation/testing pairs"
     )
     data_grp.add_argument(
         "--embedding", required=True, help="h5py path containing embedded sequences"
     )
     data_grp.add_argument(
-        "--augment",
+        "--no-augment",
         action="store_true",
-        help="set flag to augment data by adding (B A) for all pairs (A B)",
-    )
-    parser.add_argument(
-        "--protein-size",
-        default=800,
-        help="maximum protein size to use in training data (default: 800)",
+        help="data is automatically augmented by adding (B A) for all pairs (A B). Set this flag to not augment data",
     )
 
     # Embedding model
@@ -104,9 +93,14 @@ def add_args(parser):
 
     # Interaction Model
     inter_grp.add_argument(
-        "--use-w",
+        "--no-w",
         action="store_true",
-        help="use weight matrix in interaction prediction model",
+        help="don't use weight matrix in interaction prediction model",
+    )
+    inter_grp.add_argument(
+        "--no-sigmoid",
+        action="store_true",
+        help="don't use sigmoid activation at end of interaction model",
     )
     inter_grp.add_argument(
         "--do-pool",
@@ -119,19 +113,8 @@ def add_args(parser):
         default=9,
         help="size of max-pool in interaction model (default: 9)",
     )
-    inter_grp.add_argument(
-        "--sigmoid",
-        action="store_true",
-        help="use sigmoid activation at end of interaction model",
-    )
 
     # Training
-    train_grp.add_argument(
-        "--epoch-scale",
-        type=int,
-        default=1,
-        help="report heldout performance every this many epochs (default: 1)",
-    )
     train_grp.add_argument(
         "--num-epochs", type=int, default=10, help="number of epochs (default: 10)"
     )
@@ -147,22 +130,10 @@ def add_args(parser):
     )
     train_grp.add_argument(
         "--lambda",
-        dest="lambda_",
+        dest="interaction_weight",
         type=float,
         default=0.35,
         help="weight on the similarity objective (default: 0.35)",
-    )
-    train_grp.add_argument(
-        "--pred-skew",
-        type=float,
-        default=1,
-        help="raise predictions to pred_skew before computing loss (default: 1)",
-    )
-    train_grp.add_argument(
-        "--skew-alpha",
-        type=float,
-        default=0,
-        help="p = (alpha)(phat) + (1-alpha)(phat ** skew) (default: 0)",
     )
 
     # Output
@@ -242,9 +213,7 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     return c_map_mag, p_hat
 
 
-def interaction_grad(
-    model, n0, n1, y, tensors, use_cuda, weight=0.35, skew=0.5, alpha=0
-):
+def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
     """
     Compute gradient and backpropagate loss for a batch.
 
@@ -273,8 +242,7 @@ def interaction_grad(
     y = Variable(y)
 
     p_hat = p_hat.float()
-    p_hat_skew = (alpha * p_hat) + ((1 - alpha) * p_hat ** skew)
-    bce_loss = F.binary_cross_entropy(p_hat_skew.float(), y.float())
+    bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
     cmap_loss = torch.mean(c_map_mag)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
     b = len(p_hat)
@@ -351,117 +319,72 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
 
     return loss, correct, mse, pr, re, f1, aupr
 
-
-def get_pair_names(path):
-    n0, n1 = [], []
-    with open(path, "r") as f:
-        for l in f:
-            a, b = l.strip().split()[:2]
-            n0.append(a)
-            n1.append(b)
-    return n0, n1
-
-
-def load_embeddings_from_args(args, output):
+def train_model(args, output):
     ## Create data sets
-    batch_size = args.batch_size
 
-    pos_train = args.pos_pairs
-    neg_train = args.neg_pairs
-    pos_test = args.pos_test
-    neg_test = args.neg_test
-    augment = args.augment
-    protein_size = args.protein_size
+    batch_size = args.batch_size
+    use_cuda = (args.device > -1) and torch.cuda.is_available()
+    train_fi = args.train
+    test_fi = args.test
+    no_augment = args.no_augment
 
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {pos_train},{neg_train}...", file=output)
+    print(f"# Loading training pairs from {train_fi}...", file=output)
     output.flush()
 
-    n0_pos, n1_pos = get_pair_names(pos_train)
-    if augment:
-        n0_pos_new = n0_pos + n1_pos
-        n1_pos_new = n1_pos + n0_pos
-        n0_pos = n0_pos_new
-        n1_pos = n1_pos_new
-    y_pos = torch.ones(len(n0_pos), dtype=torch.float32)
+    train_df = pd.read_csv(train_fi,sep='\t',header=None)
+    train_df.columns = ["prot1","prot2","label"]
 
-    print(f"# Loaded {len(n0_pos)} positive training pairs", file=output)
-    output.flush()
+    if no_augment:
+        train_p1 = train_df["prot1"]
+        train_p2 = train_df["prot2"]
+        train_y = torch.from_numpy(train_df["label"].values)
+    else:
+        train_p1 = pd.concat((train_df["prot1"], train_df["prot2"]), axis=0).reset_index(drop=True)
+        train_p2 = pd.concat((train_df["prot2"], train_df["prot1"]), axis=0).reset_index(drop=True)
+        train_y = torch.from_numpy(pd.concat((train_df["label"], train_df["label"])).values)
 
-    n0_neg, n1_neg = get_pair_names(neg_train)
-    if augment:
-        n0_neg_new = n0_neg + n1_neg
-        n1_neg_new = n1_neg + n0_neg
-        n0_neg = n0_neg_new
-        n1_neg = n1_neg_new
-    y_neg = torch.zeros(len(n0_neg), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg)} negative training pairs", file=output)
-
-    print(f"# Loading testing pairs from {pos_test},{neg_test}...", file=output)
-    output.flush()
-
-    n0_pos_test, n1_pos_test = get_pair_names(pos_test)
-    y_pos_test = torch.ones(len(n0_pos_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_pos_test)} positive test pairs", file=output)
-    output.flush()
-
-    n0_neg_test, n1_neg_test = get_pair_names(neg_test)
-    y_neg_test = torch.zeros(len(n0_neg_test), dtype=torch.float32)
-
-    print(f"# Loaded {len(n0_neg_test)} negative test pairs", file=output)
-    output.flush()
-
-    train_pairs = PairedDataset(
-        n0_pos + n0_neg, n1_pos + n1_neg, torch.cat((y_pos, y_neg), 0)
-    )
-    pairs_train_iterator = torch.utils.data.DataLoader(
-        train_pairs,
+    train_dataset = PairedDataset(train_p1, train_p2, train_y)
+    train_iterator = torch.utils.data.DataLoader(
+        train_dataset,
         batch_size=batch_size,
         collate_fn=collate_paired_sequences,
         shuffle=True,
     )
 
-    test_pairs = PairedDataset(
-        n0_pos_test + n0_neg_test,
-        n1_pos_test + n1_neg_test,
-        torch.cat((y_pos_test, y_neg_test), 0),
-    )
-    pairs_test_iterator = torch.utils.data.DataLoader(
-        test_pairs,
-        batch_size=batch_size,
-        collate_fn=collate_paired_sequences,
-        shuffle=True,
-    )
-
+    print(f"# Loaded {len(train_p1)} training pairs", file=output)
+    print(f"# Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
-    print(f"# Loading Tensors", file=output)
-    tensors = {}
+    test_df = pd.read_csv(test_fi,sep='\t',header=None)
+    test_df.columns = ["prot1","prot2","label"]
+    test_p1 = test_df["prot1"]
+    test_p2 = test_df["prot2"]
+    test_y = torch.from_numpy(test_df["label"].values)
+
+    test_dataset = PairedDataset(test_p1, test_p2, test_y)
+    test_iterator = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=False,
+    )
+
+    print(f"# Loaded {len(test_p1)} test pairs", file=output)
+    print(f"# Loading embeddings", file=output)
+    output.flush()
+
+    embeddings = {}
     all_proteins = (
-        set(n0_pos)
-        .union(set(n1_pos))
-        .union(set(n0_neg))
-        .union(set(n1_neg))
-        .union(set(n0_pos_test))
-        .union(set(n1_pos_test))
-        .union(set(n0_neg_test))
-        .union(set(n1_neg_test))
+        set(train_p1)
+        .union(train_p2)
+        .union(test_p1)
+        .union(test_p2)
     )
     for prot_name in tqdm(all_proteins):
-        tensors[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
-
-    return pairs_train_iterator, pairs_test_iterator, tensors
-
-
-def run_training_from_args(
-    args, pairs_train_iterator, pairs_test_iterator, tensors, output
-):
-
-    use_cuda = (args.device > -1) and torch.cuda.is_available()
+        embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
     if args.checkpoint is None:
 
@@ -469,7 +392,7 @@ def run_training_from_args(
         input_dim = args.input_dim
         projection_dim = args.projection_dim
         dropout_p = args.dropout_p
-        embedding = FullyConnectedEmbed(input_dim, projection_dim, dropout=dropout_p)
+        embedding_model = FullyConnectedEmbed(input_dim, projection_dim, dropout=dropout_p)
         print("# Initializing embedding model with:", file=output)
         print(f"\tprojection_dim: {projection_dim}", file=output)
         print(f"\tdropout_p: {dropout_p}", file=output)
@@ -477,38 +400,35 @@ def run_training_from_args(
         # Create contact model
         hidden_dim = args.hidden_dim
         kernel_width = args.kernel_width
-        # embedding_size = args.embedding_size
         print("# Initializing contact model with:", file=output)
         print(f"\thidden_dim: {hidden_dim}", file=output)
         print(f"\tkernel_width: {kernel_width}", file=output)
 
-        contact = ContactCNN(projection_dim, hidden_dim, kernel_width)
+        contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width)
 
         # Create the full model
-        use_W = args.use_w
+        do_w = not args.no_w
         do_pool = args.do_pool
         pool_width = args.pool_width
-        sigmoid = args.sigmoid
+        do_sigmoid = not args.no_sigmoid
         print("# Initializing interaction model with:", file=output)
-        if do_pool:
-            print(f"\tdo_poool: {do_pool}", file=output)
-            print(f"\tpool_width: {pool_width}", file=output)
-        print(f"\tuse_w: {use_W}", file=output)
-        print(f"\tsigmoid: {sigmoid}", file=output)
+        print(f"\tdo_poool: {do_pool}", file=output)
+        print(f"\tpool_width: {pool_width}", file=output)
+        print(f"\tdo_w: {do_w}", file=output)
+        print(f"\tdo_sigmoid: {do_sigmoid}", file=output)
         model = ModelInteraction(
-            embedding,
-            contact,
+            embedding_model,
+            contact_model,
             use_cuda,
-            use_W=use_W,
+            do_w=do_w,
             pool_size=pool_width,
             do_pool=do_pool,
-            do_sigmoid=sigmoid,
+            do_sigmoid=do_sigmoid,
         )
 
         print(model, file=output)
 
     else:
-        # embedding_size = args.embedding_size
         print("# Loading model from checkpoint {}".format(args.checkpoint), file=output)
         model = torch.load(args.checkpoint)
         model.use_cuda = use_cuda
@@ -521,11 +441,8 @@ def run_training_from_args(
     wd = args.weight_decay
     num_epochs = args.num_epochs
     batch_size = args.batch_size
-    report_steps = args.epoch_scale
-    inter_weight = args.lambda_
+    inter_weight = args.interaction_weight
     cmap_weight = 1 - inter_weight
-    phat_skew = args.pred_skew
-    phat_alpha = args.skew_alpha
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
 
@@ -535,14 +452,9 @@ def run_training_from_args(
     print(f'# Using save prefix "{save_prefix}"', file=output)
     print(f"# Training with Adam: lr={lr}, weight_decay={wd}", file=output)
     print(f"\tnum_epochs: {num_epochs}", file=output)
-    print(f"\tepoch_scale: {report_steps}", file=output)
     print(f"\tbatch_size: {batch_size}", file=output)
     print(f"\tinteraction weight: {inter_weight}", file=output)
     print(f"\tcontact map weight: {cmap_weight}", file=output)
-    print(
-        f"\tloss calculation: phat = {phat_alpha}*phat + (1 - {phat_alpha})*(phat^{phat_skew})",
-        file=output,
-    )
     output.flush()
 
     batch_report_fmt = (
@@ -550,7 +462,7 @@ def run_training_from_args(
     )
     epoch_report_fmt = "# Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
-    N = len(pairs_train_iterator) * batch_size
+    N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
 
         model.train()
@@ -561,18 +473,16 @@ def run_training_from_args(
         mse_accum = 0
 
         # Train batches
-        for (z0, z1, y) in pairs_train_iterator:
+        for (z0, z1, y) in train_iterator:
 
             loss, correct, mse, b = interaction_grad(
                 model,
                 z0,
                 z1,
                 y,
-                tensors,
+                embeddings,
                 use_cuda,
                 weight=inter_weight,
-                skew=phat_skew,
-                alpha=phat_alpha,
             )
 
             n += b
@@ -603,33 +513,32 @@ def run_training_from_args(
                 print(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
-        if (epoch + 1) % report_steps == 0:
-            model.eval()
+        model.eval()
 
-            with torch.no_grad():
+        with torch.no_grad():
 
-                (
-                    inter_loss,
-                    inter_correct,
-                    inter_mse,
-                    inter_pr,
-                    inter_re,
-                    inter_f1,
-                    inter_aupr,
-                ) = interaction_eval(model, pairs_test_iterator, tensors, use_cuda)
-                tokens = [
-                    epoch + 1,
-                    num_epochs,
-                    inter_loss,
-                    inter_correct / (len(pairs_test_iterator) * batch_size),
-                    inter_mse,
-                    inter_pr,
-                    inter_re,
-                    inter_f1,
-                    inter_aupr,
-                ]
-                print(epoch_report_fmt.format(*tokens), file=output)
-                output.flush()
+            (
+                inter_loss,
+                inter_correct,
+                inter_mse,
+                inter_pr,
+                inter_re,
+                inter_f1,
+                inter_aupr,
+            ) = interaction_eval(model, test_iterator, embeddings, use_cuda)
+            tokens = [
+                epoch + 1,
+                num_epochs,
+                inter_loss,
+                inter_correct / (len(test_iterator) * batch_size),
+                inter_mse,
+                inter_pr,
+                inter_re,
+                inter_f1,
+                inter_aupr,
+            ]
+            print(epoch_report_fmt.format(*tokens), file=output)
+            output.flush()
 
             # Save the model
             if save_prefix is not None:
@@ -683,12 +592,7 @@ def main(args):
         print("# Using CPU", file=output)
         device = "cpu"
 
-    pairs_train_iterator, pairs_test_iterator, tensors = load_embeddings_from_args(
-        args, output
-    )
-    run_training_from_args(
-        args, pairs_train_iterator, pairs_test_iterator, tensors, output
-    )
+    train_model(args, output)
 
     output.close()
 

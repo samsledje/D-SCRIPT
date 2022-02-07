@@ -176,7 +176,6 @@
 <h1>dscript.models<a class="headerlink" href="#dscript-models" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-dscript.models.embedding">
 <span id="dscript-models-embedding"></span><h2>dscript.models.embedding<a class="headerlink" href="#module-dscript.models.embedding" title="Permalink to this headline">¶</a></h2>
-<p>Embedding model classes.</p>
 <dl class="py class">
 <dt id="dscript.models.embedding.FullyConnectedEmbed">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.embedding.</span></code><code class="sig-name descname"><span class="pre">FullyConnectedEmbed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReLU()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#FullyConnectedEmbed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.FullyConnectedEmbed" title="Permalink to this definition">¶</a></dt>
@@ -208,11 +207,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="dscript.models.embedding.FullyConnectedEmbed.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.embedding.FullyConnectedEmbed.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -236,16 +230,36 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="dscript.models.embedding.IdentityEmbed.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.embedding.IdentityEmbed.training" title="Permalink to this definition">¶</a></dt>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscript.models.embedding.LSTMEmbed">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.embedding.</span></code><code class="sig-name descname"><span class="pre">LSTMEmbed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ReLU'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="dscript.models.embedding.LSTMEmbed.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscript.models.embedding.LSTMEmbed.long_embed">
+<code class="sig-name descname"><span class="pre">long_embed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#LSTMEmbed.long_embed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.LSTMEmbed.long_embed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="dscript.models.embedding.SkipLSTM">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.embedding.</span></code><code class="sig-name descname"><span class="pre">SkipLSTM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#SkipLSTM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.SkipLSTM" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.embedding.</span></code><code class="sig-name descname"><span class="pre">SkipLSTM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#SkipLSTM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.SkipLSTM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Language model from <a class="reference external" href="https://github.com/tbepler/protein-sequence-embedding-iclr2019">Bepler &amp; Berger</a>.</p>
 <p>Loaded with pre-trained weights in embedding function.</p>
@@ -278,11 +292,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="dscript.models.embedding.SkipLSTM.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.embedding.SkipLSTM.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt id="dscript.models.embedding.SkipLSTM.transform">
 <code class="sig-name descname"><span class="pre">transform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/embedding.html#SkipLSTM.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.embedding.SkipLSTM.transform" title="Permalink to this definition">¶</a></dt>
@@ -304,10 +313,9 @@
 </div>
 <div class="section" id="module-dscript.models.contact">
 <span id="dscript-models-contact"></span><h2>dscript.models.contact<a class="headerlink" href="#module-dscript.models.contact" title="Permalink to this headline">¶</a></h2>
-<p>Contact model classes.</p>
 <dl class="py class">
 <dt id="dscript.models.contact.ContactCNN">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.contact.</span></code><code class="sig-name descname"><span class="pre">ContactCNN</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Sigmoid()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.contact.</span></code><code class="sig-name descname"><span class="pre">ContactCNN</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Sigmoid()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Residue Contact Prediction Module. Takes embeddings from Projection module and produces contact map, output of Contact module.</p>
 <dl class="field-list simple">
@@ -322,8 +330,8 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt id="dscript.models.contact.ContactCNN.broadcast">
-<code class="sig-name descname"><span class="pre">broadcast</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.broadcast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.broadcast" title="Permalink to this definition">¶</a></dt>
+<dt id="dscript.models.contact.ContactCNN.cmap">
+<code class="sig-name descname"><span class="pre">cmap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.cmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.cmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls <a class="reference external" href="#module-dscript.models.contact.FullyConnected">dscript.models.contact.FullyConnected</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -362,7 +370,7 @@
 
 <dl class="py method">
 <dt id="dscript.models.contact.ContactCNN.predict">
-<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.predict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/contact.html#ContactCNN.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.contact.ContactCNN.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict contact map from broadcast tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -376,11 +384,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt id="dscript.models.contact.ContactCNN.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.contact.ContactCNN.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -419,17 +422,11 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="dscript.models.contact.FullyConnected.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.contact.FullyConnected.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </div>
 <div class="section" id="module-dscript.models.interaction">
 <span id="dscript-models-interaction"></span><h2>dscript.models.interaction<a class="headerlink" href="#module-dscript.models.interaction" title="Permalink to this headline">¶</a></h2>
-<p>Interaction model classes.</p>
 <dl class="py class">
 <dt id="dscript.models.interaction.LogisticActivation">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.interaction.</span></code><code class="sig-name descname"><span class="pre">LogisticActivation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#LogisticActivation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.LogisticActivation" title="Permalink to this definition">¶</a></dt>
@@ -463,32 +460,12 @@ Applies the element-wise function:</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="dscript.models.interaction.LogisticActivation.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.interaction.LogisticActivation.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt id="dscript.models.interaction.ModelInteraction">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.interaction.</span></code><code class="sig-name descname"><span class="pre">ModelInteraction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_W</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dscript.models.interaction.</span></code><code class="sig-name descname"><span class="pre">ModelInteraction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_sigmoid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>embedding</strong> (<a class="reference internal" href="#dscript.models.embedding.FullyConnectedEmbed" title="dscript.models.embedding.FullyConnectedEmbed"><em>dscript.models.embedding.FullyConnectedEmbed</em></a>) – Embedding model</p></li>
-<li><p><strong>contact</strong> (<a class="reference internal" href="#dscript.models.contact.ContactCNN" title="dscript.models.contact.ContactCNN"><em>dscript.models.contact.ContactCNN</em></a>) – Contact model</p></li>
-<li><p><strong>use_cuda</strong> (<em>bool</em>) – Whether the model should be run on GPU</p></li>
-<li><p><strong>pool_size</strong> (<em>bool</em>) – width of max-pool [default 9]</p></li>
-<li><p><strong>theta_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\theta\)</span> for weight matrix [default: 1]</p></li>
-<li><p><strong>lambda_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\lambda\)</span> for weight matrix [default: 0]</p></li>
-<li><p><strong>gamma_init</strong> (<em>float</em>) – initialization value of <span class="math notranslate nohighlight">\(\gamma\)</span> for global pooling [default: 0]</p></li>
-<li><p><strong>use_W</strong> (<em>bool</em>) – whether to use the weighting matrix [default: True]</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.cpred">
 <code class="sig-name descname"><span class="pre">cpred</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.cpred"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.cpred" title="Permalink to this definition">¶</a></dt>
@@ -511,7 +488,7 @@ Applies the element-wise function:</p>
 
 <dl class="py method">
 <dt id="dscript.models.interaction.ModelInteraction.embed">
-<code class="sig-name descname"><span class="pre">embed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.embed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.embed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">embed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscript/models/interaction.html#ModelInteraction.embed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.embed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Project down input language model embeddings into low dimension using projection module</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -565,11 +542,6 @@ Applies the element-wise function:</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt id="dscript.models.interaction.ModelInteraction.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dscript.models.interaction.ModelInteraction.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

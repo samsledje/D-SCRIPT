@@ -1,3 +1,4 @@
+RUN_DSCRIPT.sh
 build/*
 scratch/*
 dist/*

@@ -7,7 +7,7 @@ Quick Start
 Predict a new network using a trained model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pre-trained models can be downloaded from [TBD].
+Pre-trained models can be downloaded from `here <https://d-script.readthedocs.io/en/main/data.html#trained-models>`_.
 Candidate pairs should be in tab-separated (``.tsv``) format with no header, and columns for [protein name 1], [protein name 2].
 Optionally, a third column with [label] can be provided, so predictions can be made using training or test data files (but the label will not affect the predictions).
 
