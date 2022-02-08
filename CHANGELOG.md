@@ -9,9 +9,15 @@
 
 ## v0.1
 
+### v0.1.8: 2022-02-08 -- Finalized training bug fix
+
+- Resolve #24 by fixing training
+- Can now run `dscript train --train data/pairs/human_train.tsv --test data/pairs/human_test.tsv --embedding /afs/csail/u/s/samsl/Work/databases/STRING/homo.sapiens/human_nonRed.h5 --output [output] --save-prefix [prefix] --device 0` to replicate paper results
+- Updated code formatting with black and pre-commit
+
 ### v0.1.7-dev9: 2022-02-07 -- Update training code to be clean again
 
-- Following previous update, addresses #24 by fixing model training while maintaining preferred API and command line usage 
+- Following previous update, addresses #24 by fixing model training while maintaining preferred API and command line usage
 
 ### v0.1.7-dev1: 2021-12-16 -- Major overhaul in training
 
@@ -24,7 +30,7 @@
 - Change `--use-w` and `--augment` to `--no-w` and `--no-augment` with store false
 
 ### v0.1.5: 2021-06-23 -- Bug Fix - Augment and Documentation
-- Updated package level imports 
+- Updated package level imports
 - Updated documentation
 - Fixed issue #13: improper augmentation of data
 - Fixed issue #12: overwrites cmap data sets if they already exist

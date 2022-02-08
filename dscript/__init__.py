@@ -1,12 +1,6 @@
-__version__ = "0.1.7.dev10"
-__citation__ = "Sledzieski, Singh, Cowen, Berger. Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model. Cell Systems, 2021."
-import dscript.models
-import dscript.commands
-import dscript.alphabets
-import dscript.fasta
-import dscript.language_model
-import dscript.pretrained
-import dscript.utils
+__version__ = "0.1.8"
+__citation__ = """Sledzieski, Singh, Cowen, Berger. Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model. Cell Systems, 2021."""
+from . import alphabets, commands, fasta, language_model, models, pretrained
 
 __all__ = [
     "models",
