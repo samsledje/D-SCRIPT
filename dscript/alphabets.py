@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 import numpy as np
 
+
 class Alphabet:
     """
     From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
@@ -15,6 +16,7 @@ class Alphabet:
     :param missing: Number to use for a value outside the alphabet [default: 255]
     :type missing: int
     """
+
     def __init__(self, chars, encoding=None, mask=False, missing=255):
         self.chars = np.frombuffer(chars, dtype=np.uint8)
         self.encoding = np.zeros(256, dtype=np.uint8) + missing
@@ -34,10 +36,10 @@ class Alphabet:
     def __getitem__(self, i):
         return chr(self.chars[i])
 
-    def encode(self, x): 
+    def encode(self, x):
         """
         Encode a byte string into alphabet indices
-        
+
         :param x: Amino acid string
         :type x: byte str
         :return: Numeric encoding
@@ -72,20 +74,26 @@ class Alphabet:
         """ retrieve byte string of length k decoded from integer h """
         kmer = self.unpack(h, k)
         return self.decode(kmer)
-        
-DNA = Alphabet(b'ACGT')
-        
+
+
+DNA = Alphabet(b"ACGT")
+
+
 class Uniprot21(Alphabet):
     """
     Uniprot 21 Amino Acid Encoding.
 
     From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
     """
+
     def __init__(self, mask=False):
-        chars = alphabet = b'ARNDCQEGHILKMFPSTWYVXOUBZ'
+        chars = alphabet = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))
-        encoding[21:] = [11,4,20,20] # encode 'OUBZ' as synonyms
-        super(Uniprot21, self).__init__(chars, encoding=encoding, mask=mask, missing=20)
+        encoding[21:] = [11, 4, 20, 20]  # encode 'OUBZ' as synonyms
+        super(Uniprot21, self).__init__(
+            chars, encoding=encoding, mask=mask, missing=20
+        )
+
 
 class SDM12(Alphabet):
     """
@@ -95,14 +103,27 @@ class SDM12(Alphabet):
     "Reduced amino acid alphabets exhibit an improved sensitivity and selectivity in fold assignment"
     Peterson et al. 2009. Bioinformatics.
     """
+
     def __init__(self, mask=False):
-        chars = alphabet = b'ADKNTYLCWHGPXERSQFIVMOUBZ'
-        groups = [b'A',b'D',b'KERO',b'N',b'TSQ',b'YF',b'LIVM',b'CU',b'W',b'H',b'G',b'P',b'XBZ']
-        groups = {c:i for i in range(len(groups)) for c in groups[i]}
+        chars = alphabet = b"ADKNTYLCWHGPXERSQFIVMOUBZ"
+        groups = [
+            b"A",
+            b"D",
+            b"KERO",
+            b"N",
+            b"TSQ",
+            b"YF",
+            b"LIVM",
+            b"CU",
+            b"W",
+            b"H",
+            b"G",
+            b"P",
+            b"XBZ",
+        ]
+        groups = {c: i for i in range(len(groups)) for c in groups[i]}
         encoding = np.array([groups[c] for c in chars])
         super(SDM12, self).__init__(chars, encoding=encoding, mask=mask)
 
-SecStr8 = Alphabet(b'HBEGITS ')
 
-
-
+SecStr8 = Alphabet(b"HBEGITS ")

@@ -8,8 +8,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import IterableDataset, DataLoader
-
 from sklearn.metrics import average_precision_score as average_precision
+from tqdm import tqdm
 
 import sys
 import argparse
@@ -19,9 +19,9 @@ import numpy as np
 import pandas as pd
 import gzip as gz
 
-from tqdm import tqdm
+from .. import __version__
 from ..alphabets import Uniprot21
-from ..utils import PairedDataset, collate_paired_sequences
+from ..utils import PairedDataset, collate_paired_sequences, log
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
@@ -49,7 +49,9 @@ def add_args(parser):
         "--test", required=True, help="list of validation/testing pairs"
     )
     data_grp.add_argument(
-        "--embedding", required=True, help="h5py path containing embedded sequences"
+        "--embedding",
+        required=True,
+        help="h5py path containing embedded sequences",
     )
     data_grp.add_argument(
         "--no-augment",
@@ -116,17 +118,29 @@ def add_args(parser):
 
     # Training
     train_grp.add_argument(
-        "--num-epochs", type=int, default=10, help="number of epochs (default: 10)"
+        "--num-epochs",
+        type=int,
+        default=10,
+        help="number of epochs (default: 10)",
     )
 
     train_grp.add_argument(
-        "--batch-size", type=int, default=25, help="minibatch size (default: 25)"
+        "--batch-size",
+        type=int,
+        default=25,
+        help="minibatch size (default: 25)",
     )
     train_grp.add_argument(
-        "--weight-decay", type=float, default=0, help="L2 regularization (default: 0)"
+        "--weight-decay",
+        type=float,
+        default=0,
+        help="L2 regularization (default: 0)",
     )
     train_grp.add_argument(
-        "--lr", type=float, default=0.001, help="learning rate (default: 0.001)"
+        "--lr",
+        type=float,
+        default=0.001,
+        help="learning rate (default: 0.001)",
     )
     train_grp.add_argument(
         "--lambda",
@@ -137,8 +151,12 @@ def add_args(parser):
     )
 
     # Output
-    misc_grp.add_argument("-o", "--output", help="output file path (default: stdout)")
-    misc_grp.add_argument("--save-prefix", help="path prefix for saving models")
+    misc_grp.add_argument(
+        "-o", "--output", help="output file path (default: stdout)"
+    )
+    misc_grp.add_argument(
+        "--save-prefix", help="path prefix for saving models"
+    )
     misc_grp.add_argument(
         "-d", "--device", type=int, default=-1, help="compute device to use"
     )
@@ -147,36 +165,6 @@ def add_args(parser):
     )
 
     return parser
-
-
-def predict_interaction(model, n0, n1, tensors, use_cuda):
-    """
-    Predict whether a list of protein pairs will interact.
-
-    :param model: Model to be trained
-    :type model: dscript.models.interaction.ModelInteraction
-    :param n0: First protein names
-    :type n0: list[str]
-    :param n1: Second protein names
-    :type n1: list[str]
-    :param tensors: Dictionary of protein names to embeddings
-    :type tensors: dict[str, torch.Tensor]
-    :param use_cuda: Whether to use GPU
-    :type use_cuda: bool
-    """
-
-    b = len(n0)
-
-    p_hat = []
-    for i in range(b):
-        z_a = tensors[n0[i]]
-        z_b = tensors[n1[i]]
-        if use_cuda:
-            z_a = z_a.cuda()
-            z_b = z_b.cuda()
-        p_hat.append(model.predict(z_a, z_b))
-    p_hat = torch.stack(p_hat, 0)
-    return p_hat
 
 
 def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
@@ -213,7 +201,26 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     return c_map_mag, p_hat
 
 
-def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
+def predict_interaction(model, n0, n1, tensors, use_cuda):
+    """
+    Predict whether a list of protein pairs will interact.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param n0: First protein names
+    :type n0: list[str]
+    :param n1: Second protein names
+    :type n1: list[str]
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+    """
+    _, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda)
+    return p_hat
+
+
+def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     """
     Compute gradient and backpropagate loss for a batch.
 
@@ -236,7 +243,9 @@ def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
 
-    c_map_mag, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda)
+    c_map_mag, p_hat = predict_cmap_interaction(
+        model, n0, n1, tensors, use_cuda
+    )
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
@@ -247,7 +256,7 @@ def interaction_grad(model, n0, n1, y, tensors, use_cuda, weight=0.35):
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
     b = len(p_hat)
 
-    # backprop loss
+    # Backprop Loss
     loss.backward()
 
     if use_cuda:
@@ -319,8 +328,9 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
 
     return loss, correct, mse, pr, re, f1, aupr
 
+
 def train_model(args, output):
-    ## Create data sets
+    # Create data sets
 
     batch_size = args.batch_size
     use_cuda = (args.device > -1) and torch.cuda.is_available()
@@ -331,20 +341,26 @@ def train_model(args, output):
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    print(f"# Loading training pairs from {train_fi}...", file=output)
+    log(f"Loading training pairs from {train_fi}...", file=output)
     output.flush()
 
-    train_df = pd.read_csv(train_fi,sep='\t',header=None)
-    train_df.columns = ["prot1","prot2","label"]
+    train_df = pd.read_csv(train_fi, sep="\t", header=None)
+    train_df.columns = ["prot1", "prot2", "label"]
 
     if no_augment:
         train_p1 = train_df["prot1"]
         train_p2 = train_df["prot2"]
         train_y = torch.from_numpy(train_df["label"].values)
     else:
-        train_p1 = pd.concat((train_df["prot1"], train_df["prot2"]), axis=0).reset_index(drop=True)
-        train_p2 = pd.concat((train_df["prot2"], train_df["prot1"]), axis=0).reset_index(drop=True)
-        train_y = torch.from_numpy(pd.concat((train_df["label"], train_df["label"])).values)
+        train_p1 = pd.concat(
+            (train_df["prot1"], train_df["prot2"]), axis=0
+        ).reset_index(drop=True)
+        train_p2 = pd.concat(
+            (train_df["prot2"], train_df["prot1"]), axis=0
+        ).reset_index(drop=True)
+        train_y = torch.from_numpy(
+            pd.concat((train_df["label"], train_df["label"])).values
+        )
 
     train_dataset = PairedDataset(train_p1, train_p2, train_y)
     train_iterator = torch.utils.data.DataLoader(
@@ -354,12 +370,12 @@ def train_model(args, output):
         shuffle=True,
     )
 
-    print(f"# Loaded {len(train_p1)} training pairs", file=output)
-    print(f"# Loading testing pairs from {test_fi}...", file=output)
+    log(f"Loaded {len(train_p1)} training pairs", file=output)
+    log(f"Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
-    test_df = pd.read_csv(test_fi,sep='\t',header=None)
-    test_df.columns = ["prot1","prot2","label"]
+    test_df = pd.read_csv(test_fi, sep="\t", header=None)
+    test_df.columns = ["prot1", "prot2", "label"]
     test_p1 = test_df["prot1"]
     test_p2 = test_df["prot2"]
     test_y = torch.from_numpy(test_df["label"].values)
@@ -372,17 +388,12 @@ def train_model(args, output):
         shuffle=False,
     )
 
-    print(f"# Loaded {len(test_p1)} test pairs", file=output)
-    print(f"# Loading embeddings", file=output)
+    log(f"Loaded {len(test_p1)} test pairs", file=output)
+    log(f"Loading embeddings", file=output)
     output.flush()
 
     embeddings = {}
-    all_proteins = (
-        set(train_p1)
-        .union(train_p2)
-        .union(test_p1)
-        .union(test_p2)
-    )
+    all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
     for prot_name in tqdm(all_proteins):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
@@ -392,17 +403,19 @@ def train_model(args, output):
         input_dim = args.input_dim
         projection_dim = args.projection_dim
         dropout_p = args.dropout_p
-        embedding_model = FullyConnectedEmbed(input_dim, projection_dim, dropout=dropout_p)
-        print("# Initializing embedding model with:", file=output)
-        print(f"\tprojection_dim: {projection_dim}", file=output)
-        print(f"\tdropout_p: {dropout_p}", file=output)
+        embedding_model = FullyConnectedEmbed(
+            input_dim, projection_dim, dropout=dropout_p
+        )
+        log("Initializing embedding model with:", file=output)
+        log(f"\tprojection_dim: {projection_dim}", file=output)
+        log(f"\tdropout_p: {dropout_p}", file=output)
 
         # Create contact model
         hidden_dim = args.hidden_dim
         kernel_width = args.kernel_width
-        print("# Initializing contact model with:", file=output)
-        print(f"\thidden_dim: {hidden_dim}", file=output)
-        print(f"\tkernel_width: {kernel_width}", file=output)
+        log("Initializing contact model with:", file=output)
+        log(f"\thidden_dim: {hidden_dim}", file=output)
+        log(f"\tkernel_width: {kernel_width}", file=output)
 
         contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width)
 
@@ -411,11 +424,11 @@ def train_model(args, output):
         do_pool = args.do_pool
         pool_width = args.pool_width
         do_sigmoid = not args.no_sigmoid
-        print("# Initializing interaction model with:", file=output)
-        print(f"\tdo_poool: {do_pool}", file=output)
-        print(f"\tpool_width: {pool_width}", file=output)
-        print(f"\tdo_w: {do_w}", file=output)
-        print(f"\tdo_sigmoid: {do_sigmoid}", file=output)
+        log("Initializing interaction model with:", file=output)
+        log(f"\tdo_poool: {do_pool}", file=output)
+        log(f"\tpool_width: {pool_width}", file=output)
+        log(f"\tdo_w: {do_w}", file=output)
+        log(f"\tdo_sigmoid: {do_sigmoid}", file=output)
         model = ModelInteraction(
             embedding_model,
             contact_model,
@@ -426,10 +439,13 @@ def train_model(args, output):
             do_sigmoid=do_sigmoid,
         )
 
-        print(model, file=output)
+        log(model, file=output)
 
     else:
-        print("# Loading model from checkpoint {}".format(args.checkpoint), file=output)
+        log(
+            "Loading model from checkpoint {}".format(args.checkpoint),
+            file=output,
+        )
         model = torch.load(args.checkpoint)
         model.use_cuda = use_cuda
 
@@ -449,18 +465,18 @@ def train_model(args, output):
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
 
-    print(f'# Using save prefix "{save_prefix}"', file=output)
-    print(f"# Training with Adam: lr={lr}, weight_decay={wd}", file=output)
-    print(f"\tnum_epochs: {num_epochs}", file=output)
-    print(f"\tbatch_size: {batch_size}", file=output)
-    print(f"\tinteraction weight: {inter_weight}", file=output)
-    print(f"\tcontact map weight: {cmap_weight}", file=output)
+    log(f'Using save prefix "{save_prefix}"', file=output)
+    log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
+    log(f"\tnum_epochs: {num_epochs}", file=output)
+    log(f"\tbatch_size: {batch_size}", file=output)
+    log(f"\tinteraction weight: {inter_weight}", file=output)
+    log(f"\tcontact map weight: {cmap_weight}", file=output)
     output.flush()
 
     batch_report_fmt = (
-        "# [{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
+        "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     )
-    epoch_report_fmt = "# Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
+    epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
@@ -481,8 +497,8 @@ def train_model(args, output):
                 z1,
                 y,
                 embeddings,
-                use_cuda,
                 weight=inter_weight,
+                use_cuda=use_cuda,
             )
 
             n += b
@@ -510,7 +526,7 @@ def train_model(args, output):
                     acc_accum,
                     mse_accum,
                 ]
-                print(batch_report_fmt.format(*tokens), file=output)
+                log(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
         model.eval()
@@ -537,15 +553,18 @@ def train_model(args, output):
                 inter_f1,
                 inter_aupr,
             ]
-            print(epoch_report_fmt.format(*tokens), file=output)
+            log(epoch_report_fmt.format(*tokens), file=output)
             output.flush()
 
             # Save the model
             if save_prefix is not None:
                 save_path = (
-                    save_prefix + "_epoch" + str(epoch + 1).zfill(digits) + ".sav"
+                    save_prefix
+                    + "_epoch"
+                    + str(epoch + 1).zfill(digits)
+                    + ".sav"
                 )
-                print(f"# Saving model to {save_path}", file=output)
+                log(f"Saving model to {save_path}", file=output)
                 model.cpu()
                 torch.save(model, save_path)
                 if use_cuda:
@@ -555,7 +574,7 @@ def train_model(args, output):
 
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
-        print(f"# Saving final model to {save_path}", file=output)
+        log(f"Saving final model to {save_path}", file=output)
         model.cpu()
         torch.save(model, save_path)
         if use_cuda:
@@ -575,21 +594,20 @@ def main(args):
     else:
         output = open(output, "w")
 
-    print(f'# Called as: {" ".join(sys.argv)}', file=output)
-    if output is not sys.stdout:
-        print(f'Called as: {" ".join(sys.argv)}')
+    log(f"D-SCRIPT Version {__version__}", file=output, print_also=True)
+    log(f'Called as: {" ".join(sys.argv)}', file=output, print_also=True)
 
-    ## Set the device
+    # Set the device
     device = args.device
     use_cuda = (device > -1) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
-            f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+        log(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=output,
         )
     else:
-        print("# Using CPU", file=output)
+        log("Using CPU", file=output)
         device = "cpu"
 
     train_model(args, output)

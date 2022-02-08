@@ -12,9 +12,15 @@ def add_args(parser):
 
     :meta private:
     """
-    parser.add_argument("--seqs", help="Sequences to be embedded", required=True)
-    parser.add_argument("-o", "--outfile", help="h5 file to write results", required=True)
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "--seqs", help="Sequences to be embedded", required=True
+    )
+    parser.add_argument(
+        "-o", "--outfile", help="h5 file to write results", required=True
+    )
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     return parser
 
 

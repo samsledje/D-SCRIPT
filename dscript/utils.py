@@ -1,23 +1,28 @@
-from __future__ import print_function,division
+from __future__ import print_function, division
 
 import torch
 import torch.utils.data
-from torch.nn.utils.rnn import PackedSequence, pack_padded_sequence, pad_packed_sequence
-
-from .fasta import parse
 
 import numpy as np
 import pandas as pd
 import subprocess as sp
 import sys
 import gzip as gz
-        
-def log(m,file=None):
+
+from datetime import datetime
+
+
+def log(m, file=None, timestamped=True, print_also=False):
+    curr_time = f"[{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}] "
+    log_string = f"{curr_time if timestamped else ''}{m}"
     if file is None:
-        print(m)
+        print(log_string)
     else:
-        print(m,file=file)
-    
+        print(log_string, file=file)
+        if print_also:
+            print(log_string)
+
+
 def RBF(D, sigma=None):
     """
     Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel.
@@ -32,7 +37,8 @@ def RBF(D, sigma=None):
     :rtype: np.ndarray
     """
     sigma = sigma or np.sqrt(np.max(D))
-    return np.exp(-1 * (np.square(D) / (2 * sigma**2))) 
+    return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
+
 
 class PairedDataset(torch.utils.data.Dataset):
     """
@@ -42,12 +48,27 @@ class PairedDataset(torch.utils.data.Dataset):
     :param X1: List of second item in the pair
     :param Y: List of labels
     """
+
     def __init__(self, X0, X1, Y):
         self.X0 = X0
         self.X1 = X1
         self.Y = Y
-        assert len(X0) == len(X1), "X0: "+str(len(X0))+" X1: "+str(len(X1))+" Y: "+str(len(Y))
-        assert len(X0) == len(Y), "X0: "+str(len(X0))+" X1: "+str(len(X1))+" Y: "+str(len(Y))
+        assert len(X0) == len(X1), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
+        assert len(X0) == len(Y), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
 
     def __len__(self):
         return len(self.X0)

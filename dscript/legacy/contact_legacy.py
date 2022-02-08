@@ -70,7 +70,9 @@ class ContactCNN(nn.Module):
     :type activation: torch.nn.Module
     """
 
-    def __init__(self, embed_dim=100, hidden_dim=50, width=7, activation=nn.Sigmoid()):
+    def __init__(
+        self, embed_dim=100, hidden_dim=50, width=7, activation=nn.Sigmoid()
+    ):
         super(ContactCNN, self).__init__()
 
         self.hidden = FullyConnected(embed_dim, hidden_dim)

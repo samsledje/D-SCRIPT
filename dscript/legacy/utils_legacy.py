@@ -9,16 +9,18 @@ import gzip as gz
 from datetime import datetime
 from .fasta import parse
 
+
 def log(msg, file=sys.stderr):
     """
     Log datetime-stamped message to file
-    
+
     :param msg: Message to log
     :param f: Writable file object to log message to
     """
-    timestr = datetime.utcnow().isoformat(sep='-', timespec='milliseconds')
+    timestr = datetime.utcnow().isoformat(sep="-", timespec="milliseconds")
     file.write(f"[{timestr}] {msg}\n")
     file.flush()
+
 
 def plot_PR_curve(y, phat, saveFile=None):
     """
@@ -129,12 +131,27 @@ class PairedDataset(torch.utils.data.Dataset):
     :param X1: List of second item in the pair
     :param Y: List of labels
     """
+
     def __init__(self, X0, X1, Y):
         self.X0 = X0
         self.X1 = X1
         self.Y = Y
-        assert len(X0) == len(X1), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
-        assert len(X0) == len(Y), "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
+        assert len(X0) == len(X1), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
+        assert len(X0) == len(Y), (
+            "X0: "
+            + str(len(X0))
+            + " X1: "
+            + str(len(X1))
+            + " Y: "
+            + str(len(Y))
+        )
 
     def __len__(self):
         return len(self.X0)

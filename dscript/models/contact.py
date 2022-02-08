@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 
+
 class FullyConnected(nn.Module):
     """
     Performs part 1 of Contact Prediction Module. Takes embeddings from Projection module and produces broadcast tensor.
@@ -21,13 +22,13 @@ class FullyConnected(nn.Module):
 
     def __init__(self, embed_dim, hidden_dim, activation=nn.ReLU()):
         super(FullyConnected, self).__init__()
-        
+
         self.D = embed_dim
         self.H = hidden_dim
-        self.conv = nn.Conv2d(2*self.D, self.H, 1)
+        self.conv = nn.Conv2d(2 * self.D, self.H, 1)
         self.batchnorm = nn.BatchNorm2d(self.H)
         self.activation = activation
-        
+
     def forward(self, z0, z1):
         """
         :param z0: Projection module embedding :math:`(b \\times N \\times d)`
@@ -39,19 +40,20 @@ class FullyConnected(nn.Module):
         """
 
         # z0 is (b,N,d), z1 is (b,M,d)
-        z0 = z0.transpose(1,2)
-        z1 = z1.transpose(1,2)
+        z0 = z0.transpose(1, 2)
+        z1 = z1.transpose(1, 2)
         # z0 is (b,d,N), z1 is (b,d,M)
-        
+
         z_dif = torch.abs(z0.unsqueeze(3) - z1.unsqueeze(2))
         z_mul = z0.unsqueeze(3) * z1.unsqueeze(2)
         z_cat = torch.cat([z_dif, z_mul], 1)
-        
+
         c = self.conv(z_cat)
         c = self.activation(c)
         c = self.batchnorm(c)
-        
+
         return c
+
 
 class ContactCNN(nn.Module):
     """
@@ -66,12 +68,15 @@ class ContactCNN(nn.Module):
     :param activation: Activation function for final contact map [default: torch.nn.Sigmoid()]
     :type activation: torch.nn.Module
     """
-    def __init__(self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()):
+
+    def __init__(
+        self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()
+    ):
         super(ContactCNN, self).__init__()
 
         self.hidden = FullyConnected(embed_dim, hidden_dim)
-        
-        self.conv = nn.Conv2d(hidden_dim, 1, width, padding=width//2)
+
+        self.conv = nn.Conv2d(hidden_dim, 1, width, padding=width // 2)
         self.batchnorm = nn.BatchNorm2d(1)
         self.activation = activation
         self.clip()
@@ -83,7 +88,7 @@ class ContactCNN(nn.Module):
         :meta private:
         """
         w = self.conv.weight
-        self.conv.weight.data[:] = 0.5*(w + w.transpose(2,3))
+        self.conv.weight.data[:] = 0.5 * (w + w.transpose(2, 3))
 
     def forward(self, z0, z1):
         """
@@ -110,7 +115,7 @@ class ContactCNN(nn.Module):
         """
         C = self.hidden(z0, z1)
         return C
-    
+
     def predict(self, C):
         """
         Predict contact map from broadcast tensor.
@@ -120,7 +125,7 @@ class ContactCNN(nn.Module):
         :return: Predicted contact map :math:`(b \\times N \\times M)`
         :rtype: torch.Tensor
         """
-        
+
         # S is (b,N,M)
         s = self.conv(C)
         s = self.batchnorm(s)

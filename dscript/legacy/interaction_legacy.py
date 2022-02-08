@@ -39,7 +39,9 @@ class LogisticActivation(nn.Module):
         :return: :math:`(N \\times *)`, same shape as the input
         :rtype: torch.Tensor
         """
-        out = torch.clamp(1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1).squeeze()
+        out = torch.clamp(
+            1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1
+        ).squeeze()
         return out
 
     def clip(self):
@@ -162,13 +164,21 @@ class ModelInteraction(nn.Module):
             # Create contact weighting matrix
             N, M = C.shape[2:]
 
-            x1 = torch.from_numpy(-1 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))) ** 2).float()
-            if self.gamma.device.type == 'cuda':
+            x1 = torch.from_numpy(
+                -1
+                * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+                ** 2
+            ).float()
+            if self.gamma.device.type == "cuda":
                 x1 = x1.cuda()
             x1 = torch.exp(self.lambda_ * x1)
 
-            x2 = torch.from_numpy(-1 * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))) ** 2).float()
-            if self.gamma.device.type == 'cuda':
+            x2 = torch.from_numpy(
+                -1
+                * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+                ** 2
+            ).float()
+            if self.gamma.device.type == "cuda":
                 x2 = x2.cuda()
             x2 = torch.exp(self.lambda_ * x2)
 
@@ -203,7 +213,6 @@ class ModelInteraction(nn.Module):
         """
         _, phat = self.map_predict(z0, z1)
         return phat
-
 
     def forward(self, z0, z1):
         """

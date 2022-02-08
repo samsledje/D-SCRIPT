@@ -18,10 +18,12 @@ class CitationAction(argparse.Action):
 
 def main():
     from . import __version__
-    
+
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument("-v", "--version", action="version", version="D-SCRIPT " + __version__)
+    parser.add_argument(
+        "-v", "--version", action="version", version="D-SCRIPT " + __version__
+    )
     parser.add_argument(
         "-c",
         "--citation",

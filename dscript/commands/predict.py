@@ -16,6 +16,7 @@ from ..fasta import parse
 from ..language_model import lm_embed
 from ..utils import log
 
+
 def add_args(parser):
     """
     Create parser for command line utility
@@ -23,12 +24,16 @@ def add_args(parser):
     :meta private:
     """
 
-    parser.add_argument("--pairs", help="Candidate protein pairs to predict", required=True)
+    parser.add_argument(
+        "--pairs", help="Candidate protein pairs to predict", required=True
+    )
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument("-o", "--outfile", help="File for predictions")
-    parser.add_argument("-d", "--device", type=int, default=-1, help="Compute device to use")
+    parser.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     parser.add_argument(
         "--thresh",
         type=float,
@@ -58,20 +63,27 @@ def main(args):
 
     # Set Outpath
     if outPath is None:
-        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
+        outPath = datetime.datetime.now().strftime(
+            "%Y-%m-%d-%H:%M.predictions"
+        )
 
     logFilePath = outPath + ".log"
-    logFile = open(logFilePath,"w+")
+    logFile = open(logFilePath, "w+")
 
     # Set Device
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
-        log(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}", file=logFile)
+        print(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
+        )
+        log(
+            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
+            file=logFile,
+        )
     else:
-        print("# Using CPU")
-        log("# Using CPU", file=logFile)
+        print("Using CPU")
+        log("Using CPU", file=logFile)
 
     # Load Model
     try:
@@ -81,7 +93,7 @@ def main(args):
             model = torch.load(modelPath).cpu()
             model.use_cuda = False
     except FileNotFoundError:
-        print(f"# Model {modelPath} not found")
+        print(f"Model {modelPath} not found")
         log(f"Model {modelPath} not found", file=logFile)
         logFile.close()
         sys.exit(1)
@@ -91,7 +103,7 @@ def main(args):
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
-        print(f"# Pairs File {csvPath} not found")
+        print(f"Pairs File {csvPath} not found")
         log(f"Pairs File {csvPath} not found", file=logFile)
         logFile.close()
         sys.exit(1)
@@ -102,17 +114,17 @@ def main(args):
             names, seqs = parse(open(seqPath, "r"))
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
-            print(f"# Sequence File {seqPath} not found")
+            print(f"Sequence File {seqPath} not found")
             log(f"Sequence File {seqPath} not found", file=logFile)
             logFile.close()
             sys.exit(1)
-        print("# Generating Embeddings...")
+        print("Generating Embeddings...")
         log("Generating Embeddings...", file=logFile)
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
-        print("# Loading Embeddings...")
+        print("Loading Embeddings...")
         log("Loading Embeddings...", file=logFile)
         embedH5 = h5py.File(embPath, "r")
         embeddings = {}
@@ -121,7 +133,7 @@ def main(args):
         embedH5.close()
 
     # Make Predictions
-    print("# Making Predictions...")
+    print("Making Predictions...")
     log("Making Predictions...", file=logFile)
     n = 0
     outPathAll = f"{outPath}.tsv"
@@ -131,7 +143,9 @@ def main(args):
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
+                for _, (n0, n1) in tqdm(
+                    pairs.iloc[:, :2].iterrows(), total=len(pairs)
+                ):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
@@ -149,11 +163,15 @@ def main(args):
                         if p >= threshold:
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
                             cm_np = cm.squeeze().cpu().numpy()
-                            dset = cmap_file.require_dataset(f"{n0}x{n1}", cm_np.shape, np.float32)
+                            dset = cmap_file.require_dataset(
+                                f"{n0}x{n1}", cm_np.shape, np.float32
+                            )
                             dset[:] = cm_np
-                            #cmap_file.create_dataset(f"{n0}x{n1}", data=cm.squeeze().cpu().numpy())
                     except RuntimeError as e:
-                        log(f"{n0} x {n1} skipped - CUDA out of memory", file=logFile)
+                        log(
+                            f"{n0} x {n1} skipped - CUDA out of memory",
+                            file=logFile,
+                        )
 
     logFile.close()
     cmap_file.close()
