@@ -52,9 +52,20 @@ def add_args(parser):
         "--embedding", help="h5 file with embedded sequences", required=True
     )
     data_grp.add_argument(
-        "--augment",
+        "--train", required=True, help="list of training pairs"
+    )
+    data_grp.add_argument(
+        "--test", required=True, help="list of validation/testing pairs"
+    )
+    data_grp.add_argument(
+        "--embedding",
+        required=True,
+        help="h5py path containing embedded sequences",
+    )
+    data_grp.add_argument(
+        "--no-augment",
         action="store_true",
-        help="Set flag to augment data by adding (B A) for all pairs (A B)",
+        help="data is automatically augmented by adding (B A) for all pairs (A B). Set this flag to not augment data",
     )
     data_grp.add_argument(
         "--preload", action="store_true", help="Preload embeddings into memory"
@@ -67,16 +78,22 @@ def add_args(parser):
 
     # Embedding model
     proj_grp.add_argument(
+        "--input-dim",
+        type=int,
+        default=6165,
+        help="dimension of input language model embedding (per amino acid) (default: 6165)",
+    )
+    proj_grp.add_argument(
         "--projection-dim",
         type=int,
         default=100,
-        help="Dimension of embedding projection layer (default: 100)",
+        help="dimension of embedding projection layer (default: 100)",
     )
     proj_grp.add_argument(
         "--dropout-p",
         type=float,
         default=0.5,
-        help="Parameter p for embedding dropout layer (default: 0.5)",
+        help="parameter p for embedding dropout layer (default: 0.5)",
     )
 
     # Contact model
@@ -84,26 +101,36 @@ def add_args(parser):
         "--hidden-dim",
         type=int,
         default=50,
-        help="Number of hidden units for comparison layer in contact prediction (default: 50)",
+        help="number of hidden units for comparison layer in contact prediction (default: 50)",
     )
     contact_grp.add_argument(
         "--kernel-width",
         type=int,
         default=7,
-        help="Width of convolutional filter for contact prediction (default: 7)",
+        help="width of convolutional filter for contact prediction (default: 7)",
     )
 
     # Interaction Model
     inter_grp.add_argument(
-        "--use-w",
+        "--no-w",
         action="store_true",
-        help="Use weight matrix in interaction prediction model",
+        help="don't use weight matrix in interaction prediction model",
+    )
+    inter_grp.add_argument(
+        "--no-sigmoid",
+        action="store_true",
+        help="don't use sigmoid activation at end of interaction model",
+    )
+    inter_grp.add_argument(
+        "--do-pool",
+        action="store_true",
+        help="use max pool layer in interaction prediction model",
     )
     inter_grp.add_argument(
         "--pool-width",
         type=int,
         default=9,
-        help="Size of max-pool in interaction model (default: 9)",
+        help="size of max-pool in interaction model (default: 9)",
     )
 
     # Training
@@ -119,6 +146,7 @@ def add_args(parser):
         default=10,
         help="Number of epochs (default: 10)",
     )
+
     train_grp.add_argument(
         "--batch-size",
         type=int,
@@ -139,10 +167,10 @@ def add_args(parser):
     )
     train_grp.add_argument(
         "--lambda",
-        dest="lambda_",
+        dest="interaction_weight",
         type=float,
         default=0.35,
-        help="Weight on the similarity objective (default: 0.35)",
+        help="weight on the similarity objective (default: 0.35)",
     )
 
     # Output

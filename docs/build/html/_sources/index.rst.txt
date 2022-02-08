@@ -12,8 +12,8 @@ The intermediate stages of D-SCRIPT directly implement this intuition, with the 
 contact map of the protein dimer. This structurally-motivated design enhances the interpretability of the results and, since structure is more conserved
 evolutionarily than sequence, improves generalizability across species.
 
-If you use D-SCRIPT, please cite "Sequence-based prediction of protein-protein interactions: a structure-aware interpetable deep learning model"
-by `Sam Sledzieski`_, `Rohit Singh`_, `Lenore Cowen`_, and `Bonnie Berger`_ [link TBD].
+If you use D-SCRIPT, please cite `"D-SCRIPT translates genome to phenome with sequence-based, structure-aware, genome-scale predictions of protein-protein interactions" <https://www.cell.com/cell-systems/fulltext/S2405-4712(21)00333-1>`_
+by `Sam Sledzieski`_, `Rohit Singh`_, `Lenore Cowen`_, and `Bonnie Berger`_.
 
 .. _`D-SCRIPT Home Page`: http://dscript.csail.mit.edu
 .. _`Sam Sledzieski`: http://samsledje.github.io/

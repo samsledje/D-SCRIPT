@@ -38,13 +38,13 @@ def test_get_local_or_download():
     assert Path(pth_local).resolve() == destination_path.resolve()
 
 
-def test_gpu_mem():
-    if torch.cuda.is_available():
-        in_use, total = gpu_mem(0)
-        assert in_use >= 0
-        assert total > 0
-    else:
-        return True
+# def test_gpu_mem():
+#     if torch.cuda.is_available():
+#         in_use, total = gpu_mem(0)
+#         assert in_use >= 0
+#         assert total > 0
+#     else:
+#         return True
 
 
 def test_augment_data():

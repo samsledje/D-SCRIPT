@@ -1,6 +1,5 @@
-"""
-Contact model classes.
-"""
+# Input: C = NxMxH embedding contact matrix
+# Output: S = MxN contact prediction matrix
 
 import torch
 import torch.functional as F
@@ -49,11 +48,11 @@ class FullyConnected(nn.Module):
         z_mul = z0.unsqueeze(3) * z1.unsqueeze(2)
         z_cat = torch.cat([z_dif, z_mul], 1)
 
-        b = self.conv(z_cat)
-        b = self.activation(b)
-        b = self.batchnorm(b)
+        c = self.conv(z_cat)
+        c = self.activation(c)
+        c = self.batchnorm(c)
 
-        return b
+        return c
 
 
 class ContactCNN(nn.Module):
@@ -76,6 +75,7 @@ class ContactCNN(nn.Module):
         super(ContactCNN, self).__init__()
 
         self.hidden = FullyConnected(embed_dim, hidden_dim)
+
         self.conv = nn.Conv2d(hidden_dim, 1, width, padding=width // 2)
         self.batchnorm = nn.BatchNorm2d(1)
         self.activation = activation
@@ -87,7 +87,6 @@ class ContactCNN(nn.Module):
 
         :meta private:
         """
-
         w = self.conv.weight
         self.conv.weight.data[:] = 0.5 * (w + w.transpose(2, 3))
 
@@ -100,10 +99,10 @@ class ContactCNN(nn.Module):
         :return: Predicted contact map :math:`(b \\times N \\times M)`
         :rtype: torch.Tensor
         """
-        B = self.broadcast(z0, z1)
-        return self.predict(B)
+        C = self.cmap(z0, z1)
+        return self.predict(C)
 
-    def broadcast(self, z0, z1):
+    def cmap(self, z0, z1):
         """
         Calls `dscript.models.contact.FullyConnected <#module-dscript.models.contact.FullyConnected>`_.
 
@@ -114,10 +113,10 @@ class ContactCNN(nn.Module):
         :return: Predicted contact broadcast tensor :math:`(b \\times N \\times M \\times h)`
         :rtype: torch.Tensor
         """
-        B = self.hidden(z0, z1)
-        return B
+        C = self.hidden(z0, z1)
+        return C
 
-    def predict(self, B):
+    def predict(self, C):
         """
         Predict contact map from broadcast tensor.
 
@@ -126,7 +125,9 @@ class ContactCNN(nn.Module):
         :return: Predicted contact map :math:`(b \\times N \\times M)`
         :rtype: torch.Tensor
         """
-        C = self.conv(B)
-        C = self.batchnorm(C)
-        C = self.activation(C)
-        return C
+
+        # S is (b,N,M)
+        s = self.conv(C)
+        s = self.batchnorm(s)
+        s = self.activation(s)
+        return s

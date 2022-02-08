@@ -29,7 +29,7 @@ Interactions
 - `Fly Test`_
 - `Yeast Test`_
 - `Worm Test`_
-- `E.coli Test`_
+- `E. coli Test`_
 
 .. _`Human`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/human.fasta
 .. _`Mouse`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/mouse.fasta

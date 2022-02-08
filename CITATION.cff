@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Sledzieski"
+  given-names: "Samuel"
+  orcid: "https://orcid.org/0000-0002-0170-3029"
+- family-names: "Singh"
+  given-names: "Rohit"
+  orcid: "https://orcid.org/0000-0002-4084-7340"
+title: "D-SCRIPT"
+version: 0.1.5
+doi: 10.5281/zenodo.5140508
+date-released: 2021-07-27
+url: "https://github.com/samsledje/D-SCRIPT"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Sledzieski"
+    given-names: "Samuel"
+    orcid: "https://orcid.org/0000-0002-0170-3029"
+  - family-names: "Singh"
+    given-names: "Rohit"
+    orcid: "https://orcid.org/0000-0002-4084-7340"
+  - family-names: "Cowen"
+    given-names: "Lenore"
+    orcid: "https://orcid.org/0000-0001-6698-6413"
+  - family-names: "Berger"
+    given-names: "Bonnie"
+    orcid: "https://orcid.org/0000-0002-2724-7228"
+  doi: "10.1101/2021.01.22.427866"
+  journal: "bioRxiv"
+  publisher: "Cold Spring Harbor Laboratory"
+  month: 1
+  title: "Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model"
+  year: 2021

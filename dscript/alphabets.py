@@ -60,6 +60,24 @@ class Alphabet:
         string = self.chars[x]
         return string.tobytes()
 
+    def unpack(self, h, k):
+        """unpack integer h into array of this alphabet with length k"""
+        n = self.size
+        kmer = np.zeros(k, dtype=np.uint8)
+        for i in reversed(range(k)):
+            c = h % n
+            kmer[i] = c
+            h = h // n
+        return kmer
+
+    def get_kmer(self, h, k):
+        """retrieve byte string of length k decoded from integer h"""
+        kmer = self.unpack(h, k)
+        return self.decode(kmer)
+
+
+DNA = Alphabet(b"ACGT")
+
 
 class Uniprot21(Alphabet):
     """

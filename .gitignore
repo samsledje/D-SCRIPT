@@ -1,5 +1,6 @@
 # Single Files
 collect_env.py
+RUN_DSCRIPT.sh
 
 # Directories
 build
@@ -7,6 +8,7 @@ scratch
 dist
 node_modules
 htmlcov
+dev*
 ## Remove this later when the server is merged
 server/
 
@@ -16,6 +18,7 @@ server/
 
 # Binaries
 *.egg-info
+**/*.sav
 **/*.pt
 **/*.h5
 **/.ipynb_checkpoints/**

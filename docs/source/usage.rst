@@ -7,7 +7,7 @@ Quick Start
 Predict a new network using a trained model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pre-trained models can be downloaded from [TBD].
+Pre-trained models can be downloaded from `here <https://d-script.readthedocs.io/en/main/data.html#trained-models>`_.
 Candidate pairs should be in tab-separated (``.tsv``) format with no header, and columns for [protein name 1], [protein name 2].
 Optionally, a third column with [label] can be provided, so predictions can be made using training or test data files (but the label will not affect the predictions).
 
@@ -89,75 +89,77 @@ Training
 
 .. code-block:: bash
 
-    usage: dscript train [-h] --train TRAIN --val VAL --embedding EMBEDDING
-                        [--augment] [--projection-dim PROJECTION_DIM]
-                        [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
-                        [--kernel-width KERNEL_WIDTH] [--use-w]
-                        [--pool-width POOL_WIDTH]
-                        [--negative-ratio NEGATIVE_RATIO]
-                        [--epoch-scale EPOCH_SCALE] [--num-epochs NUM_EPOCHS]
-                        [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
-                        [--lr LR] [--lambda LAMBDA_] [-o OUTFILE]
-                        [--save-prefix SAVE_PREFIX] [-d DEVICE]
-                        [--checkpoint CHECKPOINT]
+    usage: dscript train [-h] --train TRAIN --test TEST --embedding EMBEDDING
+                     [--no-augment] [--protein-size PROTEIN_SIZE]
+                     [--input-dim INPUT_DIM] [--projection-dim PROJECTION_DIM]
+                     [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
+                     [--kernel-width KERNEL_WIDTH] [--no-w] [--no-sigmoid]
+                     [--do-pool] [--pool-width POOL_WIDTH]
+                     [--num-epochs NUM_EPOCHS] [--batch-size BATCH_SIZE]
+                     [--weight-decay WEIGHT_DECAY] [--lr LR]
+                     [--lambda INTERACTION_WEIGHT] [-o OUTPUT]
+                     [--save-prefix SAVE_PREFIX] [-d DEVICE]
+                     [--checkpoint CHECKPOINT]
 
-    Train a new model
+    Train a new model.
 
     optional arguments:
-    -h, --help            show this help message and exit
+      -h, --help            show this help message and exit
 
     Data:
-    --train TRAIN         Training data
-    --val VAL             Validation data
-    --embedding EMBEDDING
-                            h5 file with embedded sequences
-    --augment             Set flag to augment data by adding (B A) for all pairs
-                            (A B)
+      --train TRAIN         list of training pairs
+      --test TEST           list of validation/testing pairs
+      --embedding EMBEDDING
+                            h5py path containing embedded sequences
+      --no-augment          data is automatically augmented by adding (B A) for
+                            all pairs (A B). Set this flag to not augment data
 
     Projection Module:
-    --projection-dim PROJECTION_DIM
-                            Dimension of embedding projection layer (default: 100)
-    --dropout-p DROPOUT_P
-                            Parameter p for embedding dropout layer (default: 0.5)
+      --input-dim INPUT_DIM
+                            dimension of input language model embedding (per amino
+                            acid) (default: 6165)
+      --projection-dim PROJECTION_DIM
+                            dimension of embedding projection layer (default: 100)
+      --dropout-p DROPOUT_P
+                            parameter p for embedding dropout layer (default: 0.5)
 
     Contact Module:
-    --hidden-dim HIDDEN_DIM
-                            Number of hidden units for comparison layer in contact
+      --hidden-dim HIDDEN_DIM
+                            number of hidden units for comparison layer in contact
                             prediction (default: 50)
-    --kernel-width KERNEL_WIDTH
-                            Width of convolutional filter for contact prediction
+      --kernel-width KERNEL_WIDTH
+                            width of convolutional filter for contact prediction
                             (default: 7)
 
     Interaction Module:
-    --use-w               Use weight matrix in interaction prediction model
-    --pool-width POOL_WIDTH
-                            Size of max-pool in interaction model (default: 9)
+      --no-w                don't use weight matrix in interaction prediction
+                            model
+      --no-sigmoid          don't use sigmoid activation at end of interaction
+                            model
+      --do-pool             use max pool layer in interaction prediction model
+      --pool-width POOL_WIDTH
+                            size of max-pool in interaction model (default: 9)
 
     Training:
-    --negative-ratio NEGATIVE_RATIO
-                            Number of negative training samples for each positive
-                            training sample (default: 10)
-    --epoch-scale EPOCH_SCALE
-                            Report heldout performance every this many epochs
-                            (default: 5)
-    --num-epochs NUM_EPOCHS
-                            Number of epochs (default: 100)
-    --batch-size BATCH_SIZE
-                            Minibatch size (default: 25)
-    --weight-decay WEIGHT_DECAY
+      --num-epochs NUM_EPOCHS
+                            number of epochs (default: 10)
+      --batch-size BATCH_SIZE
+                            minibatch size (default: 25)
+      --weight-decay WEIGHT_DECAY
                             L2 regularization (default: 0)
-    --lr LR               Learning rate (default: 0.001)
-    --lambda LAMBDA_      Weight on the similarity objective (default: 0.35)
+      --lr LR               learning rate (default: 0.001)
+      --lambda INTERACTION_WEIGHT
+                            weight on the similarity objective (default: 0.35)
 
     Output and Device:
-    -o OUTPUT, --output OUTPUT
-                            Output file path (default: stdout)
-    --save-prefix SAVE_PREFIX
-                            Path prefix for saving models
-    -d DEVICE, --device DEVICE
-                            Compute device to use
-    --checkpoint CHECKPOINT
-                            Checkpoint model to start training from``
+      -o OUTPUT, --output OUTPUT
+                            output file path (default: stdout)
+      --save-prefix SAVE_PREFIX
+                            path prefix for saving models
+      -d DEVICE, --device DEVICE
+                            compute device to use
+      --checkpoint CHECKPOINT
+                            checkpoint model to start training from
 
 Evaluation
 ~~~~~~~~~~
