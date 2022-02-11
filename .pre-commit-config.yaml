@@ -6,10 +6,11 @@ repos:
     - id: check-yaml
     - id: end-of-file-fixer
     - id: trailing-whitespace
--   repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-    - id: isort
+      #-   repo: https://github.com/pycqa/isort
+      #    rev: 5.8.0
+      #    hooks:
+      #    - id: isort
+      #      args: ["--profile", "black"]
 -   repo: https://github.com/ambv/black
     rev: 21.6b0
     hooks:
@@ -19,3 +20,11 @@ repos:
     rev: 3.9.2
     hooks:
     - id: flake8
+-   repo: local
+    hooks:
+    - id: pytest-check
+      name: pytest-check
+      entry: pytest
+      language: conda
+      pass_filenames: false
+      always_run: true
