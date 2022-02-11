@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import subprocess as sp
 import random
 import torch
@@ -8,6 +9,7 @@ from .fasta import parse, parse_directory, write
 from .pretrained import get_pretrained
 from .alphabets import Uniprot21
 from .models.embedding import SkipLSTM
+from .utils import log
 from datetime import datetime
 
 
@@ -57,15 +59,15 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if use_cuda:
         torch.cuda.set_device(device)
         if verbose:
-            print(
+            log(
                 f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
             )
     else:
         if verbose:
-            print("# Using CPU")
+            log("# Using CPU")
 
     if verbose:
-        print("# Loading Model...")
+        log("# Loading Model...")
     model = get_pretrained("lm_v1")
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
@@ -74,7 +76,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     model.eval()
     if verbose:
-        print("# Loading Sequences...")
+        log("# Loading Sequences...")
     names, seqs = parse(open(fastaPath, "rb"))
     alphabet = Uniprot21()
     encoded_seqs = []
@@ -85,8 +87,8 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
         encoded_seqs.append(es)
     if verbose:
         num_seqs = len(encoded_seqs)
-        print("# {} Sequences Loaded".format(num_seqs))
-        print(
+        log("# {} Sequences Loaded".format(num_seqs))
+        log(
             "# Approximate Storage Required (varies by average sequence length): ~{}GB".format(
                 num_seqs * (1 / 125)
             )
@@ -94,12 +96,12 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     h5fi = h5py.File(outputPath, "w")
 
-    print("# Storing to {}...".format(outputPath))
+    log("# Storing to {}...".format(outputPath))
     with torch.no_grad():
         try:
             for (n, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
                 name = n.decode("utf-8")
-                if not name in h5fi:
+                if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)
                     h5fi.create_dataset(
