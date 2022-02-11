@@ -1,8 +1,10 @@
-import os, sys
+import os
+import sys
+
 import torch
 
-from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.contact import ContactCNN
+from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.interaction import ModelInteraction
 
 
@@ -23,7 +25,15 @@ def build_human_1(state_dict_path):
     """
     embModel = FullyConnectedEmbed(6165, 100, 0.5)
     conModel = ContactCNN(100, 50, 7)
-    model = ModelInteraction(embModel, conModel, use_W=True, pool_size=9)
+    model = ModelInteraction(
+        embModel,
+        conModel,
+        use_cuda=True,
+        do_w=True,
+        do_pool=True,
+        do_sigmoid=True,
+        pool_size=9,
+    )
     state_dict = torch.load(state_dict_path)
     model.load_state_dict(state_dict)
     model.eval()
@@ -52,8 +62,8 @@ def get_state_dict(version="human_v1", verbose=True):
     )
     if not os.path.exists(state_dict_fullname):
         try:
-            import urllib.request
             import shutil
+            import urllib.request
 
             if verbose:
                 print(f"Downloading model {version} from {state_dict_url}...")
@@ -86,7 +96,7 @@ def get_pretrained(version="human_v1"):
     :return: Pre-trained model
     :rtype: dscript.models.*
     """
-    if not version in VALID_MODELS:
+    if version not in VALID_MODELS:
         raise ValueError("Model {} does not exist".format(version))
 
     state_dict_path = get_state_dict(version)

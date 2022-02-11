@@ -2,24 +2,26 @@
 Evaluate a trained model.
 """
 
-import sys, os
 import argparse
+import datetime
+import os
+import sys
+
+import h5py
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-import h5py
-import datetime
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from sklearn.metrics import (
-    precision_recall_curve,
     average_precision_score,
-    roc_curve,
+    precision_recall_curve,
     roc_auc_score,
+    roc_curve,
 )
 from tqdm import tqdm
+
+matplotlib.use("Agg")
 
 
 def add_args(parser):
@@ -122,6 +124,7 @@ def main(args):
     model_path = args.model
     if use_cuda:
         model = torch.load(model_path).cuda()
+        model.use_cuda = True
     else:
         model = torch.load(model_path).cpu()
         model.use_cuda = False

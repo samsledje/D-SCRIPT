@@ -1,13 +1,15 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
-import sys, os
-import torch
-import h5py
 import argparse
 import datetime
+import os
+import sys
+
+import h5py
 import numpy as np
 import pandas as pd
+import torch
 from scipy.special import comb
 from tqdm import tqdm
 
@@ -89,6 +91,7 @@ def main(args):
     try:
         if use_cuda:
             model = torch.load(modelPath).cuda()
+            model.use_cuda = True
         else:
             model = torch.load(modelPath).cpu()
             model.use_cuda = False
@@ -169,7 +172,7 @@ def main(args):
                             dset[:] = cm_np
                     except RuntimeError as e:
                         log(
-                            f"{n0} x {n1} skipped - CUDA out of memory",
+                            f"{n0} x {n1} skipped ({e})",
                             file=logFile,
                         )
 

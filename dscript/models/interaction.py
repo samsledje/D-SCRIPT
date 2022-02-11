@@ -1,8 +1,7 @@
 import numpy as np
-
 import torch
-import torch.nn as nn
 import torch.functional as F
+import torch.nn as nn
 
 
 class LogisticActivation(nn.Module):
@@ -102,7 +101,7 @@ class ModelInteraction(nn.Module):
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
 
-        self.doPool = do_pool
+        self.do_w = do_pool
         self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
 
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
@@ -200,7 +199,7 @@ class ModelInteraction(nn.Module):
         else:
             yhat = C
 
-        if self.doPool:
+        if self.do_pool:
             yhat = self.maxPool(yhat)
 
         # Mean of contact predictions where p_ij > mu + gamma*sigma

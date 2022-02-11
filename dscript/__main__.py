@@ -1,7 +1,9 @@
 """
 D-SCRIPT: Structure Aware PPI Prediction
 """
-import argparse, os, sys
+import argparse
+import os
+import sys
 
 
 class CitationAction(argparse.Action):
@@ -35,10 +37,7 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    from .commands import train as train
-    from .commands import evaluate as evaluate
-    from .commands import embed as embed
-    from .commands import predict as predict
+    from .commands import embed, evaluate, predict, train
 
     modules = {
         "train": train,
