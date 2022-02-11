@@ -101,7 +101,7 @@ class ModelInteraction(nn.Module):
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
 
-        self.do_w = do_pool
+        self.do_pool = do_pool
         self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
 
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
