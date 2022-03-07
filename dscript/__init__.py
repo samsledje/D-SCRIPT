@@ -1,4 +1,4 @@
-__version__ = "0.1.8-ttdev"
+__version__ = "0.1.9-ttdev"
 __citation__ = """Sledzieski, Singh, Cowen, Berger. Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model. Cell Systems, 2021."""
 from . import (
     alphabets,
