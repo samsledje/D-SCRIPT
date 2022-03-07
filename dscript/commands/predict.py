@@ -93,7 +93,9 @@ def main(args):
             model = torch.load(modelPath).cuda()
             model.use_cuda = True
         else:
-            model = torch.load(modelPath).cpu()
+            model = torch.load(
+                modelPath, map_location=torch.device("cpu")
+            ).cpu()
             model.use_cuda = False
     except FileNotFoundError:
         print(f"Model {modelPath} not found")
