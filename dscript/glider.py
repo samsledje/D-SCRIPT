@@ -236,7 +236,6 @@ def glide_predict_links(edgelist, X, params={}, thres_p=0.9):
             glide_mat[j, i] = glide_score
     if thres_p > 0:
         thres = np.percentile(glide_mat, thres_p)
-        print(f"\t# GLIDE threshold : {thres}")
         for i in range(N):
             for j in range(i):
                 glide_mat[i, j] = float(glide_mat[i, j] >= thres)

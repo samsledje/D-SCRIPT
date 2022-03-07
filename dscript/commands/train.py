@@ -169,7 +169,7 @@ def add_args(parser):
         dest="glider_thresh",
         type=float,
         default=0.925,
-        help="proportion of GLIDER scores treated as positive edges (default: 0.925)",
+        help="proportion of GLIDER scores treated as positive edges (0 < gt < 1) (default: 0.925)",
     )
 
     # Output
@@ -408,9 +408,6 @@ def train_model(args, output):
     embedding_h5 = args.embedding
     h5fi = h5py.File(embedding_h5, "r")
 
-    log(f"Loading training pairs from {train_fi}...", file=output)
-    output.flush()
-
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     train_df.columns = ["prot1", "prot2", "label"]
 
@@ -438,7 +435,6 @@ def train_model(args, output):
     )
 
     log(f"Loaded {len(train_p1)} training pairs", file=output)
-    log(f"Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
@@ -456,7 +452,7 @@ def train_model(args, output):
     )
 
     log(f"Loaded {len(test_p1)} test pairs", file=output)
-    log("Loading embeddings", file=output)
+    log("Loading embeddings...", file=output)
     output.flush()
 
     embeddings = {}
@@ -473,8 +469,9 @@ def train_model(args, output):
         log("Running D-SCRIPT Topsy-Turvy:", file=output)
         log(f"\tglider_weight: {glider_weight}", file=output)
         log(f"\tglider_thresh: {glider_thresh}th percentile", file=output)
+        log("Computing GLIDER matrix...", file=output)
+        output.flush()
 
-        log("Computing GLIDER matrix", file=output)
         glider_mat, glider_map = glide_compute_map(
             train_df[train_df.iloc[:, 2] == 1], thres_p=glider_thresh
         )
