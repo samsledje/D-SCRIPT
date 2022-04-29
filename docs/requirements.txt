@@ -2,6 +2,7 @@ h5py
 matplotlib
 numpy
 pandas
+jinja2<3.1
 scikit-learn
 scipy
 seaborn
