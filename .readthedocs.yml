@@ -11,8 +11,6 @@ python:
     - requirements: docs/requirements.txt
     - method: setuptools
       path: .
-      extra_requirements:
-          - docs
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
