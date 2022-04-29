@@ -97,12 +97,12 @@ def add_args(parser):
     inter_grp.add_argument(
         "--no-w",
         action="store_true",
-        help="don't use weight matrix in interaction prediction model",
+        help="no use of weight matrix in interaction prediction model",
     )
     inter_grp.add_argument(
         "--no-sigmoid",
         action="store_true",
-        help="don't use sigmoid activation at end of interaction model",
+        help="no use of sigmoid activation at end of interaction model",
     )
     inter_grp.add_argument(
         "--do-pool",
