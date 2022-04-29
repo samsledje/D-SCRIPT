@@ -14,4 +14,4 @@ dev*/*
 collect_env.py
 devCoral/*
 htmlcov/*
-
+.nfs*
