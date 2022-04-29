@@ -31,7 +31,8 @@ preferred-citation:
   journal: "Cell Systems"
   publisher: "Elsevier"
   volume: 12
-  number: 10
-  pages: 969--982
+  issue: 10
+  start: 969
+  end: 982
   title: "D-SCRIPT translates genome to phenome with sequence-based, structure-aware, genome-scale predictions of protein-protein interactions"
   year: 2021
