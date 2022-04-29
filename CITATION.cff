@@ -27,9 +27,12 @@ preferred-citation:
   - family-names: "Berger"
     given-names: "Bonnie"
     orcid: "https://orcid.org/0000-0002-2724-7228"
-  doi: "10.1101/2021.01.22.427866"
-  journal: "bioRxiv"
-  publisher: "Cold Spring Harbor Laboratory"
-  month: 1
-  title: "Sequence-based prediction of protein-protein interactions: a structure-aware interpretable deep learning model"
+  doi: "10.1016/j.cels.2021.08.010"
+  journal: "Cell Systems"
+  publisher: "Elsevier"
+  volume: 12
+  issue: 10
+  start: 969
+  end: 982
+  title: "D-SCRIPT translates genome to phenome with sequence-based, structure-aware, genome-scale predictions of protein-protein interactions"
   year: 2021

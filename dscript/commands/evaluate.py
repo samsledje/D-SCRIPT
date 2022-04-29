@@ -126,7 +126,7 @@ def main(args):
         model = torch.load(model_path).cuda()
         model.use_cuda = True
     else:
-        model = torch.load(model_path).cpu()
+        model = torch.load(model_path,map_location =torch.device('cpu')).cpu()
         model.use_cuda = False
 
     embeddingPath = args.embedding
