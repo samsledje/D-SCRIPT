@@ -155,7 +155,7 @@ def add_args(parser):
         "--topsy-turvy",
         dest="run_tt",
         action="store_true",
-        help="run in Topsy-Turvy mode -- use top-down GLIDER scoring to guide training (reference TBD)",
+        help="run in Topsy-Turvy mode -- use top-down GLIDER scoring to guide training",
     )
     train_grp.add_argument(
         "--glider-weight",
