@@ -3,8 +3,8 @@ build
 docs/build
 scratch
 dist
-.vscode
 htmlcov
+.vscode
 **/.ipynb_checkpoints
 **/__pycache__
 dev*
