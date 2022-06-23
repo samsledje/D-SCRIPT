@@ -27,6 +27,7 @@ source = ["dscript"]
 filterwarnings = [
     "ignore::UserWarning",
     "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
 ]
 python_files = "test_*.py"
 testpaths = [

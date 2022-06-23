@@ -6,6 +6,9 @@ import subprocess as sp
 class TestCommands:
     @classmethod
     def setup_class(cls):
+        cmd = "python setup.py install"
+        proc = sp.Popen(cmd.split())
+        proc.wait()
         os.makedirs("./tmp-dscript-testing/", exist_ok=True)
 
     @classmethod

@@ -77,11 +77,11 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     model.eval()
     if verbose:
         log("# Loading Sequences...")
-    names, seqs = parse(open(fastaPath, "rb"))
+    names, seqs = parse(fastaPath)
     alphabet = Uniprot21()
     encoded_seqs = []
     for s in tqdm(seqs):
-        es = torch.from_numpy(alphabet.encode(s))
+        es = torch.from_numpy(alphabet.encode(s.encode("utf-8")))
         if use_cuda:
             es = es.cuda()
         encoded_seqs.append(es)
@@ -99,8 +99,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     log("# Storing to {}...".format(outputPath))
     with torch.no_grad():
         try:
-            for (n, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
-                name = n.decode("utf-8")
+            for (name, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
                 if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)

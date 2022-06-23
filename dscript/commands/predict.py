@@ -113,7 +113,7 @@ def main(args):
     # Load Sequences or Embeddings
     if embPath is None:
         try:
-            names, seqs = parse(open(seqPath, "r"))
+            names, seqs = parse(seqPath, "r")
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
             log(
