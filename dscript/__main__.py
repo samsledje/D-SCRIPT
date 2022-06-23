@@ -42,7 +42,7 @@ def main():
     modules = {
         "train": train,
         "embed": embed,
-        "eval": evaluate,
+        "evaluate": evaluate,
         "predict": predict,
     }
 

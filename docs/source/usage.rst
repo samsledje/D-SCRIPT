@@ -39,7 +39,7 @@ Evaluate a trained model
 
 .. code-block:: bash
 
-    dscript eval --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
+    dscript evaluate --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
 
 
 Prediction
