@@ -174,7 +174,7 @@ def add_args(parser):
 
     # Output
     misc_grp.add_argument(
-        "-o", "--output", help="output file path (default: stdout)"
+        "-o", "--outfile", help="output file path (default: stdout)"
     )
     misc_grp.add_argument(
         "--save-prefix", help="path prefix for saving models"
@@ -328,7 +328,8 @@ def interaction_grad(
     if use_cuda:
         y = y.cpu()
         p_hat = p_hat.cpu()
-        g_score = g_score.cpu()
+        if run_tt:
+            g_score = g_score.cpu()
 
     with torch.no_grad():
         guess_cutoff = 0.5
@@ -673,7 +674,7 @@ def main(args):
     :meta private:
     """
 
-    output = args.output
+    output = args.outfile
     if output is None:
         output = sys.stdout
     else:

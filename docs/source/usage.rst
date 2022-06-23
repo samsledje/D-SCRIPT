@@ -98,7 +98,7 @@ Training
                      [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
                      [--lr LR] [--lambda INTERACTION_WEIGHT] [--topsy-turvy]
                      [--glider-weight GLIDER_WEIGHT]
-                     [--glider-thresh GLIDER_THRESH] [-o OUTPUT]
+                     [--glider-thresh GLIDER_THRESH] [-o OUTFILE]
                      [--save-prefix SAVE_PREFIX] [-d DEVICE]
                      [--checkpoint CHECKPOINT]
 
