@@ -21,7 +21,12 @@ import gzip as gz
 from .. import __version__
 from ..alphabets import Uniprot21
 from ..glider import glide_compute_map, glider_score
-from ..utils import PairedDataset, collate_paired_sequences, log
+from ..utils import (
+    PairedDataset,
+    collate_paired_sequences,
+    log,
+    load_hdf5_parallel,
+)
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
@@ -407,7 +412,7 @@ def train_model(args, output):
     no_augment = args.no_augment
 
     embedding_h5 = args.embedding
-    h5fi = h5py.File(embedding_h5, "r")
+    # h5fi = h5py.File(embedding_h5, "r")
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     train_df.columns = ["prot1", "prot2", "label"]
@@ -456,10 +461,11 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
-    embeddings = {}
+    # embeddings = {}
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    for prot_name in tqdm(all_proteins):
-        embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    # for prot_name in tqdm(all_proteins):
+    #     embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
 
     # Topsy-Turvy
     run_tt = args.run_tt

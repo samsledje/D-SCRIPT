@@ -21,7 +21,7 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 
-from ..utils import log
+from ..utils import log, load_hdf5_parallel
 
 matplotlib.use("Agg")
 
@@ -131,8 +131,7 @@ def main(args):
         model = torch.load(model_path, map_location=torch.device("cpu")).cpu()
         model.use_cuda = False
 
-    embeddingPath = args.embedding
-    h5fi = h5py.File(embeddingPath, "r")
+    embPath = args.embedding
 
     # Load Pairs
     test_fi = args.test
@@ -145,10 +144,7 @@ def main(args):
     outFile = open(outPath + ".predictions.tsv", "w+")
 
     allProteins = set(test_df[0]).union(test_df[1])
-
-    seqEmbDict = {}
-    for i in tqdm(allProteins, desc="Loading embeddings"):
-        seqEmbDict[i] = torch.from_numpy(h5fi[i][:]).float()
+    embeddings = load_hdf5_parallel(embPath, allProteins)
 
     model.eval()
     with torch.no_grad():
@@ -158,8 +154,8 @@ def main(args):
             test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
         ):
             try:
-                p0 = seqEmbDict[n0]
-                p1 = seqEmbDict[n1]
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
@@ -176,7 +172,6 @@ def main(args):
     plot_eval_predictions(labels, phats, outPath)
 
     outFile.close()
-    h5fi.close()
 
 
 if __name__ == "__main__":

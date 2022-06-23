@@ -16,7 +16,7 @@ from tqdm import tqdm
 from ..alphabets import Uniprot21
 from ..fasta import parse
 from ..language_model import lm_embed
-from ..utils import log
+from ..utils import log, load_hdf5_parallel
 
 
 def add_args(parser):
@@ -129,11 +129,7 @@ def main(args):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embedH5 = h5py.File(embPath, "r")
-        embeddings = {}
-        for n in tqdm(all_prots):
-            embeddings[n] = torch.from_numpy(embedH5[n][:])
-        embedH5.close()
+        embeddings = load_hdf5_parallel(embPath, all_prots)
 
     # Make Predictions
     log("Making Predictions...", file=logFile, print_also=True)
