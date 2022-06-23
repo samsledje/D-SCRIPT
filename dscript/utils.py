@@ -21,6 +21,7 @@ def log(m, file=None, timestamped=True, print_also=False):
         print(log_string, file=file)
         if print_also:
             print(log_string)
+        file.flush()
 
 
 def RBF(D, sigma=None):
