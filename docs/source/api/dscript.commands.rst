@@ -31,12 +31,12 @@ See `Training <../usage.html#training>`_ for full usage details.
    :undoc-members:
    :show-inheritance:
 
-dscript.commands.eval
----------------------
+dscript.commands.evaluate
+-------------------------
 
 See `Evaluation <../usage.html#evaluation>`_ for full usage details.
 
-.. automodule:: dscript.commands.eval
+.. automodule:: dscript.commands.evaluate
    :members:
    :undoc-members:
    :show-inheritance:

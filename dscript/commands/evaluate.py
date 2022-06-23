@@ -21,6 +21,8 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 
+from ..utils import log
+
 matplotlib.use("Agg")
 
 
@@ -75,7 +77,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     precision, recall, pr_thresh = precision_recall_curve(labels, predictions)
     aupr = average_precision_score(labels, predictions)
-    print("AUPR:", aupr)
+    log("AUPR:", aupr)
 
     plt.step(recall, precision, color="b", alpha=0.2, where="post")
     plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
@@ -89,7 +91,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     fpr, tpr, roc_thresh = roc_curve(labels, predictions)
     auroc = roc_auc_score(labels, predictions)
-    print("AUROC:", auroc)
+    log("AUROC:", auroc)
 
     plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
     plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
@@ -114,11 +116,11 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
+        log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
         )
     else:
-        print("Using CPU")
+        log("Using CPU")
 
     # Load Model
     model_path = args.model
@@ -126,7 +128,7 @@ def main(args):
         model = torch.load(model_path).cuda()
         model.use_cuda = True
     else:
-        model = torch.load(model_path,map_location =torch.device('cpu')).cpu()
+        model = torch.load(model_path, map_location=torch.device("cpu")).cpu()
         model.use_cuda = False
 
     embeddingPath = args.embedding
@@ -165,10 +167,7 @@ def main(args):
                 pred = model.predict(p0, p1).item()
                 phats.append(pred)
                 labels.append(label)
-                print(
-                    "{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred),
-                    file=outFile,
-                )
+                outFile.write(f"{n0}\t{n1}\t{label}\t{pred:.5}\n")
             except Exception as e:
                 sys.stderr.write("{} x {} - {}".format(n0, n1, e))
 

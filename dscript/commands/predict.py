@@ -52,7 +52,7 @@ def main(args):
     :meta private:
     """
     if args.seqs is None and args.embeddings is None:
-        print("One of --seqs or --embeddings is required.")
+        log("One of --seqs or --embeddings is required.")
         sys.exit(0)
 
     csvPath = args.pairs
@@ -76,19 +76,17 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
-            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-        )
         log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=logFile,
+            print_also=True,
         )
     else:
-        print("Using CPU")
-        log("Using CPU", file=logFile)
+        log("Using CPU", file=logFile, print_also=True)
 
     # Load Model
     try:
+        log(f"Loading model from {modelPath}", file=logFile, print_also=True)
         if use_cuda:
             model = torch.load(modelPath).cuda()
             model.use_cuda = True
@@ -98,18 +96,17 @@ def main(args):
             ).cpu()
             model.use_cuda = False
     except FileNotFoundError:
-        print(f"Model {modelPath} not found")
-        log(f"Model {modelPath} not found", file=logFile)
+        log(f"Model {modelPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
 
     # Load Pairs
     try:
+        log(f"Loading pairs from {modelPath}", file=logFile, print_also=True)
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
-        print(f"Pairs File {csvPath} not found")
-        log(f"Pairs File {csvPath} not found", file=logFile)
+        log(f"Pairs File {csvPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
 
@@ -119,18 +116,19 @@ def main(args):
             names, seqs = parse(open(seqPath, "r"))
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
-            print(f"Sequence File {seqPath} not found")
-            log(f"Sequence File {seqPath} not found", file=logFile)
+            log(
+                f"Sequence File {seqPath} not found",
+                file=logFile,
+                print_also=True,
+            )
             logFile.close()
             sys.exit(1)
-        print("Generating Embeddings...")
-        log("Generating Embeddings...", file=logFile)
+        log("Generating Embeddings...", file=logFile, print_also=True)
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
-        print("Loading Embeddings...")
-        log("Loading Embeddings...", file=logFile)
+        log("Loading Embeddings...", file=logFile, print_also=True)
         embedH5 = h5py.File(embPath, "r")
         embeddings = {}
         for n in tqdm(all_prots):
@@ -138,8 +136,7 @@ def main(args):
         embedH5.close()
 
     # Make Predictions
-    print("Making Predictions...")
-    log("Making Predictions...", file=logFile)
+    log("Making Predictions...", file=logFile, print_also=True)
     n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"

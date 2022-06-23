@@ -690,9 +690,10 @@ def main(args):
         log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=output,
+            print_also=True,
         )
     else:
-        log("Using CPU", file=output)
+        log("Using CPU", file=output, print_also=True)
         device = "cpu"
 
     train_model(args, output)

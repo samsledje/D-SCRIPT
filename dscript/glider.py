@@ -6,6 +6,11 @@ from numpy import linalg as LA
 def get_dim(edgelist):
     """Given an adjacency list for a graph, returns the number of nodes in
     the graph.
+
+    :param edgelist: Graph adjacency list
+    :type edgelist: list
+    :return: Number of nodes in the graph
+    :rtype: int
     """
     node_dict = {}
     node_count = 0
@@ -23,6 +28,15 @@ def get_dim(edgelist):
 def densify(edgelist, dim=None, directed=False):
     """Given an adjacency list for the graph, computes the adjacency
     matrix.
+
+    :param edgelist: Graph adjacency list
+    :type edgelist: list
+    :param dim: Number of nodes in the graph
+    :type dim: int
+    :param directed: Whether the graph should be treated as directed
+    :type directed: bool
+    :return: Graph as an adjacency matrix
+    :rtype: np.ndarray
     """
     if dim is None:
         dim = get_dim(edgelist)
@@ -76,13 +90,18 @@ def compute_X_normalized(A, D, t=-1, lm=1, is_normalized=True):
 
 def compute_cw_score(p, q, edgedict, ndict, params=None):
     """
-    Computes the common weighted score between p and q
-    @param p        -> A node of the graph
-    @param q        -> Another node in the graph
-    @param edgedict -> A dictionary with key `(p, q)` and value `w`.
-    @param ndict    -> A dictionary with key `p` and the value a set `{p1, p2, ...}`
-    @param params   -> Should always be none here
-    @return         -> A real value representing the score
+    Computes the common weighted score between p and q.
+
+    :param p: A node of the graph
+    :param q: Another node in the graph
+    :param edgedict: A dictionary with key `(p, q)` and value `w`.
+    :type edgedict: dict
+    :param ndict: A dictionary with key `p` and the value a set `{p1, p2, ...}`
+    :type ndict: dict
+    :param params: Should always be none here
+    :type params: None
+    :return: A real value representing the score
+    :rtype: float
     """
     if len(ndict[p]) > len(ndict[q]):
         temp = p
@@ -107,13 +126,18 @@ def compute_cw_score(p, q, edgedict, ndict, params=None):
 
 def compute_cw_score_normalized(p, q, edgedict, ndict, params=None):
     """
-    Computes the common weighted normalized score between p and q
-    @param p        -> A node of the graph
-    @param q        -> Another node in the graph
-    @param edgedict -> A dictionary with key `(p, q)` and value `w`.
-    @param ndict    -> A dictionary with key `p` and the value a set `{p1, p2, ...}`
-    @param params   -> Should always be none here
-    @return         -> A real value representing the score
+    Computes the common weighted normalized score between p and q.
+
+    :param p: A node of the graph
+    :param q: Another node in the graph
+    :param edgedict: A dictionary with key `(p, q)` and value `w`.
+    :type edgedict: dict
+    :param ndict: A dictionary with key `p` and the value a set `{p1, p2, ...}`
+    :type ndict: dict
+    :param params: Should always be none here
+    :type params: None
+    :return: A real value representing the score
+    :rtype: float
     """
     if len(ndict[p]) > len(ndict[q]):
         temp = p
@@ -178,9 +202,10 @@ def glide_predict_links(edgelist, X, params={}, thres_p=0.9):
     of a graph.
     Returns a ranked list of (edges, distances) sorted from closest to
     furthest.
-    @param edgelist -> A list with elements of type `(p, q, wt)`
-    @param X        -> A nxk embedding matrix
-    @param params   -> A dictionary with entries
+
+    :param edgelist: A list with elements of type `(p, q, wt)`
+    :param X: A nxk embedding matrix
+    :param params: A dictionary with entries
     {
         alpha       => real number
         beta        => real number
@@ -246,8 +271,11 @@ def glide_predict_links(edgelist, X, params={}, thres_p=0.9):
 def create_edge_dict(edgelist):
     """
     Creates an edge dictionary with the edge `(p, q)` as the key, and weight `w` as the value.
-    @param  edgelist -> A list with elements of form `(p, q, w)`
-    @return edgedict -> A dictionary with key `(p, q)` and value `w`.
+
+    :param edgelist: list with elements of form `(p, q, w)`
+    :type edgelist: list
+    :return: A dictionary with key `(p, q)` and value `w`.
+    :rtype: dict
     """
     edgedict = {}
     for (p, q, w) in edgelist:
@@ -258,8 +286,11 @@ def create_edge_dict(edgelist):
 def create_neighborhood_dict(edgelist):
     """
     Create a dictionary with nodes as key and a list of neighborhood nodes as the value
-    @param edgelist          -> A list with elements of form `(p, q, w)`
-    @param neighborhood_dict -> A dictionary with key `p` and value, a set `{p1, p2, p3, ...}`
+
+    :param edgelist: A list with elements of form `(p, q, w)`
+    :type edgelist: list
+    :return: neighborhood_dict -> A dictionary with key `p` and value, a set `{p1, p2, p3, ...}`
+    :rtype: dict
     """
     ndict = {}
     for ed in edgelist:
@@ -275,7 +306,16 @@ def create_neighborhood_dict(edgelist):
 
 def glide_compute_map(pos_df, thres_p=0.9, params={}):
     """
-    should return glide_mat and glide_map
+    Return glide_mat and glide_map.
+
+    :param pos_df: Dataframe of weighted edges
+    :type pos_df: pd.DataFrame
+    :param thres_p: Threshold to treat an edge as positive
+    :type thres_p: float
+    :param params: Parameters for GLIDE
+    :type params: dict
+    :return: glide_matrix and corresponding glide_map
+    :rtype: tuple(np.ndarray, dict)
     """
     params["lam"] = 1 if "lam" not in params else params["lam"]
     params["norm"] = False if "norm" not in params else params["norm"]
