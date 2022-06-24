@@ -174,7 +174,7 @@ def add_args(parser):
         dest="glider_thresh",
         type=float,
         default=0.925,
-        help="proportion of GLIDER scores treated as positive edges (0 < gt < 1) (default: 0.925)",
+        help="threshold beyond which GLIDER scores treated as positive edges (0 < gt < 1) (default: 0.925)",
     )
 
     # Output
