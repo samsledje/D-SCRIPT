@@ -5,7 +5,6 @@ Train a new model.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import IterableDataset, DataLoader
 from sklearn.metrics import average_precision_score as average_precision
@@ -21,7 +20,13 @@ import gzip as gz
 
 from .. import __version__
 from ..alphabets import Uniprot21
-from ..utils import PairedDataset, collate_paired_sequences, log
+from ..glider import glide_compute_map, glider_score
+from ..utils import (
+    PairedDataset,
+    collate_paired_sequences,
+    log,
+    load_hdf5_parallel,
+)
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
@@ -97,12 +102,12 @@ def add_args(parser):
     inter_grp.add_argument(
         "--no-w",
         action="store_true",
-        help="don't use weight matrix in interaction prediction model",
+        help="no use of weight matrix in interaction prediction model",
     )
     inter_grp.add_argument(
         "--no-sigmoid",
         action="store_true",
-        help="don't use sigmoid activation at end of interaction model",
+        help="no use of sigmoid activation at end of interaction model",
     )
     inter_grp.add_argument(
         "--do-pool",
@@ -150,9 +155,31 @@ def add_args(parser):
         help="weight on the similarity objective (default: 0.35)",
     )
 
+    # Topsy-Turvy
+    train_grp.add_argument(
+        "--topsy-turvy",
+        dest="run_tt",
+        action="store_true",
+        help="run in Topsy-Turvy mode -- use top-down GLIDER scoring to guide training",
+    )
+    train_grp.add_argument(
+        "--glider-weight",
+        dest="glider_weight",
+        type=float,
+        default=0.2,
+        help="weight on the GLIDER accuracy objective (default: 0.2)",
+    )
+    train_grp.add_argument(
+        "--glider-thresh",
+        dest="glider_thresh",
+        type=float,
+        default=0.925,
+        help="threshold beyond which GLIDER scores treated as positive edges (0 < gt < 1) (default: 0.925)",
+    )
+
     # Output
     misc_grp.add_argument(
-        "-o", "--output", help="output file path (default: stdout)"
+        "-o", "--outfile", help="output file path (default: stdout)"
     )
     misc_grp.add_argument(
         "--save-prefix", help="path prefix for saving models"
@@ -220,7 +247,19 @@ def predict_interaction(model, n0, n1, tensors, use_cuda):
     return p_hat
 
 
-def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
+def interaction_grad(
+    model,
+    n0,
+    n1,
+    y,
+    tensors,
+    accuracy_weight=0.35,
+    run_tt=False,
+    glider_weight=0,
+    glider_map=None,
+    glider_mat=None,
+    use_cuda=True,
+):
     """
     Compute gradient and backpropagate loss for a batch.
 
@@ -234,10 +273,18 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     :type y: torch.Tensor
     :param tensors: Dictionary of protein names to embeddings
     :type tensors: dict[str, torch.Tensor]
+    :param accuracy_weight: Weight on the accuracy objective. Representation loss is :math:`1 - \\text{accuracy_weight}`.
+    :type accuracy_weight: float
+    :param run_tt: Use GLIDE top-down supervision
+    :type run_tt: bool
+    :param glider_weight: Weight on the GLIDE objective loss. Accuracy loss is :math:`(\\text{GLIDER_BCE}*\\text{glider_weight}) + (\\text{D-SCRIPT_BCE}*(1-\\text{glider_weight}))`.
+    :type glider_weight: float
+    :param glider_map: Map from protein identifier to index
+    :type glider_map: dict[str, int]
+    :param glider_mat: Matrix with pairwise GLIDE scores
+    :type glider_mat: np.ndarray
     :param use_cuda: Whether to use GPU
     :type use_cuda: bool
-    :param weight: Weight on the contact map magnitude objective. BCE loss is :math:`1 - \\text{weight}`.
-    :type weight: float
 
     :return: (Loss, number correct, mean square error, batch size)
     :rtype: (torch.Tensor, int, torch.Tensor, int)
@@ -246,14 +293,38 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     c_map_mag, p_hat = predict_cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
+
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
 
     p_hat = p_hat.float()
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
-    cmap_loss = torch.mean(c_map_mag)
-    loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
+
+    if run_tt:
+        g_score = []
+        for i in range(len(n0)):
+            g_score.append(
+                torch.tensor(
+                    glider_score(n0[i], n1[i], glider_map, glider_mat),
+                    dtype=torch.float64,
+                )
+            )
+        g_score = torch.stack(g_score, 0)
+        if use_cuda:
+            g_score = g_score.cuda()
+
+        glider_loss = F.binary_cross_entropy(p_hat.float(), g_score.float())
+        accuracy_loss = (glider_weight * glider_loss) + (
+            (1 - glider_weight) * bce_loss
+        )
+    else:
+        accuracy_loss = bce_loss
+
+    representation_loss = torch.mean(c_map_mag)
+    loss = (accuracy_weight * accuracy_loss) + (
+        (1 - accuracy_weight) * representation_loss
+    )
     b = len(p_hat)
 
     # Backprop Loss
@@ -262,6 +333,8 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     if use_cuda:
         y = y.cpu()
         p_hat = p_hat.cpu()
+        if run_tt:
+            g_score = g_score.cpu()
 
     with torch.no_grad():
         guess_cutoff = 0.5
@@ -339,10 +412,7 @@ def train_model(args, output):
     no_augment = args.no_augment
 
     embedding_h5 = args.embedding
-    h5fi = h5py.File(embedding_h5, "r")
-
-    log(f"Loading training pairs from {train_fi}...", file=output)
-    output.flush()
+    # h5fi = h5py.File(embedding_h5, "r")
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     train_df.columns = ["prot1", "prot2", "label"]
@@ -371,7 +441,6 @@ def train_model(args, output):
     )
 
     log(f"Loaded {len(train_p1)} training pairs", file=output)
-    log(f"Loading testing pairs from {test_fi}...", file=output)
     output.flush()
 
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
@@ -389,13 +458,32 @@ def train_model(args, output):
     )
 
     log(f"Loaded {len(test_p1)} test pairs", file=output)
-    log(f"Loading embeddings", file=output)
+    log("Loading embeddings...", file=output)
     output.flush()
 
-    embeddings = {}
+    # embeddings = {}
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    for prot_name in tqdm(all_proteins):
-        embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    # for prot_name in tqdm(all_proteins):
+    #     embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
+
+    # Topsy-Turvy
+    run_tt = args.run_tt
+    glider_weight = args.glider_weight
+    glider_thresh = args.glider_thresh * 100
+
+    if run_tt:
+        log("Running D-SCRIPT Topsy-Turvy:", file=output)
+        log(f"\tglider_weight: {glider_weight}", file=output)
+        log(f"\tglider_thresh: {glider_thresh}th percentile", file=output)
+        log("Computing GLIDER matrix...", file=output)
+        output.flush()
+
+        glider_mat, glider_map = glide_compute_map(
+            train_df[train_df.iloc[:, 2] == 1], thres_p=glider_thresh
+        )
+    else:
+        glider_mat, glider_map = (None, None)
 
     if args.checkpoint is None:
 
@@ -497,7 +585,11 @@ def train_model(args, output):
                 z1,
                 y,
                 embeddings,
-                weight=inter_weight,
+                accuracy_weight=inter_weight,
+                run_tt=run_tt,
+                glider_weight=glider_weight,
+                glider_map=glider_map,
+                glider_mat=glider_mat,
                 use_cuda=use_cuda,
             )
 
@@ -588,7 +680,7 @@ def main(args):
     :meta private:
     """
 
-    output = args.output
+    output = args.outfile
     if output is None:
         output = sys.stdout
     else:
@@ -605,9 +697,10 @@ def main(args):
         log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=output,
+            print_also=True,
         )
     else:
-        log("Using CPU", file=output)
+        log("Using CPU", file=output, print_also=True)
         device = "cpu"
 
     train_model(args, output)

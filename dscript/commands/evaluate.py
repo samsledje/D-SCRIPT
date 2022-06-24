@@ -21,6 +21,8 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 
+from ..utils import log, load_hdf5_parallel
+
 matplotlib.use("Agg")
 
 
@@ -75,7 +77,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     precision, recall, pr_thresh = precision_recall_curve(labels, predictions)
     aupr = average_precision_score(labels, predictions)
-    print("AUPR:", aupr)
+    log(f"AUPR: {aupr}")
 
     plt.step(recall, precision, color="b", alpha=0.2, where="post")
     plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
@@ -89,7 +91,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
 
     fpr, tpr, roc_thresh = roc_curve(labels, predictions)
     auroc = roc_auc_score(labels, predictions)
-    print("AUROC:", auroc)
+    log(f"AUROC: {auroc}")
 
     plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
     plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
@@ -114,11 +116,11 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
+        log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
         )
     else:
-        print("Using CPU")
+        log("Using CPU")
 
     # Load Model
     model_path = args.model
@@ -126,11 +128,10 @@ def main(args):
         model = torch.load(model_path).cuda()
         model.use_cuda = True
     else:
-        model = torch.load(model_path,map_location =torch.device('cpu')).cpu()
+        model = torch.load(model_path, map_location=torch.device("cpu")).cpu()
         model.use_cuda = False
 
-    embeddingPath = args.embedding
-    h5fi = h5py.File(embeddingPath, "r")
+    embPath = args.embedding
 
     # Load Pairs
     test_fi = args.test
@@ -143,10 +144,7 @@ def main(args):
     outFile = open(outPath + ".predictions.tsv", "w+")
 
     allProteins = set(test_df[0]).union(test_df[1])
-
-    seqEmbDict = {}
-    for i in tqdm(allProteins, desc="Loading embeddings"):
-        seqEmbDict[i] = torch.from_numpy(h5fi[i][:]).float()
+    embeddings = load_hdf5_parallel(embPath, allProteins)
 
     model.eval()
     with torch.no_grad():
@@ -156,8 +154,8 @@ def main(args):
             test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
         ):
             try:
-                p0 = seqEmbDict[n0]
-                p1 = seqEmbDict[n1]
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
@@ -165,10 +163,7 @@ def main(args):
                 pred = model.predict(p0, p1).item()
                 phats.append(pred)
                 labels.append(label)
-                print(
-                    "{}\t{}\t{}\t{:.5}".format(n0, n1, label, pred),
-                    file=outFile,
-                )
+                outFile.write(f"{n0}\t{n1}\t{label}\t{pred:.5}\n")
             except Exception as e:
                 sys.stderr.write("{} x {} - {}".format(n0, n1, e))
 
@@ -177,7 +172,6 @@ def main(args):
     plot_eval_predictions(labels, phats, outPath)
 
     outFile.close()
-    h5fi.close()
 
 
 if __name__ == "__main__":
