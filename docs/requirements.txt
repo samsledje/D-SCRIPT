@@ -1,4 +1,5 @@
 h5py
+biopython
 matplotlib
 numpy
 pandas
