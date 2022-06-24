@@ -15,6 +15,7 @@ server/
 # DotFiles
 .coverage
 .vscode
+.nfs*
 
 # Binaries
 *.egg-info

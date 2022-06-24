@@ -17,7 +17,9 @@ from dscript.utils import (
 
 
 def test_get_local_or_download():
-    destination_path = Path("scratch/ecoli.fasta")
+    destination_path = Path(
+        "/afs/csail.mit.edu/u/s/samsl/Work/databases/STRING/e.coli/ecoli.fasta"
+    )
     source_path = (
         "https://github.com/samsledje/D-SCRIPT/raw/dev/data/seqs/ecoli.fasta"
     )
