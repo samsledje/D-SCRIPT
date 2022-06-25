@@ -4,23 +4,22 @@ RUN_DSCRIPT.sh
 
 # Directories
 build
+docs/build
 scratch
 dist
 node_modules
 htmlcov
 dev*
+.vscode
 ## Remove this later when the server is merged
 server/
 
-# DotFiles
-.coverage
-.vscode
-.nfs*
-
-# Binaries
-*.egg-info
+# File Types
+**/*.egg-info
+**/*.pt
 **/*.sav
 **/*.pt
 **/*.h5
 **/.ipynb_checkpoints/**
 **/__pycache__/**
+**/.nfs*

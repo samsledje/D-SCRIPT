@@ -1,13 +1,17 @@
 import logging as logg
 import sys
-
-import h5py
+import os
+import subprocess as sp
+import random
 import torch
+import h5py
 from Bio import SeqIO
 from tqdm import tqdm
 
 from .alphabets import Uniprot21
 from .pretrained import get_pretrained
+from .models.embedding import SkipLSTM
+from datetime import datetime
 
 
 def lm_embed(sequence, use_cuda=False, verbose=True):
@@ -65,7 +69,6 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
 
     if verbose:
         logg.info("Loading Model...")
-
     model = get_pretrained("lm_v1")
     torch.nn.init.normal_(model.proj.weight)
     model.proj.bias = torch.nn.Parameter(torch.zeros(100))
@@ -101,6 +104,8 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
                 if req.name not in h5fi:
                     enc = alphabet.encode(req.seq.encode("utf-8"))
                     x = torch.from_numpy(enc).long().unsqueeze(0)
+                    if use_cuda:
+                        x = x.cuda()
                     z = model.transform(x)
                     h5fi.create_dataset(
                         req.name, data=z.cpu().numpy(), compression="lzf"

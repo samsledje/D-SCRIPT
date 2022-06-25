@@ -48,7 +48,6 @@ class LitInteraction(pl.LightningModule):
             self._embedding,
             self._contact,
             pool_size=pool_width,
-            use_W=True,
         )
         self.criterion = nn.BCELoss()
 

@@ -12,6 +12,7 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | docs
 )/
 '''
 
@@ -25,7 +26,8 @@ source = ["dscript"]
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::UserWarning",
-    "ignore::DeprecationWarning"
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
 ]
 python_files = "test_*.py"
 testpaths = [

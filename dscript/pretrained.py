@@ -28,7 +28,15 @@ def build_human_1(state_dict_path):
     """
     embModel = FullyConnectedEmbed(6165, 100, 0.5)
     conModel = ContactCNN(100, 50, 7)
-    model = ModelInteraction(embModel, conModel, use_W=True, pool_size=9)
+    model = ModelInteraction(
+        embModel,
+        conModel,
+        use_cuda=True,
+        do_w=True,
+        do_pool=True,
+        do_sigmoid=True,
+        pool_size=9,
+    )
     state_dict = torch.load(state_dict_path)
     model.load_state_dict(state_dict)
     model = model.eval()

@@ -6,7 +6,7 @@ import subprocess as sp
 import sys
 import urllib
 from typing import Optional
-
+import torch
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -47,66 +47,13 @@ def get_local_or_download(destination: str, source: Optional[str] = None):
     return destination
 
 
-def plot_PR_curve(y, phat, saveFile=None, show=False):
-    """
-    Plot precision-recall curve.
+import gzip as gz
+import h5py
+import multiprocessing as mp
 
-    :param y: Labels
-    :type y: np.ndarray
-    :param phat: Predicted probabilities
-    :type phat: np.ndarray
-    :param saveFile: File for plot of curve to be saved to
-    :type saveFile: str
-    """
-    import matplotlib.pyplot as plt
-    from sklearn.metrics import average_precision_score, precision_recall_curve
-
-    aupr = average_precision_score(y, phat)
-    precision, recall, _ = precision_recall_curve(y, phat)
-
-    plt.step(recall, precision, color="b", alpha=0.2, where="post")
-    plt.fill_between(recall, precision, step="post", alpha=0.2, color="b")
-    plt.xlabel("Recall")
-    plt.ylabel("Precision")
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title("Precision-Recall (AUPR: {:.3})".format(aupr))
-    if saveFile:
-        plt.savefig(saveFile, bbox_inches=True)
-    if show:
-        plt.show()
-
-
-def plot_ROC_curve(y, phat, saveFile=None, show=False):
-    """
-    Plot receiver operating characteristic curve.
-
-    :param y: Labels
-    :type y: np.ndarray
-    :param phat: Predicted probabilities
-    :type phat: np.ndarray
-    :param saveFile: File for plot of curve to be saved to
-    :type saveFile: str
-    """
-    import matplotlib.pyplot as plt
-    from sklearn.metrics import roc_auc_score, roc_curve
-
-    auroc = roc_auc_score(y, phat)
-
-    fpr, tpr, roc_thresh = roc_curve(y, phat)
-    print("AUROC:", auroc)
-
-    plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
-    plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
-    if saveFile:
-        plt.savefig(saveFile, bbox_inches=True)
-    if show:
-        plt.show()
+from tqdm import tqdm
+from functools import partial
+from datetime import datetime
 
 
 def plot_eval_predictions(labels, predictions, path="figure"):
@@ -183,35 +130,49 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
 
 
-def gpu_mem(device):
+def _hdf5_load_partial_func(k, file_path):
     """
-    Get current memory usage for GPU.
+    Helper function for load_hdf5_parallel
+    """
 
-    :param device: GPU device number
-    :type device: int
-    :return: memory used, memory total
-    :rtype: int, int
+    with h5py.File(file_path, "r") as fi:
+        emb = torch.from_numpy(fi[k][:])
+    return emb
+
+
+def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     """
-    try:
-        result = sp.check_output(
-            [
-                "nvidia-smi",
-                "--query-gpu=memory.used,memory.total",
-                "--format=csv,nounits,noheader",
-                "--id={}".format(device),
-            ],
-            encoding="utf-8",
+    Load keys from hdf5 file into memory
+
+    :param file_path: Path to hdf5 file
+    :type file_path: str
+    :param keys: List of keys to get
+    :type keys: list[str]
+    :return: Dictionary with keys and records in memory
+    :rtype: dict
+    """
+    torch.multiprocessing.set_sharing_strategy("file_system")
+
+    if n_jobs == -1:
+        n_jobs = mp.cpu_count()
+
+    with mp.Pool(processes=n_jobs) as pool:
+        all_embs = list(
+            tqdm(
+                pool.imap(
+                    partial(_hdf5_load_partial_func, file_path=file_path), keys
+                ),
+                total=len(keys),
+            )
         )
-        gpu_memory = [int(x) for x in result.strip().split(",")]
-    except FileNotFoundError:
-        gpu_memory = [0, 0]
-    return gpu_memory[0], gpu_memory[1]
+
+    embeddings = {k: v for k, v in zip(keys, all_embs)}
+    return embeddings
 
 
 def augment_data(df):
     """
     For all pairs (A B), also add pairs (B A)
-
     :param df: Data frame with 3 columns - pair1, pair2, label
     :type df: pd.DataFrame
     :return: Augmented data frame

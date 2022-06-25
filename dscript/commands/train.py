@@ -49,15 +49,6 @@ def add_args(parser):
     data_grp.add_argument("--val", help="Validation data", required=True)
     data_grp.add_argument("--test", help="Testing data")
     data_grp.add_argument(
-        "--embedding", help="h5 file with embedded sequences", required=True
-    )
-    data_grp.add_argument(
-        "--train", required=True, help="list of training pairs"
-    )
-    data_grp.add_argument(
-        "--test", required=True, help="list of validation/testing pairs"
-    )
-    data_grp.add_argument(
         "--embedding",
         required=True,
         help="h5py path containing embedded sequences",
@@ -167,7 +158,7 @@ def add_args(parser):
     )
     train_grp.add_argument(
         "--lambda",
-        dest="interaction_weight",
+        dest="lambda_",
         type=float,
         default=0.35,
         help="weight on the similarity objective (default: 0.35)",
@@ -192,9 +183,9 @@ def add_args(parser):
     misc_grp.add_argument(
         "--save-prefix", help="Path prefix for saving models"
     )
-    # misc_grp.add_argument(
-    #     "-d", "--device", type=int, default=-1, help="Compute device to use"
-    # )
+    misc_grp.add_argument(
+        "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
     misc_grp.add_argument(
         "--checkpoint", help="Checkpoint model to start training from"
     )
@@ -232,7 +223,7 @@ def main(args):
     logg.info(f"\ttrain file: {args.train}")
     logg.info(f"\tval file: {args.val}")
     logg.info(f"\ttest file: {args.test}")
-    logg.info(f"\tdata_augmentation: {args.augment}")
+    logg.info(f"\tdata_augmentation: {not args.no_augment}")
     logg.info(f"\tbatch_size: {args.batch_size}")
     datamod = PPIDataModule(
         args.embedding,
@@ -243,7 +234,7 @@ def main(args):
         preload=args.preload,
         shuffle=True,
         num_workers=0,
-        augment_train=args.augment,
+        augment_train=(not args.no_augment),
     )
 
     logg.info("Preparing data")

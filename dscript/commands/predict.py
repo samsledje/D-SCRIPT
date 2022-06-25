@@ -4,6 +4,7 @@ Make new predictions with a pre-trained model. One of --seqs or --embeddings is 
 import argparse
 import datetime
 import logging as logg
+import os
 import sys
 
 import h5py
@@ -14,6 +15,10 @@ from scipy.special import comb
 from tqdm import tqdm
 
 from ..datamodules import CachedFasta, CachedH5
+from ..alphabets import Uniprot21
+from ..fasta import parse
+from ..language_model import lm_embed
+from ..utils import load_hdf5_parallel
 
 
 def add_args(parser):
@@ -108,6 +113,7 @@ def main(args):
 
     # Load Pairs
     try:
+        logg.info(f"Loading pairs from {modelPath}")
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:

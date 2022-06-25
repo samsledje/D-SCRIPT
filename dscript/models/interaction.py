@@ -53,7 +53,7 @@ class ModelInteraction(nn.Module):
         self,
         embedding,
         contact,
-        use_cuda,
+        use_cuda=True,
         do_w=True,
         do_sigmoid=True,
         do_pool=False,
@@ -101,7 +101,7 @@ class ModelInteraction(nn.Module):
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
 
-        self.doPool = do_pool
+        self.do_pool = do_pool
         self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
 
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
@@ -199,7 +199,7 @@ class ModelInteraction(nn.Module):
         else:
             yhat = C
 
-        if self.doPool:
+        if self.do_pool:
             yhat = self.maxPool(yhat)
 
         # Mean of contact predictions where p_ij > mu + gamma*sigma

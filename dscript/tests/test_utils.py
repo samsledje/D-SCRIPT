@@ -10,9 +10,6 @@ from dscript.utils import (
     RBF,
     augment_data,
     get_local_or_download,
-    gpu_mem,
-    plot_PR_curve,
-    plot_ROC_curve,
 )
 
 
@@ -40,15 +37,6 @@ def test_get_local_or_download():
     assert Path(pth_local).resolve() == destination_path.resolve()
 
 
-# def test_gpu_mem():
-#     if torch.cuda.is_available():
-#         in_use, total = gpu_mem(0)
-#         assert in_use >= 0
-#         assert total > 0
-#     else:
-#         return True
-
-
 def test_augment_data():
     # df = pd.DataFrame([["a", "b", 0], ["c", "d", 0], ["e", "f", 1]])
     #    aug_df = augment_data(df)
@@ -63,16 +51,6 @@ def test_augment_data():
         ]
     )
     print(aug_test)
-
-
-#    pd.testing.assert_frame_equal(aug_test, aug_df)
-
-
-def test_plotting():
-    y = torch.tensor([0, 1, 1, 0, 0, 1])
-    phat = torch.tensor([0.1, 0.2, 0.4, 0.3, 0.5, 0.6])
-    plot_ROC_curve(y, phat, show=False)
-    plot_PR_curve(y, phat, show=False)
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")

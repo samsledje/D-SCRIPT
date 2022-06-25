@@ -1,13 +1,32 @@
 # To Do
-- Full logging system (issue #5)
+- Expand test suite to include function unittests (maximize coverage)
 - Add multi-gpu support (issue #6)
-- Use multiple workers to load embeddings / support for loading embeddings on the fly to reduce memory usage (issue #8/11)
-- Add convenience function to generate candidates - all pairs from a list / cartesian product of multiple lists
-- Add error handling for calledProcessError in utils.gpu_mem
+- support for loading embeddings on the fly to reduce memory usage (issue #11)
 
 # v0
 
+## v0.2
+
+### v0.2.0
+
+- Integrate Topsy-Turvy to allow for top-down supervision
+- Use utils.log function across all commands
+- Speed up loading embeddings into memory using parallel processing
+- Update fasta parse and write to use BioPython SeqIO (better error checking)
+- More comprehensive test suite for main commands
+
 ## v0.1
+
+### v0.1.9: 2022-03-07 -- Minor bug fixes
+
+- Updated model loading on new version to handle re-named parameters
+- Updated cpu-only loading during prediction with map_location
+
+### v0.1.8: 2022-02-08 -- Finalized training bug fix
+
+- Resolve #24 by fixing training
+- Can now run `dscript train --train data/pairs/human_train.tsv --test data/pairs/human_test.tsv --embedding /afs/csail/u/s/samsl/Work/databases/STRING/homo.sapiens/human_nonRed.h5 --output [output] --save-prefix [prefix] --device 0` to replicate paper results
+- Updated code formatting with black and pre-commit
 
 ### v0.1.7-dev9: 2022-02-07 -- Update training code to be clean again
 

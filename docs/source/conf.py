@@ -18,12 +18,11 @@ import dscript
 # -- Project information -----------------------------------------------------
 
 project = "D-SCRIPT"
-copyright = "2020, Samuel Sledzieski, Rohit Singh"
+copyright = "2021, Samuel Sledzieski, Rohit Singh"
 author = "Samuel Sledzieski, Rohit Singh"
 
 # The full version, including alpha/beta/rc tags
-release = "v1.0-beta"
-
+release = "v2.0"
 master_doc = "index"
 
 
