@@ -23,6 +23,7 @@ setup(
         "scipy",
         "pandas",
         "torch",
+	"biopython",
         "matplotlib",
         "seaborn",
         "tqdm",
