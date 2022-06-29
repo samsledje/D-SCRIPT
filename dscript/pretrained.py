@@ -8,6 +8,7 @@ import torch
 from .models.contact import ContactCNN
 from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.interaction import ModelInteraction
+from .utils import log
 
 
 def build_lm_1(state_dict_path):
@@ -74,13 +75,13 @@ def get_state_dict(version="human_v1", verbose=True):
             import urllib.request
 
             if verbose:
-                print(f"Downloading model {version} from {state_dict_url}...")
+                log(f"Downloading model {version} from {state_dict_url}...")
             with urllib.request.urlopen(state_dict_url) as response, open(
                 state_dict_fullname, "wb"
             ) as out_file:
                 shutil.copyfileobj(response, out_file)
         except Exception as e:
-            print("Unable to download model - {}".format(e))
+            log("Unable to download model - {}".format(e))
             sys.exit(1)
     return state_dict_fullname
 
@@ -96,7 +97,7 @@ def retry(retry_count: int):
                     result = func(*args, **kwargs)
                     return result
                 except RuntimeError as e:
-                    print(
+                    log(
                         f"\033[93mLoading {version} from disk failed. Retrying download attempt: {attempt + 1}\033[0m"
                     )
                     if e.args[0].startswith("unexpected EOF"):
