@@ -44,13 +44,16 @@ def add_args(parser):
     )
     return parser
 
-
+# *** simple prediction, interpretation?
 def main(args):
     """
     Run new prediction from arguments.
 
     :meta private:
     """
+    # print("Hello World")
+    # sys.exit(0)
+    
     if args.seqs is None and args.embeddings is None:
         print("One of --seqs or --embeddings is required.")
         sys.exit(0)

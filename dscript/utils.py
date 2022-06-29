@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import subprocess as sp
 import sys
-import gzip as gz
+import gzip as gz # handles unix/linux gzip files
 
 from datetime import datetime
 

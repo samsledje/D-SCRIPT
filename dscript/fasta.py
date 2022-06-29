@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 
-
+# deal with formatting of fasta files (header id : protein sequence)
 def parse_stream(f, comment=b"#"):
 
     name = None

@@ -15,7 +15,7 @@ MODEL_VERSIONS = [
 
 print(dscript.__version__)
 
-
+# checker method to test if pretrained models exist and are working
 def test_get_state_dict():
     for mv in MODEL_VERSIONS:
         sd = get_state_dict(mv, verbose=True)

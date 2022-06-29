@@ -3,6 +3,7 @@ from __future__ import print_function, division
 import numpy as np
 
 
+# encodes amino acid seqence into mathematical indices and vice versa
 class Alphabet:
     """
     From `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
@@ -60,6 +61,7 @@ class Alphabet:
         string = self.chars[x]
         return string.tobytes()
 
+# ***
     def unpack(self, h, k):
         """ unpack integer h into array of this alphabet with length k """
         n = self.size

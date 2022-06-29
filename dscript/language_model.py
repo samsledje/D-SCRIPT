@@ -1,6 +1,6 @@
 import os
 import sys
-import subprocess as sp
+import subprocess as sp # handle subprocesses
 import random
 import torch
 import h5py
@@ -12,7 +12,7 @@ from .models.embedding import SkipLSTM
 from .utils import log
 from datetime import datetime
 
-
+# using pre-trained language model to embed protein sequences
 def lm_embed(sequence, use_cuda=False):
     """
     Embed a single sequence using pre-trained language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.

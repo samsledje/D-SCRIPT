@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 
-
+# *** broadcast tensor?
 class FullyConnected(nn.Module):
     """
     Performs part 1 of Contact Prediction Module. Takes embeddings from Projection module and produces broadcast tensor.
@@ -54,7 +54,7 @@ class FullyConnected(nn.Module):
 
         return c
 
-
+# *** part 2 of contact model?
 class ContactCNN(nn.Module):
     """
     Residue Contact Prediction Module. Takes embeddings from Projection module and produces contact map, output of Contact module.

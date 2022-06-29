@@ -62,6 +62,7 @@ class ModelInteraction(nn.Module):
         lambda_init=0,
         gamma_init=0,
     ):
+        # *** pooling operations? reference
         """
         Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.
 
@@ -122,6 +123,7 @@ class ModelInteraction(nn.Module):
 
         self.gamma.data.clamp_(min=0)
 
+# *** explain 'Project down input language model embeddings into low dimension using projection module"?
     def embed(self, x):
         """
         Project down input language model embeddings into low dimension using projection module

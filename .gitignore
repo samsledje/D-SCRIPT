@@ -1,3 +1,6 @@
+dscript/proteins
+dscript/pdbs
+
 RUN_DSCRIPT.sh
 build/*
 scratch/*
@@ -8,6 +11,7 @@ dev*/*
 *.egg-info
 **/*.sav
 **/*_log.txt
+**.DS_Store
 **/*.h5
 **/.ipynb_checkpoints/**
 **/__pycache__/**

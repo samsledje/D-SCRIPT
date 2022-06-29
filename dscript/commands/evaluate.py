@@ -44,7 +44,7 @@ def add_args(parser):
     )
     return parser
 
-
+# *** plot positive and negative predictions?? 
 def plot_eval_predictions(labels, predictions, path="figure"):
     """
     Plot histogram of positive and negative predictions, precision-recall curve, and receiver operating characteristic curve.

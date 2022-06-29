@@ -5,7 +5,7 @@ Generate new embeddings using pre-trained language model.
 import argparse
 from ..language_model import embed_from_fasta
 
-
+# *** make new embeddings --> this vs. embedding.py (models) vs language_model.py
 def add_args(parser):
     """
     Create parser for command line utility.

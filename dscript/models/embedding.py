@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence
 
-
+# language model --> embedding --> contact
 class IdentityEmbed(nn.Module):
     """
     Does not reduce the dimension of the language model embeddings, just passes them through to the contact model.
@@ -20,7 +20,7 @@ class IdentityEmbed(nn.Module):
         """
         return x
 
-
+# amino acids --> low dimensional projection
 class FullyConnectedEmbed(nn.Module):
     """
     Protein Projection Module. Takes embedding from language model and outputs low-dimensional interaction aware projection.
@@ -57,7 +57,7 @@ class FullyConnectedEmbed(nn.Module):
         t = self.drop(t)
         return t
 
-
+# uses (bidirectional) LSTM as part of embedding into vector process
 class LSTMEmbed(nn.Module):
     def __init__(self, nout, activation="ReLU", sparse=False, p=0.5):
         super(LSTMEmbed, self).__init__()
@@ -104,6 +104,7 @@ class SkipLSTM(nn.Module):
 
     Loaded with pre-trained weights in embedding function.
 
+#  *** 21, not 20? reference said something to explain this
     :param nin: Input dimension of amino acid one-hot [default: 21]
     :type nin: int
     :param nout: Output dimension of final layer [default: 100]
@@ -169,6 +170,7 @@ class SkipLSTM(nn.Module):
             one_hot.scatter_(2, x.unsqueeze(2), 1)
         return one_hot
 
+# *** powerpoint slide, what's going on here?
     def transform(self, x):
         """
         :param x: Input numeric amino acid encoding :math:`(N)`

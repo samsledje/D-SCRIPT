@@ -1,11 +1,12 @@
 """
 D-SCRIPT: Structure Aware PPI Prediction
 """
-import argparse
-import os
+import argparse  # command line run
+import os # manages operating system (system software)
 import sys
 
 
+# CLASS prints citation (from initial file)
 class CitationAction(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
         super(CitationAction, self).__init__(option_strings, dest, **kwargs)
@@ -17,8 +18,9 @@ class CitationAction(argparse.Action):
         setattr(namespace, self.dest, values)
         sys.exit(0)
 
-
+# Compiles a summary of the dscript information: version, citation, commdands, modules
 def main():
+    # print("Hello World!")
     from . import __version__
 
     parser = argparse.ArgumentParser(description=__doc__)

@@ -7,12 +7,12 @@ from .models.contact import ContactCNN
 from .models.embedding import FullyConnectedEmbed, SkipLSTM
 from .models.interaction import ModelInteraction
 
-
+# create an lstm and a human_v1 model 
 def build_lm_1(state_dict_path):
     """
     :meta private:
     """
-    model = SkipLSTM(21, 100, 1024, 3)
+    model = SkipLSTM(21, 100, 1024, 3) # creates bidirection lstm, read in reference
     state_dict = torch.load(state_dict_path)
     model.load_state_dict(state_dict)
     model.eval()

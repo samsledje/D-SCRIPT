@@ -182,7 +182,7 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     :param use_cuda: Whether to use GPU
     :type use_cuda: bool
     """
-
+    
     b = len(n0)
 
     p_hat = []
@@ -200,7 +200,7 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     c_map_mag = torch.stack(c_map_mag, 0)
     return c_map_mag, p_hat
 
-
+# *** list and list interactions? from cmap predict interactions
 def predict_interaction(model, n0, n1, tensors, use_cuda):
     """
     Predict whether a list of protein pairs will interact.
@@ -243,6 +243,7 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
 
+
     c_map_mag, p_hat = predict_cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
@@ -252,6 +253,7 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
 
     p_hat = p_hat.float()
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
+    
     cmap_loss = torch.mean(c_map_mag)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
     b = len(p_hat)
@@ -397,7 +399,7 @@ def train_model(args, output):
     for prot_name in tqdm(all_proteins):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
-    if args.checkpoint is None:
+    if args.checkpoint is None: 
 
         # Create embedding model
         input_dim = args.input_dim
