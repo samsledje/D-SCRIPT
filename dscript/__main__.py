@@ -37,7 +37,7 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    from .commands import train, embed, evaluate, predict, predict_parallel
+    from .commands import train, embed, evaluate, predict
 
     modules = {
         "train": train,
