@@ -1,6 +1,8 @@
 # D-SCRIPT
  ![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
 
+This branch is for supervising D-SCRIPT with contact maps from PDB, to hopefully improve the prediction accuracy, and fidelity of the predicted contact maps.
+
 <!--- #![GitHub release (latest by date)](https://img.shields.io/github/v/release/samsledje/D-SCRIPT) --->
 [![D-SCRIPT](https://img.shields.io/github/v/release/samsledje/D-SCRIPT?include_prereleases)](https://github.com/samsledje/D-SCRIPT/releases)
 [![PyPI](https://img.shields.io/pypi/v/dscript)](https://pypi.org/project/dscript/)
