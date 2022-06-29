@@ -1,6 +1,7 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
+from __future__ import annotations
 import argparse
 import datetime
 import os
@@ -12,11 +13,24 @@ import pandas as pd
 import torch
 from scipy.special import comb
 from tqdm import tqdm
+from typing import Callable, NamedTuple, Optional
+
 
 from ..alphabets import Uniprot21
 from ..fasta import parse
 from ..language_model import lm_embed
 from ..utils import log, load_hdf5_parallel
+
+
+class PredictionArguments(NamedTuple):
+    cmd: str
+    device: int
+    embeddings: Optional[str]
+    outfile: Optional[str]
+    seqs: str
+    model: str
+    thresh: Optional[float]
+    func: Callable[[PredictionArguments], None]
 
 
 def add_args(parser):

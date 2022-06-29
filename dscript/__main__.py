@@ -4,6 +4,16 @@ D-SCRIPT: Structure Aware PPI Prediction
 import argparse
 import os
 import sys
+from typing import Union
+
+from .commands.embed import EmbeddingArguments
+from .commands.evaluate import EvaluateArguments
+from .commands.predict import PredictionArguments
+from .commands.train import TrainArguments
+
+DScriptArguments = Union[
+    EmbeddingArguments, EvaluateArguments, PredictionArguments, TrainArguments
+]
 
 
 class CitationAction(argparse.Action):
@@ -37,7 +47,7 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    from .commands import train, embed, evaluate, predict, predict_parallel
+    from .commands import train, embed, evaluate, predict
 
     modules = {
         "train": train,
@@ -51,7 +61,7 @@ def main():
         module.add_args(sp)
         sp.set_defaults(func=module.main)
 
-    args = parser.parse_args()
+    args: DScriptArguments = parser.parse_args()
     args.func(args)
 
 

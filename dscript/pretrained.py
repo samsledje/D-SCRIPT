@@ -1,4 +1,6 @@
+from functools import wraps, partial
 import os
+import os.path
 import sys
 
 import torch
@@ -42,6 +44,16 @@ def build_human_1(state_dict_path):
 
 VALID_MODELS = {"lm_v1": build_lm_1, "human_v1": build_human_1}
 
+STATE_DICT_BASENAME = "dscript_{version}.pt"
+
+
+def get_state_dict_path(version: str) -> str:
+    state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
+    state_dict_fullname = (
+        f"{state_dict_basedir}/{STATE_DICT_BASENAME.format(version=version)}"
+    )
+    return state_dict_fullname
+
 
 def get_state_dict(version="human_v1", verbose=True):
     """
@@ -54,12 +66,8 @@ def get_state_dict(version="human_v1", verbose=True):
     :return: Path to state dictionary for pre-trained language model
     :rtype: str
     """
-    state_dict_basename = f"dscript_{version}.pt"
-    state_dict_basedir = os.path.dirname(os.path.realpath(__file__))
-    state_dict_fullname = f"{state_dict_basedir}/{state_dict_basename}"
-    state_dict_url = (
-        f"http://cb.csail.mit.edu/cb/dscript/data/models/{state_dict_basename}"
-    )
+    state_dict_fullname = get_state_dict_path(version)
+    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/models/{STATE_DICT_BASENAME.format(version=version)}"
     if not os.path.exists(state_dict_fullname):
         try:
             import shutil
@@ -77,6 +85,35 @@ def get_state_dict(version="human_v1", verbose=True):
     return state_dict_fullname
 
 
+def retry(retry_count: int):
+    def decorate(func):
+        @wraps(func)
+        def retry_wrapper(*args, **kwargs):
+            attempt = 0
+            version = args[0]
+            while attempt < retry_count:
+                try:
+                    result = func(*args, **kwargs)
+                    return result
+                except RuntimeError as e:
+                    print(
+                        f"\033[93mLoading {version} from disk failed. Retrying download attempt: {attempt + 1}\033[0m"
+                    )
+                    if e.args[0].startswith("unexpected EOF"):
+                        state_dict_fullname = get_state_dict_path(version)
+                        if os.path.exists(state_dict_fullname):
+                            os.remove(state_dict_fullname)
+                    else:
+                        raise e
+                attempt += 1
+            raise Exception(f"Failed to download {version}")
+
+        return retry_wrapper
+
+    return decorate
+
+
+@retry(3)
 def get_pretrained(version="human_v1"):
     """
     Get pre-trained model object.
