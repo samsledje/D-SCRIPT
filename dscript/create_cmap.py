@@ -4,6 +4,7 @@ import numpy
 import matplotlib.pyplot as plt
 import h5py
 import random
+import os
 
 # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
 # ke = list(fi.keys())
@@ -52,7 +53,12 @@ def calc_dist_matrix(chain_one, chain_two):
 
 # READ THROUGH PDB FILES AND PARSE THEM INTO PAIRWISE AND BINARY CONTACT MAPS
 # files = ["1a0n", "1a0o", "1a1o", "1a2c"]    
-files = ["1a0n", "1a0o", "1a1o", "1a2c", "1a4k", "1a6w", "1a22", "1agc", "1aht", "12e8", "15c8"]  
+files = os.listdir("dscript/pdbs")
+files.remove(".DS_Store")
+
+for i in range(0, len(files)):
+    files[i] = files[i][:4]
+
 for protein in files:
     print(protein)
     pdb_code = protein
@@ -66,23 +72,21 @@ for protein in files:
         chain.append(str(chains.get_id()))
     print(chain)
     # GET ALL POSSIBLE PAIRS OF CHAINS
-    chain_pairs = []
-    for i in range(0, len(chain)-1):
-        for j in range(i+1, len(chain)):
-            if chain[i] != chain[j] and [chain[i], chain[j]] not in chain_pairs and [chain[j], chain[i]] not in chain_pairs:
-                chain_pairs.append([chain[i], chain[j]])
-    print(chain_pairs)
+    # chain_pairs = []
+    # for i in range(0, len(chain)-1):
+    #     for j in range(i+1, len(chain)):
+    #         if chain[i] != chain[j] and [chain[i], chain[j]] not in chain_pairs and [chain[j], chain[i]] not in chain_pairs:
+    #             chain_pairs.append([chain[i], chain[j]])
+    # print(chain_pairs)
 
     # CREATE H5PY FILES TO WRITE MATRICES TO
     hf_pair = h5py.File(f'dscript/pairwisecmaps/{pdb_code}x{pdb_code}', 'w')
     hf_bin = h5py.File(f'dscript/bincmaps/{pdb_code}x{pdb_code}', 'w')
     # WRITE TO FILES
-    for [chain1, chain2] in chain_pairs:
-        print([chain1, chain2])
-        dist_matrix = calc_dist_matrix(model[chain1], model[chain2])
-        contact_map = dist_matrix < 12.0
-        hf_pair.create_dataset(f'{pdb_code}:{chain1}x{pdb_code}:{chain2}', data=dist_matrix)
-        hf_bin.create_dataset(f'{pdb_code}:{chain1}x{pdb_code}:{chain2}', data=contact_map)
+    dist_matrix = calc_dist_matrix(model[chain[0]], model[chain[1]])
+    contact_map = dist_matrix < 12.0
+    hf_pair.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=dist_matrix)
+    hf_bin.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=contact_map)
 
 # IMAGE DISPLAY CONTACT MAPS
 # PAIRWISE DISTANCE

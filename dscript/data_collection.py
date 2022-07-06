@@ -8,7 +8,7 @@ entries = os.listdir('dscript/pdbs')
 # CONVERT ALL
 for i in range(0, len(entries)):
     if entries[i][0] != ".":
-        with open(f'dscript/proteins/{entries[i][:-4]}.fasta', 'w') as f:
+        with open(f'dscript/fastas/{entries[i][:-4]}.fasta', 'w') as f:
             for record in SeqIO.parse(f"dscript/pdbs/{entries[i]}", "pdb-seqres"):
                 f.write(record.format("fasta-2line"))
         f.close()
