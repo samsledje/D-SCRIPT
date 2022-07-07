@@ -38,6 +38,7 @@ def add_args(parser):
     proj_grp = parser.add_argument_group("Projection Module")
     contact_grp = parser.add_argument_group("Contact Module")
     inter_grp = parser.add_argument_group("Interaction Module")
+    map_grp = parser.add_argument_group("Contact Map")
     train_grp = parser.add_argument_group("Training")
     misc_grp = parser.add_argument_group("Output and Device")
 
@@ -116,6 +117,16 @@ def add_args(parser):
         help="size of max-pool in interaction model (default: 9)",
     )
 
+    # Contact Map
+    map_grp.add_argument(
+        "--contact-map-train", required=True,
+        help="include a true contact map for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-map-test", required=False,
+        help="include a true contact map for supervised training",
+    )
+    
     # Training
     train_grp.add_argument(
         "--num-epochs",
@@ -200,6 +211,39 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     c_map_mag = torch.stack(c_map_mag, 0)
     return c_map_mag, p_hat
 
+
+def cmap_interaction(model, n0, n1, tensors, use_cuda):
+    """
+    Predict whether a list of protein pairs will interact, as well as their contact map.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param n0: First protein names
+    :type n0: list[str]
+    :param n1: Second protein names
+    :type n1: list[str]
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+    """
+    
+    b = len(n0)
+    p_hat = []
+    c_map = []
+    for i in range(b):
+        z_a = tensors[n0[i]]
+        z_b = tensors[n1[i]]
+        if use_cuda:
+            z_a = z_a.cuda()
+            z_b = z_b.cuda()
+        cm, ph = model.map_predict(z_a, z_b)
+        p_hat.append(ph)
+        c_map.append(cm)
+    p_hat = torch.stack(p_hat, 0)
+    return c_map, p_hat
+
+
 # *** list and list interactions? from cmap predict interactions
 def predict_interaction(model, n0, n1, tensors, use_cuda):
     """
@@ -242,8 +286,6 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     :return: (Loss, number correct, mean square error, batch size)
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
-
-
     c_map_mag, p_hat = predict_cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
@@ -254,6 +296,7 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     p_hat = p_hat.float()
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
     
+    # Original Contact Map Loss Calculation using Mean
     cmap_loss = torch.mean(c_map_mag)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
     b = len(p_hat)
@@ -273,6 +316,44 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
         correct = torch.sum(p_guess == y).item()
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
+    return loss, correct, mse, b
+
+
+def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cuda=True):
+    """
+    Compute gradient and backpropagate loss for a contact map dataset.
+    """
+    c_map, p_hat = cmap_interaction(
+        model, n0, n1, tensors, use_cuda
+    )
+    if use_cuda:
+        y = y.cuda()
+    y = Variable(y)
+
+    p_hat = p_hat.float()   
+    # CONTACT MAP LOSS FUNCTION 
+    # this is probably very very wrong :D, average is not a good approach for loss
+    losses = []
+    for i in range(0, len(n0)):
+        true_cmap = cmaps[f"{n0[i]}x{n1[i]}"]
+        loss_fn = torch.nn.BCELoss()
+        losses.append(loss_fn(torch.flatten(c_map), true_cmap.flatten().convert_to_tensor()))
+        
+    loss = np.mean(losses)
+    b = len(p_hat)
+    
+    # Backprop Loss
+    loss.backward()
+
+    with torch.no_grad():
+        guess_cutoff = 0.5
+        p_hat = p_hat.float()
+        p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
+        y = y.float()
+        correct = torch.sum(p_guess == y).item()
+        mse = torch.mean((y.float() - p_hat) ** 2).item()
+
+    # return loss, correct, mse, b
     return loss, correct, mse, b
 
 
@@ -341,7 +422,7 @@ def train_model(args, output):
     no_augment = args.no_augment
 
     embedding_h5 = args.embedding
-    h5fi = h5py.File(embedding_h5, "r")
+    h5fi = h5py.File(embedding_h5, "r")    
 
     log(f"Loading training pairs from {train_fi}...", file=output)
     output.flush()
@@ -399,6 +480,21 @@ def train_model(args, output):
     for prot_name in tqdm(all_proteins):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
+    # CONTACT MAP DATA LOADING  
+    log(f"Loading contact maps", file=output) 
+    output.flush()  
+    contact_map = args.contact_map 
+    contact_df = pd.read_csv(contact_map, sep="\t", header=None)
+    contact_df.columns = ["prot1", "prot2", "label"]
+    contact_p1 = test_df["prot1"]
+    contact_p2 = test_df["prot2"]
+    test_y = torch.from_numpy(test_df["label"].values)
+    maps = {}
+    for i in range(0, len(contact_p1)):
+        fi = h5py.File(f"dscript/binary/{contact_p1[i]}x{contact_p2[i]}","r")
+        maps[f"{contact_p1[i]}x{contact_p2[i]}"] = fi[list(fi.keys())[0]]
+    
+    
     if args.checkpoint is None: 
 
         # Create embedding model
@@ -466,6 +562,8 @@ def train_model(args, output):
 
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
+    # CONTACT MAP OPTIMIZER
+    optim_cmap = torch.optim.Adam(params, lr=lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
@@ -573,7 +671,67 @@ def train_model(args, output):
                     model.cuda()
 
         output.flush()
+        
+    # CONTACT MAP TRAINING LOOP
+    for epoch in range(num_epochs):
 
+        model.train()
+
+        n = 0
+        loss_accum = 0
+        acc_accum = 0
+        mse_accum = 0
+
+        # Train batches
+        for (z0, z1, y) in train_iterator:
+
+            # edited to include cmaps
+            loss, correct, mse, b = interaction_grad_cmap(
+                model,
+                z0,
+                z1,
+                y,
+                embeddings,
+                maps, 
+                weight=inter_weight,
+                use_cuda=use_cuda,
+            )
+            
+            optim_cmap.step()
+            optim_cmap.zero_grad()
+            model.clip()
+
+            if report:
+                tokens = [
+                    epoch + 1,
+                    num_epochs,
+                    n / N,
+                    loss_accum,
+                    acc_accum,
+                    mse_accum,
+                ]
+                log(batch_report_fmt.format(*tokens), file=output)
+                output.flush()
+
+        model.eval()
+
+        with torch.no_grad():
+            # Save the model
+            if save_prefix is not None:
+                save_path = (
+                    save_prefix
+                    + "_epoch"
+                    + str(epoch + 1).zfill(digits)
+                    + ".sav"
+                )
+                log(f"Saving model to {save_path}", file=output)
+                model.cpu()
+                torch.save(model, save_path)
+                if use_cuda:
+                    model.cuda()
+
+        output.flush()
+        
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
         log(f"Saving final model to {save_path}", file=output)

@@ -1,6 +1,6 @@
 from pickle import FALSE
 import Bio.PDB
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import random
@@ -11,12 +11,12 @@ import torch
 fi = h5py.File("dscript/pairwisecmaps/1a6ux1a6u","r")
 # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
 ke = list(fi.keys())
-print(ke)
+# print(ke)
 # print(ke.index("1a0n:Ax1a0n:B"))
 # print(fi[ke[0]])
-# cmap = fi[ke[0]]
-# plt.imshow(cmap)
-# plt.show()
+cmap = fi[ke[0]]
+plt.imshow(cmap)
+plt.show()
 
 
 # test_fi = "/Users/lynntao/opt/anaconda3/D-SCRIPT/data/pairs/human_test2train.tsv"
@@ -28,4 +28,3 @@ print(ke)
 # print(test_p1[0])
 # print(test_p2)
 # print(test_y)
-
