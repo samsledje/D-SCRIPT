@@ -1,4 +1,6 @@
-# converting PDB CIF to sequence format
+"""
+    # converting protein PDB files into fasta sequence format
+"""
 import Bio
 from Bio import SeqIO
 import os

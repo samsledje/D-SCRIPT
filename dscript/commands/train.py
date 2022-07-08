@@ -126,6 +126,10 @@ def add_args(parser):
         "--contact-map-test", required=False,
         help="include a true contact map for supervised training",
     )
+    map_grp.add_argument(
+        "--contact-map-embeddings", required=True,
+        help="include a true contact map for supervised training",
+    )
     
     # Training
     train_grp.add_argument(
@@ -244,7 +248,6 @@ def cmap_interaction(model, n0, n1, tensors, use_cuda):
     return c_map, p_hat
 
 
-# *** list and list interactions? from cmap predict interactions
 def predict_interaction(model, n0, n1, tensors, use_cuda):
     """
     Predict whether a list of protein pairs will interact.
@@ -323,6 +326,7 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     """
     Compute gradient and backpropagate loss for a contact map dataset.
     """
+    # n0 and n1 and tensors need to be new protein sequences and embeddings
     c_map, p_hat = cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
@@ -330,6 +334,7 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
         y = y.cuda()
     y = Variable(y)
 
+    # no p-hat in loss anymore?
     p_hat = p_hat.float()   
     # CONTACT MAP LOSS FUNCTION 
     # this is probably very very wrong :D, average is not a good approach for loss
@@ -354,9 +359,10 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
     # return loss, correct, mse, b
+    # keep correct and mse?? is there a "correct" contact map?
     return loss, correct, mse, b
 
-
+# does this need a method duplicate?
 def interaction_eval(model, test_iterator, tensors, use_cuda):
     """
     Evaluate test data set performance.
@@ -481,18 +487,50 @@ def train_model(args, output):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
     # CONTACT MAP DATA LOADING  
-    log(f"Loading contact maps", file=output) 
-    output.flush()  
-    contact_map = args.contact_map 
-    contact_df = pd.read_csv(contact_map, sep="\t", header=None)
-    contact_df.columns = ["prot1", "prot2", "label"]
-    contact_p1 = test_df["prot1"]
-    contact_p2 = test_df["prot2"]
-    test_y = torch.from_numpy(test_df["label"].values)
+    # load in sequences and embeddings file as tensors
+    # cmap_testfi = args.test
+    cmap_trainfi = args.contact_map
+    cmap_embeddings = args.contact_embeddings
+    
+    log(f"Loading training pairs for contact maps", file=output) 
+    output.flush()
+    
+    # create paired dataset for contact map proteins
+    if no_augment:
+            cmap_p1 = cmap_trainfi["prot1"]
+            cmap_p2 = cmap_trainfi["prot2"]
+            cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
+    else:
+        cmap_p1 = pd.concat(
+            (cmap_trainfi["prot1"], cmap_trainfi["prot2"]), axis=0
+        ).reset_index(drop=True)
+        cmap_p2 = pd.concat(
+            (train_df["prot2"], cmap_trainfi["prot1"]), axis=0
+        ).reset_index(drop=True)
+        cmap_y = torch.from_numpy(
+            pd.concat((train_df["label"], cmap_trainfi["label"])).values
+        )
+   
+    cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
+    cmap_iterator = torch.utils.data.DataLoader(
+        cmap_dataset,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=True,
+    )
+    
+    # load in dictionary of contact maps
     maps = {}
-    for i in range(0, len(contact_p1)):
-        fi = h5py.File(f"dscript/binary/{contact_p1[i]}x{contact_p2[i]}","r")
-        maps[f"{contact_p1[i]}x{contact_p2[i]}"] = fi[list(fi.keys())[0]]
+    for i in range(0, len(cmap_p1)):
+        fi = h5py.File(f"dscript/bincmaps/{cmap_p1[i]}x{cmap_p2[i]}","r")
+        maps[f"{cmap_p1[i]}x{cmap_p2[i]}"] = fi[list(fi.keys())[0]]
+    
+    # load in dictionary of cmap protein embeddings
+    cmap_h5fi = h5py.File(cmap_embeddings, "r")   
+    cmap_embeddings = {}
+    cmap_proteins = set(cmap_p1).union(cmap_p2)
+    for prot_name in tqdm(cmap_proteins):
+        cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
     
     
     if args.checkpoint is None: 
@@ -629,6 +667,57 @@ def train_model(args, output):
                 log(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
+    # CONTACT MAP TRAINING LOOP
+    # tells the model nn.module that you're training (training mode)
+        loss_accum_cmap = 0
+        # these parameters? how will they be calculated
+        acc_accum_cmap = 0
+        mse_accum_cmap = 0
+
+        # Train batches
+        for (z0, z1, y) in cmap_iterator:
+
+            # edited to include cmaps
+            loss, correct, mse, b = interaction_grad_cmap(
+                model,
+                z0,
+                z1,
+                y,
+                embeddings,
+                maps, 
+                weight=inter_weight,
+                use_cuda=use_cuda,
+            )
+            
+            n += b
+            delta = b * (loss - loss_accum_cmap)
+            loss_accum_cmap += delta / n
+
+            delta = correct - b * acc_accum_cmap
+            acc_accum_cmap += delta / n
+
+            delta = b * (mse - mse_accum_cmap)
+            mse_accum_cmap += delta / n
+
+            report = (n - b) // 100 < n // 100
+            
+            optim_cmap.step()
+            optim_cmap.zero_grad()
+            model.clip()
+
+            if report:
+                tokens = [
+                    epoch + 1,
+                    num_epochs,
+                    n / N,
+                    loss_accum,
+                    acc_accum,
+                    mse_accum,
+                ]
+                log(batch_report_fmt.format(*tokens), file=output)
+                output.flush()
+
+        # worry about this later
         model.eval()
 
         with torch.no_grad():
@@ -655,66 +744,7 @@ def train_model(args, output):
             ]
             log(epoch_report_fmt.format(*tokens), file=output)
             output.flush()
-
-            # Save the model
-            if save_prefix is not None:
-                save_path = (
-                    save_prefix
-                    + "_epoch"
-                    + str(epoch + 1).zfill(digits)
-                    + ".sav"
-                )
-                log(f"Saving model to {save_path}", file=output)
-                model.cpu()
-                torch.save(model, save_path)
-                if use_cuda:
-                    model.cuda()
-
-        output.flush()
         
-    # CONTACT MAP TRAINING LOOP
-    for epoch in range(num_epochs):
-
-        model.train()
-
-        n = 0
-        loss_accum = 0
-        acc_accum = 0
-        mse_accum = 0
-
-        # Train batches
-        for (z0, z1, y) in train_iterator:
-
-            # edited to include cmaps
-            loss, correct, mse, b = interaction_grad_cmap(
-                model,
-                z0,
-                z1,
-                y,
-                embeddings,
-                maps, 
-                weight=inter_weight,
-                use_cuda=use_cuda,
-            )
-            
-            optim_cmap.step()
-            optim_cmap.zero_grad()
-            model.clip()
-
-            if report:
-                tokens = [
-                    epoch + 1,
-                    num_epochs,
-                    n / N,
-                    loss_accum,
-                    acc_accum,
-                    mse_accum,
-                ]
-                log(batch_report_fmt.format(*tokens), file=output)
-                output.flush()
-
-        model.eval()
-
         with torch.no_grad():
             # Save the model
             if save_prefix is not None:
@@ -779,3 +809,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     add_args(parser)
     main(parser.parse_args())
+
+
+# 1. two training loops understood correctly? 1st: human train   2nd: cmap train - tsv, embeddings, + true cmaps?
+# 2. 2nd loop still doing interaction prediction? will loss only be cmap or also have p hat
+# 3. parameters like correct, mse, methods like interaction_eval: how would that work for contact maps? 
+# 4. model.clip()?

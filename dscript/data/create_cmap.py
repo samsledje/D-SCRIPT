@@ -1,3 +1,6 @@
+"""
+    # parsing PDB files into pairwise and binary contact maps
+"""
 from pickle import FALSE
 import Bio.PDB
 import numpy

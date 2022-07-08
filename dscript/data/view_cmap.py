@@ -1,3 +1,6 @@
+"""
+    visuaize contact maps
+"""
 from pickle import FALSE
 import Bio.PDB
 import numpy as np
