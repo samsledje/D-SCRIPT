@@ -119,16 +119,20 @@ def add_args(parser):
 
     # Contact Map
     map_grp.add_argument(
-        "--contact-map-train", required=True,
-        help="include a true contact map for supervised training",
+        "--contact-map-train", required=False,
+        help="include tsv files of true contact maps for supervised training",
     )
     map_grp.add_argument(
         "--contact-map-test", required=False,
+        help="include tsv files of true contact maps for testing",
+    )
+    map_grp.add_argument(
+        "--contact-map-embeddings", required=False,
         help="include a true contact map for supervised training",
     )
     map_grp.add_argument(
-        "--contact-map-embeddings", required=True,
-        help="include a true contact map for supervised training",
+    "--contact-maps", required=False,
+    help="include h5py files of true contact maps for pdb protein pairs",
     )
     
     # Training
@@ -489,27 +493,23 @@ def train_model(args, output):
     # CONTACT MAP DATA LOADING  
     # load in sequences and embeddings file as tensors
     # cmap_testfi = args.test
-    cmap_trainfi = args.contact_map
-    cmap_embeddings = args.contact_embeddings
+    cmap = args.contact_map_train
+    cmap_embeddings = args.contact_map_embeddings
+    cmaps = args.contact_maps
     
     log(f"Loading training pairs for contact maps", file=output) 
     output.flush()
     
+    cmap_trainfi = pd.read_csv(cmap, sep="\t", header=None)
+    cmap_trainfi.columns = ["prot1", "prot2", "label"]
+    
     # create paired dataset for contact map proteins
-    if no_augment:
-            cmap_p1 = cmap_trainfi["prot1"]
-            cmap_p2 = cmap_trainfi["prot2"]
-            cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
-    else:
-        cmap_p1 = pd.concat(
-            (cmap_trainfi["prot1"], cmap_trainfi["prot2"]), axis=0
-        ).reset_index(drop=True)
-        cmap_p2 = pd.concat(
-            (train_df["prot2"], cmap_trainfi["prot1"]), axis=0
-        ).reset_index(drop=True)
-        cmap_y = torch.from_numpy(
-            pd.concat((train_df["label"], cmap_trainfi["label"])).values
-        )
+    cmap_p1 = cmap_trainfi["prot1"]
+    cmap_p2 = cmap_trainfi["prot2"]
+    cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
+    # print(cmap_p1[0])
+    # print(cmap_p2[0])
+    # print(cmap_y)
    
     cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
     cmap_iterator = torch.utils.data.DataLoader(
@@ -526,6 +526,7 @@ def train_model(args, output):
         maps[f"{cmap_p1[i]}x{cmap_p2[i]}"] = fi[list(fi.keys())[0]]
     
     # load in dictionary of cmap protein embeddings
+    print(cmap_embeddings)
     cmap_h5fi = h5py.File(cmap_embeddings, "r")   
     cmap_embeddings = {}
     cmap_proteins = set(cmap_p1).union(cmap_p2)
@@ -683,7 +684,7 @@ def train_model(args, output):
                 z0,
                 z1,
                 y,
-                embeddings,
+                cmap_embeddings,
                 maps, 
                 weight=inter_weight,
                 use_cuda=use_cuda,
@@ -710,14 +711,14 @@ def train_model(args, output):
                     epoch + 1,
                     num_epochs,
                     n / N,
-                    loss_accum,
-                    acc_accum,
-                    mse_accum,
+                    loss_accum_cmap,
+                    acc_accum_cmap,
+                    mse_accum_cmap,
                 ]
                 log(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
-        # worry about this later
+        # hmmmm 
         model.eval()
 
         with torch.no_grad():
@@ -813,5 +814,5 @@ if __name__ == "__main__":
 
 # 1. two training loops understood correctly? 1st: human train   2nd: cmap train - tsv, embeddings, + true cmaps?
 # 2. 2nd loop still doing interaction prediction? will loss only be cmap or also have p hat
-# 3. parameters like correct, mse, methods like interaction_eval: how would that work for contact maps? 
-# 4. model.clip()?
+# 3. parameters like correct, mse, methods like interaction_eval - guessing there should be a contact map testing: how would that work for contact maps? 
+# model.clip

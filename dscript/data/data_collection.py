@@ -7,7 +7,7 @@ import os
 
 entries = os.listdir('dscript/pdbs')
 
-# CONVERT ALL
+# CONVERT ALL TO FASTAS
 for i in range(0, len(entries)):
     if entries[i][0] != ".":
         with open(f'dscript/fastas/{entries[i][:-4]}.fasta', 'w') as f:

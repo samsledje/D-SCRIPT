@@ -13,7 +13,7 @@ import csv
 
 files = os.listdir("dscript/bincmaps")
 files.remove(".DS_Store")
-print(files)
+# print(files)
 
 with open('data/pairs/cmap_train.tsv', 'wt') as out_file:
     tsv_writer = csv.writer(out_file, delimiter='\t')

@@ -37,7 +37,7 @@ def calc_dist_matrix(chain_one, chain_two):
     len_one = count_residues(chain_one)
     len_two = count_residues(chain_two)
     answer = numpy.zeros((len_one, len_two), numpy.float)
-    print(answer.shape)
+    # print(answer.shape)
     for row, residue_one in enumerate(chain_one):
         # print(row, residue_one)
         for col, residue_two in enumerate(chain_two):
@@ -61,9 +61,9 @@ for i in range(0, len(fastas)):
 # print(fastas)
 
 for protein in files:
-    print(protein)
+    # print(protein)
     # if protein not in fastas:
-    pdb_code = protein
+    pdb_code = protein.upper()
     pdb_filename = f"dscript/pdbs/{protein}.pdb"
     structure = Bio.PDB.PDBParser().get_structure(pdb_code, pdb_filename)
     model = structure[0]
