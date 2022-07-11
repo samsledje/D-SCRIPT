@@ -330,23 +330,47 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     """
     Compute gradient and backpropagate loss for a contact map dataset.
     """
-    # n0 and n1 and tensors need to be new protein sequences and embeddings
+    # CHECK - n0 and n1 and tensors need to be new protein sequences and embeddings
     c_map, p_hat = cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
+    
+    # compare shapes of actual vs predicted cmaps
+    print(len(c_map))
+    for i in range(0, len(c_map)):
+        print(c_map[i].shape)
+        print(np.array(cmaps[f"{n0[i]}x{n1[i]}"][:]).shape)
+        
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
 
-    # no p-hat in loss anymore?
+    # yes to p-hat in loss 
     p_hat = p_hat.float()   
+    
     # CONTACT MAP LOSS FUNCTION 
-    # this is probably very very wrong :D, average is not a good approach for loss
     losses = []
     for i in range(0, len(n0)):
         true_cmap = cmaps[f"{n0[i]}x{n1[i]}"]
+        true_cmap = torch.from_numpy(np.array(true_cmap[:]))
+        
+        # just checking some things
+        # print(type(c_map[0]))
+        # print(type(true_cmap))
+        
+        # print(c_map[0].shape)
+        # print(true_cmap.shape)
+        
+        true_cmap = torch.flatten(true_cmap)
+        c_map[i] = torch.flatten(c_map[i])
+        
+        # print(c_map[0].shape)
+        # print(true_cmap.shape)
+ 
+        # ACTUAL LOSS CALCULATION
         loss_fn = torch.nn.BCELoss()
-        losses.append(loss_fn(torch.flatten(c_map), true_cmap.flatten().convert_to_tensor()))
+        map_loss = loss_fn(c_map[i], true_cmap)
+        losses.append(map_loss)
         
     loss = np.mean(losses)
     b = len(p_hat)
@@ -363,8 +387,10 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
     # return loss, correct, mse, b
-    # keep correct and mse?? is there a "correct" contact map?
-    return loss, correct, mse, b
+    # keep mse, could monitor magnitude of cmap 
+    # pearson correlation between two contact maps
+    # decide which metrics are good here - interaction AUPR
+    return loss, mse, b
 
 # does this need a method duplicate?
 def interaction_eval(model, test_iterator, tensors, use_cuda):
@@ -507,8 +533,8 @@ def train_model(args, output):
     cmap_p1 = cmap_trainfi["prot1"]
     cmap_p2 = cmap_trainfi["prot2"]
     cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
-    # print(cmap_p1[0])
-    # print(cmap_p2[0])
+    # print(len(cmap_p1))
+    # print(len(cmap_p2))
     # print(cmap_y)
    
     cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
@@ -521,18 +547,20 @@ def train_model(args, output):
     
     # load in dictionary of contact maps
     maps = {}
-    for i in range(0, len(cmap_p1)):
-        fi = h5py.File(f"dscript/bincmaps/{cmap_p1[i]}x{cmap_p2[i]}","r")
-        maps[f"{cmap_p1[i]}x{cmap_p2[i]}"] = fi[list(fi.keys())[0]]
+    fi = h5py.File(f"dscript/bincmaps","r")
+    for item in list(fi.keys()):
+        # print(item)
+        maps[f"{item}"] = fi[item]
+    # print(len(maps.keys()))
     
     # load in dictionary of cmap protein embeddings
-    print(cmap_embeddings)
+    # print(cmap_embeddings)
     cmap_h5fi = h5py.File(cmap_embeddings, "r")   
     cmap_embeddings = {}
     cmap_proteins = set(cmap_p1).union(cmap_p2)
     for prot_name in tqdm(cmap_proteins):
         cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
-    
+    # print(len(cmap_embeddings.keys()))
     
     if args.checkpoint is None: 
 
@@ -671,7 +699,7 @@ def train_model(args, output):
     # CONTACT MAP TRAINING LOOP
     # tells the model nn.module that you're training (training mode)
         loss_accum_cmap = 0
-        # these parameters? how will they be calculated
+        # these parameters? figure out how they will be calculated
         acc_accum_cmap = 0
         mse_accum_cmap = 0
 
@@ -718,7 +746,6 @@ def train_model(args, output):
                 log(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
-        # hmmmm 
         model.eval()
 
         with torch.no_grad():
@@ -810,9 +837,3 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     add_args(parser)
     main(parser.parse_args())
-
-
-# 1. two training loops understood correctly? 1st: human train   2nd: cmap train - tsv, embeddings, + true cmaps?
-# 2. 2nd loop still doing interaction prediction? will loss only be cmap or also have p hat
-# 3. parameters like correct, mse, methods like interaction_eval - guessing there should be a contact map testing: how would that work for contact maps? 
-# model.clip
