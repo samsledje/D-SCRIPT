@@ -37,8 +37,8 @@ def calc_residue_dist(residue_one, residue_two) :
 def calc_dist_matrix(chain_one, chain_two):
     len_one = count_residues(chain_one)
     len_two = count_residues(chain_two)
-    answer = numpy.zeros((len_one, len_two), numpy.float)
-    # print(answer.shape)
+    answer = numpy.zeros((len_one, len_two), float)
+    print(answer.shape)
     for row, residue_one in enumerate(chain_one):
         # print(row, residue_one)
         for col, residue_two in enumerate(chain_two):

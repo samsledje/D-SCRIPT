@@ -14,7 +14,7 @@ import csv
 
 files = os.listdir("dscript/fastas")
 files.remove(".DS_Store")
-print(files)
+# print(files)
 
 for item in files:
     with open('data/seqs/cmap.fasta', 'a') as out_file:
