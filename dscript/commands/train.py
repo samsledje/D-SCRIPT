@@ -306,7 +306,9 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     
     # Original Contact Map Loss Calculation using Mean
     cmap_loss = torch.mean(c_map_mag)
+    # print(cmap_loss)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
+    # print(loss)
     b = len(p_hat)
 
     # Backprop Loss
@@ -345,36 +347,32 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
-
-    cmap = cmaps["15C8:Lx15C8:H"]
-    cmap = np.array(cmap[:])
-    print(cmap)
     
     # CONTACT MAP LOSS FUNCTION 
+    loss_fn = torch.nn.BCELoss()
     losses = []
     for i in range(0, len(n0)):
-        true_cmap = cmaps[f"{n0[i]}x{n1[i]}"]
-        true_cmap = torch.from_numpy(np.array(true_cmap[:]))
-        true_cmap = torch.flatten(true_cmap)
+        true_cmap = torch.from_numpy(np.array(cmaps[f"{n0[i]}x{n1[i]}"][:]))
+        true_cmap_fldb = torch.flatten(true_cmap).double()
+
         c_map[i] = torch.squeeze(c_map[i])
-        c_map[i] = torch.flatten(c_map[i])
+        c_map_fldb = torch.flatten(c_map[i]).double()
         
         # checking that shapes align
-        # print(c_map[i].shape)
-        # print(true_cmap.shape)
+        # print(c_map_fldb.shape)
+        # print(true_cmap_fldb.shape)
  
         # ACTUAL LOSS CALCULATION
-        loss_fn = torch.nn.BCELoss()
-        map_loss = loss_fn(c_map[i], true_cmap)
+        map_loss = loss_fn(c_map_fldb, true_cmap_fldb)
         losses.append(map_loss)
         
-    # yes to p-hat in loss 
     p_hat = p_hat.float()   
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
     # average the cmap BCE losses
-    cmap_bce_loss = np.mean(losses)   
+    cmap_bce_loss = torch.mean(torch.stack(losses))   
+    print(cmap_bce_loss)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_bce_loss)
-
+    print(loss)
     b = len(p_hat)
     
     # Backprop Loss
