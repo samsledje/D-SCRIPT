@@ -2,6 +2,7 @@
 Train a new model.
 """
 
+from regex import I
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -336,35 +337,30 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     )
     
     # compare shapes of actual vs predicted cmaps
-    print(len(c_map))
-    for i in range(0, len(c_map)):
-        print(c_map[i].shape)
-        print(np.array(cmaps[f"{n0[i]}x{n1[i]}"][:]).shape)
+    # print(len(c_map))
+    # for i in range(0, len(c_map)):
+    #     print(c_map[i].shape)
+    #     print(np.array(cmaps[f"{n0[i]}x{n1[i]}"][:]).shape)
         
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
 
-    # yes to p-hat in loss 
-    p_hat = p_hat.float()   
+    cmap = cmaps["15C8:Lx15C8:H"]
+    cmap = np.array(cmap[:])
+    print(cmap)
     
     # CONTACT MAP LOSS FUNCTION 
     losses = []
     for i in range(0, len(n0)):
         true_cmap = cmaps[f"{n0[i]}x{n1[i]}"]
         true_cmap = torch.from_numpy(np.array(true_cmap[:]))
-        
-        # just checking some things
-        # print(type(c_map[0]))
-        # print(type(true_cmap))
-        
-        # print(c_map[0].shape)
-        # print(true_cmap.shape)
-        
         true_cmap = torch.flatten(true_cmap)
+        c_map[i] = torch.squeeze(c_map[i])
         c_map[i] = torch.flatten(c_map[i])
         
-        # print(c_map[0].shape)
+        # checking that shapes align
+        # print(c_map[i].shape)
         # print(true_cmap.shape)
  
         # ACTUAL LOSS CALCULATION
@@ -372,7 +368,13 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
         map_loss = loss_fn(c_map[i], true_cmap)
         losses.append(map_loss)
         
-    loss = np.mean(losses)
+    # yes to p-hat in loss 
+    p_hat = p_hat.float()   
+    bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
+    # average the cmap BCE losses
+    cmap_bce_loss = np.mean(losses)   
+    loss = (weight * bce_loss) + ((1 - weight) * cmap_bce_loss)
+
     b = len(p_hat)
     
     # Backprop Loss
@@ -381,9 +383,9 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     with torch.no_grad():
         guess_cutoff = 0.5
         p_hat = p_hat.float()
-        p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
+        # p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
         y = y.float()
-        correct = torch.sum(p_guess == y).item()
+        # correct = torch.sum(p_guess == y).item()
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
     # return loss, correct, mse, b
@@ -547,11 +549,13 @@ def train_model(args, output):
     
     # load in dictionary of contact maps
     maps = {}
-    fi = h5py.File(f"dscript/bincmaps","r")
+    fi = h5py.File(f"dscript/paircmaps","r")
     for item in list(fi.keys()):
         # print(item)
         maps[f"{item}"] = fi[item]
-    # print(len(maps.keys()))
+    # cmap = maps["15C8:Lx15C8:H"]
+    # n1 = np.array(cmap[:])
+    # print(n1)
     
     # load in dictionary of cmap protein embeddings
     # print(cmap_embeddings)
