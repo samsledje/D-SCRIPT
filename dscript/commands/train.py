@@ -370,9 +370,9 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
     # average the cmap BCE losses
     cmap_bce_loss = torch.mean(torch.stack(losses))   
-    print(cmap_bce_loss)
+    # print(cmap_bce_loss)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_bce_loss)
-    print(loss)
+    # print(loss)
     b = len(p_hat)
     
     # Backprop Loss
@@ -381,16 +381,16 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     with torch.no_grad():
         guess_cutoff = 0.5
         p_hat = p_hat.float()
-        # p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
+        p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
         y = y.float()
-        # correct = torch.sum(p_guess == y).item()
+        correct = torch.sum(p_guess == y).item()
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
     # return loss, correct, mse, b
     # keep mse, could monitor magnitude of cmap 
     # pearson correlation between two contact maps
     # decide which metrics are good here - interaction AUPR
-    return loss, mse, b
+    return loss, mse, correct, b
 
 # does this need a method duplicate?
 def interaction_eval(model, test_iterator, tensors, use_cuda):
@@ -692,6 +692,7 @@ def train_model(args, output):
                     num_epochs,
                     n / N,
                     loss_accum,
+                    "hi",
                     acc_accum,
                     mse_accum,
                 ]

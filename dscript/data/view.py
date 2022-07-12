@@ -19,13 +19,13 @@ fi = h5py.File("dscript/bincmaps","r")
 ke = list(fi.keys())
 # print(ke)
 # print(ke.index("1a0n:Ax1a0n:B"))
-# cmap = fi["15C8:Lx15C8:H"]
+cmap = fi["15C8:Lx15C8:H"]
 # plt.imshow(cmap)
 # plt.show()
 
-# n1 = np.array(cmap[:])
+n1 = np.array(cmap[:])
 # print(type(n1))
-# print(n1)
+print(n1)
 
 # fi = h5py.File("data/cmap_embed","r")
 # # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
