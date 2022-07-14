@@ -26,6 +26,8 @@ from ..utils import PairedDataset, collate_paired_sequences, log
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
+import matplotlib.pyplot as plt
+# from tkinter import *
 
 
 def add_args(parser):
@@ -393,7 +395,7 @@ def interaction_grad_cmap(model, n0, n1, y, tensors, cmaps, weight=0.35, use_cud
     return loss, mse, correct, b
 
 # does this need a method duplicate?
-def interaction_eval(model, test_iterator, tensors, use_cuda):
+def interaction_eval(model, test_iterator, tensors, use_cuda, epoch_loss):
     """
     Evaluate test data set performance.
 
@@ -425,6 +427,7 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
         p_hat.cuda()
 
     loss = F.binary_cross_entropy(p_hat.float(), y.float()).item()
+    epoch_loss.append(loss)
     b = len(y)
 
     with torch.no_grad():
@@ -445,9 +448,11 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
 
     aupr = average_precision(y, p_hat)
 
-    return loss, correct, mse, pr, re, f1, aupr
+    return loss, correct, mse, pr, re, f1, aupr, epoch_loss
 
-
+def my_plot(epochs, loss):
+    plt.plot(epochs, loss)
+    
 def train_model(args, output):
     # Create data sets
 
@@ -518,7 +523,7 @@ def train_model(args, output):
 
     # CONTACT MAP DATA LOADING  
     # load in sequences and embeddings file as tensors
-    # cmap_testfi = args.test
+    cmap_testfi = args.test
     cmap = args.contact_map_train
     cmap_embeddings = args.contact_map_embeddings
     cmaps = args.contact_maps
@@ -547,7 +552,7 @@ def train_model(args, output):
     
     # load in dictionary of contact maps
     maps = {}
-    fi = h5py.File(f"dscript/paircmaps","r")
+    fi = h5py.File(f"dscript/bincmaps","r")
     for item in list(fi.keys()):
         # print(item)
         maps[f"{item}"] = fi[item]
@@ -647,9 +652,12 @@ def train_model(args, output):
     )
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
+    loss_vals=  []
+    
     N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
-
+        epoch_loss= []
+        
         model.train()
 
         n = 0
@@ -692,7 +700,6 @@ def train_model(args, output):
                     num_epochs,
                     n / N,
                     loss_accum,
-                    "hi",
                     acc_accum,
                     mse_accum,
                 ]
@@ -761,7 +768,8 @@ def train_model(args, output):
                 inter_re,
                 inter_f1,
                 inter_aupr,
-            ) = interaction_eval(model, test_iterator, embeddings, use_cuda)
+                epoch_loss,
+            ) = interaction_eval(model, test_iterator, embeddings, use_cuda, epoch_loss)
             tokens = [
                 epoch + 1,
                 num_epochs,
@@ -775,6 +783,8 @@ def train_model(args, output):
             ]
             log(epoch_report_fmt.format(*tokens), file=output)
             output.flush()
+        
+        loss_vals.append(sum(epoch_loss)/len(epoch_loss))
         
         with torch.no_grad():
             # Save the model
@@ -792,7 +802,11 @@ def train_model(args, output):
                     model.cuda()
 
         output.flush()
-        
+    
+    print(loss_vals)
+    # plt.plot(loss_vals, [1, 2, 3, 4, 5], 'b', label='validation loss')
+    # plt.show()
+      
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
         log(f"Saving final model to {save_path}", file=output)
@@ -832,7 +846,7 @@ def main(args):
         device = "cpu"
 
     train_model(args, output)
-
+    # my_plot([1, 2, 3, 4, 5], [100, 90, 60, 30, 10])
     output.close()
 
 

@@ -14,18 +14,33 @@ import pandas as pd
 import torch
 # import tensorflow as tf
 
-fi = h5py.File("dscript/bincmaps","r")
+# fi = h5py.File("dscript/bincmaps","r")
+# # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
+# ke = list(fi.keys())
+# # print(ke)
+# # print(ke.index("1a0n:Ax1a0n:B"))
+# cmap = fi[ke[10]]
+# print("actual cmap")
+# plt.imshow(cmap)
+# plt.show()
+
+fi = h5py.File("2022-07-14-10:10.predictions.cmaps.h5","r")
 # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
 ke = list(fi.keys())
 # print(ke)
 # print(ke.index("1a0n:Ax1a0n:B"))
-cmap = fi["15C8:Lx15C8:H"]
-# plt.imshow(cmap)
-# plt.show()
+cmap = fi[ke[10]]
 
 n1 = np.array(cmap[:])
-# print(type(n1))
 print(n1)
+
+print("predicted cmap")
+plt.imshow(cmap)
+plt.show()
+
+# n1 = np.array(cmap[:])
+# # print(type(n1))
+# print(n1)
 
 # fi = h5py.File("data/cmap_embed","r")
 # # fi = h5py.File("2022-06-27-06:26.predictions.cmaps.h5","r")
@@ -52,15 +67,15 @@ print(n1)
 # a[0][0] = 2
 # print(a)
 
-pdbs = os.listdir("dscript/pdbs")
-fastas = os.listdir("dscript/fastas")
-pdbs.remove(".DS_Store")
-fastas.remove(".DS_Store")
-print(len(pdbs))
-print(len(fastas))
-fi1 = h5py.File("dscript/paircmaps","r")
-fi2 = h5py.File("dscript/bincmaps","r")
-ke1 = list(fi1.keys())
-ke2 = list(fi2.keys())
-print(len(ke1))
-print(len(ke2))
+# pdbs = os.listdir("dscript/pdbs")
+# fastas = os.listdir("dscript/fastas")
+# pdbs.remove(".DS_Store")
+# fastas.remove(".DS_Store")
+# print(len(pdbs))
+# print(len(fastas))
+# fi1 = h5py.File("dscript/paircmaps","r")
+# fi2 = h5py.File("dscript/bincmaps","r")
+# ke1 = list(fi1.keys())
+# ke2 = list(fi2.keys())
+# print(len(ke1))
+# print(len(ke2))

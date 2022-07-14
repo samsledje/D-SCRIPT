@@ -79,7 +79,15 @@ for protein in files:
     # CREATE H5PY FILES TO WRITE MATRICES TO
     # WRITE TO FILES
     dist_matrix = calc_dist_matrix(model[chain[0]], model[chain[1]])
-    contact_map = dist_matrix < 12.0
+    
+    contact_map = dist_matrix
+    for i in range(len(dist_matrix)):
+        for j in range(len(dist_matrix[0])):
+            if dist_matrix[i][j] < 8.0:
+                contact_map[i][j] = 1.00
+            else:
+                contact_map[i][j] = 0.00
+      
     hf_pair.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=dist_matrix)
     hf_bin.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=contact_map)
 
