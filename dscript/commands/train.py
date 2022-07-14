@@ -342,13 +342,7 @@ def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, u
     c_map, p_hat = cmap_interaction(
         model, n0, n1, tensors, use_cuda
     )
-    
-    # compare shapes of actual vs predicted cmaps
-    # print(len(c_map))
-    # for i in range(0, len(c_map)):
-    #     print(c_map[i].shape)
-    #     print(np.array(cmaps[f"{n0[i]}x{n1[i]}"][:]).shape)
-        
+     
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
@@ -360,24 +354,22 @@ def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, u
         loss_fn = torch.nn.MSELoss()
     losses = []
     
+    bn = nn.BatchNorm2d(1, affine=False)
+
     for i in range(0, len(n0)):
         true_cmap = torch.from_numpy(cmaps[f"{n0[i]}x{n1[i]}"])
         true_cmap_fldb = torch.flatten(true_cmap).double()
-
         c_map[i] = torch.squeeze(c_map[i])
         c_map_fldb = torch.flatten(c_map[i]).double()
         
         # checking that shapes align
         # print(c_map_fldb.shape)
         # print(true_cmap_fldb.shape)
- 
-        # ACTUAL LOSS CALCULATION
-        if mode.lower() == "classification":
-            map_loss = loss_fn(c_map_fldb, true_cmap_fldb)
-            losses.append(map_loss)
-        if mode.lower() == "regression":
-            map_loss = loss_fn(c_map_fldb, true_cmap_fldb)
-            losses.append(map_loss)
+        # print(c_map_fldb)
+        # print(true_cmap_fldb)
+
+        map_loss = loss_fn(c_map_fldb, true_cmap_fldb)
+        losses.append(map_loss)
       
     # prediction interaction loss  
     p_hat = p_hat.float()   
@@ -559,21 +551,27 @@ def train_model(args, output):
             collate_fn=collate_paired_sequences,
             shuffle=True,
         )
+        log(f"Loaded {len(cmap_p1)} pdb protein pairs", file=output) 
+        output.flush()
+        
+        log(f"Loading dictionary of contact maps", file=output) 
+        output.flush()
         
         # load in dictionary of contact maps
         if mode.lower() == "regression":
             maps = {}
             fi = h5py.File(f"dscript/paircmaps","r")
             for item in list(fi.keys()):
-                item = np.array(item[:])
-                # print(item)
-                maps[f"{item}"] = fi[item]
+                c_map = np.array(fi[item][:])
+                # print(c_map)
+                maps[f"{item}"] = c_map
 
         if mode.lower() == "classification":
+            threshold = float(threshold)
             maps = {}
             fi = h5py.File(f"dscript/paircmaps","r")
             for item in list(fi.keys()):
-                dist_matrix = np.array(item[:])
+                dist_matrix = np.array(fi[item][:])
                 # print(item)
                 contact_map = dist_matrix
                 for i in range(len(dist_matrix)):
@@ -583,10 +581,15 @@ def train_model(args, output):
                         else:
                             contact_map[i][j] = 0.00
                 # print(item)
-                maps[f"{item}"] = fi[contact_map]
-                
+                maps[f"{item}"] = contact_map
+        
+        log(f"Loaded {len(maps.keys())} contact maps", file=output) 
+        output.flush()
+        
         # load in dictionary of cmap protein embeddings
         # print(cmap_embeddings)
+        log(f"Loading embeddings of contact maps", file=output) 
+        output.flush()
         cmap_h5fi = h5py.File(cmap_embeddings, "r")   
         cmap_embeddings = {}
         cmap_proteins = set(cmap_p1).union(cmap_p2)

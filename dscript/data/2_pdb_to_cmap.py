@@ -31,7 +31,10 @@ def calc_residue_dist(residue_one, residue_two) :
     diff_vector  = residue_one["CA"].coord - residue_two["CA"].coord
     # else: 
     #     diff_vector = numpy.array([0, 0, 0])
-    return numpy.sqrt(numpy.sum(diff_vector * diff_vector))
+    distance = numpy.sqrt(numpy.sum(diff_vector * diff_vector))
+    if distance >= float(25.000):
+        distance = float(25.000)
+    return distance
 
 # """Returns a matrix of C-alpha distances between two chains"""
 def calc_dist_matrix(chain_one, chain_two):
@@ -80,14 +83,15 @@ for protein in files:
     # WRITE TO FILES
     dist_matrix = calc_dist_matrix(model[chain[0]], model[chain[1]])
     
-    contact_map = dist_matrix
+    contact_map = dist_matrix.copy()
     for i in range(len(dist_matrix)):
         for j in range(len(dist_matrix[0])):
             if dist_matrix[i][j] < 8.0:
                 contact_map[i][j] = 1.00
             else:
                 contact_map[i][j] = 0.00
-      
+    
+    # print(contact_map)   
     hf_pair.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=dist_matrix)
     hf_bin.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=contact_map)
 

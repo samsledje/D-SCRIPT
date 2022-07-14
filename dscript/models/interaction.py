@@ -152,7 +152,9 @@ class ModelInteraction(nn.Module):
         e0 = self.embed(z0)
         e1 = self.embed(z1)
         B = self.contact.cmap(e0, e1)
+        # print(f"interaction cpred cmap: {B}")
         C = self.contact.predict(B)
+        # print(f"interaction cpred predict: {C}")
         return C
 
     def map_predict(self, z0, z1):

@@ -114,6 +114,7 @@ class ContactCNN(nn.Module):
         :rtype: torch.Tensor
         """
         C = self.hidden(z0, z1)
+        # print(f"Contact cmap function: {C}")
         return C
 
     def predict(self, C):
@@ -128,6 +129,9 @@ class ContactCNN(nn.Module):
 
         # S is (b,N,M)
         s = self.conv(C)
+        # print(f"contact conv: {s}")
         s = self.batchnorm(s)
+        # print(f"contact batchnorm: {s}")
         s = self.activation(s)
+        # print(f"contact activation: {s}")
         return s

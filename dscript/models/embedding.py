@@ -170,7 +170,6 @@ class SkipLSTM(nn.Module):
             one_hot.scatter_(2, x.unsqueeze(2), 1)
         return one_hot
 
-# *** powerpoint slide, what's going on here?
     def transform(self, x):
         """
         :param x: Input numeric amino acid encoding :math:`(N)`
