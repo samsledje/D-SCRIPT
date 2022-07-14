@@ -531,67 +531,68 @@ def train_model(args, output):
     for prot_name in tqdm(all_proteins):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
-    # CONTACT MAP DATA LOADING  
-    cmap = args.contact_map_train
-    cmap_embeddings = args.contact_map_embeddings
-    mode = args.contact_map_mode 
-    threshold = args.contact_map_threshold
+    # CONTACT MAP DATA LOADING 
+    if args.contact_map_train != None: 
+        cmap = args.contact_map_train
+        cmap_embeddings = args.contact_map_embeddings
+        mode = args.contact_map_mode 
+        threshold = args.contact_map_threshold
+        
+        log(f"Loading training pairs for contact maps", file=output) 
+        output.flush()
+        
+        cmap_trainfi = pd.read_csv(cmap, sep="\t", header=None)
+        cmap_trainfi.columns = ["prot1", "prot2", "label"]
+        
+        # create paired dataset for contact map proteins
+        cmap_p1 = cmap_trainfi["prot1"]
+        cmap_p2 = cmap_trainfi["prot2"]
+        cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
+        # print(len(cmap_p1))
+        # print(len(cmap_p2))
+        # print(cmap_y)
     
-    log(f"Loading training pairs for contact maps", file=output) 
-    output.flush()
-    
-    cmap_trainfi = pd.read_csv(cmap, sep="\t", header=None)
-    cmap_trainfi.columns = ["prot1", "prot2", "label"]
-    
-    # create paired dataset for contact map proteins
-    cmap_p1 = cmap_trainfi["prot1"]
-    cmap_p2 = cmap_trainfi["prot2"]
-    cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
-    # print(len(cmap_p1))
-    # print(len(cmap_p2))
-    # print(cmap_y)
-   
-    cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
-    cmap_iterator = torch.utils.data.DataLoader(
-        cmap_dataset,
-        batch_size=batch_size,
-        collate_fn=collate_paired_sequences,
-        shuffle=True,
-    )
-    
-    # load in dictionary of contact maps
-    if mode.lower() == "regression":
-        maps = {}
-        fi = h5py.File(f"dscript/paircmaps","r")
-        for item in list(fi.keys()):
-            item = np.array(item[:])
-            # print(item)
-            maps[f"{item}"] = fi[item]
+        cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
+        cmap_iterator = torch.utils.data.DataLoader(
+            cmap_dataset,
+            batch_size=batch_size,
+            collate_fn=collate_paired_sequences,
+            shuffle=True,
+        )
+        
+        # load in dictionary of contact maps
+        if mode.lower() == "regression":
+            maps = {}
+            fi = h5py.File(f"dscript/paircmaps","r")
+            for item in list(fi.keys()):
+                item = np.array(item[:])
+                # print(item)
+                maps[f"{item}"] = fi[item]
 
-    if mode.lower() == "classification":
-        maps = {}
-        fi = h5py.File(f"dscript/paircmaps","r")
-        for item in list(fi.keys()):
-            dist_matrix = np.array(item[:])
-            # print(item)
-            contact_map = dist_matrix
-            for i in range(len(dist_matrix)):
-                for j in range(len(dist_matrix[0])):
-                    if dist_matrix[i][j] < threshold:
-                        contact_map[i][j] = 1.00
-                    else:
-                        contact_map[i][j] = 0.00
-            # print(item)
-            maps[f"{item}"] = fi[contact_map]
-            
-    # load in dictionary of cmap protein embeddings
-    # print(cmap_embeddings)
-    cmap_h5fi = h5py.File(cmap_embeddings, "r")   
-    cmap_embeddings = {}
-    cmap_proteins = set(cmap_p1).union(cmap_p2)
-    for prot_name in tqdm(cmap_proteins):
-        cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
-    # print(len(cmap_embeddings.keys()))
+        if mode.lower() == "classification":
+            maps = {}
+            fi = h5py.File(f"dscript/paircmaps","r")
+            for item in list(fi.keys()):
+                dist_matrix = np.array(item[:])
+                # print(item)
+                contact_map = dist_matrix
+                for i in range(len(dist_matrix)):
+                    for j in range(len(dist_matrix[0])):
+                        if dist_matrix[i][j] < threshold:
+                            contact_map[i][j] = 1.00
+                        else:
+                            contact_map[i][j] = 0.00
+                # print(item)
+                maps[f"{item}"] = fi[contact_map]
+                
+        # load in dictionary of cmap protein embeddings
+        # print(cmap_embeddings)
+        cmap_h5fi = h5py.File(cmap_embeddings, "r")   
+        cmap_embeddings = {}
+        cmap_proteins = set(cmap_p1).union(cmap_p2)
+        for prot_name in tqdm(cmap_proteins):
+            cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
+        # print(len(cmap_embeddings.keys()))
     
     if args.checkpoint is None: 
 
@@ -614,11 +615,13 @@ def train_model(args, output):
         log(f"\tkernel_width: {kernel_width}", file=output)
 
         # arg for activation function
-        if mode.lower() == "classification":
-            contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.Sigmoid())
-        if mode.lower() == "regression":
-            contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.ReLU())
-
+        if args.contact_map_mode != None: 
+            if mode.lower() == "classification":
+                contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.Sigmoid())
+            if mode.lower() == "regression":
+                contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.ReLU())
+        else: 
+            contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width)
         # Create the full model
         do_w = not args.no_w
         do_pool = args.do_pool
@@ -735,52 +738,53 @@ def train_model(args, output):
                 output.flush()
 
     # CONTACT MAP TRAINING LOOP
-        loss_accum_cmap = 0
-        acc_accum_cmap = 0
-        mse_accum_cmap = 0
+        if args.contact_map_train != None: 
+            loss_accum_cmap = 0
+            acc_accum_cmap = 0
+            mse_accum_cmap = 0
 
-        # Train batches
-        for (z0, z1, y) in cmap_iterator:
+            # Train batches
+            for (z0, z1, y) in cmap_iterator:
 
-            loss, correct, mse, b = interaction_grad_cmap(
-                mode,
-                model,
-                z0,
-                z1,
-                y,
-                cmap_embeddings,
-                maps, 
-                weight=inter_weight,
-                use_cuda=use_cuda,
-            )
-            
-            n += b
-            delta = b * (loss - loss_accum_cmap)
-            loss_accum_cmap += delta / n
+                loss, correct, mse, b = interaction_grad_cmap(
+                    mode,
+                    model,
+                    z0,
+                    z1,
+                    y,
+                    cmap_embeddings,
+                    maps, 
+                    weight=inter_weight,
+                    use_cuda=use_cuda,
+                )
+                
+                n += b
+                delta = b * (loss - loss_accum_cmap)
+                loss_accum_cmap += delta / n
 
-            delta = correct - b * acc_accum_cmap
-            acc_accum_cmap += delta / n
+                delta = correct - b * acc_accum_cmap
+                acc_accum_cmap += delta / n
 
-            delta = b * (mse - mse_accum_cmap)
-            mse_accum_cmap += delta / n
+                delta = b * (mse - mse_accum_cmap)
+                mse_accum_cmap += delta / n
 
-            report = (n - b) // 100 < n // 100
-            
-            optim_cmap.step()
-            optim_cmap.zero_grad()
-            model.clip()
+                report = (n - b) // 100 < n // 100
+                
+                optim_cmap.step()
+                optim_cmap.zero_grad()
+                model.clip()
 
-            if report:
-                tokens = [
-                    epoch + 1,
-                    num_epochs,
-                    n / N,
-                    loss_accum_cmap,
-                    acc_accum_cmap,
-                    mse_accum_cmap,
-                ]
-                log(batch_report_fmt.format(*tokens), file=output)
-                output.flush()
+                if report:
+                    tokens = [
+                        epoch + 1,
+                        num_epochs,
+                        n / N,
+                        loss_accum_cmap,
+                        acc_accum_cmap,
+                        mse_accum_cmap,
+                    ]
+                    log(batch_report_fmt.format(*tokens), file=output)
+                    output.flush()
 
         model.eval()
 
