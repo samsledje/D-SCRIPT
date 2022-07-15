@@ -133,10 +133,10 @@ def add_args(parser):
         "--contact-map-embeddings", required=False,
         help="include a true contact map for supervised training",
     )
-    # map_grp.add_argument(
-    # "--contact-maps", required=False,
-    # help="include h5py files of true contact maps for pdb protein pairs",
-    # )
+    map_grp.add_argument(
+    "--contact-maps", required=False,
+    help="pass in h5py files of true contact maps for pdb protein pairs",
+    )
     map_grp.add_argument(
         "--contact-map-threshold", required=False,
         help="enter a classification distance threshold for binarization of the cmap",
@@ -525,6 +525,7 @@ def train_model(args, output):
 
     # CONTACT MAP DATA LOADING 
     if args.contact_map_train != None: 
+        fimaps = args.contact_maps
         cmap = args.contact_map_train
         cmap_embeddings = args.contact_map_embeddings
         mode = args.contact_map_mode 
@@ -560,7 +561,7 @@ def train_model(args, output):
         # load in dictionary of contact maps
         if mode.lower() == "regression":
             maps = {}
-            fi = h5py.File(f"dscript/paircmaps","r")
+            fi = h5py.File(fimaps,"r")
             for item in list(fi.keys()):
                 c_map = np.array(fi[item][:])
                 # print(c_map)
@@ -569,7 +570,7 @@ def train_model(args, output):
         if mode.lower() == "classification":
             threshold = float(threshold)
             maps = {}
-            fi = h5py.File(f"dscript/paircmaps","r")
+            fi = h5py.File(fimaps,"r")
             for item in list(fi.keys()):
                 dist_matrix = np.array(fi[item][:])
                 # print(item)
