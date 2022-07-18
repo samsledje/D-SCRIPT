@@ -1,5 +1,6 @@
 dscript/proteins
 dscript/pdbs
+dscript/fastas
 
 RUN_DSCRIPT.sh
 build/*
