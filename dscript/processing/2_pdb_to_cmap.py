@@ -58,14 +58,15 @@ def calc_dist_matrix(chain_one, chain_two, errors, protein):
 
 # READ THROUGH PDB FILES AND PARSE THEM INTO PAIRWISE AND BINARY CONTACT MAPS
 files = os.listdir("dscript/pdbs")
-fastas = os.listdir("dscript/fastas")
-fastas.remove(".DS_Store")
+# fastas = os.listdir("dscript/fastas")
+# fastas.remove(".DS_Store")
 files.remove(".DS_Store")
 
+# print(files)
 for i in range(0, len(files)):
     files[i] = files[i][:4]
-for i in range(0, len(fastas)):
-    fastas[i] = fastas[i][:4]
+# for i in range(0, len(fastas)):
+#     fastas[i] = fastas[i][:4]
     
 # print(files)
 # print(fastas)
