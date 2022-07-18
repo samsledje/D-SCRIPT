@@ -60,7 +60,8 @@ def calc_dist_matrix(chain_one, chain_two, errors, protein):
 files = os.listdir("dscript/pdbs")
 # fastas = os.listdir("dscript/fastas")
 # fastas.remove(".DS_Store")
-files.remove(".DS_Store")
+if ".DS_Store" in files:
+    files.remove(".DS_Store")
 
 # print(files)
 for i in range(0, len(files)):
