@@ -30,7 +30,7 @@ def calc_residue_dist(residue_one, residue_two) :
     if residue_one.has_id("CA") and residue_two.has_id("CA"):
         diff_vector  = residue_one["CA"].coord - residue_two["CA"].coord
     else: 
-        print("Error")
+        # print("Error")
         return -1
     distance = numpy.sqrt(numpy.sum(diff_vector * diff_vector))
     if distance >= float(25.000):
@@ -57,7 +57,7 @@ def calc_dist_matrix(chain_one, chain_two, errors, protein):
     return [answer, errors]
 
 # READ THROUGH PDB FILES AND PARSE THEM INTO PAIRWISE AND BINARY CONTACT MAPS
-files = os.listdir("dscript/pdbs")
+files = os.listdir("dscript/pdbsNEW")
 # fastas = os.listdir("dscript/fastas")
 # fastas.remove(".DS_Store")
 if ".DS_Store" in files:
@@ -71,8 +71,8 @@ for i in range(0, len(files)):
     
 # print(files)
 # print(fastas)
-hf_pair = h5py.File(f'data/paircmaps', 'w')
-hf_bin = h5py.File(f'dscript/bincmaps', 'w')
+hf_pair = h5py.File(f'data/paircmaps_trunc', 'w')
+hf_bin = h5py.File(f'data/bincmaps_trunc', 'w')
 
 errors = []
 count = 0
@@ -83,7 +83,7 @@ for protein in files:
     print(count)
     # if protein not in fastas:
     pdb_code = protein.upper()
-    pdb_filename = f"dscript/pdbs/{protein}.pdb"
+    pdb_filename = f"dscript/pdbsNEW/{protein}.pdb"
     structure = Bio.PDB.PDBParser().get_structure(pdb_code, pdb_filename)
     model = structure[0]
 

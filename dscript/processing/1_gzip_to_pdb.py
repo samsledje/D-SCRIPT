@@ -3,7 +3,7 @@
     # convert batches of downloaded pdb gzip files into parsable pdb protein files. 
 """
 import gzip
-from pickle import FALSE
+# from pickle import FALSE
 import Bio.PDB
 import numpy
 import matplotlib.pyplot as plt

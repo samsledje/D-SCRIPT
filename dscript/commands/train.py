@@ -2,6 +2,7 @@
 Train a new model.
 """
 
+from tkinter import TRUE
 from regex import I
 import torch
 import torch.nn as nn
@@ -127,6 +128,7 @@ def add_args(parser):
     )
     map_grp.add_argument(
         "--contact-map-mode", required=False,
+        action = "store_true",
         help="enter either regression mode or classification mode",
     )
     map_grp.add_argument(
@@ -140,6 +142,12 @@ def add_args(parser):
     map_grp.add_argument(
         "--contact-map-threshold", required=False,
         help="enter a classification distance threshold for binarization of the cmap",
+    )
+    train_grp.add_argument(
+        "--contact-map-lr", required=False,
+        type=float,
+        default=0.001,
+        help="contact map optimizer learning rate (default: 0.001)",
     )
     
     # Training
@@ -313,8 +321,6 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     # Original Contact Map Loss Calculation using Mean
     cmap_loss = torch.mean(c_map_mag)
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
-    # print(cmap_loss)
-    # print(loss)
     b = len(p_hat)
 
     # Backprop Loss
@@ -348,9 +354,9 @@ def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, u
     y = Variable(y)
     
     # CONTACT MAP LOSS FUNCTION 
-    if mode.lower() == "classification":
+    if mode == True:
         loss_fn = torch.nn.BCELoss()
-    if mode.lower() == "regression":
+    if mode == False:
         loss_fn = torch.nn.MSELoss()
     losses = []
     
@@ -377,8 +383,6 @@ def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, u
     
     cmap_loss = torch.mean(torch.stack(losses))   
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
-    # print(cmap_loss)
-    # print(loss)
     b = len(p_hat)
     
     loss.backward()
@@ -530,6 +534,8 @@ def train_model(args, output):
         cmap_embeddings = args.contact_map_embeddings
         mode = args.contact_map_mode 
         threshold = args.contact_map_threshold
+        if threshold != None:
+            threshold = float(threshold)
         
         log(f"Loading training pairs for contact maps", file=output) 
         output.flush()
@@ -552,37 +558,28 @@ def train_model(args, output):
             collate_fn=collate_paired_sequences,
             shuffle=True,
         )
+            
         log(f"Loaded {len(cmap_p1)} pdb protein pairs", file=output) 
         output.flush()
         
         log(f"Loading dictionary of contact maps", file=output) 
         output.flush()
         
+        # for (z0, z1, y) in cmap_iterator:
+        #     print(z0)
+        #     print(z1)
+            
         # load in dictionary of contact maps
-        if mode.lower() == "regression":
-            maps = {}
-            fi = h5py.File(fimaps,"r")
-            for item in list(fi.keys()):
-                c_map = np.array(fi[item][:])
-                # print(c_map)
+        maps = {}
+        fi = h5py.File(fimaps,"r")
+        for i in range(0, len(cmap_p1)):
+            item = f"{cmap_p1[i]}x{cmap_p2[i]}"
+            c_map = np.array(fi[item][:])
+            if mode == False:
                 maps[f"{item}"] = c_map
-
-        if mode.lower() == "classification":
-            threshold = float(threshold)
-            maps = {}
-            fi = h5py.File(fimaps,"r")
-            for item in list(fi.keys()):
-                dist_matrix = np.array(fi[item][:])
-                # print(item)
-                contact_map = dist_matrix
-                for i in range(len(dist_matrix)):
-                    for j in range(len(dist_matrix[0])):
-                        if dist_matrix[i][j] < threshold:
-                            contact_map[i][j] = 1.00
-                        else:
-                            contact_map[i][j] = 0.00
-                # print(item)
-                maps[f"{item}"] = contact_map
+            if mode == True:
+                contact_map = (c_map <= threshold).astype(float)
+                maps[f"{item}"] = contact_map   
         
         log(f"Loaded {len(maps.keys())} contact maps", file=output) 
         output.flush()
@@ -618,14 +615,12 @@ def train_model(args, output):
         log(f"\thidden_dim: {hidden_dim}", file=output)
         log(f"\tkernel_width: {kernel_width}", file=output)
 
-        # arg for activation function
-        if args.contact_map_mode != None: 
-            if mode.lower() == "classification":
-                contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.Sigmoid())
-            if mode.lower() == "regression":
-                contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation=nn.ReLU())
-        else: 
-            contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width)
+        if mode == True:
+            activation=nn.Sigmoid()
+        if mode == False:
+            activation=nn.ReLU()
+        contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation)
+        
         # Create the full model
         do_w = not args.no_w
         do_pool = args.do_pool
@@ -672,6 +667,7 @@ def train_model(args, output):
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
     # CONTACT MAP OPTIMIZER
+    # make separate learning rates  lr
     optim_cmap = torch.optim.Adam(params, lr=lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
@@ -687,7 +683,8 @@ def train_model(args, output):
     )
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
-    loss_vals=  []
+    loss_vals=[]
+    acc_vals=[]
     
     N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
@@ -819,6 +816,7 @@ def train_model(args, output):
             output.flush()
         
         loss_vals.append(sum(epoch_loss)/len(epoch_loss))
+        acc_vals.append(inter_correct / (len(test_iterator) * batch_size))
         
         with torch.no_grad():
             # Save the model
@@ -838,6 +836,7 @@ def train_model(args, output):
         output.flush()
     
     print(loss_vals)
+    print(acc_vals)
     # plt.plot(loss_vals, [1, 2, 3, 4, 5], 'b', label='validation loss')
     # plt.show()
       

@@ -88,18 +88,19 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.close()
 
     fpr, tpr, roc_thresh = roc_curve(labels, predictions)
-    auroc = roc_auc_score(labels, predictions)
-    print("AUROC:", auroc)
+    # error because only one class in y-hat (TRUE 1)
+    # auroc = roc_auc_score(labels, predictions)
+    # print("AUROC:", auroc)
 
-    plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
-    plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
-    plt.savefig(path + ".auroc.png")
-    plt.close()
+    # plt.step(fpr, tpr, color="b", alpha=0.2, where="post")
+    # plt.fill_between(fpr, tpr, step="post", alpha=0.2, color="b")
+    # plt.xlabel("FPR")
+    # plt.ylabel("TPR")
+    # plt.ylim([0.0, 1.05])
+    # plt.xlim([0.0, 1.0])
+    # plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
+    # plt.savefig(path + ".auroc.png")
+    # plt.close()
 
 
 def main(args):

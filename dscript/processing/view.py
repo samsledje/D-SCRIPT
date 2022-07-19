@@ -80,12 +80,23 @@ import torch
 # fastas.remove(".DS_Store")
 # files.remove(".DS_Store")
 
-fi = h5py.File("data/paircmaps","r")
+# fi = h5py.File("data/paircmaps","r")
+# ke = list(fi.keys())
+# print(fi["7WHH:Ax7WHH:E"])
+# print(len("PSTIEEQAKTFLDKFNHEAEDLFYQSSLASWNYNTNITEENVQNMNNAGDKWSAFLKEQSTLAQMYPLQEIQNLTVKLQLQALQQNGSSVLSEDKSKRLNTILNTMSTIYSTGKVCNPDNPQECLLLEPGLNEIMANSLDYNERLWAWESWRSEVGKQLRPLYEEYVVLKNEMARANHYEDYGDYWRGDYEVNGVDGYDYSRGQLIEDVEHTFEEIKPLYEHLHAYVRAKLMNAYPSYISPIGCLPAHLLGDMWGRFWTNLYSLTVPFGQKPNIDVTDAMVDQAWDAQRIFKEAEKFFVSVGLPNMTQGFWENSMLTDPGNVQKAVCHPTAWDLGKGDFRILMCTKVTMDDFLTAHHEMGHIQYDMAYAAQPFLLRNGANEGFHEAVGEIMSLSAATPKHLKSIGLLSPDFQEDNETEINFLLKQALTIVGTLPFTYMLEKWRWMVFKGEIPKDQWMKKWWEMKREIVGVVEPVPHDETYCDPASLFHVSNDYSFIRYYTRTLYQFQFQEALCQAAKHEGPLHKCDISNSTEAGQKLFNMLRLGKSEPWTLALENVVGAKNMNVRPLLNYFEPLFTWLKDQNKNSFVGWSTDWSPYAD"))
+# print
+
+
+fi = h5py.File("data/paircmaps_trunc","r")
 ke = list(fi.keys())
-files = os.listdir("dscript/pdbs")
-fastas = os.listdir("dscript/fastas")
+# print(ke)
+files = os.listdir("dscript/pdbsNEW")
+fastas = os.listdir("dscript/fastasNEW")
+docking = os.listdir("dscript/structures")
 fastas.remove(".DS_Store")
 files.remove(".DS_Store")
+if ".DS_Store" in docking:
+    docking.remove(".DS_Store")
 
 print("pdbs")
 print(len(files))
@@ -93,4 +104,6 @@ print("fastas")
 print(len(fastas))
 print("maps")
 print(len(ke))
+# print("docking")
+# print(len(docking))
 

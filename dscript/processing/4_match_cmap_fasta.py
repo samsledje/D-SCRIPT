@@ -13,7 +13,7 @@ ke = list(fi.keys())
 # print(ke[0][:4].lower())
 # print(fi[ke[0]].shape)
 
-fastas = os.listdir("dscript/fastas")
+fastas = os.listdir("dscript/fastasNEW")
 # fastas.remove(".DS_Store")
 # print(len(fastas))
     
@@ -21,8 +21,8 @@ deletes = []
 
 for item in ke:
     # print(fi[item].shape)
-    if os.path.exists(f'dscript/fastas/{item[:4].lower()}.fasta'):
-        with open(f'dscript/fastas/{item[:4].lower()}.fasta','r') as in_file:
+    if os.path.exists(f'dscript/fastasNEW/{item[:4].lower()}.fasta'):
+        with open(f'dscript/fastasNEW/{item[:4].lower()}.fasta','r') as in_file:
             l = in_file.read().splitlines()
             seq1 = len(l[1])
             seq2 = len(l[3])
