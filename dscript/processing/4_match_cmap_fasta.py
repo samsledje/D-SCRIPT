@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import torch
 
-fi = h5py.File("data/paircmaps","r")
+fi = h5py.File("data/paircmaps_trunc","r")
 ke = list(fi.keys())
 # print(ke[0][:4].lower())
 # print(fi[ke[0]].shape)

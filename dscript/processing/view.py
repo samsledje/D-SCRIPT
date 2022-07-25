@@ -24,10 +24,46 @@ import torch
 # plt.imshow(cmap)
 # plt.show()
 
-# fi = h5py.File("2022-07-14-15:48.predictions.cmaps.h5","r")
-# ke = list(fi.keys())
+index = 5
+fi = h5py.File("data/bincmaps_trunc","r")
+ke = list(fi.keys())
 # # print(ke)
-# cmap1 = fi[ke[4]]
+# # i = 0
+# # for item in ke:
+# #     print(f"{i}      {fi[item]}")
+# #     i+=1
+    
+cmap = fi[ke[index]]
+# # n1 = np.array(cmap[:])
+# # print(n1)
+plt.imshow(cmap)
+plt.show()
+
+
+fi = h5py.File("data/paircmaps_trunc","r")
+ke = list(fi.keys())
+# # print(ke)
+# # i = 0
+# # for item in ke:
+# #     print(f"{i}      {fi[item]}")
+# #     i+=1
+    
+cmap = fi[ke[index]]
+print(cmap)
+# # n1 = np.array(cmap[:])
+# # print(n1)
+plt.imshow(cmap)
+plt.show()
+
+
+# fi = h5py.File("data/bincmaps_trunc","r")
+# ke = list(fi.keys())
+# print(ke)
+# cmap1 = fi[ke[0]]
+# plt.imshow(cmap1)
+# plt.show()
+
+
 
 # dist_matrix = np.array(cmap1[:])
 # print("probability matrix")
@@ -61,8 +97,7 @@ import torch
 
 # fi = h5py.File("2022-07-14-16:38.predictions.cmaps.h5","r")
 # ke = list(fi.keys())
-# # print(ke)
-# cmap1 = fi[ke[i]]
+# print(ke)
 
 # dist_matrix = np.array(cmap1[:])
 # print("predicted distance cmap")
@@ -73,8 +108,14 @@ import torch
 
 
 
-# fi = h5py.File("data/paircmaps","r")
+# fi = h5py.File("data/bincmaps_trunc","r")
 # ke = list(fi.keys())
+# cmap1 = fi[ke[0]]
+# plt.imshow(cmap1)
+# plt.show()
+
+
+
 # files = os.listdir("dscript/pdbs")
 # fastas = os.listdir("dscript/fastas")
 # fastas.remove(".DS_Store")
@@ -87,23 +128,29 @@ import torch
 # print
 
 
-fi = h5py.File("data/paircmaps_trunc","r")
-ke = list(fi.keys())
+# fi = h5py.File("data/paircmaps_trunc","r")
+# ke = list(fi.keys())
 # print(ke)
-files = os.listdir("dscript/pdbsNEW")
-fastas = os.listdir("dscript/fastasNEW")
-docking = os.listdir("dscript/structures")
-fastas.remove(".DS_Store")
-files.remove(".DS_Store")
-if ".DS_Store" in docking:
-    docking.remove(".DS_Store")
+# files = os.listdir("dscript/pdbs")
+# fastas = os.listdir("dscript/fastas")
+# fastas.remove(".DS_Store")
+# files.remove(".DS_Store")
 
-print("pdbs")
-print(len(files))
-print("fastas")
-print(len(fastas))
-print("maps")
-print(len(ke))
+# print("pdbs")
+# print(len(files))
+# print("fastas")
+# print(len(fastas))
+
+
+# repl = []
+# for item in files:
+#     if f"{item[:4]}.fasta" not in fastas:
+#         repl.append(item)
+        
+# print(repl)
+
+# print("maps")
+# print(len(ke))
 # print("docking")
 # print(len(docking))
 

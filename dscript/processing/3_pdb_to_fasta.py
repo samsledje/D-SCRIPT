@@ -8,7 +8,7 @@ import os
 entries = os.listdir('dscript/pdbsNEW')
 if ".DS_Store" in entries:
     entries.remove(".DS_Store")
-print(entries)
+# print(entries)
 
 # CONVERT ALL TO FASTAS
 for i in range(0, len(entries)):

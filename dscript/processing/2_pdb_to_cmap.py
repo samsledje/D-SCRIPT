@@ -89,9 +89,16 @@ for protein in files:
 
     # GET PROTEIN CHAINS
     chain = []
-    for chains in structure.get_chains():
-        chain.append(str(chains.get_id()))
-    # print(chain)
+    # for chains in structure.get_chains():
+    #     chain.append(str(chains.get_id()))
+    
+    with open(f'dscript/fastasNEW/{protein}.fasta','r') as in_file:
+        l = in_file.read().splitlines()
+        # print(l[0][6:7])
+        # print(l[2][6:7])
+        chain.append(l[0][6:7])
+        chain.append(l[2][6:7])
+
     # CREATE H5PY FILES TO WRITE MATRICES TO
     # WRITE TO FILES
     values = calc_dist_matrix(model[chain[0]], model[chain[1]], errors, protein)
@@ -101,12 +108,13 @@ for protein in files:
     contact_map = dist_matrix.copy()
     for i in range(len(dist_matrix)):
         for j in range(len(dist_matrix[0])):
-            if dist_matrix[i][j] < 8.0:
+            if dist_matrix[i][j] < 12.0:
                 contact_map[i][j] = 1.00
             else:
                 contact_map[i][j] = 0.00
     
     # print(contact_map)   
+    print(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}')
     hf_pair.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=dist_matrix)
     hf_bin.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=contact_map)
 
