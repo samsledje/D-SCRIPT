@@ -57,7 +57,7 @@ def calc_dist_matrix(chain_one, chain_two, errors, protein):
     return [answer, errors]
 
 # READ THROUGH PDB FILES AND PARSE THEM INTO PAIRWISE AND BINARY CONTACT MAPS
-files = os.listdir("dscript/pdbsNEW")
+files = os.listdir("dscript/pdbs")
 # fastas = os.listdir("dscript/fastas")
 # fastas.remove(".DS_Store")
 if ".DS_Store" in files:
@@ -71,8 +71,8 @@ for i in range(0, len(files)):
     
 # print(files)
 # print(fastas)
-hf_pair = h5py.File(f'data/paircmaps_trunc', 'w')
-hf_bin = h5py.File(f'data/bincmaps_trunc', 'w')
+hf_pair = h5py.File(f'data/paircmaps_train', 'w')
+hf_bin = h5py.File(f'data/bincmaps_train', 'w')
 
 errors = []
 count = 0
@@ -83,7 +83,7 @@ for protein in files:
     print(count)
     # if protein not in fastas:
     pdb_code = protein.upper()
-    pdb_filename = f"dscript/pdbsNEW/{protein}.pdb"
+    pdb_filename = f"dscript/pdbs/{protein}.pdb"
     structure = Bio.PDB.PDBParser().get_structure(pdb_code, pdb_filename)
     model = structure[0]
 
@@ -92,7 +92,7 @@ for protein in files:
     # for chains in structure.get_chains():
     #     chain.append(str(chains.get_id()))
     
-    with open(f'dscript/fastasNEW/{protein}.fasta','r') as in_file:
+    with open(f'dscript/fastas/{protein}.fasta','r') as in_file:
         l = in_file.read().splitlines()
         # print(l[0][6:7])
         # print(l[2][6:7])

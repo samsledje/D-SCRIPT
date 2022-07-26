@@ -13,47 +13,47 @@ import os
 import pandas as pd
 import torch
 
-# # compare binary classification maps
-# fi = h5py.File("dscript/bincmaps","r")
+# # # compare binary classification maps
+# # fi = h5py.File("dscript/bincmaps","r")
+# # ke = list(fi.keys())
+# # # print(ke)
+# # cmap = fi[ke[4]]
+# # print("actual binary cmap")
+# # n1 = np.array(cmap[:])
+# # print(n1)
+# # plt.imshow(cmap)
+# # plt.show()
+
+# index = 5
+# fi = h5py.File("data/bincmaps_trunc","r")
 # ke = list(fi.keys())
-# # print(ke)
-# cmap = fi[ke[4]]
-# print("actual binary cmap")
-# n1 = np.array(cmap[:])
-# print(n1)
+# # # print(ke)
+# # # i = 0
+# # # for item in ke:
+# # #     print(f"{i}      {fi[item]}")
+# # #     i+=1
+    
+# cmap = fi[ke[index]]
+# # # n1 = np.array(cmap[:])
+# # # print(n1)
 # plt.imshow(cmap)
 # plt.show()
 
-index = 5
-fi = h5py.File("data/bincmaps_trunc","r")
-ke = list(fi.keys())
-# # print(ke)
-# # i = 0
-# # for item in ke:
-# #     print(f"{i}      {fi[item]}")
-# #     i+=1
-    
-cmap = fi[ke[index]]
-# # n1 = np.array(cmap[:])
-# # print(n1)
-plt.imshow(cmap)
-plt.show()
 
-
-fi = h5py.File("data/paircmaps_trunc","r")
-ke = list(fi.keys())
-# # print(ke)
-# # i = 0
-# # for item in ke:
-# #     print(f"{i}      {fi[item]}")
-# #     i+=1
+# fi = h5py.File("data/paircmaps_trunc","r")
+# ke = list(fi.keys())
+# # # print(ke)
+# # # i = 0
+# # # for item in ke:
+# # #     print(f"{i}      {fi[item]}")
+# # #     i+=1
     
-cmap = fi[ke[index]]
-print(cmap)
-# # n1 = np.array(cmap[:])
-# # print(n1)
-plt.imshow(cmap)
-plt.show()
+# cmap = fi[ke[index]]
+# print(cmap)
+# # # n1 = np.array(cmap[:])
+# # # print(n1)
+# plt.imshow(cmap)
+# plt.show()
 
 
 # fi = h5py.File("data/bincmaps_trunc","r")
@@ -128,18 +128,20 @@ plt.show()
 # print
 
 
-# fi = h5py.File("data/paircmaps_trunc","r")
-# ke = list(fi.keys())
-# print(ke)
-# files = os.listdir("dscript/pdbs")
-# fastas = os.listdir("dscript/fastas")
-# fastas.remove(".DS_Store")
-# files.remove(".DS_Store")
+fi = h5py.File("data/paircmaps_trunc","r")
+ke = list(fi.keys())
+print(ke)
+files = os.listdir("dscript/pdbs")
+fastas = os.listdir("dscript/fastas")
+if ".DS_Store" in fastas:
+    fastas.remove(".DS_Store")
+if ".DS_Store" in files:
+    files.remove(".DS_Store")
 
-# print("pdbs")
-# print(len(files))
-# print("fastas")
-# print(len(fastas))
+print("pdbs")
+print(len(files))
+print("fastas")
+print(len(fastas))
 
 
 # repl = []

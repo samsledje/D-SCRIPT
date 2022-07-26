@@ -5,7 +5,7 @@ import Bio
 from Bio import SeqIO
 import os
 
-entries = os.listdir('dscript/pdbsNEW')
+entries = os.listdir('dscript/pdbs')
 if ".DS_Store" in entries:
     entries.remove(".DS_Store")
 # print(entries)
@@ -14,8 +14,8 @@ if ".DS_Store" in entries:
 for i in range(0, len(entries)):
     # print(entries[i])
     if entries[i][0] != ".":
-        with open(f'dscript/fastasNEW/{entries[i][:-4]}.fasta', 'w') as f:
-            for record in SeqIO.parse(f"dscript/pdbsNEW/{entries[i]}", "pdb-seqres"):
+        with open(f'dscript/fastas/{entries[i][:-4]}.fasta', 'w') as f:
+            for record in SeqIO.parse(f"dscript/pdbs/{entries[i]}", "pdb-seqres"):
                 f.write(record.format("fasta-2line"))
         f.close()
 
