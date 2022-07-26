@@ -146,7 +146,7 @@ def add_args(parser):
     train_grp.add_argument(
         "--contact-map-lr", required=False,
         type=float,
-        default=0.001,
+        default=0.00003,
         help="contact map optimizer learning rate (default: 0.001)",
     )
     
