@@ -128,31 +128,34 @@ import torch
 # print
 
 
-fi = h5py.File("data/paircmaps_trunc","r")
+fi = h5py.File("data/paircmaps_train.h5","r")
 ke = list(fi.keys())
-print(ke)
+# print(len(ke))
 files = os.listdir("dscript/pdbs")
 fastas = os.listdir("dscript/fastas")
 if ".DS_Store" in fastas:
     fastas.remove(".DS_Store")
 if ".DS_Store" in files:
     files.remove(".DS_Store")
-
+    
+files1 = os.listdir("dscript/pdbsTEST")
+fastas1 = os.listdir("dscript/fastasTEST")
+if ".DS_Store" in fastas1:
+    fastas1.remove(".DS_Store")
+if ".DS_Store" in files1:
+    files1.remove(".DS_Store")
+    
 print("pdbs")
 print(len(files))
 print("fastas")
 print(len(fastas))
+print("pdbsTEST")
+print(len(files1))
+print("fastasTEST")
+print(len(fastas1))
 
-
-# repl = []
-# for item in files:
-#     if f"{item[:4]}.fasta" not in fastas:
-#         repl.append(item)
-        
-# print(repl)
-
-# print("maps")
-# print(len(ke))
+print("maps")
+print(len(ke))
 # print("docking")
 # print(len(docking))
 

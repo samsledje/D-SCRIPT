@@ -12,13 +12,15 @@ import pandas as pd
 import torch
 import csv
 
-files = os.listdir("dscript/fastasNEW")
-files.remove(".DS_Store")
-print(files)
+files = os.listdir("dscript/fastasTEST")
+if ".DS_Store" in files:    
+    files.remove(".DS_Store")
+# print(files)
 
 for item in files:
-    with open('data/seqs/cmap_trunc.fasta', 'a') as out_file:
-        with open(f'dscript/fastasNEW/{item}','r') as in_file:
+    with open('data/seqs/cmap.fasta', 'a') as out_file:
+        with open(f'dscript/fastasTEST/{item}','r') as in_file:
+            # print(item)
             l = in_file.read().splitlines()
             # print(l)
             for i in range(0, len(l)):

@@ -71,8 +71,8 @@ for i in range(0, len(files)):
     
 # print(files)
 # print(fastas)
-hf_pair = h5py.File(f'data/paircmaps_train', 'w')
-hf_bin = h5py.File(f'data/bincmaps_train', 'w')
+hf_pair = h5py.File(f'data/paircmaps_train.h5', 'w')
+hf_bin = h5py.File(f'data/bincmaps_train.h5', 'w')
 
 errors = []
 count = 0
@@ -119,58 +119,3 @@ for protein in files:
     hf_bin.create_dataset(f'{pdb_code}:{chain[0]}x{pdb_code}:{chain[1]}', data=contact_map)
 
 print(errors)
-# ----------------------------
-# NEGATIVE CONTACT MAPS --- UNFINISHED
-# test_fi = "/Users/lynntao/opt/anaconda3/D-SCRIPT/data/pairs/human_test2train.tsv"
-# test_df = pd.read_csv(test_fi, sep="\t", header=None)
-# test_df.columns = ["prot1", "prot2", "label"]
-# test_p1 = test_df["prot1"]
-# test_p2 = test_df["prot2"]
-# test_y = torch.from_numpy(test_df["label"].values)
-# # print(test_y)
-
-# prot1 = test_p1[0]
-# prot2 = test_p2[0]
-
-# print([prot1, prot2])
-# # print(f">{prot1}")
-# # print(f">{prot2}")
-
-# f = open('/Users/lynntao/opt/anaconda3/D-SCRIPT/data/seqs/human2.fasta', "r")
-# lines=f.readlines()
-# for i in range(0, len(lines)-1):
-#     print(lines[i])
-#     if lines[i].strip() == f">{prot1}":
-#         prot1_len = len(lines[i+1].strip())
-#     if lines[i].strip() == f">{prot2}":
-#         prot2_len = len(lines[i+1].strip())
-
-# # BINARY CONTACT MAP
-# contact_map = numpy.zeros((prot1_len, prot2_len), numpy.int)
-# # DISTANCE MATRIX
-# dist_matrix = numpy.inf((prot1_len, prot2_len))
-# # PROBABILITY MATRIX
-# prob_matrix = numpy.matrix((prot1_len, prot2_len))
-# print(prob_matrix)
-
-# print(numpy.finfo(float).eps)
-
-
-# ----------------------------
-# IMAGE DISPLAY CONTACT MAPS
-# PAIRWISE DISTANCE
-# dist_matrix = calc_dist_matrix(model["D"], model["M"])
-# BINARY DISTANCE threshold: 12 angstroms
-# contact_map = dist_matrix < 12.0
-
-# print(contact_map)
-# print(numpy.min(dist_matrix))
-# print(numpy.max(dist_matrix))
-
-# # CONTACT MAP EUCLIDIAN DISTANCES
-# plt.matshow(numpy.transpose(dist_matrix))
-# plt.show()
-
-# # CONTACT MAP BINARY DISTANCES 
-# plt.imshow(numpy.transpose(contact_map))
-# plt.show()

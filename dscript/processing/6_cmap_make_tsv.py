@@ -14,10 +14,10 @@ import csv
 # files = os.listdir("dscript/bincmaps")
 # files.remove(".DS_Store")
 # print(files)
-fi = h5py.File("data/bincmaps_trunc","r")
+fi = h5py.File("data/bincmaps_train.h5","r")
 ke = list(fi.keys())
 
-with open('data/pairs/cmap_trunc_train.tsv', 'wt') as out_file:
+with open('data/pairs/cmap_train.tsv', 'wt') as out_file:
     tsv_writer = csv.writer(out_file, delimiter='\t')
     for item in ke:
         # print(item)

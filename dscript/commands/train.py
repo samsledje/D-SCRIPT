@@ -109,6 +109,7 @@ def add_args(parser):
         action="store_true",
         help="don't use sigmoid activation at end of interaction model",
     )
+    # don't do this
     inter_grp.add_argument(
         "--do-pool",
         action="store_true",
@@ -127,6 +128,10 @@ def add_args(parser):
         help="include tsv files of true contact maps for supervised training",
     )
     map_grp.add_argument(
+        "--contact-map-test", required=False,
+        help="include tsv files of true contact maps for supervised training",
+    )
+    map_grp.add_argument(
         "--contact-map-mode", required=False,
         action = "store_true",
         help="enter either regression mode or classification mode",
@@ -136,18 +141,24 @@ def add_args(parser):
         help="include a true contact map for supervised training",
     )
     map_grp.add_argument(
-    "--contact-maps", required=False,
-    help="pass in h5py files of true contact maps for pdb protein pairs",
+        "--contact-maps", required=False,
+        help="pass in h5py files of true contact maps for pdb protein pairs",
     )
     map_grp.add_argument(
         "--contact-map-threshold", required=False,
         help="enter a classification distance threshold for binarization of the cmap",
     )
-    train_grp.add_argument(
+    map_grp.add_argument(
         "--contact-map-lr", required=False,
         type=float,
         default=0.00003,
-        help="contact map optimizer learning rate (default: 0.001)",
+        help="contact map optimizer learning rate (default: 0.00003)",
+    )
+    map_grp.add_argument(
+        "--contact-map-lambda", required=False,
+        type=float,
+        default=0.1,
+        help="weight on the similarity objective (default: 0.1)",
     )
     
     # Training
@@ -341,7 +352,7 @@ def interaction_grad(model, n0, n1, y, tensors, weight=0.35, use_cuda=True):
     return loss, correct, mse, b
 
 
-def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, use_cuda=True):
+def interaction_grad_cmap(mode_classify, model, n0, n1, y, tensors, cmaps, weight, use_cuda=True):
     """
     Compute gradient and backpropagate loss for a contact map dataset.
     """
@@ -354,34 +365,26 @@ def interaction_grad_cmap(mode, model, n0, n1, y, tensors, cmaps, weight=0.35, u
     y = Variable(y)
     
     # CONTACT MAP LOSS FUNCTION 
-    if mode == True:
+    if mode_classify == True:
         loss_fn = torch.nn.BCELoss()
-    if mode == False:
+    if mode_classify == False:
         loss_fn = torch.nn.MSELoss()
     losses = []
     
-    bn = nn.BatchNorm2d(1, affine=False)
-
     for i in range(0, len(n0)):
         true_cmap = torch.from_numpy(cmaps[f"{n0[i]}x{n1[i]}"])
-        true_cmap_fldb = torch.flatten(true_cmap).double()
-        c_map[i] = torch.squeeze(c_map[i])
-        c_map_fldb = torch.flatten(c_map[i]).double()
-        
-        # checking that shapes align
-        # print(c_map_fldb.shape)
-        # print(true_cmap_fldb.shape)
-        # print(c_map_fldb)
-        # print(true_cmap_fldb)
-
-        map_loss = loss_fn(c_map_fldb, true_cmap_fldb)
+        true_cmap_fl = (true_cmap).float()
+        c_map_sq = torch.squeeze(c_map[i])
+        c_map_fl = (c_map_sq).float()
+        # print(f"Square Loss: {loss_fn(c_map[i].double(), true_cmap.double())}")
+        # print(f"Flat Loss: {loss_fn(c_map_fldb, true_cmap_fldb)}")
+        map_loss = loss_fn(c_map_fl, true_cmap_fl)
         losses.append(map_loss)
       
     # prediction interaction loss  
     p_hat = p_hat.float()   
     bce_loss = F.binary_cross_entropy(p_hat.float(), y.float())
-    
-    cmap_loss = torch.mean(torch.stack(losses))   
+    cmap_loss = torch.mean(torch.stack(losses))       
     loss = (weight * bce_loss) + ((1 - weight) * cmap_loss)
     b = len(p_hat)
     
@@ -530,9 +533,10 @@ def train_model(args, output):
     # CONTACT MAP DATA LOADING 
     if args.contact_map_train != None: 
         fimaps = args.contact_maps
-        cmap = args.contact_map_train
+        cmap_train = args.contact_map_train
+        cmap_test = args.contact_map_test
         cmap_embeddings = args.contact_map_embeddings
-        mode = args.contact_map_mode 
+        mode_classify = args.contact_map_mode 
         threshold = args.contact_map_threshold
         if threshold != None:
             threshold = float(threshold)
@@ -540,44 +544,52 @@ def train_model(args, output):
         log(f"Loading training pairs for contact maps", file=output) 
         output.flush()
         
-        cmap_trainfi = pd.read_csv(cmap, sep="\t", header=None)
+        cmap_trainfi = pd.read_csv(cmap_train, sep="\t", header=None)
         cmap_trainfi.columns = ["prot1", "prot2", "label"]
-        
         # create paired dataset for contact map proteins
-        cmap_p1 = cmap_trainfi["prot1"]
-        cmap_p2 = cmap_trainfi["prot2"]
-        cmap_y = torch.from_numpy(cmap_trainfi["label"].values)
-        # print(len(cmap_p1))
-        # print(len(cmap_p2))
-        # print(cmap_y)
+        cmap_train_p1 = cmap_trainfi["prot1"]
+        cmap_train_p2 = cmap_trainfi["prot2"]
+        cmap_train_y = torch.from_numpy(cmap_trainfi["label"].values)
     
-        cmap_dataset = PairedDataset(cmap_p1, cmap_p2, cmap_y)
-        cmap_iterator = torch.utils.data.DataLoader(
-            cmap_dataset,
+        cmap_train_dataset = PairedDataset(cmap_train_p1, cmap_train_p2, cmap_train_y)
+        cmap_train_iterator = torch.utils.data.DataLoader(
+            cmap_train_dataset,
             batch_size=batch_size,
             collate_fn=collate_paired_sequences,
             shuffle=True,
         )
-            
-        log(f"Loaded {len(cmap_p1)} pdb protein pairs", file=output) 
+          
+        log(f"Loaded {len(cmap_train_p1)} contact map training pairs", file=output) 
+        log(f"Loading testing pairs for contact maps", file=output) 
         output.flush()
         
+        cmap_testfi = pd.read_csv(cmap_test, sep="\t", header=None)
+        cmap_testfi.columns = ["prot1", "prot2", "label"]
+        cmap_test_p1 = cmap_testfi["prot1"]
+        cmap_test_p2 = cmap_testfi["prot2"]
+        cmap_test_y = torch.from_numpy(cmap_testfi["label"].values)
+
+        cmap_test_dataset = PairedDataset(cmap_test_p1, cmap_test_p2, cmap_test_y)
+        cmap_test_iterator = torch.utils.data.DataLoader(
+            cmap_test_dataset,
+            batch_size=batch_size,
+            collate_fn=collate_paired_sequences,
+            shuffle=False,
+        )
+        
+        log(f"Loaded {len(cmap_test_p1)} test pairs", file=output)
         log(f"Loading dictionary of contact maps", file=output) 
         output.flush()
-        
-        # for (z0, z1, y) in cmap_iterator:
-        #     print(z0)
-        #     print(z1)
             
         # load in dictionary of contact maps
         maps = {}
         fi = h5py.File(fimaps,"r")
-        for i in range(0, len(cmap_p1)):
-            item = f"{cmap_p1[i]}x{cmap_p2[i]}"
+        for i in range(0, len(cmap_train_p1)):
+            item = f"{cmap_train_p1[i]}x{cmap_train_p2[i]}"
             c_map = np.array(fi[item][:])
-            if mode == False:
+            if mode_classify == False:
                 maps[f"{item}"] = c_map
-            if mode == True:
+            if mode_classify == True:
                 contact_map = (c_map <= threshold).astype(float)
                 maps[f"{item}"] = contact_map   
         
@@ -590,7 +602,7 @@ def train_model(args, output):
         output.flush()
         cmap_h5fi = h5py.File(cmap_embeddings, "r")   
         cmap_embeddings = {}
-        cmap_proteins = set(cmap_p1).union(cmap_p2)
+        cmap_proteins = set(cmap_train_p1).union(cmap_train_p2).union(cmap_test_p1).union(cmap_test_p2)
         for prot_name in tqdm(cmap_proteins):
             cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
         # print(len(cmap_embeddings.keys()))
@@ -615,9 +627,9 @@ def train_model(args, output):
         log(f"\thidden_dim: {hidden_dim}", file=output)
         log(f"\tkernel_width: {kernel_width}", file=output)
 
-        if mode == True:
+        if mode_classify == True:
             activation=nn.Sigmoid()
-        if mode == False:
+        if mode_classify == False:
             activation=nn.ReLU()
         contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width, activation)
         
@@ -627,7 +639,7 @@ def train_model(args, output):
         pool_width = args.pool_width
         do_sigmoid = not args.no_sigmoid
         log("Initializing interaction model with:", file=output)
-        log(f"\tdo_poool: {do_pool}", file=output)
+        log(f"\tdo_pool: {do_pool}", file=output)
         log(f"\tpool_width: {pool_width}", file=output)
         log(f"\tdo_w: {do_w}", file=output)
         log(f"\tdo_sigmoid: {do_sigmoid}", file=output)
@@ -657,9 +669,11 @@ def train_model(args, output):
     # Train the model
     lr = args.lr
     wd = args.weight_decay
+    map_lr = args.contact_map_lr
     num_epochs = args.num_epochs
     batch_size = args.batch_size
     inter_weight = args.interaction_weight
+    map_inter_weight = args.contact_map_lambda
     cmap_weight = 1 - inter_weight
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
@@ -668,31 +682,37 @@ def train_model(args, output):
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
     # CONTACT MAP OPTIMIZER
     # make separate learning rates  lr
-    optim_cmap = torch.optim.Adam(params, lr=lr, weight_decay=wd)
+    optim_cmap = torch.optim.Adam(params, lr=map_lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
+    log(f"Contact maps -- Training with Adam: lr={map_lr}, weight_decay={wd}", file=output)
     log(f"\tnum_epochs: {num_epochs}", file=output)
     log(f"\tbatch_size: {batch_size}", file=output)
     log(f"\tinteraction weight: {inter_weight}", file=output)
     log(f"\tcontact map weight: {cmap_weight}", file=output)
+    log(f"\tcmap training interaction weight: {map_inter_weight}", file=output)
     output.flush()
 
     batch_report_fmt = (
         "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     )
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
+    epoch_report_cmap = "Finished Contact Map Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     loss_vals=[]
     acc_vals=[]
     
     N = len(train_iterator) * batch_size
+    N_cmap = len(cmap_train_iterator) * batch_size
     for epoch in range(num_epochs):
-        epoch_loss= []
+        epoch_loss = []
+        loss_cmap = []
         
         model.train()
 
         n = 0
+        n_cmap = 0
         loss_accum = 0
         acc_accum = 0
         mse_accum = 0
@@ -745,31 +765,33 @@ def train_model(args, output):
             mse_accum_cmap = 0
 
             # Train batches
-            for (z0, z1, y) in cmap_iterator:
+            for (z0, z1, y) in cmap_train_iterator:
 
-                loss, correct, mse, b = interaction_grad_cmap(
-                    mode,
+                loss, mse, correct, b = interaction_grad_cmap(
+                    mode_classify,
                     model,
                     z0,
                     z1,
                     y,
                     cmap_embeddings,
                     maps, 
-                    weight=inter_weight,
+                    # add as param
+                    weight=map_inter_weight,
                     use_cuda=use_cuda,
                 )
                 
-                n += b
+                n_cmap += b
                 delta = b * (loss - loss_accum_cmap)
-                loss_accum_cmap += delta / n
+                loss_accum_cmap += delta / n_cmap
 
                 delta = correct - b * acc_accum_cmap
-                acc_accum_cmap += delta / n
+                acc_accum_cmap += delta / n_cmap
 
                 delta = b * (mse - mse_accum_cmap)
-                mse_accum_cmap += delta / n
+                mse_accum_cmap += delta / n_cmap
 
-                report = (n - b) // 100 < n // 100
+                report = (n_cmap - b) // 100 < n_cmap // 100
+                # print(report)
                 
                 optim_cmap.step()
                 optim_cmap.zero_grad()
@@ -779,7 +801,7 @@ def train_model(args, output):
                     tokens = [
                         epoch + 1,
                         num_epochs,
-                        n / N,
+                        n_cmap / N_cmap,
                         loss_accum_cmap,
                         acc_accum_cmap,
                         mse_accum_cmap,
@@ -814,6 +836,31 @@ def train_model(args, output):
             ]
             log(epoch_report_fmt.format(*tokens), file=output)
             output.flush()
+            
+            # cmap evaluation
+            (
+                inter_loss,
+                inter_correct,
+                inter_mse,
+                inter_pr,
+                inter_re,
+                inter_f1,
+                inter_aupr,
+                loss_cmap,
+            ) = interaction_eval(model, cmap_test_iterator, cmap_embeddings, use_cuda, loss_cmap)
+            tokens = [
+                epoch + 1,
+                num_epochs,
+                inter_loss,
+                inter_correct / (len(cmap_test_iterator) * batch_size),
+                inter_mse,
+                inter_pr,
+                inter_re,
+                inter_f1,
+                inter_aupr,
+            ]
+            log(epoch_report_cmap.format(*tokens), file=output)
+            output.flush()
         
         loss_vals.append(sum(epoch_loss)/len(epoch_loss))
         acc_vals.append(inter_correct / (len(test_iterator) * batch_size))
@@ -835,8 +882,8 @@ def train_model(args, output):
 
         output.flush()
     
-    print(loss_vals)
-    print(acc_vals)
+    # print(loss_vals)
+    # print(acc_vals)
     # plt.plot(loss_vals, [1, 2, 3, 4, 5], 'b', label='validation loss')
     # plt.show()
       
