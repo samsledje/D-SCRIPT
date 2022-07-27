@@ -397,6 +397,10 @@ def interaction_grad_cmap(mode_classify, model, n0, n1, y, tensors, cmaps, weigh
     
     loss.backward()
 
+    if use_cuda:
+        y = y.cpu()
+        p_hat = p_hat.cpu()
+        
     with torch.no_grad():
         guess_cutoff = 0.5
         p_hat = p_hat.float()
