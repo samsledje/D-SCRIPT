@@ -363,7 +363,7 @@ def interaction_grad_cmap(mode_classify, model, n0, n1, y, tensors, cmaps, weigh
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
-    
+
     # CONTACT MAP LOSS FUNCTION 
     if mode_classify == True:
         loss_fn = torch.nn.BCELoss()
@@ -376,6 +376,13 @@ def interaction_grad_cmap(mode_classify, model, n0, n1, y, tensors, cmaps, weigh
         true_cmap_fl = (true_cmap).float()
         c_map_sq = torch.squeeze(c_map[i])
         c_map_fl = (c_map_sq).float()
+        
+        if use_cuda:
+            true_cmap_fl = true_cmap_fl.cuda()
+            c_map_fl = c_map_fl.cuda()
+        # true_cmap_fl = Variable(true_cmap_fl)
+        # c_map_fl = Variable(c_map_fl)
+    
         # print(f"Square Loss: {loss_fn(c_map[i].double(), true_cmap.double())}")
         # print(f"Flat Loss: {loss_fn(c_map_fldb, true_cmap_fldb)}")
         map_loss = loss_fn(c_map_fl, true_cmap_fl)
