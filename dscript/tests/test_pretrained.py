@@ -1,4 +1,3 @@
-import dscript
 from pathlib import Path
 
 from dscript.pretrained import (
@@ -13,8 +12,6 @@ MODEL_VERSIONS = [
     "human_v2",  # Topsy-Turvy
     "lm_v1",  # Bepler & Berger 2019
 ]
-
-print(dscript.__version__)
 
 
 def test_get_state_dict():
