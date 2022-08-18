@@ -4,6 +4,16 @@ D-SCRIPT: Structure Aware PPI Prediction
 import argparse
 import os
 import sys
+from typing import Union
+
+from .commands.embed import EmbeddingArguments
+from .commands.evaluate import EvaluateArguments
+from .commands.predict import PredictionArguments
+from .commands.train import TrainArguments
+
+DScriptArguments = Union[
+    EmbeddingArguments, EvaluateArguments, PredictionArguments, TrainArguments
+]
 
 from omegaconf import OmegaConf
 
@@ -56,7 +66,7 @@ def main():
         module.add_args(sp)
         sp.set_defaults(cmd=name)
 
-    args = parser.parse_args()
+    args: DScriptArguments = parser.parse_args()
     oc = OmegaConf.create(vars(args))
     modules[args.cmd].main(oc)
 

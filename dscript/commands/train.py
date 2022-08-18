@@ -1,7 +1,7 @@
 """
 Train a new model.
 """
-
+from __future__ import annotations
 import argparse
 import datetime
 import gzip as gz
@@ -14,12 +14,14 @@ import h5py
 import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optimizers
 from pytorch_lightning import loggers as pl_loggers
 from tqdm import tqdm
+from typing import Callable, NamedTuple, Optional
 
 from ..datamodules import PPIDataModule
 
@@ -28,6 +30,36 @@ from ..datamodules import PPIDataModule
 # from ..models.interaction import ModelInteraction
 from ..models.lightning import LitInteraction
 from ..utils import config_logger
+
+
+class TrainArguments(NamedTuple):
+    cmd: str
+    device: int
+    train: str
+    test: str
+    embedding: str
+    no_augment: bool
+    input_dim: int
+    projection_dim: int
+    dropout: float
+    hidden_dim: int
+    kernel_width: int
+    no_w: bool
+    no_sigmoid: bool
+    do_pool: bool
+    pool_width: int
+    num_epochs: int
+    batch_size: int
+    weight_decay: float
+    lr: float
+    interaction_weight: float
+    run_tt: bool
+    glider_weight: float
+    glider_thresh: float
+    outfile: Optional[str]
+    save_prefix: Optional[str]
+    checkpoint: Optional[str]
+    func: Callable[[TrainArguments], None]
 
 
 def add_args(parser):

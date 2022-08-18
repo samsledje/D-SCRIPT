@@ -7,6 +7,9 @@
 
 ## v0.2
 
+### v0.2.1
+- Add biopython to setup.py
+
 ### v0.2.0
 
 - Integrate Topsy-Turvy to allow for top-down supervision

@@ -1,0 +1,11 @@
+torch==1.11
+biopython
+h5py
+matplotlib
+numpy
+pandas
+scikit-learn
+scipy
+seaborn
+setuptools
+tqdm

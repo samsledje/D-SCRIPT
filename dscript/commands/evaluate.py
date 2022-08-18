@@ -2,11 +2,13 @@
 Evaluate a trained model.
 """
 
+from __future__ import annotations
 import argparse
 import datetime
-import os
 import sys
 import logging as logg
+from typing import Callable, NamedTuple
+
 import h5py
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,6 +26,15 @@ from tqdm import tqdm
 from ..utils import load_hdf5_parallel
 
 matplotlib.use("Agg")
+
+
+class EvaluateArguments(NamedTuple):
+    cmd: str
+    device: int
+    model: str
+    embedding: str
+    test: str
+    func: Callable[[EvaluateArguments], None]
 
 
 def add_args(parser):
