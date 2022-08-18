@@ -43,9 +43,15 @@ def build_human_1(state_dict_path):
     return model
 
 
-VALID_MODELS = {"lm_v1": build_lm_1, "human_v1": build_human_1}
+VALID_MODELS = {
+    "human_v1": build_human_1,  # Original D-SCRIPT
+    "human_v2": build_human_1,  # Topsy-Turvy
+    "lm_v1": build_lm_1,  # Bepler & Berger 2019
+}
 
 STATE_DICT_BASENAME = "dscript_{version}.pt"
+
+ROOT_URL = "http://cb.csail.mit.edu/cb/dscript/data/models"
 
 
 def get_state_dict_path(version: str) -> str:
@@ -56,7 +62,7 @@ def get_state_dict_path(version: str) -> str:
     return state_dict_fullname
 
 
-def get_state_dict(version="human_v1", verbose=True):
+def get_state_dict(version="human_v2", verbose=True):
     """
     Download a pre-trained model if not already exists on local device.
 
@@ -68,7 +74,9 @@ def get_state_dict(version="human_v1", verbose=True):
     :rtype: str
     """
     state_dict_fullname = get_state_dict_path(version)
-    state_dict_url = f"http://cb.csail.mit.edu/cb/dscript/data/models/{STATE_DICT_BASENAME.format(version=version)}"
+    state_dict_url = (
+        f"{ROOT_URL}/{STATE_DICT_BASENAME.format(version=version)}"
+    )
     if not os.path.exists(state_dict_fullname):
         try:
             import shutil
@@ -91,7 +99,12 @@ def retry(retry_count: int):
         @wraps(func)
         def retry_wrapper(*args, **kwargs):
             attempt = 0
-            version = args[0]
+            if len(args):
+                version = args[0]
+            elif "version" in kwargs:
+                version = kwargs["version"]
+            else:
+                version = func.__defaults__[0]
             while attempt < retry_count:
                 try:
                     result = func(*args, **kwargs)
@@ -115,7 +128,7 @@ def retry(retry_count: int):
 
 
 @retry(3)
-def get_pretrained(version="human_v1"):
+def get_pretrained(version="human_v2"):
     """
     Get pre-trained model object.
 
@@ -126,8 +139,9 @@ def get_pretrained(version="human_v1"):
 
     - ``lm_v1`` - Language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
     - ``human_v1`` - Human trained model from D-SCRIPT manuscript.
+    - ``human_v2`` - Human trained model from Topsy-Turvy manuscript.
 
-    Default: ``human_v1``
+    Default: ``human_v2``
 
     :param version: Version of pre-trained model to get
     :type version: str

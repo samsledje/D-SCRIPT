@@ -206,6 +206,7 @@ def glide_predict_links(edgelist, X, params={}, thres_p=0.9):
     :param edgelist: A list with elements of type `(p, q, wt)`
     :param X: A nxk embedding matrix
     :param params: A dictionary with entries
+
     {
         alpha       => real number
         beta        => real number
@@ -217,6 +218,7 @@ def glide_predict_links(edgelist, X, params={}, thres_p=0.9):
         ctypes_on   => True  # This key should only be added if ctypes is on (dont add this
                            # if ctypes is not added)
         so_location => String location of the .so dynamic library
+
     }
     """
     edgedict = create_edge_dict(edgelist)
