@@ -19,14 +19,15 @@ setup(
     },
     include_package_data=True,
     install_requires=[
-        "numpy", # mathematical operations/representations 
-        "scipy", # linear algebra
-        "pandas", # data analysis tools
-        "torch", #nn training/creation
-        "matplotlib", # visualization
-        "seaborn", # matplotlib 2.0
-        "tqdm", # progress bar
-        "scikit-learn", # machine learning
-        "h5py", # store lots of (binary) data
+        "numpy",
+        "scipy",
+        "pandas",
+        "torch>=1.11",
+        "biopython",
+        "matplotlib",
+        "seaborn",
+        "tqdm",
+        "scikit-learn",
+        "h5py",
     ],
 )

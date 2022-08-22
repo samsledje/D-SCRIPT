@@ -7,8 +7,12 @@ import numpy as np
 import pandas as pd
 import subprocess as sp
 import sys
-import gzip as gz # handles unix/linux gzip files
+import gzip as gz
+import h5py
+import multiprocessing as mp
 
+from tqdm import tqdm
+from functools import partial
 from datetime import datetime
 
 
@@ -21,6 +25,7 @@ def log(m, file=None, timestamped=True, print_also=False):
         print(log_string, file=file)
         if print_also:
             print(log_string)
+        file.flush()
 
 
 def RBF(D, sigma=None):
@@ -38,6 +43,46 @@ def RBF(D, sigma=None):
     """
     sigma = sigma or np.sqrt(np.max(D))
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
+
+
+def _hdf5_load_partial_func(k, file_path):
+    """
+    Helper function for load_hdf5_parallel
+    """
+
+    with h5py.File(file_path, "r") as fi:
+        emb = torch.from_numpy(fi[k][:])
+    return emb
+
+
+def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+    """
+    Load keys from hdf5 file into memory
+
+    :param file_path: Path to hdf5 file
+    :type file_path: str
+    :param keys: List of keys to get
+    :type keys: list[str]
+    :return: Dictionary with keys and records in memory
+    :rtype: dict
+    """
+    torch.multiprocessing.set_sharing_strategy("file_system")
+
+    if n_jobs == -1:
+        n_jobs = mp.cpu_count()
+
+    with mp.Pool(processes=n_jobs) as pool:
+        all_embs = list(
+            tqdm(
+                pool.imap(
+                    partial(_hdf5_load_partial_func, file_path=file_path), keys
+                ),
+                total=len(keys),
+            )
+        )
+
+    embeddings = {k: v for k, v in zip(keys, all_embs)}
+    return embeddings
 
 
 class PairedDataset(torch.utils.data.Dataset):

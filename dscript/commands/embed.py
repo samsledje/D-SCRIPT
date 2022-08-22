@@ -1,11 +1,20 @@
 """
 Generate new embeddings using pre-trained language model.
 """
-
+from __future__ import annotations
 import argparse
+from typing import Callable, NamedTuple
 from ..language_model import embed_from_fasta
 
-# *** make new embeddings --> this vs. embedding.py (models) vs language_model.py
+
+class EmbeddingArguments(NamedTuple):
+    cmd: str
+    device: int
+    outfile: str
+    seqs: str
+    func: Callable[[EmbeddingArguments], None]
+
+
 def add_args(parser):
     """
     Create parser for command line utility.

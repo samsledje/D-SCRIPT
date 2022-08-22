@@ -7,10 +7,13 @@ authors:
 - family-names: "Singh"
   given-names: "Rohit"
   orcid: "https://orcid.org/0000-0002-4084-7340"
+- family-name: "Devkota"
+  given-names: "Kapil"
+  orcid: "https://orcid.org/0000-0002-6093-6260"
 title: "D-SCRIPT"
-version: 0.1.5
-doi: 10.5281/zenodo.5140508
-date-released: 2021-07-27
+version: 0.2.0
+doi: 10.1016/j.cels.2021.08.010
+date-released: 2022-06-26
 url: "https://github.com/samsledje/D-SCRIPT"
 preferred-citation:
   type: article

@@ -39,6 +39,14 @@ dscript.pretrained
     :undoc-members:
     :show-inheritance:
 
+dscript.glider
+------------------
+
+.. automodule:: dscript.glider
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dscript.utils
 -------------
 

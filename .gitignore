@@ -1,22 +1,23 @@
-dscript/proteins
-dscript/pdbs
-dscript/fastas
+# Directories
+build
+docs/build
+scratch
+dist
+htmlcov
+.vscode
+**/.ipynb_checkpoints
+**/__pycache__
+dev*
 
+# Files
+collect_env.py
 RUN_DSCRIPT.sh
-build/*
-scratch/*
-dist/*
-dev*/*
+
+# File Types
+**/*.egg-info
 **/*.pt
-.vscode/**
-*.egg-info
 **/*.sav
 **/*_log.txt
 **.DS_Store
 **/*.h5
-**/.ipynb_checkpoints/**
-**/__pycache__/**
-collect_env.py
-devCoral/*
-htmlcov/*
-
+**/.nfs*

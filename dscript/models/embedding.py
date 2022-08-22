@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence
 
+
 # language model --> embedding --> contact
 class IdentityEmbed(nn.Module):
     """
@@ -19,6 +20,7 @@ class IdentityEmbed(nn.Module):
         :rtype: torch.Tensor
         """
         return x
+
 
 # amino acids --> low dimensional projection
 class FullyConnectedEmbed(nn.Module):
@@ -57,66 +59,26 @@ class FullyConnectedEmbed(nn.Module):
         t = self.drop(t)
         return t
 
-# uses (bidirectional) LSTM as part of embedding into vector process
-class LSTMEmbed(nn.Module):
-    def __init__(self, nout, activation="ReLU", sparse=False, p=0.5):
-        super(LSTMEmbed, self).__init__()
-        self.activation = activation
-        self.sparse = sparse
-        self.p = p
-
-        self.embedding = SkipLSTM(21, nout, 1024, 3)
-        self.embedding.load_state_dict(torch.load(EMBEDDING_STATE_DICT))
-
-        for param in self.embedding.parameters():
-            param.requires_grad = False
-        torch.nn.init.normal_(self.embedding.proj.weight)
-        torch.nn.init.uniform_(self.embedding.proj.bias, 0, 0)
-        self.embedding.proj.weight.requires_grad = True
-        self.embedding.proj.bias.requires_grad = True
-
-        self.activationDict = nn.ModuleDict(
-            {
-                "None": IdentityEmbed(),
-                "ReLU": nn.ReLU(),
-                "Sigmoid": nn.Sigmoid(),
-            }
-        )
-        self.dropout = nn.Dropout(p=self.p)
-
-    def forward(self, x):
-
-        t = self.embedding(x)
-        if self.activation:
-            t = self.activationDict[self.activation](t)
-        if self.sparse:
-            t = self.dropout(t)
-
-        return t
-
-    def long_embed(self, x):
-        return self.embedding.transform(x)
-
 
 class SkipLSTM(nn.Module):
     """
-    Language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
+        Language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
 
-    Loaded with pre-trained weights in embedding function.
+        Loaded with pre-trained weights in embedding function.
 
-#  *** 21, not 20? reference said something to explain this
-    :param nin: Input dimension of amino acid one-hot [default: 21]
-    :type nin: int
-    :param nout: Output dimension of final layer [default: 100]
-    :type nout: int
-    :param hidden_dim: Size of hidden dimension [default: 1024]
-    :type hidden_dim: int
-    :param num_layers: Number of stacked LSTM models [default: 3]
-    :type num_layers: int
-    :param dropout: Proportion of weights to drop out [default: 0]
-    :type dropout: float
-    :param bidirectional: Whether to use biLSTM vs. LSTM
-    :type bidirectional: bool
+    #  *** 21, not 20? reference said something to explain this
+        :param nin: Input dimension of amino acid one-hot [default: 21]
+        :type nin: int
+        :param nout: Output dimension of final layer [default: 100]
+        :type nout: int
+        :param hidden_dim: Size of hidden dimension [default: 1024]
+        :type hidden_dim: int
+        :param num_layers: Number of stacked LSTM models [default: 3]
+        :type num_layers: int
+        :param dropout: Proportion of weights to drop out [default: 0]
+        :type dropout: float
+        :param bidirectional: Whether to use biLSTM vs. LSTM
+        :type bidirectional: bool
     """
 
     def __init__(

@@ -3,17 +3,17 @@ Installation
 
 Requirements
 ------------
-- python 3.7
-- pytorch 1.5
-- h5py
-- matplotlib
-- numpy
-- pandas
-- scikit-learn
-- scipy
-- seaborn
-- setuptools
-- tqdm
+* python 3.7
+* pytorch 1.5
+* h5py
+* matplotlib
+* numpy
+* pandas
+* scikit-learn
+* scipy
+* seaborn
+* setuptools
+* tqdm
 
 Optional GPU support: CUDA Toolkit, cuDNN
 
@@ -21,7 +21,7 @@ Set up environment
 ------------------
 
 .. code-block:: bash
- 
+
     $ git clone https://github.com/samsledje/D-SCRIPT.git
 
     $ cd D-SCRIPT
@@ -45,5 +45,5 @@ Build from source
     $ git clone https://github.com/samsledje/D-SCRIPT.git
 
     $ cd D-SCRIPT
-    
+
     $ python setup.py build; python setup.py install

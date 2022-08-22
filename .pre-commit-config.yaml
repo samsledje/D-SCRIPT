@@ -1,3 +1,4 @@
+fail_fast: true
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
@@ -15,7 +16,8 @@ repos:
     rev: 21.6b0
     hooks:
     - id: black
-      language_version: python3.8
+      language_version: python3.7
+      additional_dependencies: ['click==8.0.4']
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:

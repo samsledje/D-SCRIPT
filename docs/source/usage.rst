@@ -39,7 +39,7 @@ Evaluate a trained model
 
 .. code-block:: bash
 
-    dscript eval --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
+    dscript evaluate --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
 
 
 Prediction
@@ -90,14 +90,15 @@ Training
 .. code-block:: bash
 
     usage: dscript train [-h] --train TRAIN --test TEST --embedding EMBEDDING
-                     [--no-augment] [--protein-size PROTEIN_SIZE]
-                     [--input-dim INPUT_DIM] [--projection-dim PROJECTION_DIM]
-                     [--dropout-p DROPOUT_P] [--hidden-dim HIDDEN_DIM]
-                     [--kernel-width KERNEL_WIDTH] [--no-w] [--no-sigmoid]
-                     [--do-pool] [--pool-width POOL_WIDTH]
-                     [--num-epochs NUM_EPOCHS] [--batch-size BATCH_SIZE]
-                     [--weight-decay WEIGHT_DECAY] [--lr LR]
-                     [--lambda INTERACTION_WEIGHT] [-o OUTPUT]
+                     [--no-augment] [--input-dim INPUT_DIM]
+                     [--projection-dim PROJECTION_DIM] [--dropout-p DROPOUT_P]
+                     [--hidden-dim HIDDEN_DIM] [--kernel-width KERNEL_WIDTH]
+                     [--no-w] [--no-sigmoid] [--do-pool]
+                     [--pool-width POOL_WIDTH] [--num-epochs NUM_EPOCHS]
+                     [--batch-size BATCH_SIZE] [--weight-decay WEIGHT_DECAY]
+                     [--lr LR] [--lambda INTERACTION_WEIGHT] [--topsy-turvy]
+                     [--glider-weight GLIDER_WEIGHT]
+                     [--glider-thresh GLIDER_THRESH] [-o OUTFILE]
                      [--save-prefix SAVE_PREFIX] [-d DEVICE]
                      [--checkpoint CHECKPOINT]
 
@@ -150,6 +151,13 @@ Training
       --lr LR               learning rate (default: 0.001)
       --lambda INTERACTION_WEIGHT
                             weight on the similarity objective (default: 0.35)
+      --topsy-turvy         run in Topsy-Turvy mode -- use top-down GLIDER scoring
+                            to guide training (reference TBD)
+      --glider-weight GLIDER_WEIGHT
+                            weight on the GLIDER accuracy objective (default: 0.2)
+      --glider-thresh GLIDER_THRESH
+                            proportion of GLIDER scores treated as positive edges
+                            (0 < gt < 1) (default: 0.925)
 
     Output and Device:
       -o OUTPUT, --output OUTPUT

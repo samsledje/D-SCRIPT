@@ -1,6 +1,7 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
+from __future__ import annotations
 import argparse
 import datetime
 import os
@@ -12,11 +13,24 @@ import pandas as pd
 import torch
 from scipy.special import comb
 from tqdm import tqdm
+from typing import Callable, NamedTuple, Optional
+
 
 from ..alphabets import Uniprot21
 from ..fasta import parse
 from ..language_model import lm_embed
-from ..utils import log
+from ..utils import log, load_hdf5_parallel
+
+
+class PredictionArguments(NamedTuple):
+    cmd: str
+    device: int
+    embeddings: Optional[str]
+    outfile: Optional[str]
+    seqs: str
+    model: str
+    thresh: Optional[float]
+    func: Callable[[PredictionArguments], None]
 
 
 def add_args(parser):
@@ -44,6 +58,7 @@ def add_args(parser):
     )
     return parser
 
+
 # *** simple prediction, interpretation?
 def main(args):
     """
@@ -53,9 +68,9 @@ def main(args):
     """
     # print("Hello World")
     # sys.exit(0)
-    
+
     if args.seqs is None and args.embeddings is None:
-        print("One of --seqs or --embeddings is required.")
+        log("One of --seqs or --embeddings is required.")
         sys.exit(0)
 
     csvPath = args.pairs
@@ -79,19 +94,17 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        print(
-            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-        )
         log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=logFile,
+            print_also=True,
         )
     else:
-        print("Using CPU")
-        log("Using CPU", file=logFile)
+        log("Using CPU", file=logFile, print_also=True)
 
     # Load Model
     try:
+        log(f"Loading model from {modelPath}", file=logFile, print_also=True)
         if use_cuda:
             model = torch.load(modelPath).cuda()
             model.use_cuda = True
@@ -101,48 +114,43 @@ def main(args):
             ).cpu()
             model.use_cuda = False
     except FileNotFoundError:
-        print(f"Model {modelPath} not found")
-        log(f"Model {modelPath} not found", file=logFile)
+        log(f"Model {modelPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
 
     # Load Pairs
     try:
+        log(f"Loading pairs from {modelPath}", file=logFile, print_also=True)
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
-        print(f"Pairs File {csvPath} not found")
-        log(f"Pairs File {csvPath} not found", file=logFile)
+        log(f"Pairs File {csvPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
 
     # Load Sequences or Embeddings
     if embPath is None:
         try:
-            names, seqs = parse(open(seqPath, "r"))
+            names, seqs = parse(seqPath, "r")
             seqDict = {n: s for n, s in zip(names, seqs)}
         except FileNotFoundError:
-            print(f"Sequence File {seqPath} not found")
-            log(f"Sequence File {seqPath} not found", file=logFile)
+            log(
+                f"Sequence File {seqPath} not found",
+                file=logFile,
+                print_also=True,
+            )
             logFile.close()
             sys.exit(1)
-        print("Generating Embeddings...")
-        log("Generating Embeddings...", file=logFile)
+        log("Generating Embeddings...", file=logFile, print_also=True)
         embeddings = {}
         for n in tqdm(all_prots):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
-        print("Loading Embeddings...")
-        log("Loading Embeddings...", file=logFile)
-        embedH5 = h5py.File(embPath, "r")
-        embeddings = {}
-        for n in tqdm(all_prots):
-            embeddings[n] = torch.from_numpy(embedH5[n][:])
-        embedH5.close()
+        log("Loading Embeddings...", file=logFile, print_also=True)
+        embeddings = load_hdf5_parallel(embPath, all_prots)
 
     # Make Predictions
-    print("Making Predictions...")
-    log("Making Predictions...", file=logFile)
+    log("Making Predictions...", file=logFile, print_also=True)
     n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"

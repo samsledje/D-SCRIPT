@@ -15,7 +15,10 @@ evolutionarily than sequence, improves generalizability across species.
 If you use D-SCRIPT, please cite `"D-SCRIPT translates genome to phenome with sequence-based, structure-aware, genome-scale predictions of protein-protein interactions" <https://www.cell.com/cell-systems/fulltext/S2405-4712(21)00333-1>`_
 by `Sam Sledzieski`_, `Rohit Singh`_, `Lenore Cowen`_, and `Bonnie Berger`_.
 
+If you use Topsy-Turvy, please cite `"Topsy-Turvy: integrating a global view into sequence-based PPI prediction" <https://cb.csail.mit.edu/cb/topsyturvy/>`_ by `Kapil Devkota`_, `Rohit Singh`_, `Sam Sledzieski`_, `Bonnie Berger`_, and `Lenore Cowen`_.
+
 .. _`D-SCRIPT Home Page`: http://dscript.csail.mit.edu
+.. _`Kapil Devkota`: http://www.kapildevkota.com
 .. _`Sam Sledzieski`: http://samsledje.github.io/
 .. _`Rohit Singh`: http://people.csail.mit.edu/rsingh/
 .. _`Lenore Cowen`: http://www.cs.tufts.edu/~cowen/
@@ -26,7 +29,7 @@ Table of contents
 
 .. toctree::
    :maxdepth: 1
-   
+
    installation
    usage
    data
