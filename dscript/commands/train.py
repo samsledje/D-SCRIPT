@@ -42,6 +42,13 @@ class TrainArguments(NamedTuple):
     test: str
     embedding: str
     no_augment: bool
+    contact_map_train: str
+    contact_map_test: str
+    contact_map_mode: bool
+    contact_map_embedding: str
+    contact_maps: str
+    contact_map_lr: float
+    contact_map_lambda: float
     input_dim: int
     projection_dim: int
     dropout: float
@@ -72,11 +79,11 @@ def add_args(parser):
     :meta private:
     """
 
-    data_grp = parser.add_argument_group("Data")
+    data_grp = parser.add_argument_group("Binary PPI Data")
+    map_grp = parser.add_argument_group("Structural Supervision")
     proj_grp = parser.add_argument_group("Projection Module")
     contact_grp = parser.add_argument_group("Contact Module")
     inter_grp = parser.add_argument_group("Interaction Module")
-    map_grp = parser.add_argument_group("Contact Map")
     train_grp = parser.add_argument_group("Training")
     misc_grp = parser.add_argument_group("Output and Device")
 
@@ -96,6 +103,53 @@ def add_args(parser):
         "--no-augment",
         action="store_true",
         help="data is automatically augmented by adding (B A) for all pairs (A B). Set this flag to not augment data",
+    )
+
+    # Contact Map
+    map_grp.add_argument(
+        "--contact-map-train",
+        required=False,
+        help="include tsv files of true contact maps for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-map-test",
+        required=False,
+        help="include tsv files of true contact maps for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-map-mode",
+        required=False,
+        action="store_true",
+        help="enter either regression mode or classification mode",
+    )
+    map_grp.add_argument(
+        "--contact-map-embedding",
+        required=False,
+        help="include a true contact map for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-maps",
+        required=False,
+        help="pass in h5py files of true contact maps for pdb protein pairs",
+    )
+    map_grp.add_argument(
+        "--contact-map-threshold",
+        required=False,
+        help="enter a classification distance threshold for binarization of the cmap",
+    )
+    map_grp.add_argument(
+        "--contact-map-lr",
+        required=False,
+        type=float,
+        default=0.00003,
+        help="contact map optimizer learning rate (default: 0.00003)",
+    )
+    map_grp.add_argument(
+        "--contact-map-lambda",
+        required=False,
+        type=float,
+        default=0.1,
+        help="weight on the similarity objective (default: 0.1)",
     )
 
     # Embedding model
@@ -154,53 +208,6 @@ def add_args(parser):
         type=int,
         default=9,
         help="size of max-pool in interaction model (default: 9)",
-    )
-
-    # Contact Map
-    map_grp.add_argument(
-        "--contact-map-train",
-        required=False,
-        help="include tsv files of true contact maps for supervised training",
-    )
-    map_grp.add_argument(
-        "--contact-map-test",
-        required=False,
-        help="include tsv files of true contact maps for supervised training",
-    )
-    map_grp.add_argument(
-        "--contact-map-mode",
-        required=False,
-        action="store_true",
-        help="enter either regression mode or classification mode",
-    )
-    map_grp.add_argument(
-        "--contact-map-embeddings",
-        required=False,
-        help="include a true contact map for supervised training",
-    )
-    map_grp.add_argument(
-        "--contact-maps",
-        required=False,
-        help="pass in h5py files of true contact maps for pdb protein pairs",
-    )
-    map_grp.add_argument(
-        "--contact-map-threshold",
-        required=False,
-        help="enter a classification distance threshold for binarization of the cmap",
-    )
-    map_grp.add_argument(
-        "--contact-map-lr",
-        required=False,
-        type=float,
-        default=0.00003,
-        help="contact map optimizer learning rate (default: 0.00003)",
-    )
-    map_grp.add_argument(
-        "--contact-map-lambda",
-        required=False,
-        type=float,
-        default=0.1,
-        help="weight on the similarity objective (default: 0.1)",
     )
 
     # Training
@@ -580,10 +587,6 @@ def interaction_eval(model, test_iterator, tensors, use_cuda, epoch_loss):
     return loss, correct, mse, pr, re, f1, aupr, epoch_loss
 
 
-def my_plot(epochs, loss):
-    plt.plot(epochs, loss)
-
-
 def train_model(args, output):
     # Create data sets
 
@@ -664,12 +667,13 @@ def train_model(args, output):
         glider_mat, glider_map = (None, None)
 
     # CONTACT MAP DATA LOADING
+    mode_classify = args.contact_map_mode
     if args.contact_map_train is not None:
         fimaps = args.contact_maps
         cmap_train = args.contact_map_train
         cmap_test = args.contact_map_test
-        cmap_embeddings = args.contact_map_embeddings
-        mode_classify = args.contact_map_mode
+        cmap_embeddings = args.contact_map_embedding
+
         threshold = args.contact_map_threshold
         if threshold is not None:
             threshold = float(threshold)
@@ -752,7 +756,11 @@ def train_model(args, output):
             cmap_embeddings[prot_name] = torch.from_numpy(
                 cmap_h5fi[prot_name][:, :]
             )
-        # print(len(cmap_embeddings.keys()))
+
+    if mode_classify:
+        activation = nn.Sigmoid()
+    else:
+        activation = nn.ReLU()
 
     if args.checkpoint is None:
 
@@ -774,10 +782,6 @@ def train_model(args, output):
         log(f"\thidden_dim: {hidden_dim}", file=output)
         log(f"\tkernel_width: {kernel_width}", file=output)
 
-        if mode_classify:
-            activation = nn.Sigmoid()
-        else:
-            activation = nn.ReLU()
         contact_model = ContactCNN(
             projection_dim, hidden_dim, kernel_width, activation
         )
@@ -856,7 +860,8 @@ def train_model(args, output):
     acc_vals = []
 
     N = len(train_iterator) * batch_size
-    N_cmap = len(cmap_train_iterator) * batch_size
+    if args.contact_map_train is not None:
+        N_cmap = len(cmap_train_iterator) * batch_size
     for epoch in range(num_epochs):
         epoch_loss = []
         loss_cmap = []
@@ -996,31 +1001,36 @@ def train_model(args, output):
             output.flush()
 
             # cmap evaluation
-            (
-                inter_loss,
-                inter_correct,
-                inter_mse,
-                inter_pr,
-                inter_re,
-                inter_f1,
-                inter_aupr,
-                loss_cmap,
-            ) = interaction_eval(
-                model, cmap_test_iterator, cmap_embeddings, use_cuda, loss_cmap
-            )
-            tokens = [
-                epoch + 1,
-                num_epochs,
-                inter_loss,
-                inter_correct / (len(cmap_test_iterator) * batch_size),
-                inter_mse,
-                inter_pr,
-                inter_re,
-                inter_f1,
-                inter_aupr,
-            ]
-            log(epoch_report_cmap.format(*tokens), file=output)
-            output.flush()
+            if args.contact_map_train is not None:
+                (
+                    inter_loss,
+                    inter_correct,
+                    inter_mse,
+                    inter_pr,
+                    inter_re,
+                    inter_f1,
+                    inter_aupr,
+                    loss_cmap,
+                ) = interaction_eval(
+                    model,
+                    cmap_test_iterator,
+                    cmap_embeddings,
+                    use_cuda,
+                    loss_cmap,
+                )
+                tokens = [
+                    epoch + 1,
+                    num_epochs,
+                    inter_loss,
+                    inter_correct / (len(cmap_test_iterator) * batch_size),
+                    inter_mse,
+                    inter_pr,
+                    inter_re,
+                    inter_f1,
+                    inter_aupr,
+                ]
+                log(epoch_report_cmap.format(*tokens), file=output)
+                output.flush()
 
         loss_vals.append(sum(epoch_loss) / len(epoch_loss))
         acc_vals.append(inter_correct / (len(test_iterator) * batch_size))
