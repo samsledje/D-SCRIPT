@@ -1,9 +1,7 @@
 D-SCRIPT: Deep Learning PPI Prediction
 =======================================
-
-- `D-SCRIPT Home Page`_
-
-- `Quick Start <usage.html#quick-start>`_
+* `D-SCRIPT Home Page`_
+* `Quick Start <usage.html#quick-start>`_
 
 D-SCRIPT is a deep learning method for predicting a physical interaction between two proteins given just their sequences.
 It generalizes well to new species and is robust to limitations in training data size.
@@ -37,6 +35,5 @@ Table of contents
 
 Indices and tables
 ==================
-
 * :ref:`genindex`
 * :ref:`modindex`

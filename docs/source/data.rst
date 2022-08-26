@@ -3,33 +3,31 @@ Data
 
 Trained Models
 --------------
-
-* `Bepler & Berger language model <http://cb.csail.mit.edu/cb/dscript/data/models/lm_v1.sav>`_
-* `Human data trained model <http://cb.csail.mit.edu/cb/dscript/data/models/human_v1.sav>`_
+- `Bepler & Berger language model <http://cb.csail.mit.edu/cb/dscript/data/models/lm_v1.sav>`_
+- `Human Topsy-Turvy model <http://cb.csail.mit.edu/cb/dscript/data/models/topsy_turvy_v1.sav>`_ **(recommended)**
+- `Human D-SCRIPT model  <http://cb.csail.mit.edu/cb/dscript/data/models/human_v1.sav>`_ (from original D-SCRIPT paper)
 
 Sample Data
 -----------
 
 Sequences
 ~~~~~~~~~
-
-* `Human`_
-* `Mouse`_
-* `Fly`_
-* `Yeast`_
-* `Worm`_
-* `E.coli`_
+- `Human`_
+- `Mouse`_
+- `Fly`_
+- `Yeast`_
+- `Worm`_
+- `E.coli`_
 
 Interactions
 ~~~~~~~~~~~~
-
-* `Human Train`_
-* `Human Test`_
-* `Mouse Test`_
-* `Fly Test`_
-* `Yeast Test`_
-* `Worm Test`_
-* `E. coli Test`_
+- `Human Train`_
+- `Human Test`_
+- `Mouse Test`_
+- `Fly Test`_
+- `Yeast Test`_
+- `Worm Test`_
+- `E. coli Test`_
 
 .. _`Human`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/human.fasta
 .. _`Mouse`: https://github.com/samsledje/D-SCRIPT/blob/main/data/seqs/mouse.fasta
