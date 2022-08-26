@@ -94,10 +94,8 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
             )
         )
 
-    h5fi = h5py.File(outputPath, "a")
-
     log("# Storing to {}...".format(outputPath))
-    with torch.no_grad():
+    with torch.no_grad(), h5py.File(outputPath, "a") as h5fi:
         try:
             for (name, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
                 if name not in h5fi:
@@ -111,9 +109,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
                     )
                     dset[:] = z.cpu().numpy()
         except KeyboardInterrupt:
-            h5fi.close()
             sys.exit(1)
-    h5fi.close()
 
 
 def embed_from_directory(
