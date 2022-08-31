@@ -8,6 +8,20 @@ htmlcov
 **/.ipynb_checkpoints
 **/__pycache__
 dev*
+dscript/proteins
+dscript/pdbs
+dscript/fastas
+dscript/pdbsNEW
+dscript/fastasNEW
+dscript/fastasTEST
+dscript/pdbsTEST
+data/
+auc.ipynb
+contact_map.ibyb.ipynb
+dscript_jupyter.ipynb
+optimal_transport.ipynb
+output.txt
+dscript/storage/
 
 # Files
 collect_env.py
