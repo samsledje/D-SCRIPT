@@ -67,35 +67,49 @@ def main():
         pdb_file = f"dscript/pdbsNEW/{pdb_id}.pdb"
 
         seqres_recs = list(SeqIO.parse(pdb_file, "pdb-seqres"))
-        # print(seqres_recs)
         atoms_recs = list(SeqIO.parse(pdb_file, "pdb-atom"))
-        # print(atoms_recs)
 
         seqs_long = seqres_recs[:2]
-        # print(seqs_long)
         seqs_short = atoms_recs[:2]
-        # print(seqs_short)
 
         structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
+        chains = list(structure.get_chains())
+        # if len(chains) > 2:
+        #     print(pdb_id)
+        #     continue
         chains = list(structure.get_chains())[:2]
-        # print(chains)
+
+        with open(f"dscript/proteins.fasta", "a") as f:
+            for record in seqs_long:
+                f.write(record.format("fasta-2line"))
+
         chains_filtered = filter_chains(chains)
-        # print(chains_filtered)
+        # which sequence (seqres or atom) does chain match to? seqres?
+        # the chain length should be equal to the pdb-atom sequence length, right? len(chain) = len(seq_short)
+        # but for some reason, in a few cases chains aren't the same length as either of the generated pdb-seqres or pdb-atom sequences,
+        # which can throw a stopiteration error
+
+        # seqres = sequence portion near start of pdb
+        # atom = sequence portion in midway of pdb using distance coordinates and atomic information, can skip residue numbers leadering to X's
+        # chain = same as atom sequence, but only amino acid residues and not counting skips, so may be shorter than seqres and/or atom
 
         seq0_long = seqs_long[0].seq
-        # print(len(seq0_long))
         seq0_short = seqs_short[0].seq
-        # print(len(seq0_short))
         chain0 = chains_filtered[0]
-        # print((chain0))
-        # print(len(chain0))
 
         seq1_long = seqs_long[1].seq
-        # print(len(seq1_long))
         seq1_short = seqs_short[1].seq
-        # print(len(seq1_short))
         chain1 = chains_filtered[1]
-        # print((chain1))
+
+        # print(seq0_long)
+        # print(seq0_short)
+        # print([len(seq0_long), len(seq0_short)])
+        # print(seq1_long)
+        # print(seq1_short)
+        # print([len(seq1_long), len(seq1_short)])
+
+        # how to get sequence from chain?
+        # print(len(chain0))
         # print(len(chain1))
 
         if len(seq1_short) > len(seq1_long) or len(seq0_short) > len(
@@ -103,18 +117,33 @@ def main():
         ):
             count += 1
 
+            # print(seq0_short)
+            # print(seq0_long)
+            # print([len(seq0_short), len(seq0_long)])
+            # print(seq1_short)
+            # print(seq1_long)
+            # print([len(seq1_short), len(seq1_long)])
+
             align0 = pairwise2.align.globalxx(seq0_long, seq0_short)
-            print(pairwise2.format_alignment(*align0[0]))
+            # print(pairwise2.format_alignment(*align0[0]))
 
             align1 = pairwise2.align.globalxx(seq1_long, seq1_short)
-            print(pairwise2.format_alignment(*align1[0]))
+            # print(pairwise2.format_alignment(*align1[0]))
 
-        if len(chain0) == len(seq1_long) or len(chain0) == len(seq1_short):
+        if (
+            len(chain0) != len(seq0_long) or len(chain0) != len(seq0_short)
+        ) and (
+            len(chain0) == len(seq1_long) or len(chain0) == len(seq1_short)
+        ):
+            print("switched")
             temp = chain1.copy()
             chain1 = chain0
             chain0 = temp
-            print(len(chain0))
-            print(len(chain1))
+            # print(len(chain0))
+            # print(len(chain1))
+
+        if len(chain0) != len(seq0_long) or len(chain1) != len(seq1_long):
+            None
 
         align0 = pairwise2.align.globalxx(seq0_long, seq0_short)
         # print(pairwise2.format_alignment(*align0[0]))
@@ -150,22 +179,40 @@ def main():
         # print(len(chain0))
         # print(len(chain1))
 
-        # ch0_it = iter(chain0)
-        # for (i, (res0L, res0S)) in enumerate(zip(seq0_long_f, seq0_short_f)):
-        #     print((i, (res0L, res0S)))
-        #     if res0S == "-" or res0L == "-":
-        #         continue
-        #     else:
-        #         res0 = next(ch0_it)
+        ch0_it = iter(chain0)
+        x = -1
+        y = 0
+        for (i, (res0L, res0S)) in enumerate(zip(seq0_long_f, seq0_short_f)):
+            if res0S == "-":
+                x += 1
+                continue
+            if res0L == "-":
+                continue
+            else:
+                # print((x, (res0L, res0S)))
+                x += 1
+                res0 = next(ch0_it)
 
-        #     ch1_it = iter(chain1)
-        #     for (j, (res1L, res1S)) in enumerate(zip(seq1_long_f, seq1_short_f)):
+            # print([x,y])
+            ch1_it = iter(chain1)
+            for (j, (res1L, res1S)) in enumerate(
+                zip(seq1_long_f, seq1_short_f)
+            ):
+                if res1S == "-":
+                    y += 1
+                    continue
+                if res1L == "-":
+                    continue
+                else:
+                    res1 = next(ch1_it)
+                    # print((y, (res1L, res1S)))
+                    # print([x,y])
+                    D[x, y] = residue_distance(res0, res1, max_d=MAX_D)
+                    y += 1
 
-        #         if res1S == "-" or res1L == "-":
-        #             continue
-        #         else:
-        #             res1 = next(ch1_it)
+            y = 0
 
+        #         print([i,j])
         #         D[i,j] = residue_distance(res0, res1, max_d = MAX_D)
 
         # D = calc_dist_matrix(chain0, chain1, seq0_long, seq0_short, seq1_long, seq1_short)
