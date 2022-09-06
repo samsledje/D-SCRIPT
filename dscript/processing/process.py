@@ -308,7 +308,7 @@ def calc_dist_matrix(
 
 def delete(pdb_delete, pdb_directory):
     """
-    Gets sequence0 and sequence1 after sequence alignment (containing "-").
+    Deletes all files in pdb_delete from pdb_directory.
 
     :param pdb_delete: list of pdbs that don't satisfy length conditions
     :type version: list
