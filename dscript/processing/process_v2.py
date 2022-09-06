@@ -11,17 +11,47 @@ MAX_D = 25
 
 
 def filter_chains(chain_list):
+    """
+    Filters chains to remove all HETATM (non-amino acid) residues.
+
+    :param chain_list: pass in list of original chains
+    :type version: list
+    :return: list of filtered chains
+    :rtype: list
+    """
     chains_f = [[r for r in c if r.has_id("CA")] for c in chain_list]
     return chains_f
 
 
 def residue_distance(res0, res1, max_d=25.0):
+    """
+    Calculates Euclidean distance between two amino acid residues, with a maximum distance threshold.
+
+    :param res0: first residue
+    :type version: Residue Object
+    :param res1: second residue
+    :type version: Residue Object
+    :param max_d: distance
+    :type version: float
+    :return: distance between the two residues
+    :rtype: Numpy float
+    """
     diff_vector = res0["CA"].coord - res1["CA"].coord
     distance = np.sqrt(np.sum(diff_vector ** 2))
     return min(distance, max_d)
 
 
 def make_tsv(pdb_id, chains, name):
+    """
+    Creates/appends protein chains to a tsv file.
+
+    :param pdb_id: pdb formatted name of protein
+    :type version: string
+    :param chains: list of chains in protein
+    :type version: list
+    :param name: name of tsv file
+    :type version: string
+    """
     with open(f"data/{name}.tsv", "a") as out_file:
         tsv_writer = csv.writer(out_file, delimiter="\t")
         prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
@@ -31,6 +61,16 @@ def make_tsv(pdb_id, chains, name):
 
 
 def make_fasta(pdb_id, seqs_long, fasta_name):
+    """
+    Creates/appends protein sequences to a fasta file.
+
+    :param pdb_id: pdb formatted name of protein
+    :type version: string
+    :param seqs_long: sequences for 2 chains derived from seq-res
+    :type version: list
+    :param fasta_name: name of fasta file
+    :type version: string
+    """
     with open(f"data/{fasta_name}.fasta", "a") as f:
         for record in seqs_long:
             f.write(record.format("fasta-2line"))
@@ -48,6 +88,30 @@ def calc_dist_matrix(
     seq1_long_f,
     seq1_short_f,
 ):
+    """
+    Generates contact map between two chains using sequence alignment.
+
+    :param pdb_id: pdb formatted name of protein
+    :type version: string
+    :param chain0: first chain
+    :type version: Chain Object
+    :param chain1: second chain
+    :type version: Chain Object
+    :param seq0_long: original sequence for chain 0
+    :type version: Bio.Seq.Seq
+    :param seq1_long: original sequence for chain 1
+    :type version: Bio.Seq.Seq
+    :param seq0_long_f: long alignment sequence for chain 0
+    :type version: string
+    :param seq0_short_f: short alignment sequence for chain 0
+    :type version: string
+    :param seq1_long_f: long alignment sequence for chain 1
+    :type version: string
+    :param seq1_short_f: short alignment sequence for chain 1
+    :type version: string
+    :return: generated distance matrix between two chains
+    :rtype: Numpy matrix
+    """
     D = np.zeros((len(seq0_long), len(seq1_long)))
     D = D - 1
     ch0_it = iter(chain0)
@@ -146,7 +210,6 @@ def main():
         seq1_short = seqs_short[1].seq
         chain1 = chains_filtered[1]
 
-        # if chain lengths switched (chain0 = seq1 and chain1 = seq0)
         if (
             len(chain0) != len(seq0_long) or len(chain0) != len(seq0_short)
         ) and (
