@@ -22,6 +22,7 @@ dscript_jupyter.ipynb
 optimal_transport.ipynb
 output.txt
 dscript/storage/
+dscript/pdbs_large
 
 # Files
 collect_env.py

@@ -51,12 +51,14 @@ def main():
     subparsers.required = True
 
     from .commands import train, embed, evaluate, predict
+    from .processing import process
 
     modules = {
         "train": train,
         "embed": embed,
         "evaluate": evaluate,
         "predict": predict,
+        "process": process,
     }
 
     for name, module in modules.items():

@@ -25,20 +25,41 @@ def add_args(parser):
         help="name of pdb directory containing downloaded pdb files",
     )
     data_grp.add_argument(
-        "--h5_name", required=True, help="Name of output H5 (for contact maps)"
+        "--test", required=True, help="list of validation/testing pairs"
     )
     data_grp.add_argument(
-        "--fasta",
+        "--embedding",
         required=True,
-        help="Name of output fasta (for sequences)",
+        help="h5py path containing embedded sequences",
     )
     data_grp.add_argument(
-        "--tsv",
-        required=True,
-        help="Name of output tsv (for PPIs)",
+        "--no-augment",
+        action="store_true",
+        help="data is automatically augmented by adding (B A) for all pairs (A B). Set this flag to not augment data",
     )
 
     return parser
+
+
+def inputs():
+    """
+    Requires user to input arguments for:
+        name of pdb directory
+        desired contact map dataset name
+        desired fasta output name
+        desired tsv file name
+    """
+    pdb_directory = input("Name of directory containing pdb files: ")
+    files = os.listdir(f"dscript/{pdb_directory}")
+    h5_name = input("Name of output H5 (for contact maps): ")
+    hf_pair = h5py.File(f"data/{h5_name}.h5", "w")
+    fasta_name = input("Name of output fasta (for sequences): ")
+    tsv_name = input("Name of output tsv (for PPIs): ")
+    if ".DS_Store" in files:
+        files.remove(".DS_Store")
+    for i in range(0, len(files)):
+        files[i] = files[i][:4]
+    return [pdb_directory, files, fasta_name, tsv_name, hf_pair]
 
 
 def get_sequences(pdb_directory, pdb_id):
@@ -328,18 +349,8 @@ def delete(pdb_delete, pdb_directory):
             os.remove(f"dscript/{pdb_directory}/{item}.pdb")
 
 
-def main(args):
-    pdb_directory = args.pdb_directory
-    h5_name = args.h5_name
-    fasta_name = args.fasta
-    tsv_name = args.tsv
-
-    files = os.listdir(f"dscript/{pdb_directory}")
-    if ".DS_Store" in files:
-        files.remove(".DS_Store")
-    for i in range(0, len(files)):
-        files[i] = files[i][:4]
-    hf_pair = h5py.File(f"data/{h5_name}.h5", "w")
+def main():
+    [pdb_directory, files, fasta_name, tsv_name, hf_pair] = inputs()
 
     total = 0
     pdb_delete = []
@@ -406,5 +417,4 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     add_args(parser)
-    print(parser.parse_args())
-    main(parser.parse_args())
+    main()
