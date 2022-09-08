@@ -60,7 +60,7 @@ def get_sequences(pdb_directory, pdb_id):
     return [pdb_file, seqs_long, seqs_short]
 
 
-def check_chains(pdb_id, pdb_file, pdb_delete):
+def check_chains(pdb_id, pdb_file, chain_error, chain_few):
     """
     Gets atom and seqres sequences from the pdb file.
 
@@ -75,9 +75,9 @@ def check_chains(pdb_id, pdb_file, pdb_delete):
     """
     structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
     chains = list(structure.get_chains())
-    # if len(chains) > 2:
-    #     pdb_delete.append(pdb_id)
-    #     return None
+    if len(chains) > 2:
+        chain_few.append(pdb_id)
+        return None
     chains = list(structure.get_chains())[:2]
     if (
         len(chains[0]) > 800
@@ -85,9 +85,9 @@ def check_chains(pdb_id, pdb_file, pdb_delete):
         or len(chains[0]) < 50
         or len(chains[1]) < 50
     ):
-        pdb_delete.append(pdb_id)
+        chain_error.append(pdb_id)
         return None
-    return [chains, pdb_delete]
+    return [chains, chain_error, chain_few]
 
 
 def make_tsv(pdb_id, chains, name):
@@ -313,7 +313,7 @@ def calc_dist_matrix(
     return [D, errors]
 
 
-def delete(pdb_delete, pdb_directory):
+def delete(delete, pdb_directory):
     """
     Deletes all files in pdb_delete from pdb_directory.
 
@@ -323,7 +323,7 @@ def delete(pdb_delete, pdb_directory):
     :type version: string
     """
     # print(pdb_delete)
-    for item in pdb_delete:
+    for item in delete:
         if os.path.exists(f"dscript/{pdb_directory}/{item}.pdb"):
             os.remove(f"dscript/{pdb_directory}/{item}.pdb")
 
@@ -342,8 +342,10 @@ def main(args):
     hf_pair = h5py.File(f"data/{h5_name}.h5", "w")
 
     total = 0
-    pdb_delete = []
+    chain_error = []
+    chain_few = []
     errors = []
+    seq_error = []
 
     for pdb_id in files:
         total += 1
@@ -353,10 +355,13 @@ def main(args):
         [pdb_file, seqs_long, seqs_short] = get_sequences(
             pdb_directory, pdb_id
         )
-        output = check_chains(pdb_id, pdb_file, pdb_delete)
+        if len(seqs_short) < 2 or len(seqs_long) < 2:
+            seq_error.append(pdb_id)
+            continue
+        output = check_chains(pdb_id, pdb_file, chain_error, chain_few)
         if output is None:
             continue
-        [chains, pdb_delete] = output
+        [chains, chain_error, chain_few] = output
 
         make_fasta(pdb_id, seqs_long, fasta_name)
         make_tsv(pdb_id, chains, tsv_name)
@@ -397,10 +402,13 @@ def main(args):
             data=D,
         )
 
-    print(pdb_delete)
+    print(chain_error)
+    print(chain_few)
     print(errors)
-    delete(pdb_delete, pdb_directory)
-    delete(errors, pdb_directory)
+    print(seq_error)
+    # delete(pdb_delete, pdb_directory)
+    # delete(errors, pdb_directory)
+    # delete(seq_error, pdb_directory)
 
 
 if __name__ == "__main__":

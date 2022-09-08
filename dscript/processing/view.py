@@ -4,10 +4,10 @@ import h5py
 import matplotlib.pyplot as plt
 import os
 
-fi = h5py.File("data/output_l.h5", "r")
-ke = list(fi.keys())
-print(len(ke))
-cmap = fi[ke[189]]
+# fi = h5py.File("data/output_l.h5", "r")
+# ke = list(fi.keys())
+# print(len(ke))
+# cmap = fi[ke[189]]
 
 # n1 = np.array(cmap[:])
 # print(n1)

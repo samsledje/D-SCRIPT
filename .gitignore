@@ -23,6 +23,7 @@ optimal_transport.ipynb
 output.txt
 dscript/storage/
 dscript/pdbs_large
+dscript/processing/pdb_ids.txt
 
 # Files
 collect_env.py
