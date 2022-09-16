@@ -22,23 +22,47 @@ def add_args(parser):
     data_grp.add_argument(
         "--pdb_directory",
         required=True,
-        help="name of pdb directory containing downloaded pdb files",
+        help="Full path of pdb directory containing downloaded pdb files",
     )
     data_grp.add_argument(
-        "--h5_name", required=True, help="Name of output H5 (for contact maps)"
+        "--pdb_list",
+        required=True,
+        help="Plain text file containing comma-separated list of PDB IDs in the provided pdb directory.",
+    )
+    data_grp.add_argument(
+        "--filter_chain_minlen",
+        required=True,
+        help="Filtering step: enter desired minimum length of chain",
+    )
+    data_grp.add_argument(
+        "--filter_chain_maxlen",
+        required=True,
+        help="Filtering step: enter desired maximum length of chain",
+    )
+    data_grp.add_argument(
+        "--h5_name",
+        required=True,
+        help="Full path of output H5 (for contact maps)",
     )
     data_grp.add_argument(
         "--fasta",
         required=True,
-        help="Name of output fasta (for sequences)",
+        help="Full path of output fasta (for sequences)",
     )
     data_grp.add_argument(
         "--tsv",
         required=True,
-        help="Name of output tsv (for PPIs)",
+        help="Full path of output tsv (for PPIs)",
     )
 
     return parser
+
+
+def get_pdb_list(pdb_text):
+    pdb_list = []
+    with open(f"{pdb_text}", "r") as pdb_f:
+        pdb_list = pdb_f.read().split(", ")
+    return pdb_list
 
 
 def get_sequences(pdb_directory, pdb_id):
@@ -52,7 +76,7 @@ def get_sequences(pdb_directory, pdb_id):
     :return: list containing pdb_file, sequence from seq-res, and sequence from atom
     :rtype: list
     """
-    pdb_file = f"dscript/{pdb_directory}/{pdb_id}.pdb"
+    pdb_file = f"{pdb_directory}/{pdb_id}.pdb"
     seqres_recs = list(SeqIO.parse(pdb_file, "pdb-seqres"))
     atoms_recs = list(SeqIO.parse(pdb_file, "pdb-atom"))
     seqs_long = seqres_recs[:2]
@@ -60,7 +84,9 @@ def get_sequences(pdb_directory, pdb_id):
     return [pdb_file, seqs_long, seqs_short]
 
 
-def check_chains(pdb_id, pdb_file, chain_error, chain_few):
+def get_filtered_chains(
+    pdb_id, pdb_file, chain_minlen, chain_maxlen, chain_error, chain_few
+):
     """
     Gets atom and seqres sequences from the pdb file.
 
@@ -68,9 +94,15 @@ def check_chains(pdb_id, pdb_file, chain_error, chain_few):
     :type version: string
     :param pdb_file: path to pdb file
     :type version: string
-    :param pdb_delete: list of pdbs that don't satisfy length conditions
+    :param chain_minlen: minimum length of chain filtered out
+    :type version: int
+    :param chain_maxlen: maximum length of chain filtered out
+    :type version: int
+    :param chain_error: list of pdbs that don't satisfy length conditions
     :type version: list
-    :return: list containing a list of chains and a list of pdbs that don't satisfy length conditions
+    :param chain_few: list of pdbs that have more than two chains
+    :type version: list
+    :return: list containing a list of filtered chains and two list of filtered out pdbs
     :rtype: list
     """
     structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
@@ -80,53 +112,47 @@ def check_chains(pdb_id, pdb_file, chain_error, chain_few):
         return None
     chains = list(structure.get_chains())[:2]
     if (
-        len(chains[0]) > 800
-        or len(chains[1]) > 800
-        or len(chains[0]) < 50
-        or len(chains[1]) < 50
+        len(chains[0]) > chain_maxlen
+        or len(chains[1]) > chain_maxlen
+        or len(chains[0]) < chain_minlen
+        or len(chains[1]) < chain_minlen
     ):
         chain_error.append(pdb_id)
         return None
     return [chains, chain_error, chain_few]
 
 
-def make_tsv(pdb_id, chains, name):
+def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb, pdb_directory):
     """
-    Creates/appends protein chains to a tsv file.
+    Creates/appends protein chains to a fasta and a tsv file.
 
-    :param pdb_id: pdb formatted name of protein
+    :param tsv_name: path of tsv file
     :type version: string
-    :param chains: list of chains in protein
+    :param fasta_name: path of fasta file
+    :type version: string
+    :param valid_pdb: list of valid pdbs that passed filtering
     :type version: list
-    :param name: name of tsv file
+    :param pdb_directory: name of pdb-containing directory
     :type version: string
     """
-    with open(f"data/{name}.tsv", "a") as out_file:
-        tsv_writer = csv.writer(out_file, delimiter="\t")
-        prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
-        prot2 = f"{pdb_id.upper()}:{str(chains[1].get_id()).upper()}"
-        print((prot1, prot2))
-        tsv_writer.writerow([prot1, prot2, "1"])
+    with open(f"{tsv_name}", "w+") as tsv_f, open(
+        f"{fasta_name}", "w+"
+    ) as fasta_f:
+        for pdb_id in valid_pdb:
+            pdb_file = f"{pdb_directory}/{pdb_id}.pdb"
+            seqres_recs = list(SeqIO.parse(pdb_file, "pdb-seqres"))
+            for record in seqres_recs[:2]:
+                fasta_f.write(record.format("fasta-2line"))
+
+            tsv_writer = csv.writer(tsv_f, delimiter="\t")
+            structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
+            chains = list(structure.get_chains())[:2]
+            prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
+            prot2 = f"{pdb_id.upper()}:{str(chains[1].get_id()).upper()}"
+            tsv_writer.writerow([prot1, prot2, "1"])
 
 
-def make_fasta(pdb_id, seqs_long, fasta_name):
-    """
-    Creates/appends protein sequences to a fasta file.
-
-    :param pdb_id: pdb formatted name of protein
-    :type version: string
-    :param seqs_long: sequences for 2 chains derived from seq-res
-    :type version: list
-    :param fasta_name: name of fasta file
-    :type version: string
-    """
-    with open(f"data/{fasta_name}.fasta", "a") as f:
-        for record in seqs_long:
-            f.write(record.format("fasta-2line"))
-            # None
-
-
-def filter_chains(chain_list):
+def remove_CA_from_chains(chain_list):
     """
     Filters chains to remove all HETATM (non-amino acid) residues.
 
@@ -313,102 +339,93 @@ def calc_dist_matrix(
     return [D, errors]
 
 
-def delete(delete, pdb_directory):
-    """
-    Deletes all files in pdb_delete from pdb_directory.
-
-    :param pdb_delete: list of pdbs that don't satisfy length conditions
-    :type version: list
-    :param pdb_directory: name of directory containing pdb
-    :type version: string
-    """
-    # print(pdb_delete)
-    for item in delete:
-        if os.path.exists(f"dscript/{pdb_directory}/{item}.pdb"):
-            os.remove(f"dscript/{pdb_directory}/{item}.pdb")
-
-
 def main(args):
     pdb_directory = args.pdb_directory
     h5_name = args.h5_name
     fasta_name = args.fasta
     tsv_name = args.tsv
+    pdb_text = args.pdb_list
+    pdb_list = get_pdb_list(pdb_text)
+    chain_minlen = int(args.filter_chain_minlen)
+    chain_maxlen = int(args.filter_chain_maxlen)
 
-    files = os.listdir(f"dscript/{pdb_directory}")
-    if ".DS_Store" in files:
-        files.remove(".DS_Store")
-    for i in range(0, len(files)):
-        files[i] = files[i][:4]
-    hf_pair = h5py.File(f"data/{h5_name}.h5", "w")
+    with h5py.File(f"{h5_name}", "w") as hf_pair:
+        total = 0
+        valid_pdb = []
+        chain_error = []
+        chain_few = []
+        errors = []
+        seq_error = []
 
-    total = 0
-    chain_error = []
-    chain_few = []
-    errors = []
-    seq_error = []
+        for pdb_id in pdb_list:
+            total += 1
+            print(f"Total: {total}")
+            print(pdb_id)
 
-    for pdb_id in files:
-        total += 1
-        print(f"Total: {total}")
-        print(pdb_id)
+            [pdb_file, seqs_long, seqs_short] = get_sequences(
+                pdb_directory, pdb_id
+            )
+            if len(seqs_short) < 2 or len(seqs_long) < 2:
+                seq_error.append(pdb_id)
+                continue
+            output = get_filtered_chains(
+                pdb_id,
+                pdb_file,
+                chain_minlen,
+                chain_maxlen,
+                chain_error,
+                chain_few,
+            )
+            if output is None:
+                continue
+            [chains, chain_error, chain_few] = output
 
-        [pdb_file, seqs_long, seqs_short] = get_sequences(
-            pdb_directory, pdb_id
-        )
-        if len(seqs_short) < 2 or len(seqs_long) < 2:
-            seq_error.append(pdb_id)
-            continue
-        output = check_chains(pdb_id, pdb_file, chain_error, chain_few)
-        if output is None:
-            continue
-        [chains, chain_error, chain_few] = output
+            valid_pdb.append(pdb_id)
 
-        make_fasta(pdb_id, seqs_long, fasta_name)
-        make_tsv(pdb_id, chains, tsv_name)
+            chains_filtered = remove_CA_from_chains(chains)
+            [
+                seq0_long,
+                seq0_short,
+                chain0,
+                seq1_long,
+                seq1_short,
+                chain1,
+            ] = split_sequences(seqs_long, seqs_short, chains_filtered)
 
-        chains_filtered = filter_chains(chains)
-        [
-            seq0_long,
-            seq0_short,
-            chain0,
-            seq1_long,
-            seq1_short,
-            chain1,
-        ] = split_sequences(seqs_long, seqs_short, chains_filtered)
-        [chain0, chain1] = chain_switch(
-            seq0_long, seq0_short, seq1_long, seq1_short, chain0, chain1
-        )
-        [
-            seq0_long_f,
-            seq0_short_f,
-            seq1_long_f,
-            seq1_short_f,
-        ] = get_aligned_seqs(seq0_long, seq0_short, seq1_long, seq1_short)
+            [chain0, chain1] = chain_switch(
+                seq0_long, seq0_short, seq1_long, seq1_short, chain0, chain1
+            )
 
-        [D, errors] = calc_dist_matrix(
-            pdb_id,
-            chain0,
-            chain1,
-            seq0_long,
-            seq1_long,
-            seq0_long_f,
-            seq0_short_f,
-            seq1_long_f,
-            seq1_short_f,
-            errors,
-        )
-        hf_pair.create_dataset(
-            f"{pdb_id}:{str(chains[0].get_id())}x{pdb_id}:{str(chains[1].get_id())}",
-            data=D,
-        )
+            [
+                seq0_long_f,
+                seq0_short_f,
+                seq1_long_f,
+                seq1_short_f,
+            ] = get_aligned_seqs(seq0_long, seq0_short, seq1_long, seq1_short)
 
-    print(chain_error)
-    print(chain_few)
-    print(errors)
-    print(seq_error)
-    # delete(pdb_delete, pdb_directory)
-    # delete(errors, pdb_directory)
-    # delete(seq_error, pdb_directory)
+            [D, errors] = calc_dist_matrix(
+                pdb_id,
+                chain0,
+                chain1,
+                seq0_long,
+                seq1_long,
+                seq0_long_f,
+                seq0_short_f,
+                seq1_long_f,
+                seq1_short_f,
+                errors,
+            )
+            hf_pair.create_dataset(
+                f"{pdb_id}:{str(chains[0].get_id())}x{pdb_id}:{str(chains[1].get_id())}",
+                data=D,
+            )
+
+        print(chain_error)
+        print(chain_few)
+        print(errors)
+        print(seq_error)
+
+    make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb, pdb_directory)
 
 
 if __name__ == "__main__":
