@@ -109,7 +109,7 @@ def get_filtered_chains(
     structure = PDB.PDBParser().get_structure(pdb_id, pdb)
     chains = list(structure.get_chains())
     if len(chains) > 2:
-        chain_few.append(pdb)
+        chain_few.append(pdb[-8:-4])
         # return None
     chains = list(structure.get_chains())[:2]
     if (
@@ -118,7 +118,7 @@ def get_filtered_chains(
         or len(chains[0]) < chain_minlen
         or len(chains[1]) < chain_minlen
     ):
-        chain_error.append(pdb)
+        chain_error.append(pdb[-8:-4])
         return None
     return [chains, chain_error, chain_few]
 
