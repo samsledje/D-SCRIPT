@@ -111,7 +111,7 @@ def get_filtered_chains(
     if len(chains) > 2:
         chain_few.append(pdb[-8:-4])
         # return None
-    chains = list(structure.get_chains())[:2]
+    chains = chains[:2]
     if (
         len(chains[0]) > chain_maxlen
         or len(chains[1]) > chain_maxlen
@@ -402,7 +402,7 @@ def main(args):
                 continue
             [chains, chain_error, chain_few] = output
 
-            valid_pdb[pdb] = [seqs_long, chains]
+            # valid_pdb[pdb] = [seqs_long, chains]
 
             chains_filtered = remove_CA_from_chains(chains)
             [
