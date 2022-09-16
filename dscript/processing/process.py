@@ -3,11 +3,11 @@ from Bio import PDB
 from Bio import pairwise2
 import h5py
 import numpy as np
-import os
 import pandas as pd
 import csv
 import argparse
 from datetime import datetime
+import time
 
 MAX_D = 25
 
@@ -49,14 +49,23 @@ def add_args(parser):
         required=True,
         help="Full path of output tsv (for PPIs)",
     )
-
     return parser
 
 
 def get_pdb_list(pdb_files):
+    """
+    Returns a list of pdb file paths given a text file containing pdb paths.
+
+    :param pdb_files: Name of txt file containing pdb full paths.
+    :type version: string
+    :return: list of pdb files (full path)
+    :rtype: list
+    """
     pdb_list = []
     with open(f"{pdb_files}", "r") as pdb_f:
         pdb_list = pdb_f.read().split("\n")
+    if "" in pdb_list:
+        pdb_list.remove("")
     return pdb_list
 
 
@@ -64,11 +73,9 @@ def get_sequences(pdb):
     """
     Gets atom and seqres sequences from the pdb file.
 
-    :param pdb_directory: name of directory containing pdb
+    :param pdb: full path of pdb file
     :type version: string
-    :param pdb_id: name of pdb file
-    :type version: string
-    :return: list containing pdb_file, sequence from seq-res, and sequence from atom
+    :return: list containing sequence from seq-res and sequence from atom
     :rtype: list
     """
     seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
@@ -86,7 +93,7 @@ def get_filtered_chains(
 
     :param pdb_id: name of pdb file
     :type version: string
-    :param pdb_file: path to pdb file
+    :param pdb: full path of pdb file
     :type version: string
     :param chain_minlen: minimum length of chain filtered out
     :type version: int
@@ -96,7 +103,7 @@ def get_filtered_chains(
     :type version: list
     :param chain_few: list of pdbs that have more than two chains
     :type version: list
-    :return: list containing a list of filtered chains and two list of filtered out pdbs
+    :return: a list of filtered chains and two lists of pdbs that don't satisfy filtering conditions
     :rtype: list
     """
     structure = PDB.PDBParser().get_structure(pdb_id, pdb)
@@ -118,7 +125,7 @@ def get_filtered_chains(
 
 def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb):
     """
-    Creates/appends protein chains to a fasta and a tsv file.
+    Takes in a list of valid pdb file paths and creates an output fasta and tsv file.
 
     :param tsv_name: path of tsv file
     :type version: string
@@ -126,21 +133,17 @@ def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb):
     :type version: string
     :param valid_pdb: list of valid pdbs that passed filtering
     :type version: list
-    :param pdb_directory: name of pdb-containing directory
-    :type version: string
     """
     with open(f"{tsv_name}", "w+") as tsv_f, open(
         f"{fasta_name}", "w+"
     ) as fasta_f:
-        for pdb in valid_pdb:
+        for pdb in valid_pdb.keys():
             pdb_id = pdb[-8:-4]
-            seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
-            for record in seqres_recs[:2]:
+            for record in valid_pdb[pdb][0]:
                 fasta_f.write(record.format("fasta-2line"))
 
             tsv_writer = csv.writer(tsv_f, delimiter="\t")
-            structure = PDB.PDBParser().get_structure(pdb_id, pdb)
-            chains = list(structure.get_chains())[:2]
+            chains = valid_pdb[pdb][1]
             prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
             prot2 = f"{pdb_id.upper()}:{str(chains[1].get_id()).upper()}"
             tsv_writer.writerow([prot1, prot2, "1"])
@@ -167,9 +170,9 @@ def split_sequences(seqs_long, seqs_short, chains_filtered):
     :type version: string
     :param seqs_short: list of atom sequences for chains 0 and 1
     :type version: string
-    :param seqs_short: list of filtered chains
+    :param chains_filtered: list of filtered chains
     :type version: list
-    :return: list of seq-res sequence for chain0, atom sequence for chain0, seq-res sequence for chain1, atom sequence for chain1
+    :return: list containing: seq-res sequence for chain0, atom sequence for chain0, chain0, seq-res sequence for chain1, atom sequence for chain1, chain1
     :rtype: list
     """
     seq0_long = seqs_long[0].seq
@@ -288,6 +291,8 @@ def calc_dist_matrix(
     :type version: string
     :param seq1_short_f: short alignment sequence for chain 1
     :type version: string
+    :param errors: list of pdbs that run into StopIteration errors
+    :type version: list
     :return: generated distance matrix between two chains
     :rtype: Numpy matrix
     """
@@ -334,6 +339,18 @@ def calc_dist_matrix(
 
 
 def log(m, file=None, timestamped=True, print_also=False):
+    """
+    Outputs a log.
+
+    :param m: information to be logged
+    :type version: Object
+    :param file: file name for log to be written to
+    :type version: string
+    :param timestamped: whether or not log will include timestamp
+    :type version: boolean
+    :param print_also: whether or not log is printed to standard output as well as written to file
+    :type version: boolean
+    """
     curr_time = f"[{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}] "
     log_string = f"{curr_time if timestamped else ''}{m}"
     if file is None:
@@ -346,6 +363,7 @@ def log(m, file=None, timestamped=True, print_also=False):
 
 
 def main(args):
+    start = time.perf_counter()
     h5_name = args.h5_name
     fasta_name = args.fasta
     tsv_name = args.tsv
@@ -356,7 +374,7 @@ def main(args):
 
     with h5py.File(f"{h5_name}", "w") as hf_pair:
         total = 0
-        valid_pdb = []
+        valid_pdb = {}
         chain_error = []
         chain_few = []
         errors = []
@@ -366,7 +384,6 @@ def main(args):
             total += 1
             print(f"Total: {total}")
             print(pdb)
-            pdb_directory = pdb[0:-8]
             pdb_id = pdb[-8:-4]
 
             [seqs_long, seqs_short] = get_sequences(pdb)
@@ -385,7 +402,7 @@ def main(args):
                 continue
             [chains, chain_error, chain_few] = output
 
-            valid_pdb.append(pdb)
+            valid_pdb[pdb] = [seqs_long, chains]
 
             chains_filtered = remove_CA_from_chains(chains)
             [
@@ -421,15 +438,17 @@ def main(args):
                 errors,
             )
             hf_pair.create_dataset(
-                f"{pdb_id}:{str(chains[0].get_id())}x{pdb_id}:{str(chains[1].get_id())}",
+                f"{pdb_id.upper()}:{str(chains[0].get_id())}x{pdb_id.upper()}:{str(chains[1].get_id())}",
                 data=D,
             )
 
     make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb)
-    log(f"PDBs that <50 or >800: {chain_error}")
-    log(f"PDBs with >2 chains: {chain_few}")
-    log(f"StopIteration Errors: {errors}")
-    log(f"PDBs with <2 sequences (data quality issue): {seq_error}")
+    log(f"PDBs that <50 or >800 (filtered out): {chain_error}")
+    log(f"PDBs with >2 chains (kept in): {chain_few}")
+    log(f"StopIteration Errors (kept in): {errors}")
+    log(f"PDBs with <2 sequences (filtered out): {seq_error}")
+    end = time.perf_counter()
+    print(f"Elapsed {(end-start)/60} minutes.")
 
 
 if __name__ == "__main__":
