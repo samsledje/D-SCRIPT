@@ -1,1 +1,13 @@
-15C8, 1DLO, 1DOA, 2L1C, 2L14, 2L1B, 1DLF, 1DL7, 1DBK, 1DKF, 25C8, 1DJ7, 1DFB
+dscript/pdbs_large/15C8.pdb
+dscript/pdbs_large/1DLO.pdb
+dscript/pdbs_large/1DOA.pdb
+dscript/pdbs_large/2L1C.pdb
+dscript/pdbs_large/2L14.pdb
+dscript/pdbs_large/2L1B.pdb
+dscript/pdbs_large/1DLF.pdb
+dscript/pdbs_large/1DL7.pdb
+dscript/pdbs_large/1DBK.pdb
+dscript/pdbs_large/1DKF.pdb
+dscript/pdbs_large/25C8.pdb
+dscript/pdbs_large/1DJ7.pdb
+dscript/pdbs_large/1DFB.pdb

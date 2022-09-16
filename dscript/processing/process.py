@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import csv
 import argparse
+from datetime import datetime
 
 MAX_D = 25
 
@@ -18,16 +19,10 @@ def add_args(parser):
     :meta private:
     """
     data_grp = parser.add_argument_group("Data Processing files")
-
     data_grp.add_argument(
-        "--pdb_directory",
+        "--pdb_files",
         required=True,
-        help="Full path of pdb directory containing downloaded pdb files",
-    )
-    data_grp.add_argument(
-        "--pdb_list",
-        required=True,
-        help="Plain text file containing comma-separated list of PDB IDs in the provided pdb directory.",
+        help="Plain text file, where each newline contains a FULL PATH to a pdb file (ex. pdb_directory/1AON.pdb)",
     )
     data_grp.add_argument(
         "--filter_chain_minlen",
@@ -58,14 +53,14 @@ def add_args(parser):
     return parser
 
 
-def get_pdb_list(pdb_text):
+def get_pdb_list(pdb_files):
     pdb_list = []
-    with open(f"{pdb_text}", "r") as pdb_f:
-        pdb_list = pdb_f.read().split(", ")
+    with open(f"{pdb_files}", "r") as pdb_f:
+        pdb_list = pdb_f.read().split("\n")
     return pdb_list
 
 
-def get_sequences(pdb_directory, pdb_id):
+def get_sequences(pdb):
     """
     Gets atom and seqres sequences from the pdb file.
 
@@ -76,16 +71,15 @@ def get_sequences(pdb_directory, pdb_id):
     :return: list containing pdb_file, sequence from seq-res, and sequence from atom
     :rtype: list
     """
-    pdb_file = f"{pdb_directory}/{pdb_id}.pdb"
-    seqres_recs = list(SeqIO.parse(pdb_file, "pdb-seqres"))
-    atoms_recs = list(SeqIO.parse(pdb_file, "pdb-atom"))
+    seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
+    atoms_recs = list(SeqIO.parse(pdb, "pdb-atom"))
     seqs_long = seqres_recs[:2]
     seqs_short = atoms_recs[:2]
-    return [pdb_file, seqs_long, seqs_short]
+    return [seqs_long, seqs_short]
 
 
 def get_filtered_chains(
-    pdb_id, pdb_file, chain_minlen, chain_maxlen, chain_error, chain_few
+    pdb_id, pdb, chain_minlen, chain_maxlen, chain_error, chain_few
 ):
     """
     Gets atom and seqres sequences from the pdb file.
@@ -105,11 +99,11 @@ def get_filtered_chains(
     :return: list containing a list of filtered chains and two list of filtered out pdbs
     :rtype: list
     """
-    structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
+    structure = PDB.PDBParser().get_structure(pdb_id, pdb)
     chains = list(structure.get_chains())
     if len(chains) > 2:
-        chain_few.append(pdb_id)
-        return None
+        chain_few.append(pdb)
+        # return None
     chains = list(structure.get_chains())[:2]
     if (
         len(chains[0]) > chain_maxlen
@@ -117,12 +111,12 @@ def get_filtered_chains(
         or len(chains[0]) < chain_minlen
         or len(chains[1]) < chain_minlen
     ):
-        chain_error.append(pdb_id)
+        chain_error.append(pdb)
         return None
     return [chains, chain_error, chain_few]
 
 
-def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb, pdb_directory):
+def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb):
     """
     Creates/appends protein chains to a fasta and a tsv file.
 
@@ -138,14 +132,14 @@ def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb, pdb_directory):
     with open(f"{tsv_name}", "w+") as tsv_f, open(
         f"{fasta_name}", "w+"
     ) as fasta_f:
-        for pdb_id in valid_pdb:
-            pdb_file = f"{pdb_directory}/{pdb_id}.pdb"
-            seqres_recs = list(SeqIO.parse(pdb_file, "pdb-seqres"))
+        for pdb in valid_pdb:
+            pdb_id = pdb[-8:-4]
+            seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
             for record in seqres_recs[:2]:
                 fasta_f.write(record.format("fasta-2line"))
 
             tsv_writer = csv.writer(tsv_f, delimiter="\t")
-            structure = PDB.PDBParser().get_structure(pdb_id, pdb_file)
+            structure = PDB.PDBParser().get_structure(pdb_id, pdb)
             chains = list(structure.get_chains())[:2]
             prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
             prot2 = f"{pdb_id.upper()}:{str(chains[1].get_id()).upper()}"
@@ -339,12 +333,23 @@ def calc_dist_matrix(
     return [D, errors]
 
 
+def log(m, file=None, timestamped=True, print_also=False):
+    curr_time = f"[{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}] "
+    log_string = f"{curr_time if timestamped else ''}{m}"
+    if file is None:
+        print(log_string)
+    else:
+        print(log_string, file=file)
+        if print_also:
+            print(log_string)
+        file.flush()
+
+
 def main(args):
-    pdb_directory = args.pdb_directory
     h5_name = args.h5_name
     fasta_name = args.fasta
     tsv_name = args.tsv
-    pdb_text = args.pdb_list
+    pdb_text = args.pdb_files
     pdb_list = get_pdb_list(pdb_text)
     chain_minlen = int(args.filter_chain_minlen)
     chain_maxlen = int(args.filter_chain_maxlen)
@@ -357,20 +362,20 @@ def main(args):
         errors = []
         seq_error = []
 
-        for pdb_id in pdb_list:
+        for pdb in pdb_list:
             total += 1
             print(f"Total: {total}")
-            print(pdb_id)
+            print(pdb)
+            pdb_directory = pdb[0:-8]
+            pdb_id = pdb[-8:-4]
 
-            [pdb_file, seqs_long, seqs_short] = get_sequences(
-                pdb_directory, pdb_id
-            )
+            [seqs_long, seqs_short] = get_sequences(pdb)
             if len(seqs_short) < 2 or len(seqs_long) < 2:
                 seq_error.append(pdb_id)
                 continue
             output = get_filtered_chains(
                 pdb_id,
-                pdb_file,
+                pdb,
                 chain_minlen,
                 chain_maxlen,
                 chain_error,
@@ -380,7 +385,7 @@ def main(args):
                 continue
             [chains, chain_error, chain_few] = output
 
-            valid_pdb.append(pdb_id)
+            valid_pdb.append(pdb)
 
             chains_filtered = remove_CA_from_chains(chains)
             [
@@ -420,12 +425,11 @@ def main(args):
                 data=D,
             )
 
-        print(chain_error)
-        print(chain_few)
-        print(errors)
-        print(seq_error)
-
-    make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb, pdb_directory)
+    make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb)
+    log(f"PDBs that <50 or >800: {chain_error}")
+    log(f"PDBs with >2 chains: {chain_few}")
+    log(f"StopIteration Errors: {errors}")
+    log(f"PDBs with <2 sequences (data quality issue): {seq_error}")
 
 
 if __name__ == "__main__":
