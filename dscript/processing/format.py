@@ -1,6 +1,6 @@
 import os
 
-pdb_directory = "dscript/pdbs"
+pdb_directory = "dscript/pdb"
 files = os.listdir(f"{pdb_directory}")
 if ".DS_Store" in files:
     files.remove(".DS_Store")

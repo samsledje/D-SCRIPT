@@ -387,7 +387,18 @@ def main(args):
             pdb_id = pdb[-8:-4]
 
             [seqs_long, seqs_short] = get_sequences(pdb)
-            if len(seqs_short) < 2 or len(seqs_long) < 2:
+            if (
+                len(seqs_short) < 2
+                or len(seqs_long) < 2
+                or (
+                    str(seqs_long[0].seq)
+                    == len(str(seqs_long[0].seq)) * str(seqs_long[0].seq)[0]
+                )
+                or (
+                    str(seqs_long[1].seq)
+                    == len(str(seqs_long[1].seq)) * str(seqs_long[1].seq)[0]
+                )
+            ):
                 seq_error.append(pdb_id)
                 continue
             output = get_filtered_chains(
@@ -443,7 +454,9 @@ def main(args):
             )
 
     make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb)
-    log(f"PDBs that <50 or >800 (filtered out): {chain_error}")
+    log(
+        f"PDBs that <{chain_minlen} or >{chain_maxlen} (filtered out): {chain_error}"
+    )
     log(f"PDBs with >2 chains (kept in): {chain_few}")
     log(f"StopIteration Errors (kept in): {errors}")
     log(f"PDBs with <2 sequences (filtered out): {seq_error}")

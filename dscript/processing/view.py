@@ -4,7 +4,7 @@ import h5py
 import matplotlib.pyplot as plt
 import os
 
-fi = h5py.File("data/output_l.h5", "r")
+fi = h5py.File("data/output_full.h5", "r")
 ke = list(fi.keys())
 print(len(ke))
 # cmap = fi[ke[189]]
@@ -14,6 +14,6 @@ print(len(ke))
 # plt.imshow(cmap)
 # plt.show()
 
-files = os.listdir(f"dscript/pdbs_large")
-for item in files:
-    print(item[:4])
+# files = os.listdir(f"dscript/pdbs_large")
+# for item in files:
+#     print(item[:4])

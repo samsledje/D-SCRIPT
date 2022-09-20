@@ -10,6 +10,7 @@ htmlcov
 dev*
 dscript/proteins
 dscript/pdbs
+dscript/pdb
 dscript/fastas
 dscript/pdbsNEW
 dscript/fastasNEW
