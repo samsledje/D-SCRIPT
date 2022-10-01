@@ -1,4 +1,6 @@
 from Bio import SeqIO
+from Bio import SeqRecord
+from Bio import Seq
 from Bio import PDB
 from Bio import pairwise2
 import h5py
@@ -69,7 +71,39 @@ def get_pdb_list(pdb_files):
     return pdb_list
 
 
-def get_sequences(pdb):
+def get_sequences_from_chains(chains):
+    """
+    Returns a list of Atom Sequences chains
+
+    :param pdb_id: 4 letter name of pdb
+    :type version: string
+    :param pdb: full path of pdb file
+    :type version: string
+    :return: list of atom sequences
+    :rtype: list
+    """
+    records = []
+    chains.sort(key=lambda chain: chain.id)
+    for chain in chains:
+        try:
+            chain_string = "".join(
+                [
+                    PDB.Polypeptide.three_to_one(residue.get_resname())
+                    for residue in chain
+                    if residue.has_id("CA")
+                ]
+            )
+        except:
+            break
+        chain_seq = Seq.Seq(chain_string)
+        chain_record = SeqRecord.SeqRecord(
+            chain_seq, name=chain.id, id=chain.id
+        )
+        records.append(chain_record)
+    return records
+
+
+def get_sequences(pdb, chains):
     """
     Gets atom and seqres sequences from the pdb file.
 
@@ -78,22 +112,50 @@ def get_sequences(pdb):
     :return: list containing sequence from seq-res and sequence from atom
     :rtype: list
     """
+    atoms_recs = get_sequences_from_chains(chains)
+    if not atoms_recs:
+        return None
     seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
-    atoms_recs = list(SeqIO.parse(pdb, "pdb-atom"))
     seqs_long = seqres_recs[:2]
+    print([seq.id[-1:] for seq in seqs_long])
     seqs_short = atoms_recs[:2]
     return [seqs_long, seqs_short]
 
 
-def get_filtered_chains(
-    pdb_id, pdb, chain_minlen, chain_maxlen, chain_error, chain_few
+def check_sequences_valid(seqs_long, seqs_short):
+    """
+    Checks if sequences are both valid amino acid chains, not "XX...XX".
+
+    :param seqs_long: list of seq-res sequences for chains 0 and 1
+    :type version: string
+    :param seqs_short: list of atom sequences for chains 0 and 1
+    :type version: string
+    :return: whether both sequences exist and are valid
+    :rtype: Boolean
+    """
+    return (
+        len(seqs_short) < 2
+        or len(seqs_long) < 2
+        or (
+            str(seqs_long[0].seq)
+            == len(str(seqs_long[0].seq)) * str(seqs_long[0].seq)[0]
+        )
+        or (
+            str(seqs_long[1].seq)
+            == len(str(seqs_long[1].seq)) * str(seqs_long[1].seq)[0]
+        )
+    )
+
+
+def get_chains_prelim_filtering(
+    chains, pdb_id, chain_minlen, chain_maxlen, chain_error, chain_few
 ):
     """
     Gets atom and seqres sequences from the pdb file.
 
+    :param chains: list of chains contained in pdb file
+    :type version: list
     :param pdb_id: name of pdb file
-    :type version: string
-    :param pdb: full path of pdb file
     :type version: string
     :param chain_minlen: minimum length of chain filtered out
     :type version: int
@@ -106,10 +168,8 @@ def get_filtered_chains(
     :return: a list of filtered chains and two lists of pdbs that don't satisfy filtering conditions
     :rtype: list
     """
-    structure = PDB.PDBParser().get_structure(pdb_id, pdb)
-    chains = list(structure.get_chains())
     if len(chains) > 2:
-        chain_few.append(pdb[-8:-4])
+        chain_few.append(pdb_id)
         # return None
     chains = chains[:2]
     if (
@@ -118,7 +178,8 @@ def get_filtered_chains(
         or len(chains[0]) < chain_minlen
         or len(chains[1]) < chain_minlen
     ):
-        chain_error.append(pdb[-8:-4])
+        chain_error.append(pdb_id)
+        print("REMOVED")
         return None
     return [chains, chain_error, chain_few]
 
@@ -182,36 +243,6 @@ def split_sequences(seqs_long, seqs_short, chains_filtered):
     seq1_short = seqs_short[1].seq
     chain1 = chains_filtered[1]
     return [seq0_long, seq0_short, chain0, seq1_long, seq1_short, chain1]
-
-
-def chain_switch(seq0_long, seq0_short, seq1_long, seq1_short, chain0, chain1):
-    """
-    Checks if chains and sequences were reversed while parsing
-    (i.e. chain0 corresponds to sequence 1, and chain1 corresponds to sequence 0).
-    If so, flip them.
-
-    :param seq0_long: seq-res sequence for chain 0
-    :type version: string
-    :param seq0_short: atom sequence for chain 0
-    :type version: string
-    :param seq1_long: seq-res sequence for chain 1
-    :type version: string
-    :param seq1_short: atom sequence for chain 1
-    :type version: string
-    :param chain0: chain 0
-    :type version: Chain object
-    :param chain1: chain 1
-    :type version: Chain object
-    :return: list containing chain0, chain1 (possibly now reversed)
-    :rtype: list
-    """
-    if (len(chain0) != len(seq0_long) or len(chain0) != len(seq0_short)) and (
-        len(chain0) == len(seq1_long) or len(chain0) == len(seq1_short)
-    ):
-        temp = chain1.copy()
-        chain1 = chain0
-        chain0 = temp
-    return [chain0, chain1]
 
 
 def get_aligned_seqs(seq0_long, seq0_short, seq1_long, seq1_short):
@@ -302,38 +333,31 @@ def calc_dist_matrix(
     x = -1
     y = 0
     for (i, (res0L, res0S)) in enumerate(zip(seq0_long_f, seq0_short_f)):
+
         if res0S == "-":
             x += 1
             continue
-        if res0L == "-":
+        elif res0L == "-":
+            res0 = next(ch0_it)
             continue
         else:
             x += 1
-            try:
-                res0 = next(ch0_it)
-            except StopIteration:
-                if pdb_id not in errors:
-                    errors.append(pdb_id)
-            # res0 = next(ch0_it)
+            res0 = next(ch0_it)
 
         ch1_it = iter(chain1)
         for (j, (res1L, res1S)) in enumerate(zip(seq1_long_f, seq1_short_f)):
             if res1S == "-":
                 y += 1
                 continue
-            if res1L == "-":
+            elif res1L == "-":
+                res1 = next(ch1_it)
                 continue
             else:
-                try:
-                    res1 = next(ch1_it)
-                except StopIteration:
-                    if pdb_id not in errors:
-                        errors.append(pdb_id)
-                # res1 = next(ch1_it)
+                res1 = next(ch1_it)
                 D[x, y] = residue_distance(res0, res1, max_d=MAX_D)
                 y += 1
         y = 0
-    # df = pd.DataFrame(D, index=list(seq0_long), columns=list(seq1_long))
+    df = pd.DataFrame(D, index=list(seq0_long), columns=list(seq1_long))
     # print(df)
     return [D, errors]
 
@@ -379,6 +403,7 @@ def main(args):
         chain_few = []
         errors = []
         seq_error = []
+        invalid_resname = []
 
         for pdb in pdb_list:
             total += 1
@@ -386,24 +411,26 @@ def main(args):
             print(pdb)
             pdb_id = pdb[-8:-4]
 
-            [seqs_long, seqs_short] = get_sequences(pdb)
-            if (
-                len(seqs_short) < 2
-                or len(seqs_long) < 2
-                or (
-                    str(seqs_long[0].seq)
-                    == len(str(seqs_long[0].seq)) * str(seqs_long[0].seq)[0]
-                )
-                or (
-                    str(seqs_long[1].seq)
-                    == len(str(seqs_long[1].seq)) * str(seqs_long[1].seq)[0]
-                )
-            ):
-                seq_error.append(pdb_id)
+            structure = PDB.PDBParser().get_structure(pdb_id, pdb)
+            chains = list(structure.get_chains())
+            chains.sort(key=lambda chain: chain.id)
+
+            seqences = get_sequences(pdb, chains)
+            if seqences is None:
+                invalid_resname.append(pdb_id)
+                print("REMOVED")
                 continue
-            output = get_filtered_chains(
+            [seqs_long, seqs_short] = seqences
+
+            seq_verify = check_sequences_valid(seqs_short, seqs_long)
+            if seq_verify is True:
+                seq_error.append(pdb_id)
+                print("REMOVED")
+                continue
+
+            output = get_chains_prelim_filtering(
+                chains,
                 pdb_id,
-                pdb,
                 chain_minlen,
                 chain_maxlen,
                 chain_error,
@@ -413,7 +440,7 @@ def main(args):
                 continue
             [chains, chain_error, chain_few] = output
 
-            # valid_pdb[pdb] = [seqs_long, chains]
+            valid_pdb[pdb] = [seqs_long, chains]
 
             chains_filtered = remove_CA_from_chains(chains)
             [
@@ -425,9 +452,9 @@ def main(args):
                 chain1,
             ] = split_sequences(seqs_long, seqs_short, chains_filtered)
 
-            [chain0, chain1] = chain_switch(
-                seq0_long, seq0_short, seq1_long, seq1_short, chain0, chain1
-            )
+            print(chains)
+            # print(f"Chain 0: {len(chain0)}")
+            # print(f"Chain 1: {len(chain1)}")
 
             [
                 seq0_long_f,
@@ -460,6 +487,9 @@ def main(args):
     log(f"PDBs with >2 chains (kept in): {chain_few}")
     log(f"StopIteration Errors (kept in): {errors}")
     log(f"PDBs with <2 sequences (filtered out): {seq_error}")
+    log(
+        f"PDBs with invalid residue names (e.g. MSE, PLM) (filtered out): {invalid_resname}"
+    )
     end = time.perf_counter()
     print(f"Elapsed {(end-start)/60} minutes.")
 

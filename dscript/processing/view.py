@@ -4,15 +4,18 @@ import h5py
 import matplotlib.pyplot as plt
 import os
 
-fi = h5py.File("data/output_full.h5", "r")
+fi = h5py.File("data/output_test.h5", "r")
 ke = list(fi.keys())
 print(len(ke))
-# cmap = fi[ke[189]]
+
+for i in range(0, len(ke)):
+    cmap = fi[ke[i]]
+    plt.imshow(cmap)
+    plt.show()
 
 # n1 = np.array(cmap[:])
 # print(n1)
-# plt.imshow(cmap)
-# plt.show()
+
 
 # files = os.listdir(f"dscript/pdbs_large")
 # for item in files:
