@@ -10,6 +10,7 @@ print(len(ke))
 
 for i in range(0, len(ke)):
     cmap = fi[ke[i]]
+    print(cmap)
     plt.imshow(cmap)
     plt.show()
 

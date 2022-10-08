@@ -82,19 +82,194 @@ def get_sequences_from_chains(chains):
     :return: list of atom sequences
     :rtype: list
     """
+    substitutions = {
+        "2AS": "ASP",
+        "3AH": "HIS",
+        "5HP": "GLU",
+        "ACL": "ARG",
+        "AGM": "ARG",
+        "AIB": "ALA",
+        "ALM": "ALA",
+        "ALO": "THR",
+        "ALY": "LYS",
+        "ARM": "ARG",
+        "ASA": "ASP",
+        "ASB": "ASP",
+        "ASK": "ASP",
+        "ASL": "ASP",
+        "ASQ": "ASP",
+        "AYA": "ALA",
+        "BCS": "CYS",
+        "BHD": "ASP",
+        "BMT": "THR",
+        "BNN": "ALA",
+        "BUC": "CYS",
+        "BUG": "LEU",
+        "C5C": "CYS",
+        "C6C": "CYS",
+        "CAS": "CYS",
+        "CCS": "CYS",
+        "CEA": "CYS",
+        "CGU": "GLU",
+        "CHG": "ALA",
+        "CLE": "LEU",
+        "CME": "CYS",
+        "CSD": "ALA",
+        "CSO": "CYS",
+        "CSP": "CYS",
+        "CSS": "CYS",
+        "CSW": "CYS",
+        "CSX": "CYS",
+        "CXM": "MET",
+        "CY1": "CYS",
+        "CY3": "CYS",
+        "CYG": "CYS",
+        "CYM": "CYS",
+        "CYQ": "CYS",
+        "DAH": "PHE",
+        "DAL": "ALA",
+        "DAR": "ARG",
+        "DAS": "ASP",
+        "DCY": "CYS",
+        "DGL": "GLU",
+        "DGN": "GLN",
+        "DHA": "ALA",
+        "DHI": "HIS",
+        "DIL": "ILE",
+        "DIV": "VAL",
+        "DLE": "LEU",
+        "DLY": "LYS",
+        "DNP": "ALA",
+        "DPN": "PHE",
+        "DPR": "PRO",
+        "DSN": "SER",
+        "DSP": "ASP",
+        "DTH": "THR",
+        "DTR": "TRP",
+        "DTY": "TYR",
+        "DVA": "VAL",
+        "EFC": "CYS",
+        "FLA": "ALA",
+        "FME": "MET",
+        "GGL": "GLU",
+        "GL3": "GLY",
+        "GLZ": "GLY",
+        "GMA": "GLU",
+        "GSC": "GLY",
+        "HAC": "ALA",
+        "HAR": "ARG",
+        "HIC": "HIS",
+        "HIP": "HIS",
+        "HMR": "ARG",
+        "HPQ": "PHE",
+        "HTR": "TRP",
+        "HYP": "PRO",
+        "IAS": "ASP",
+        "IIL": "ILE",
+        "IYR": "TYR",
+        "KCX": "LYS",
+        "LLP": "LYS",
+        "LLY": "LYS",
+        "LTR": "TRP",
+        "LYM": "LYS",
+        "LYZ": "LYS",
+        "MAA": "ALA",
+        "MEN": "ASN",
+        "MHS": "HIS",
+        "MIS": "SER",
+        "MLE": "LEU",
+        "MPQ": "GLY",
+        "MSA": "GLY",
+        "MSE": "MET",
+        "MVA": "VAL",
+        "NEM": "HIS",
+        "NEP": "HIS",
+        "NLE": "LEU",
+        "NLN": "LEU",
+        "NLP": "LEU",
+        "NMC": "GLY",
+        "OAS": "SER",
+        "OCS": "CYS",
+        "OMT": "MET",
+        "PAQ": "TYR",
+        "PCA": "GLU",
+        "PEC": "CYS",
+        "PHI": "PHE",
+        "PHL": "PHE",
+        "PR3": "CYS",
+        "PRR": "ALA",
+        "PTR": "TYR",
+        "PYX": "CYS",
+        "SAC": "SER",
+        "SAR": "GLY",
+        "SCH": "CYS",
+        "SCS": "CYS",
+        "SCY": "CYS",
+        "SEL": "SER",
+        "SEP": "SER",
+        "SET": "SER",
+        "SHC": "CYS",
+        "SHR": "LYS",
+        "SMC": "CYS",
+        "SOC": "CYS",
+        "STY": "TYR",
+        "SVA": "SER",
+        "TIH": "ALA",
+        "TPL": "TRP",
+        "TPO": "THR",
+        "TPQ": "ALA",
+        "TRG": "LYS",
+        "TRO": "TRP",
+        "TYB": "TYR",
+        "TYI": "TYR",
+        "TYQ": "TYR",
+        "TYS": "TYR",
+        "TYY": "TYR",
+    }
+    residues = [
+        "ALA",
+        "CYS",
+        "ASP",
+        "GLU",
+        "PHE",
+        "GLY",
+        "HIS",
+        "ILE",
+        "LYS",
+        "LEU",
+        "MET",
+        "ASN",
+        "PRO",
+        "GLN",
+        "ARG",
+        "SER",
+        "THR",
+        "TRP",
+        "TYR",
+        "VAL",
+    ]
+
     records = []
-    chains.sort(key=lambda chain: chain.id)
+    chains = chains[:2]
+    # chains = chains[1:4:2]
     for chain in chains:
-        try:
-            chain_string = "".join(
-                [
-                    PDB.Polypeptide.three_to_one(residue.get_resname())
-                    for residue in chain
-                    if residue.has_id("CA")
-                ]
-            )
-        except:
-            break
+        chain_string = ""
+        for residue in chain:
+            if residue.has_id("CA"):
+                if residue.get_resname() in substitutions.keys():
+                    chain_string += "" + PDB.Polypeptide.three_to_one(
+                        substitutions[residue.get_resname()]
+                    )
+                elif residue.get_resname() not in residues:
+                    print(residue.get_resname())
+                    chain_string = None
+                    break
+                else:
+                    chain_string += "" + PDB.Polypeptide.three_to_one(
+                        residue.get_resname()
+                    )
+        if chain_string is None:
+            return records
         chain_seq = Seq.Seq(chain_string)
         chain_record = SeqRecord.SeqRecord(
             chain_seq, name=chain.id, id=chain.id
@@ -113,12 +288,12 @@ def get_sequences(pdb, chains):
     :rtype: list
     """
     atoms_recs = get_sequences_from_chains(chains)
-    if not atoms_recs:
+    if not atoms_recs or len(atoms_recs) == 1:
         return None
+    seqs_short = atoms_recs
     seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
     seqs_long = seqres_recs[:2]
-    print([seq.id[-1:] for seq in seqs_long])
-    seqs_short = atoms_recs[:2]
+    # seqs_long = seqres_recs[1:4:2]
     return [seqs_long, seqs_short]
 
 
@@ -136,6 +311,8 @@ def check_sequences_valid(seqs_long, seqs_short):
     return (
         len(seqs_short) < 2
         or len(seqs_long) < 2
+        or len(str(seqs_long[0].seq)) == 0
+        or len(str(seqs_long[1].seq)) == 0
         or (
             str(seqs_long[0].seq)
             == len(str(seqs_long[0].seq)) * str(seqs_long[0].seq)[0]
@@ -172,6 +349,9 @@ def get_chains_prelim_filtering(
         chain_few.append(pdb_id)
         # return None
     chains = chains[:2]
+    # chains = chains[1:4:2]
+    # for chain in chains:
+    #     print(chain.get_id)
     if (
         len(chains[0]) > chain_maxlen
         or len(chains[1]) > chain_maxlen
@@ -179,7 +359,7 @@ def get_chains_prelim_filtering(
         or len(chains[1]) < chain_minlen
     ):
         chain_error.append(pdb_id)
-        print("REMOVED")
+        print("REMOVED - Length Constraints")
         return None
     return [chains, chain_error, chain_few]
 
@@ -413,19 +593,20 @@ def main(args):
 
             structure = PDB.PDBParser().get_structure(pdb_id, pdb)
             chains = list(structure.get_chains())
+            # print(chains)
             chains.sort(key=lambda chain: chain.id)
 
             seqences = get_sequences(pdb, chains)
             if seqences is None:
                 invalid_resname.append(pdb_id)
-                print("REMOVED")
+                print("REMOVED - Invalid Residue Name")
                 continue
             [seqs_long, seqs_short] = seqences
 
             seq_verify = check_sequences_valid(seqs_short, seqs_long)
             if seq_verify is True:
                 seq_error.append(pdb_id)
-                print("REMOVED")
+                print("REMOVED - <2 Sequences")
                 continue
 
             output = get_chains_prelim_filtering(
@@ -452,7 +633,7 @@ def main(args):
                 chain1,
             ] = split_sequences(seqs_long, seqs_short, chains_filtered)
 
-            print(chains)
+            # print(chains)
             # print(f"Chain 0: {len(chain0)}")
             # print(f"Chain 1: {len(chain1)}")
 
