@@ -10,6 +10,7 @@ from . import (
     language_model,
     models,
     pretrained,
+    processing,
 )
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "language_model",
     "pretrained",
     "utils",
+    "processing",
 ]

@@ -16,7 +16,7 @@ dscript/pdbsNEW
 dscript/fastasNEW
 dscript/fastasTEST
 dscript/pdbsTEST
-dscript/processing/pdb_ids
+dscript/processing/pdb_ids.txt
 data/
 auc.ipynb
 contact_map.ibyb.ipynb

@@ -37,6 +37,11 @@ def add_args(parser):
         help="Filtering step: enter desired maximum length of chain",
     )
     data_grp.add_argument(
+        "--filter_number_of_chains",
+        required=False,
+        help="Filtering step: enter the desired number(s) of chains as an unseparated group, ex. 1234 keeps pdbs with exactly 1, 2, 3 or 4 chains",
+    )
+    data_grp.add_argument(
         "--h5_name",
         required=True,
         help="Full path of output H5 (for contact maps)",
@@ -71,7 +76,7 @@ def get_pdb_list(pdb_files):
     return pdb_list
 
 
-def get_sequences_from_chains(chains):
+def get_sequences_from_chains(chains, pair):
     """
     Returns a list of Atom Sequences chains
 
@@ -250,9 +255,12 @@ def get_sequences_from_chains(chains):
     ]
 
     records = []
-    chains = chains[:2]
-    # chains = chains[1:4:2]
-    for chain in chains:
+    # chains = chains[:2]
+    chains_two = []
+    chains_two.append(chains[pair[0]])
+    chains_two.append(chains[pair[1]])
+
+    for chain in chains_two:
         chain_string = ""
         for residue in chain:
             if residue.has_id("CA"):
@@ -260,8 +268,11 @@ def get_sequences_from_chains(chains):
                     chain_string += "" + PDB.Polypeptide.three_to_one(
                         substitutions[residue.get_resname()]
                     )
+                elif residue.get_resname() == "CA":
+                    None
                 elif residue.get_resname() not in residues:
-                    print(residue.get_resname())
+                    # print(residue.get_resname())
+                    chain_invalid = chain
                     chain_string = None
                     break
                 else:
@@ -269,7 +280,7 @@ def get_sequences_from_chains(chains):
                         residue.get_resname()
                     )
         if chain_string is None:
-            return records
+            return [records, chain_invalid]
         chain_seq = Seq.Seq(chain_string)
         chain_record = SeqRecord.SeqRecord(
             chain_seq, name=chain.id, id=chain.id
@@ -278,7 +289,7 @@ def get_sequences_from_chains(chains):
     return records
 
 
-def get_sequences(pdb, chains):
+def get_sequences(pdb, chains, pair):
     """
     Gets atom and seqres sequences from the pdb file.
 
@@ -287,13 +298,14 @@ def get_sequences(pdb, chains):
     :return: list containing sequence from seq-res and sequence from atom
     :rtype: list
     """
-    atoms_recs = get_sequences_from_chains(chains)
-    if not atoms_recs or len(atoms_recs) == 1:
-        return None
+    atoms_recs = get_sequences_from_chains(chains, pair)
+    if not atoms_recs[0] or len(atoms_recs[0]) == 1:
+        return [None, atoms_recs[1]]
     seqs_short = atoms_recs
     seqres_recs = list(SeqIO.parse(pdb, "pdb-seqres"))
-    seqs_long = seqres_recs[:2]
-    # seqs_long = seqres_recs[1:4:2]
+    seqs_long = []
+    seqs_long.append(seqres_recs[pair[0]])
+    seqs_long.append(seqres_recs[pair[1]])
     return [seqs_long, seqs_short]
 
 
@@ -325,7 +337,7 @@ def check_sequences_valid(seqs_long, seqs_short):
 
 
 def get_chains_prelim_filtering(
-    chains, pdb_id, chain_minlen, chain_maxlen, chain_error, chain_few
+    chains, pdb_id, chain_minlen, chain_maxlen, chain_error, pair
 ):
     """
     Gets atom and seqres sequences from the pdb file.
@@ -340,31 +352,32 @@ def get_chains_prelim_filtering(
     :type version: int
     :param chain_error: list of pdbs that don't satisfy length conditions
     :type version: list
-    :param chain_few: list of pdbs that have more than two chains
-    :type version: list
     :return: a list of filtered chains and two lists of pdbs that don't satisfy filtering conditions
     :rtype: list
     """
-    if len(chains) > 2:
-        chain_few.append(pdb_id)
-        # return None
-    chains = chains[:2]
-    # chains = chains[1:4:2]
-    # for chain in chains:
-    #     print(chain.get_id)
-    if (
-        len(chains[0]) > chain_maxlen
-        or len(chains[1]) > chain_maxlen
-        or len(chains[0]) < chain_minlen
-        or len(chains[1]) < chain_minlen
-    ):
-        chain_error.append(pdb_id)
-        print("REMOVED - Length Constraints")
+    chains_two = []
+    chains_two.append(chains[pair[0]])
+    chains_two.append(chains[pair[1]])
+    if len(chains_two[0]) < chain_minlen or len(chains_two[0]) > chain_maxlen:
+        if f"{pdb_id}:{str(chains_two[0].get_id())}" not in chain_error:
+            chain_error.append(f"{pdb_id}:{str(chains_two[0].get_id())}")
+            print(
+                f"REMOVED Chain {str(chains_two[0].get_id())} - Length Constraints"
+            )
         return None
-    return [chains, chain_error, chain_few]
+    if len(chains_two[1]) < chain_minlen or len(chains_two[1]) > chain_maxlen:
+        if f"{pdb_id}:{str(chains_two[1].get_id())}" not in chain_error:
+            chain_error.append(f"{pdb_id}:{str(chains_two[1].get_id())}")
+            print(
+                f"REMOVED Chain {str(chains_two[1].get_id())} - Length Constraints"
+            )
+        return None
+    return [chains_two, chain_error]
 
 
-def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb):
+def make_fasta_and_tsv(
+    tsv_name, fasta_name, valid_pdb, pdbs, chain_error, invalid_resname
+):
     """
     Takes in a list of valid pdb file paths and creates an output fasta and tsv file.
 
@@ -378,16 +391,18 @@ def make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb):
     with open(f"{tsv_name}", "w+") as tsv_f, open(
         f"{fasta_name}", "w+"
     ) as fasta_f:
-        for pdb in valid_pdb.keys():
-            pdb_id = pdb[-8:-4]
-            for record in valid_pdb[pdb][0]:
-                fasta_f.write(record.format("fasta-2line"))
-
+        for pdb in pdbs:
+            sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
+            for record in sequences:
+                print(record)
+                if (
+                    record.id not in chain_error
+                    and record.id not in invalid_resname
+                ):
+                    fasta_f.write(record.format("fasta-2line"))
+        for pdb_pair in valid_pdb.keys():
             tsv_writer = csv.writer(tsv_f, delimiter="\t")
-            chains = valid_pdb[pdb][1]
-            prot1 = f"{pdb_id.upper()}:{str(chains[0].get_id()).upper()}"
-            prot2 = f"{pdb_id.upper()}:{str(chains[1].get_id()).upper()}"
-            tsv_writer.writerow([prot1, prot2, "1"])
+            tsv_writer.writerow([pdb_pair[0:6], pdb_pair[7:13], "1"])
 
 
 def remove_CA_from_chains(chain_list):
@@ -479,7 +494,6 @@ def calc_dist_matrix(
     seq0_short_f,
     seq1_long_f,
     seq1_short_f,
-    errors,
 ):
     """
     Generates contact map between two chains using sequence alignment.
@@ -502,8 +516,6 @@ def calc_dist_matrix(
     :type version: string
     :param seq1_short_f: short alignment sequence for chain 1
     :type version: string
-    :param errors: list of pdbs that run into StopIteration errors
-    :type version: list
     :return: generated distance matrix between two chains
     :rtype: Numpy matrix
     """
@@ -539,7 +551,7 @@ def calc_dist_matrix(
         y = 0
     df = pd.DataFrame(D, index=list(seq0_long), columns=list(seq1_long))
     # print(df)
-    return [D, errors]
+    return D
 
 
 def log(m, file=None, timestamped=True, print_also=False):
@@ -572,6 +584,9 @@ def main(args):
     fasta_name = args.fasta
     tsv_name = args.tsv
     pdb_text = args.pdb_files
+    if args.filter_number_of_chains is not None:
+        chain_lengths_allowed = list(args.filter_number_of_chains)
+        chain_lengths_allowed = [eval(i) for i in chain_lengths_allowed]
     pdb_list = get_pdb_list(pdb_text)
     chain_minlen = int(args.filter_chain_minlen)
     chain_maxlen = int(args.filter_chain_maxlen)
@@ -579,11 +594,11 @@ def main(args):
     with h5py.File(f"{h5_name}", "w") as hf_pair:
         total = 0
         valid_pdb = {}
+        pdbs = []
         chain_error = []
-        chain_few = []
-        errors = []
         seq_error = []
         invalid_resname = []
+        chainlen_unsatisfied = []
 
         for pdb in pdb_list:
             total += 1
@@ -592,84 +607,118 @@ def main(args):
             pdb_id = pdb[-8:-4]
 
             structure = PDB.PDBParser().get_structure(pdb_id, pdb)
+            sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
             chains = list(structure.get_chains())
-            # print(chains)
-            chains.sort(key=lambda chain: chain.id)
-
-            seqences = get_sequences(pdb, chains)
-            if seqences is None:
-                invalid_resname.append(pdb_id)
-                print("REMOVED - Invalid Residue Name")
-                continue
-            [seqs_long, seqs_short] = seqences
-
-            seq_verify = check_sequences_valid(seqs_short, seqs_long)
-            if seq_verify is True:
+            if len(chains) != len(sequences):
                 seq_error.append(pdb_id)
-                print("REMOVED - <2 Sequences")
                 continue
-
-            output = get_chains_prelim_filtering(
-                chains,
-                pdb_id,
-                chain_minlen,
-                chain_maxlen,
-                chain_error,
-                chain_few,
-            )
-            if output is None:
-                continue
-            [chains, chain_error, chain_few] = output
-
-            valid_pdb[pdb] = [seqs_long, chains]
-
-            chains_filtered = remove_CA_from_chains(chains)
-            [
-                seq0_long,
-                seq0_short,
-                chain0,
-                seq1_long,
-                seq1_short,
-                chain1,
-            ] = split_sequences(seqs_long, seqs_short, chains_filtered)
-
             # print(chains)
-            # print(f"Chain 0: {len(chain0)}")
-            # print(f"Chain 1: {len(chain1)}")
+            if args.filter_number_of_chains is not None:
+                if len(chains) not in chain_lengths_allowed:
+                    chainlen_unsatisfied.append(pdb_id)
+                    continue
+            chains.sort(key=lambda chain: chain.id)
+            chain_pairing = [item for item in range(0, len(chains))]
+            pair = [
+                (a, b)
+                for idx, a in enumerate(chain_pairing)
+                for b in chain_pairing[idx + 1 :]
+            ]
+            # print(pair)
 
-            [
-                seq0_long_f,
-                seq0_short_f,
-                seq1_long_f,
-                seq1_short_f,
-            ] = get_aligned_seqs(seq0_long, seq0_short, seq1_long, seq1_short)
+            for item in pair:
+                seqences = get_sequences(pdb, chains, item)
+                if seqences[0] is None:
+                    if (
+                        f"{pdb_id}:{str(seqences[1].get_id())}"
+                        not in invalid_resname
+                    ):
+                        invalid_resname.append(
+                            f"{pdb_id}:{str(seqences[1].get_id())}"
+                        )
+                        print("REMOVED - Invalid Residue Name")
+                    continue
+                [seqs_long, seqs_short] = seqences
 
-            [D, errors] = calc_dist_matrix(
-                pdb_id,
-                chain0,
-                chain1,
-                seq0_long,
-                seq1_long,
-                seq0_long_f,
-                seq0_short_f,
-                seq1_long_f,
-                seq1_short_f,
-                errors,
-            )
-            hf_pair.create_dataset(
-                f"{pdb_id.upper()}:{str(chains[0].get_id())}x{pdb_id.upper()}:{str(chains[1].get_id())}",
-                data=D,
-            )
+                seq_verify = check_sequences_valid(seqs_short, seqs_long)
+                if seq_verify is True:
+                    seq_error.append(pdb_id)
+                    print("REMOVED - <2 Sequences")
+                    continue
 
-    make_fasta_and_tsv(tsv_name, fasta_name, valid_pdb)
-    log(
-        f"PDBs that <{chain_minlen} or >{chain_maxlen} (filtered out): {chain_error}"
+                output = get_chains_prelim_filtering(
+                    chains,
+                    pdb_id,
+                    chain_minlen,
+                    chain_maxlen,
+                    chain_error,
+                    item,
+                )
+                if output is None:
+                    continue
+                [chains_two, chain_error] = output
+
+                print(chains_two)
+                # print(seqs_long)
+                # print(seqs_short)
+
+                if pdb not in pdbs:
+                    pdbs.append(pdb)
+
+                chains_filtered = remove_CA_from_chains(chains_two)
+                [
+                    seq0_long,
+                    seq0_short,
+                    chain0,
+                    seq1_long,
+                    seq1_short,
+                    chain1,
+                ] = split_sequences(seqs_long, seqs_short, chains_filtered)
+
+                [
+                    seq0_long_f,
+                    seq0_short_f,
+                    seq1_long_f,
+                    seq1_short_f,
+                ] = get_aligned_seqs(
+                    seq0_long, seq0_short, seq1_long, seq1_short
+                )
+
+                D = calc_dist_matrix(
+                    pdb_id,
+                    chain0,
+                    chain1,
+                    seq0_long,
+                    seq1_long,
+                    seq0_long_f,
+                    seq0_short_f,
+                    seq1_long_f,
+                    seq1_short_f,
+                )
+                count_discontinuities = (D == -1).sum()
+                if count_discontinuities < 0.75 * D.shape[0] * D.shape[1]:
+                    interactions = ((0 < D) & (D < 25)).sum()
+                    if interactions > D.shape[0] * D.shape[1] * 0.001:
+                        hf_pair.create_dataset(
+                            f"{pdb_id.upper()}:{str(chains_two[0].get_id())}x{pdb_id.upper()}:{str(chains_two[1].get_id())}",
+                            data=D,
+                        )
+                        valid_pdb[
+                            f"{pdb_id.upper()}:{str(chains_two[0].get_id())}x{pdb_id.upper()}:{str(chains_two[1].get_id())}"
+                        ] = [pdb, chains_two]
+
+    make_fasta_and_tsv(
+        tsv_name, fasta_name, valid_pdb, pdbs, chain_error, invalid_resname
     )
-    log(f"PDBs with >2 chains (kept in): {chain_few}")
-    log(f"StopIteration Errors (kept in): {errors}")
-    log(f"PDBs with <2 sequences (filtered out): {seq_error}")
+    log(f"PDB chains that <{chain_minlen} or >{chain_maxlen}: {chain_error}")
     log(
-        f"PDBs with invalid residue names (e.g. MSE, PLM) (filtered out): {invalid_resname}"
+        f"PDBs with an invalid # of sequences (<2 or != # chains): {seq_error}"
+    )
+    log(
+        f"PDB chains with invalid residue names (e.g. MSE, PLM): {invalid_resname}"
+    )
+    log(
+        f"PDBs with chain lengths that don't satisfy user-entered constraints: {chainlen_unsatisfied}"
     )
     end = time.perf_counter()
     print(f"Elapsed {(end-start)/60} minutes.")
