@@ -10,6 +10,7 @@ import csv
 import argparse
 from datetime import datetime
 import time
+from pathlib import Path
 
 MAX_D = 25
 
@@ -55,6 +56,16 @@ def add_args(parser):
         "--tsv",
         required=True,
         help="Full path of output tsv (for PPIs)",
+    )
+    data_grp.add_argument(
+        "--distance_threshold",
+        required=True,
+        help="enter distance threshold for calculating distances between residues (angstroms) (e.g. 25)",
+    )
+    data_grp.add_argument(
+        "--discontinuity_threshold",
+        required=True,
+        help="enter percentage threshold for contact map discontinuity (e.g. 75, meaning capped at 75 percent discontinuity)",
     )
     return parser
 
@@ -394,7 +405,6 @@ def make_fasta_and_tsv(
         for pdb in pdbs:
             sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
             for record in sequences:
-                print(record)
                 if (
                     record.id not in chain_error
                     and record.id not in invalid_resname
@@ -466,7 +476,7 @@ def get_aligned_seqs(seq0_long, seq0_short, seq1_long, seq1_short):
     return [seq0_long_f, seq0_short_f, seq1_long_f, seq1_short_f]
 
 
-def residue_distance(res0, res1, max_d=25.0):
+def residue_distance(res0, res1, max_d):
     """
     Calculates Euclidean distance between two amino acid residues, with a maximum distance threshold.
 
@@ -494,6 +504,7 @@ def calc_dist_matrix(
     seq0_short_f,
     seq1_long_f,
     seq1_short_f,
+    dist_thresh,
 ):
     """
     Generates contact map between two chains using sequence alignment.
@@ -546,7 +557,7 @@ def calc_dist_matrix(
                 continue
             else:
                 res1 = next(ch1_it)
-                D[x, y] = residue_distance(res0, res1, max_d=MAX_D)
+                D[x, y] = residue_distance(res0, res1, dist_thresh)
                 y += 1
         y = 0
     df = pd.DataFrame(D, index=list(seq0_long), columns=list(seq1_long))
@@ -586,10 +597,12 @@ def main(args):
     pdb_text = args.pdb_files
     if args.filter_number_of_chains is not None:
         chain_lengths_allowed = list(args.filter_number_of_chains)
-        chain_lengths_allowed = [eval(i) for i in chain_lengths_allowed]
+        chain_lengths_allowed = [int(i) for i in chain_lengths_allowed]
     pdb_list = get_pdb_list(pdb_text)
     chain_minlen = int(args.filter_chain_minlen)
     chain_maxlen = int(args.filter_chain_maxlen)
+    dist_thresh = float(args.distance_threshold)
+    discont_thresh = float(args.discontinuity_threshold) / 100
 
     with h5py.File(f"{h5_name}", "w") as hf_pair:
         total = 0
@@ -599,15 +612,19 @@ def main(args):
         seq_error = []
         invalid_resname = []
         chainlen_unsatisfied = []
+        unknown_name = []
 
         for pdb in pdb_list:
             total += 1
             print(f"Total: {total}")
             print(pdb)
-            pdb_id = pdb[-8:-4]
+            pdb_id = Path(pdb).stem
 
             structure = PDB.PDBParser().get_structure(pdb_id, pdb)
             sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
+            if sequences[0].name == "<unknown name>":
+                unknown_name.append(pdb_id)
+                continue
             chains = list(structure.get_chains())
             if len(chains) != len(sequences):
                 seq_error.append(pdb_id)
@@ -658,7 +675,7 @@ def main(args):
                     continue
                 [chains_two, chain_error] = output
 
-                print(chains_two)
+                # print(chains_two)
                 # print(seqs_long)
                 # print(seqs_short)
 
@@ -694,9 +711,13 @@ def main(args):
                     seq0_short_f,
                     seq1_long_f,
                     seq1_short_f,
+                    dist_thresh,
                 )
                 count_discontinuities = (D == -1).sum()
-                if count_discontinuities < 0.75 * D.shape[0] * D.shape[1]:
+                if (
+                    count_discontinuities
+                    < discont_thresh * D.shape[0] * D.shape[1]
+                ):
                     interactions = ((0 < D) & (D < 25)).sum()
                     if interactions > D.shape[0] * D.shape[1] * 0.001:
                         hf_pair.create_dataset(
@@ -720,6 +741,7 @@ def main(args):
     log(
         f"PDBs with chain lengths that don't satisfy user-entered constraints: {chainlen_unsatisfied}"
     )
+    log(f"PDBs with unknown names/descriptions: {unknown_name}")
     end = time.perf_counter()
     print(f"Elapsed {(end-start)/60} minutes.")
 
