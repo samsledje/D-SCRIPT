@@ -331,6 +331,9 @@ def check_sequences_valid(seqs_long, seqs_short):
     :return: whether both sequences exist and are valid
     :rtype: Boolean
     """
+    # print((seqs_long[0].seq, seqs_long[1].seq))
+    # print((seqs_short[0].seq, seqs_short[1].seq))
+    # print("\n")
     return (
         len(seqs_short) < 2
         or len(seqs_long) < 2
@@ -642,25 +645,27 @@ def main(args):
                 for b in chain_pairing[idx + 1 :]
             ]
             # print(pair)
-
             for item in pair:
-                seqences = get_sequences(pdb, chains, item)
-                if seqences[0] is None:
+                seqences_pair = get_sequences(pdb, chains, item)
+                if seqences_pair[0] is None:
                     if (
-                        f"{pdb_id}:{str(seqences[1].get_id())}"
+                        f"{pdb_id}:{str(seqences_pair[1].id)}"
                         not in invalid_resname
                     ):
                         invalid_resname.append(
-                            f"{pdb_id}:{str(seqences[1].get_id())}"
+                            f"{pdb_id}:{str(seqences_pair[1].id)}"
                         )
                         print("REMOVED - Invalid Residue Name")
                     continue
-                [seqs_long, seqs_short] = seqences
+                [seqs_long, seqs_short] = seqences_pair
 
                 seq_verify = check_sequences_valid(seqs_short, seqs_long)
                 if seq_verify is True:
-                    seq_error.append(pdb_id)
-                    print("REMOVED - <2 Sequences")
+                    # print((seqs_short[0].seq, seqs_short[1].seq))
+                    # print((seqs_long[0].seq, seqs_short[1].seq))
+                    if pdb_id not in seq_error:
+                        seq_error.append(pdb_id)
+                        print("REMOVED - <2 Sequences")
                     continue
 
                 output = get_chains_prelim_filtering(

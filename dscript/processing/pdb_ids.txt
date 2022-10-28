@@ -1,1 +1,1 @@
-dscript/pdb/6LGQ.pdb
+dscript/pdb/2XAG.pdb
