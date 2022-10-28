@@ -59,13 +59,21 @@ def add_args(parser):
     )
     data_grp.add_argument(
         "--distance_threshold",
-        required=True,
+        required=False,
+        default=25,
         help="enter distance threshold for calculating distances between residues (angstroms) (e.g. 25)",
     )
     data_grp.add_argument(
         "--discontinuity_threshold",
-        required=True,
+        required=False,
+        default=75,
         help="enter percentage threshold for contact map discontinuity (e.g. 75, meaning capped at 75 percent discontinuity)",
+    )
+    data_grp.add_argument(
+        "--interaction_threshold",
+        required=False,
+        default=0.01,
+        help="enter percentage threshold for # of interactions (0 < x < distance threshold) to classify contact map as TP (e.g., .01, meaning map will count as TP if over 1/1000 of the values are (0 < x < distance threshold))",
     )
     return parser
 
@@ -606,6 +614,7 @@ def main(args):
     chain_maxlen = int(args.filter_chain_maxlen)
     dist_thresh = float(args.distance_threshold)
     discont_thresh = float(args.discontinuity_threshold) / 100
+    interact_thresh = float(args.interaction_threshold) / 100
 
     with h5py.File(f"{h5_name}", "w") as hf_pair:
         total = 0
@@ -705,7 +714,6 @@ def main(args):
                 ] = get_aligned_seqs(
                     seq0_long, seq0_short, seq1_long, seq1_short
                 )
-
                 D = calc_dist_matrix(
                     pdb_id,
                     chain0,
@@ -723,8 +731,11 @@ def main(args):
                     count_discontinuities
                     < discont_thresh * D.shape[0] * D.shape[1]
                 ):
-                    interactions = ((0 < D) & (D < 25)).sum()
-                    if interactions > D.shape[0] * D.shape[1] * 0.001:
+                    interactions = ((0 < D) & (D < dist_thresh)).sum()
+                    if (
+                        interactions
+                        > D.shape[0] * D.shape[1] * interact_thresh
+                    ):
                         hf_pair.create_dataset(
                             f"{pdb_id.upper()}:{str(chains_two[0].get_id())}x{pdb_id.upper()}:{str(chains_two[1].get_id())}",
                             data=D,
