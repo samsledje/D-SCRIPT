@@ -99,9 +99,9 @@ def get_sequences_from_chains(chains, pair):
     """
     Returns a list of Atom Sequences chains
 
-    :param pdb_id: 4 letter name of pdb
-    :type version: string
-    :param pdb: full path of pdb file
+    :param chains: list of all chains in pdb
+    :type version: list
+    :param pair: tuple pair of indices taken from chains
     :type version: string
     :return: list of atom sequences
     :rtype: list
@@ -314,6 +314,10 @@ def get_sequences(pdb, chains, pair):
 
     :param pdb: full path of pdb file
     :type version: string
+    :param chains: list of all chains in pdb
+    :type version: list
+    :param pair: tuple pair of indices taken from chains
+    :type version: string
     :return: list containing sequence from seq-res and sequence from atom
     :rtype: list
     """
@@ -374,6 +378,8 @@ def get_chains_prelim_filtering(
     :type version: int
     :param chain_error: list of pdbs that don't satisfy length conditions
     :type version: list
+    :param pair: tuple pair of indices taken from chains
+    :type version: string
     :return: a list of filtered chains and two lists of pdbs that don't satisfy filtering conditions
     :rtype: list
     """
@@ -408,6 +414,12 @@ def make_fasta_and_tsv(
     :param fasta_name: path of fasta file
     :type version: string
     :param valid_pdb: list of valid pdbs that passed filtering
+    :type version: list
+    :param pdbs: list of all valid pdb
+    :type version: list
+    :param chain_error: list of all pdb chains that have invalid lengths
+    :type version: list
+    :param invalid_resname: list of all pdbs that have invalid residues
     :type version: list
     """
     with open(f"{tsv_name}", "w+") as tsv_f, open(
@@ -538,6 +550,8 @@ def calc_dist_matrix(
     :type version: string
     :param seq1_short_f: short alignment sequence for chain 1
     :type version: string
+    :param dist_thresh: argument for distance threshold
+    :type version: float
     :return: generated distance matrix between two chains
     :rtype: Numpy matrix
     """
