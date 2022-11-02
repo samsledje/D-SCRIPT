@@ -3,8 +3,12 @@ These files provide the necessary code for generating 2D contact maps from (hete
 
 ## Running Code
 1. Make directory for storing data
-    `mkdir dscript/pdbs_large`
-2. Download and unzip PDB files for complexes
-    `bash bin/download_contact_maps.sh -f dscript/processing/pdb_ids.txt -o dscript/pdbs_large -p; gunzip dscript/pdbs_large/*.gz`
-3. Generate contact map dataset, output fasta, and output tsv
-    `python dscript/processing/process.py --pdb_directory pdbs_large --h5_name output_l --fasta proteins_l --tsv cmap_l`
+    `mkdir [directory]`
+2. Download and unzip PDB files for complexes (Input file: text file containing comma-separated PDB IDs)
+    `bash bin/download_contact_maps.sh -f [input file] -o [directory] -p; gunzip [directory]/*.gz`
+3. Create a plain text file [pdb_files] with each line containing a full path to a PDB file
+    (ex. [directory1]/[15C8.pdb]
+         [directory2]/[25C8.pdb]
+         ...)
+3. Run processing code (provide full file paths for [pdb_files, h5_name, fasta, and tsv])
+    `python dscript/processing/process.py --pdb_files [pdb_files] --filter_chain_minlen [min_len] --filter_chain_maxlen [max_len] --h5_name [dataset] --fasta [fasta] --tsv [tsv]`

@@ -10,11 +10,13 @@ htmlcov
 dev*
 dscript/proteins
 dscript/pdbs
+dscript/pdb
 dscript/fastas
 dscript/pdbsNEW
 dscript/fastasNEW
 dscript/fastasTEST
 dscript/pdbsTEST
+dscript/processing/pdb_ids
 data/
 auc.ipynb
 contact_map.ibyb.ipynb
