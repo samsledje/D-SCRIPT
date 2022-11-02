@@ -21,21 +21,21 @@ class TestCommands:
         assert not proc.returncode
 
     def test_embed(self):
-        cmd = "dscript embed --seqs dscript/tests/test.fasta --outfile tmp-dscript-testing/test_embed.h5 --device 0"
+        cmd = "dscript embed --seqs dscript/tests/test.fasta --outfile tmp-dscript-testing/test_embed.h5"
         self._run_command(cmd)
 
     def test_train_with_topsy_turvy(self):
-        cmd = "dscript train --topsy-turvy --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train --device 0"
+        cmd = "dscript train --topsy-turvy --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train"
         self._run_command(cmd)
 
     def test_train_without_topsy_turvy(self):
-        cmd = "dscript train --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train --device 0"
+        cmd = "dscript train --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train"
         self._run_command(cmd)
 
     def test_evaluate(self):
-        cmd = "dscript evaluate --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_evaluate --device 0"
+        cmd = "dscript evaluate --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_evaluate"
         self._run_command(cmd)
 
     def test_predict(self):
-        cmd = "dscript predict --seqs dscript/tests/test.fasta --pairs dscript/tests/test.csv --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_predict --thresh 0.05 --device 0"
+        cmd = "dscript predict --seqs dscript/tests/test.fasta --pairs dscript/tests/test.csv --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_predict --thresh 0.05"
         self._run_command(cmd)

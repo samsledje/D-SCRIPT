@@ -1,4 +1,3 @@
-import dscript
 from pathlib import Path
 
 from dscript.pretrained import (
@@ -9,13 +8,14 @@ from dscript.pretrained import (
 )
 
 MODEL_VERSIONS = [
-    "human_v1",
-    "lm_v1",
+    "human_v1",  # Original D-SCRIPT Model
+    "human_v2",  # Topsy-Turvy
+    "lm_v1",  # Bepler & Berger 2019
 ]
 
 print(dscript.__version__)
 
-# checker method to test if pretrained models exist and are working
+
 def test_get_state_dict():
     for mv in MODEL_VERSIONS:
         sd = get_state_dict(mv, verbose=True)
@@ -34,6 +34,12 @@ def test_build_human_1():
     build_human_1(sd)
 
 
+def test_build_human_2():
+    sd = get_state_dict("human_v2")
+    build_human_1(sd)
+
+
 def test_get_pretrained():
     get_pretrained("human_v1")
+    get_pretrained("human_v2")
     get_pretrained("lm_v1")
