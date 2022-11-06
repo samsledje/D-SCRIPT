@@ -125,12 +125,12 @@ def add_args(parser):
     map_grp.add_argument(
         "--contact-map-embedding",
         required=False,
-        help="include a true contact map for supervised training",
+        help="language model embeddings for proteins in cmap training",
     )
     map_grp.add_argument(
         "--contact-maps",
         required=False,
-        help="pass in h5py files of true contact maps for pdb protein pairs",
+        help="true contact maps for pdb protein pairs",
     )
     map_grp.add_argument(
         "--contact-map-threshold",

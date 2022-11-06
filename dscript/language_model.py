@@ -95,22 +95,22 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
             )
         )
 
-    h5fi = h5py.File(outputPath, "w")
-
     log("# Storing to {}...".format(outputPath))
-    with torch.no_grad():
+    with torch.no_grad(), h5py.File(outputPath, "a") as h5fi:
         try:
             for (name, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
                 if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)
-                    h5fi.create_dataset(
-                        name, data=z.cpu().numpy(), compression="lzf"
+                    dset = h5fi.require_dataset(
+                        name,
+                        shape=z.shape,
+                        dtype="float32",
+                        compression="lzf",
                     )
+                    dset[:] = z.cpu().numpy()
         except KeyboardInterrupt:
-            h5fi.close()
             sys.exit(1)
-    h5fi.close()
 
 
 def embed_from_directory(

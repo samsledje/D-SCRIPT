@@ -7,10 +7,15 @@
 
 ## v0.2
 
-### v0.2.1
+### v0.2.2
+- Resolve #35 to use `require_dataset` -- can now add multiple .fasta files to the same h5 file
+- Update pretrained API and docs to include Topsy-Turvy
+- Add retry decorator to get_pretrained if download fails
+
+### v0.2.1: 2022-06-28 -- Bug fixes
 - Add biopython to setup.py
 
-### v0.2.0
+### v0.2.0: 2022-06-24 -- Integration of Topsy Turvy
 
 - Integrate Topsy-Turvy to allow for top-down supervision
 - Use utils.log function across all commands
