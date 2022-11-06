@@ -23,7 +23,7 @@ def add_args(parser):
     """
     data_grp = parser.add_argument_group("Data Processing files")
     data_grp.add_argument(
-        "--pdb_files",
+        "--pdb_file",
         required=True,
         help="Plain text file, where each newline contains a FULL PATH to a pdb file (ex. pdb_directory/1AON.pdb)",
     )
@@ -78,7 +78,7 @@ def add_args(parser):
     return parser
 
 
-def get_pdb_list(pdb_files):
+def get_pdb_list(pdb_file):
     """
     Returns a list of pdb file paths given a text file containing pdb paths.
 
@@ -88,7 +88,7 @@ def get_pdb_list(pdb_files):
     :rtype: list
     """
     pdb_list = []
-    with open(f"{pdb_files}", "r") as pdb_f:
+    with open(f"{pdb_file}", "r") as pdb_f:
         pdb_list = pdb_f.read().split("\n")
     if "" in pdb_list:
         pdb_list.remove("")
@@ -619,7 +619,7 @@ def main(args):
     h5_name = args.h5_name
     fasta_name = args.fasta
     tsv_name = args.tsv
-    pdb_text = args.pdb_files
+    pdb_text = args.pdb_file
     if args.filter_number_of_chains is not None:
         chain_lengths_allowed = list(args.filter_number_of_chains)
         chain_lengths_allowed = [int(i) for i in chain_lengths_allowed]
