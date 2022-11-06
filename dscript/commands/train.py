@@ -32,7 +32,8 @@ from ..utils import (
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
 from ..models.interaction import ModelInteraction
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 
 
 class TrainArguments(NamedTuple):
@@ -106,6 +107,12 @@ def add_args(parser):
     )
 
     # Contact Map
+    map_grp.add_argument(
+        "--run-cmap",
+        dest="run_cmap",
+        action="store_true",
+        help="run with contact maps",
+    )
     map_grp.add_argument(
         "--contact-map-train",
         required=False,
@@ -667,8 +674,13 @@ def train_model(args, output):
         glider_mat, glider_map = (None, None)
 
     # CONTACT MAP DATA LOADING
-    mode_classify = args.contact_map_mode
-    if args.contact_map_train is not None:
+    cmap_flag = args.run_cmap
+    if cmap_flag:
+        mode_classify = args.contact_map_mode
+        if mode_classify:
+            activation = nn.Sigmoid()
+        else:
+            activation = nn.ReLU()
         fimaps = args.contact_maps
         cmap_train = args.contact_map_train
         cmap_test = args.contact_map_test
@@ -741,7 +753,6 @@ def train_model(args, output):
         output.flush()
 
         # load in dictionary of cmap protein embeddings
-        # print(cmap_embeddings)
         log("Loading embeddings of contact maps", file=output)
         output.flush()
         cmap_h5fi = h5py.File(cmap_embeddings, "r")
@@ -756,11 +767,6 @@ def train_model(args, output):
             cmap_embeddings[prot_name] = torch.from_numpy(
                 cmap_h5fi[prot_name][:, :]
             )
-
-    if mode_classify:
-        activation = nn.Sigmoid()
-    else:
-        activation = nn.ReLU()
 
     if args.checkpoint is None:
 
@@ -782,9 +788,14 @@ def train_model(args, output):
         log(f"\thidden_dim: {hidden_dim}", file=output)
         log(f"\tkernel_width: {kernel_width}", file=output)
 
-        contact_model = ContactCNN(
-            projection_dim, hidden_dim, kernel_width, activation
-        )
+        if cmap_flag:
+            contact_model = ContactCNN(
+                projection_dim, hidden_dim, kernel_width, activation
+            )
+        else:
+            contact_model = ContactCNN(
+                projection_dim, hidden_dim, kernel_width
+            )
 
         # Create the full model
         do_w = not args.no_w
@@ -822,11 +833,12 @@ def train_model(args, output):
     # Train the model
     lr = args.lr
     wd = args.weight_decay
-    map_lr = args.contact_map_lr
+    if cmap_flag:
+        map_lr = args.contact_map_lr
+        map_inter_weight = args.contact_map_lambda
     num_epochs = args.num_epochs
     batch_size = args.batch_size
     inter_weight = args.interaction_weight
-    map_inter_weight = args.contact_map_lambda
     cmap_weight = 1 - inter_weight
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
@@ -834,33 +846,39 @@ def train_model(args, output):
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
     # CONTACT MAP OPTIMIZER
-    # make separate learning rates  lr
-    optim_cmap = torch.optim.Adam(params, lr=map_lr, weight_decay=wd)
+    if cmap_flag:
+        optim_cmap = torch.optim.Adam(params, lr=map_lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
-    log(
-        f"Contact maps -- Training with Adam: lr={map_lr}, weight_decay={wd}",
-        file=output,
-    )
+    if cmap_flag:
+        log(
+            f"Contact maps -- Training with Adam: lr={map_lr}, weight_decay={wd}",
+            file=output,
+        )
     log(f"\tnum_epochs: {num_epochs}", file=output)
     log(f"\tbatch_size: {batch_size}", file=output)
     log(f"\tinteraction weight: {inter_weight}", file=output)
-    log(f"\tcontact map weight: {cmap_weight}", file=output)
-    log(f"\tcmap training interaction weight: {map_inter_weight}", file=output)
+    if cmap_flag:
+        log(f"\tcontact map weight: {cmap_weight}", file=output)
+        log(
+            f"\tcmap training interaction weight: {map_inter_weight}",
+            file=output,
+        )
     output.flush()
 
     batch_report_fmt = (
         "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     )
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
-    epoch_report_cmap = "Finished Contact Map Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
+    if cmap_flag:
+        epoch_report_cmap = "Finished Contact Map Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     loss_vals = []
     acc_vals = []
 
     N = len(train_iterator) * batch_size
-    if args.contact_map_train is not None:
+    if cmap_flag:
         N_cmap = len(cmap_train_iterator) * batch_size
     for epoch in range(num_epochs):
         epoch_loss = []
@@ -920,7 +938,7 @@ def train_model(args, output):
                 output.flush()
 
         # CONTACT MAP TRAINING LOOP
-        if args.contact_map_train is not None:
+        if cmap_flag:
             loss_accum_cmap = 0
             acc_accum_cmap = 0
             mse_accum_cmap = 0
@@ -1001,7 +1019,7 @@ def train_model(args, output):
             output.flush()
 
             # cmap evaluation
-            if args.contact_map_train is not None:
+            if cmap_flag:
                 (
                     inter_loss,
                     inter_correct,
