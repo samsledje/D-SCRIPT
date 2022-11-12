@@ -11,7 +11,7 @@ from torch.utils.data import IterableDataset, DataLoader
 from sklearn.metrics import average_precision_score as average_precision
 from tqdm import tqdm
 from typing import Callable, NamedTuple, Optional
-
+import json
 import sys
 import argparse
 import h5py
@@ -19,6 +19,7 @@ import subprocess as sp
 import numpy as np
 import pandas as pd
 import gzip as gz
+from Bio import SeqIO
 
 from .. import __version__
 from ..alphabets import Uniprot21
@@ -77,6 +78,7 @@ def add_args(parser):
     inter_grp = parser.add_argument_group("Interaction Module")
     train_grp = parser.add_argument_group("Training")
     misc_grp = parser.add_argument_group("Output and Device")
+    foldseek_grp = parser.add_argument_group("Foldseek related commands")
 
     # Data
     data_grp.add_argument(
@@ -222,11 +224,51 @@ def add_args(parser):
     misc_grp.add_argument(
         "--checkpoint", help="checkpoint model to start training from"
     )
+    
+    ## Foldseek arguments
+    foldseek_grp.add_argument(
+        "--allow_foldseek", default = False, action = "store_true", help = "If set to true, adds the foldseek one-hot representation"
+    )
+    foldseek_grp.add_argument(
+        "--foldseek_fasta", help = "foldseek fasta file containing the foldseek representation"
+    )
+    foldseek_grp.add_argument(
+        "--foldseek_vocab", help = "foldseek vocab json file mapping foldseek alphabet to json"
+    )
+    
+    foldseek_grp.add_argument(
+        "--add_foldseek_after_projection", default = False, action = "store_true", help = "If set to true, adds the fold seek embedding after the projection layer"
+    )
+    
 
     return parser
 
+def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
+    """
+    fold_record is just a dictionary {ensembl_gene_name => foldseek_sequence}
+    """
+    if n0 in fold_record:
+        fold_seq  = fold_record[n0]
+        assert size_n0 == len(fold_seq)
+        foldseek_enc = torch.zeros(size_n0, len(fold_vocab), dtype = torch.float32)
+        for i, a in enumerate(fold_seq):
+            assert a in fold_vocab
+            foldseek_enc[i, fold_vocab[a]] = 1
+        return foldseek_enc
+    else:
+        return torch.zeros(size_n0, len(fold_vocab), dtype = torch.float32)
+    
 
-def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
+
+def predict_cmap_interaction(model, n0, n1, tensors,
+                             use_cuda,
+                             ### Foldseek added here
+                             allow_foldseek = False,
+                             fold_record = None,
+                             fold_vocab  = None,
+                             add_first = True
+                             ###
+                            ):
     """
     Predict whether a list of protein pairs will interact, as well as their contact map.
 
@@ -247,12 +289,29 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     p_hat = []
     c_map_mag = []
     for i in range(b):
-        z_a = tensors[n0[i]]
+        z_a = tensors[n0[i]] # 1 x seqlen x dim
         z_b = tensors[n1[i]]
         if use_cuda:
             z_a = z_a.cuda()
             z_b = z_b.cuda()
-        cm, ph = model.map_predict(z_a, z_b)
+        if allow_foldseek:
+            assert fold_record is not None and fold_vocab is not None
+            f_a = get_foldseek_onehot(n0[i], z_a.shape[1], fold_record, fold_vocab).unsqueeze(0) # seqlen x vocabsize
+            f_b = get_foldseek_onehot(n1[i], z_b.shape[1], fold_record, fold_vocab).unsqueeze(0)
+            
+            ## check if cuda
+            if use_cuda:
+                f_a = f_a.cuda()
+                f_b = f_b.cuda()
+            
+            if add_first:
+                z_a = torch.concat([z_a, f_a], dim = 2)
+                z_b = torch.concat([z_b, f_b], dim = 2)
+
+        if allow_foldseek and (not add_first):
+            cm, ph = model.map_predict(z_a, z_b, True, f_a, f_b)
+        else:
+            cm, ph = model.map_predict(z_a, z_b)
         p_hat.append(ph)
         c_map_mag.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
@@ -260,7 +319,14 @@ def predict_cmap_interaction(model, n0, n1, tensors, use_cuda):
     return c_map_mag, p_hat
 
 
-def predict_interaction(model, n0, n1, tensors, use_cuda):
+def predict_interaction(model, n0, n1, tensors, use_cuda,
+                            ### Foldseek added here
+                             allow_foldseek = False,
+                             fold_record = None,
+                             fold_vocab  = None,
+                             add_first = True
+                             ###
+                       ):
     """
     Predict whether a list of protein pairs will interact.
 
@@ -275,7 +341,9 @@ def predict_interaction(model, n0, n1, tensors, use_cuda):
     :param use_cuda: Whether to use GPU
     :type use_cuda: bool
     """
-    _, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda)
+    _, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda, 
+                                        allow_foldseek, fold_record, fold_vocab, add_first
+                                       )
     return p_hat
 
 
@@ -291,6 +359,12 @@ def interaction_grad(
     glider_map=None,
     glider_mat=None,
     use_cuda=True,
+     ### Foldseek added here
+     allow_foldseek = False,
+     fold_record = None,
+     fold_vocab  = None,
+     add_first = True
+     ###
 ):
     """
     Compute gradient and backpropagate loss for a batch.
@@ -323,7 +397,8 @@ def interaction_grad(
     """
 
     c_map_mag, p_hat = predict_cmap_interaction(
-        model, n0, n1, tensors, use_cuda
+        model, n0, n1, tensors, use_cuda,
+        allow_foldseek, fold_record, fold_vocab, add_first
     )
 
     if use_cuda:
@@ -379,7 +454,14 @@ def interaction_grad(
     return loss, correct, mse, b
 
 
-def interaction_eval(model, test_iterator, tensors, use_cuda):
+def interaction_eval(model, test_iterator, tensors, use_cuda,
+                             ### Foldseek added here
+                             allow_foldseek = False,
+                             fold_record = None,
+                             fold_vocab  = None,
+                             add_first = True
+                             ###
+                    ):
     """
     Evaluate test data set performance.
 
@@ -399,7 +481,8 @@ def interaction_eval(model, test_iterator, tensors, use_cuda):
     true_y = []
 
     for n0, n1, y in test_iterator:
-        p_hat.append(predict_interaction(model, n0, n1, tensors, use_cuda))
+        p_hat.append(predict_interaction(model, n0, n1, tensors, use_cuda
+                                        ,allow_foldseek, fold_record, fold_vocab, add_first))
         true_y.append(y)
 
     y = torch.cat(true_y, 0)
@@ -446,6 +529,23 @@ def train_model(args, output):
     embedding_h5 = args.embedding
     # h5fi = h5py.File(embedding_h5, "r")
 
+    ########## Foldseek code #########################3
+    allow_foldseek = args.allow_foldseek
+    fold_fasta_file = args.foldseek_fasta
+    fold_vocab_file = args.foldseek_vocab
+    add_first=  not args.add_foldseek_after_projection
+    fold_record = {}
+    fold_vocab = None
+    if allow_foldseek:
+        assert fold_fasta_file is not None and fold_vocab_file is not None
+        fold_fasta = SeqIO.parse(fold_fasta_file, "fasta")
+        for rec in fold_fasta:
+            fold_record[rec.id] = rec.seq
+        with open(fold_vocab_file, "r") as fv:
+            fold_vocab = json.load(fv)
+    ##################################################
+    
+    
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     train_df.columns = ["prot1", "prot2", "label"]
 
@@ -521,7 +621,17 @@ def train_model(args, output):
 
         # Create embedding model
         input_dim = args.input_dim
+        
+        ############### foldseek code ###########################
+        
+        if allow_foldseek and add_first:
+            input_dim += len(fold_vocab)
+            
+        ##########################################################    
+        
         projection_dim = args.projection_dim
+        
+        
         dropout_p = args.dropout_p
         embedding_model = FullyConnectedEmbed(
             input_dim, projection_dim, dropout=dropout_p
@@ -537,7 +647,10 @@ def train_model(args, output):
         log(f"\thidden_dim: {hidden_dim}", file=output)
         log(f"\tkernel_width: {kernel_width}", file=output)
 
-        contact_model = ContactCNN(projection_dim, hidden_dim, kernel_width)
+        proj_dim = projection_dim
+        if allow_foldseek and not add_first:
+            proj_dim  += len(fold_vocab)
+        contact_model = ContactCNN(proj_dim, hidden_dim, kernel_width)
 
         # Create the full model
         do_w = not args.no_w
@@ -623,6 +736,7 @@ def train_model(args, output):
                 glider_map=glider_map,
                 glider_mat=glider_mat,
                 use_cuda=use_cuda,
+                allow_foldseek = allow_foldseek, fold_record = fold_record, fold_vocab = fold_vocab, add_first = add_first
             )
 
             n += b
@@ -665,7 +779,8 @@ def train_model(args, output):
                 inter_re,
                 inter_f1,
                 inter_aupr,
-            ) = interaction_eval(model, test_iterator, embeddings, use_cuda)
+            ) = interaction_eval(model, test_iterator, embeddings, use_cuda,
+                                allow_foldseek, fold_record, fold_vocab, add_first)
             tokens = [
                 epoch + 1,
                 num_epochs,
