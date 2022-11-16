@@ -7,12 +7,11 @@
 
 ## v0.2
 
-- Add ability to set a random seed for training
-
 ### v0.2.2
 - Resolve #35 to use `require_dataset` -- can now add multiple .fasta files to the same h5 file
 - Update pretrained API and docs to include Topsy-Turvy
 - Add retry decorator to get_pretrained if download fails
+- Add ability to set a random seed for training
 
 ### v0.2.1: 2022-06-28 -- Bug fixes
 - Add biopython to setup.py
