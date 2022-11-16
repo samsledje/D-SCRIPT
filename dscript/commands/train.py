@@ -61,6 +61,7 @@ class TrainArguments(NamedTuple):
     outfile: Optional[str]
     save_prefix: Optional[str]
     checkpoint: Optional[str]
+    seed: Optional[int]
     func: Callable[[TrainArguments], None]
 
 
@@ -222,6 +223,7 @@ def add_args(parser):
     misc_grp.add_argument(
         "--checkpoint", help="checkpoint model to start training from"
     )
+    misc_grp.add_argument("--seed", help="Set random seed", type=int)
 
     return parser
 
@@ -735,6 +737,9 @@ def main(args):
         log("Using CPU", file=output, print_also=True)
         device = "cpu"
 
+    if args.seed is not None:
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
     train_model(args, output)
 
     output.close()
