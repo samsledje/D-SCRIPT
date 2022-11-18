@@ -639,6 +639,7 @@ def main(args):
         seq_error = []
         invalid_resname = []
         chainlen_unsatisfied = []
+        unknown_name = []
 
         for pdb in pdb_list:
             total += 1
@@ -648,6 +649,14 @@ def main(args):
 
             structure = PDB.PDBParser().get_structure(pdb_id, pdb)
             sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
+            flag = False
+            for item in sequences:
+                if item.name == "<unknown name>":
+                    flag = True
+                    if pdb_id not in unknown_name:
+                        unknown_name.append(pdb_id)
+            if flag:
+                continue
             chains = list(structure.get_chains())
             if len(chains) != len(sequences):
                 seq_error.append(pdb_id)
@@ -768,6 +777,7 @@ def main(args):
     log(
         f"PDBs with chain lengths that don't satisfy user-entered constraints: {chainlen_unsatisfied}"
     )
+    log(f"PDBs with unknown names/descriptions: {unknown_name}")
     end = time.perf_counter()
     print(f"Elapsed {(end-start)/60} minutes.")
 

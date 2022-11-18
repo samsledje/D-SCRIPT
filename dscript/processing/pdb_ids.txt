@@ -3,3 +3,14 @@ dscript/pdb/2VRX.pdb
 dscript/pdb/3BP6.pdb
 dscript/pdb/6XAR.pdb
 dscript/pdb/1SRQ.pdb
+dscript/pdb/3N0P.pdb
+dscript/pdb/3GMN.pdb
+dscript/pdb/3N3K.pdb
+dscript/pdb/5AQP.pdb
+dscript/pdb/7L5M.pdb
+dscript/pdb/7PYV.pdb
+dscript/pdb/5IAW.pdb
+dscript/pdb/7VLG.pdb
+dscript/pdb/5VAP.pdb
+dscript/pdb/7DDP.pdb
+dscript/pdb/7C96.pdb
