@@ -431,6 +431,7 @@ def make_fasta_and_tsv(
                 if (
                     record.id not in chain_error
                     and record.id not in invalid_resname
+                    and record.name != "<unknown name>"
                 ):
                     fasta_f.write(record.format("fasta-2line"))
         for pdb_pair in valid_pdb.keys():
@@ -556,7 +557,7 @@ def calc_dist_matrix(
     :rtype: Numpy matrix
     """
     D = np.zeros((len(seq0_long), len(seq1_long)))
-    D = D - 1
+    D = D + 25
     ch0_it = iter(chain0)
     x = -1
     y = 0
@@ -638,7 +639,6 @@ def main(args):
         seq_error = []
         invalid_resname = []
         chainlen_unsatisfied = []
-        unknown_name = []
 
         for pdb in pdb_list:
             total += 1
@@ -648,9 +648,6 @@ def main(args):
 
             structure = PDB.PDBParser().get_structure(pdb_id, pdb)
             sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
-            if sequences[0].name == "<unknown name>":
-                unknown_name.append(pdb_id)
-                continue
             chains = list(structure.get_chains())
             if len(chains) != len(sequences):
                 seq_error.append(pdb_id)
@@ -771,7 +768,6 @@ def main(args):
     log(
         f"PDBs with chain lengths that don't satisfy user-entered constraints: {chainlen_unsatisfied}"
     )
-    log(f"PDBs with unknown names/descriptions: {unknown_name}")
     end = time.perf_counter()
     print(f"Elapsed {(end-start)/60} minutes.")
 

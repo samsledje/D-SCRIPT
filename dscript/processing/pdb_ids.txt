@@ -1,1 +1,5 @@
-dscript/pdb/4IZA.pdb
+dscript/pdb/6OB2.pdb
+dscript/pdb/2VRX.pdb
+dscript/pdb/3BP6.pdb
+dscript/pdb/6XAR.pdb
+dscript/pdb/1SRQ.pdb

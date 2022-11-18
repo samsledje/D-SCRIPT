@@ -137,7 +137,7 @@ def add_args(parser):
     map_grp.add_argument(
         "--contact-maps",
         required=False,
-        help="true contact maps for pdb protein pairs",
+        help="true contact maps (.h5) for pdb protein pairs",
     )
     map_grp.add_argument(
         "--contact-map-threshold",
@@ -538,7 +538,7 @@ def interaction_grad_cmap(
     return loss, mse, correct, b
 
 
-def interaction_eval(model, test_iterator, tensors, use_cuda, epoch_loss):
+def interaction_eval(model, test_iterator, tensors, use_cuda):
     """
     Evaluate test data set performance.
 
@@ -570,7 +570,7 @@ def interaction_eval(model, test_iterator, tensors, use_cuda, epoch_loss):
         p_hat.cuda()
 
     loss = F.binary_cross_entropy(p_hat.float(), y.float()).item()
-    epoch_loss.append(loss)
+    # epoch_loss.append(loss)
     b = len(y)
 
     with torch.no_grad():
@@ -591,7 +591,7 @@ def interaction_eval(model, test_iterator, tensors, use_cuda, epoch_loss):
 
     aupr = average_precision(y, p_hat)
 
-    return loss, correct, mse, pr, re, f1, aupr, epoch_loss
+    return loss, correct, mse, pr, re, f1, aupr
 
 
 def train_model(args, output):
@@ -881,13 +881,14 @@ def train_model(args, output):
     if cmap_flag:
         N_cmap = len(cmap_train_iterator) * batch_size
     for epoch in range(num_epochs):
-        epoch_loss = []
-        loss_cmap = []
+        # epoch_loss = []
+        # loss_cmap = []
 
         model.train()
 
         n = 0
-        n_cmap = 0
+        if cmap_flag:
+            n_cmap = 0
         loss_accum = 0
         acc_accum = 0
         mse_accum = 0
@@ -1000,10 +1001,7 @@ def train_model(args, output):
                 inter_re,
                 inter_f1,
                 inter_aupr,
-                epoch_loss,
-            ) = interaction_eval(
-                model, test_iterator, embeddings, use_cuda, epoch_loss
-            )
+            ) = interaction_eval(model, test_iterator, embeddings, use_cuda)
             tokens = [
                 epoch + 1,
                 num_epochs,
@@ -1028,13 +1026,8 @@ def train_model(args, output):
                     inter_re,
                     inter_f1,
                     inter_aupr,
-                    loss_cmap,
                 ) = interaction_eval(
-                    model,
-                    cmap_test_iterator,
-                    cmap_embeddings,
-                    use_cuda,
-                    loss_cmap,
+                    model, cmap_test_iterator, cmap_embeddings, use_cuda
                 )
                 tokens = [
                     epoch + 1,
@@ -1049,9 +1042,6 @@ def train_model(args, output):
                 ]
                 log(epoch_report_cmap.format(*tokens), file=output)
                 output.flush()
-
-        loss_vals.append(sum(epoch_loss) / len(epoch_loss))
-        acc_vals.append(inter_correct / (len(test_iterator) * batch_size))
 
         with torch.no_grad():
             # Save the model
@@ -1069,11 +1059,6 @@ def train_model(args, output):
                     model.cuda()
 
         output.flush()
-
-    # print(loss_vals)
-    # print(acc_vals)
-    # plt.plot(loss_vals, [1, 2, 3, 4, 5], 'b', label='validation loss')
-    # plt.show()
 
     if save_prefix is not None:
         save_path = save_prefix + "_final.sav"
