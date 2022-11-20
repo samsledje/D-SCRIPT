@@ -428,10 +428,13 @@ def make_fasta_and_tsv(
         for pdb in pdbs:
             sequences = list(SeqIO.parse(pdb, "pdb-seqres"))
             for record in sequences:
+                # print(record)
                 if (
                     record.id not in chain_error
                     and record.id not in invalid_resname
                     and record.name != "<unknown name>"
+                    and len(record.seq) > 0
+                    and record.seq != str(record.seq[0]) * len(str(record.seq))
                 ):
                     fasta_f.write(record.format("fasta-2line"))
         for pdb_pair in valid_pdb.keys():
@@ -690,8 +693,6 @@ def main(args):
 
                 seq_verify = check_sequences_valid(seqs_short, seqs_long)
                 if seq_verify is True:
-                    # print((seqs_short[0].seq, seqs_short[1].seq))
-                    # print((seqs_long[0].seq, seqs_short[1].seq))
                     if pdb_id not in seq_error:
                         seq_error.append(pdb_id)
                         print("REMOVED - <2 Sequences")
