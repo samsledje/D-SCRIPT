@@ -1,0 +1,6 @@
+[2022-11-12-00:49:00] D-SCRIPT Version 0.2.2
+[2022-11-12-00:49:00] Called as: /scratch2/kdevko01/conda/.conda/envs/dscript/bin/dscript train --train seqs-pairs/pairs/human_train.tsv --test seqs-pairs/pairs/human_test.tsv --embedding embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 --o fseek_after_human_model_topsyturvy/results.log --save-prefix fseek_after_human_model_topsyturvy/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7 --allow_foldseek --foldseek_fasta ../../foldseek_emb/r1_foldseekrep_seq.fa --foldseek_vocab ../data/foldseek_vocab.json --add_foldseek_after_projection
+[2022-11-12-00:49:01] Using CUDA device 7 - Tesla V100-PCIE-32GB
+[2022-11-12-00:49:02] Loaded 843584 training pairs
+[2022-11-12-00:49:02] Loaded 52725 test pairs
+[2022-11-12-00:49:02] Loading embeddings...
