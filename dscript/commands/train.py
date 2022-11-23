@@ -42,6 +42,13 @@ class TrainArguments(NamedTuple):
     test: str
     embedding: str
     no_augment: bool
+    contact_map_train: str
+    contact_map_test: str
+    contact_map_mode: bool
+    contact_map_embedding: str
+    contact_maps: str
+    contact_map_lr: float
+    contact_map_lambda: float
     input_dim: int
     projection_dim: int
     dropout: float
@@ -74,6 +81,7 @@ def add_args(parser):
     """
 
     data_grp = parser.add_argument_group("Data")
+    map_grp = parser.add_argument_group("Structural Supervision")
     proj_grp = parser.add_argument_group("Projection Module")
     contact_grp = parser.add_argument_group("Contact Module")
     inter_grp = parser.add_argument_group("Interaction Module")
@@ -97,6 +105,59 @@ def add_args(parser):
         "--no-augment",
         action="store_true",
         help="data is automatically augmented by adding (B A) for all pairs (A B). Set this flag to not augment data",
+    )
+
+    # Contact Map
+    map_grp.add_argument(
+        "--run-cmap",
+        dest="run_cmap",
+        action="store_true",
+        help="run with contact maps",
+    )
+    map_grp.add_argument(
+        "--contact-map-train",
+        required=False,
+        help="include tsv files of true contact maps for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-map-test",
+        required=False,
+        help="include tsv files of true contact maps for supervised training",
+    )
+    map_grp.add_argument(
+        "--contact-map-mode",
+        required=False,
+        action="store_true",
+        help="enter either regression mode or classification mode",
+    )
+    map_grp.add_argument(
+        "--contact-map-embedding",
+        required=False,
+        help="language model embeddings for proteins in cmap training",
+    )
+    map_grp.add_argument(
+        "--contact-maps",
+        required=False,
+        help="true contact maps (.h5) for pdb protein pairs",
+    )
+    map_grp.add_argument(
+        "--contact-map-threshold",
+        required=False,
+        help="enter a classification distance threshold for binarization of the cmap",
+    )
+    map_grp.add_argument(
+        "--contact-map-lr",
+        required=False,
+        type=float,
+        default=0.00003,
+        help="contact map optimizer learning rate (default: 0.00003)",
+    )
+    map_grp.add_argument(
+        "--contact-map-lambda",
+        required=False,
+        type=float,
+        default=0.1,
+        help="weight on the similarity objective (default: 0.1)",
     )
 
     # Embedding model
@@ -260,14 +321,15 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     
 
 
-def predict_cmap_interaction(model, n0, n1, tensors,
+def predict_interaction_cmap(model, n0, n1, tensors,
                              use_cuda,
                              ### Foldseek added here
                              allow_foldseek = False,
                              fold_record = None,
                              fold_vocab  = None,
-                             add_first = True
+                             add_first = True,
                              ###
+                             full_cmap = False,
                             ):
     """
     Predict whether a list of protein pairs will interact, as well as their contact map.
@@ -287,7 +349,7 @@ def predict_cmap_interaction(model, n0, n1, tensors,
     b = len(n0)
 
     p_hat = []
-    c_map_mag = []
+    c_map = []
     for i in range(b):
         z_a = tensors[n0[i]] # 1 x seqlen x dim
         z_b = tensors[n1[i]]
@@ -313,11 +375,13 @@ def predict_cmap_interaction(model, n0, n1, tensors,
         else:
             cm, ph = model.map_predict(z_a, z_b)
         p_hat.append(ph)
-        c_map_mag.append(torch.mean(cm))
+        if full_cmap:
+            c_map.append(cm)
+        else:
+            c_map.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
-    c_map_mag = torch.stack(c_map_mag, 0)
-    return c_map_mag, p_hat
-
+    c_map = torch.stack(c_map, 0)
+    return c_map, p_hat
 
 def predict_interaction(model, n0, n1, tensors, use_cuda,
                             ### Foldseek added here
@@ -341,7 +405,7 @@ def predict_interaction(model, n0, n1, tensors, use_cuda,
     :param use_cuda: Whether to use GPU
     :type use_cuda: bool
     """
-    _, p_hat = predict_cmap_interaction(model, n0, n1, tensors, use_cuda, 
+    _, p_hat = predict_interaction_cmap(model, n0, n1, tensors, use_cuda, 
                                         allow_foldseek, fold_record, fold_vocab, add_first
                                        )
     return p_hat
@@ -359,12 +423,14 @@ def interaction_grad(
     glider_map=None,
     glider_mat=None,
     use_cuda=True,
-     ### Foldseek added here
-     allow_foldseek = False,
-     fold_record = None,
-     fold_vocab  = None,
-     add_first = True
-     ###
+    ### Foldseek added here
+    allow_foldseek = False,
+    fold_record = None,
+    fold_vocab  = None,
+    add_first = True,
+    ###
+    cmap_tensors=None,
+    cmap_mode_classify=True
 ):
     """
     Compute gradient and backpropagate loss for a batch.
@@ -396,9 +462,12 @@ def interaction_grad(
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
 
-    c_map_mag, p_hat = predict_cmap_interaction(
+    do_cmap_supervision = cmap_tensors is not None
+
+    c_map, p_hat = predict_interaction_cmap(
         model, n0, n1, tensors, use_cuda,
-        allow_foldseek, fold_record, fold_vocab, add_first
+        allow_foldseek, fold_record, fold_vocab, add_first,
+        full_cmap = do_cmap_supervision
     )
 
     if use_cuda:
@@ -428,7 +497,31 @@ def interaction_grad(
     else:
         accuracy_loss = bce_loss
 
-    representation_loss = torch.mean(c_map_mag)
+    if not do_cmap_supervision:
+        # contact map magnitude loss
+        representation_loss = torch.mean(c_map) # These will be magnitudes
+    else:
+        if cmap_mode_classify:
+            cmap_loss_fn = torch.nn.BCELoss()
+        else:
+            cmap_loss_fn = torch.nn.MSELoss()
+
+        cmap_losses = []
+
+        for i in range(len(n0)):
+            true_cmap = torch.from_numpy(cmap_tensors[f"{n0[i]}x{n1[i]}"]).float()
+            pred_cmap = torch.squeeze(c_map[i]).float()
+
+            if use_cuda:
+                true_cmap = true_cmap.cuda()
+                pred_cmap = pred_cmap.cuda()
+
+            map_loss = loss_fn(pred_cmap, true_cmap)
+            cmap_losses.append(map_loss)
+
+        # contact map accuracy loss
+        representation_loss = torch.mean(torch.stack(cmap_losses))
+    
     loss = (accuracy_weight * accuracy_loss) + (
         (1 - accuracy_weight) * representation_loss
     )
@@ -452,7 +545,6 @@ def interaction_grad(
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
     return loss, correct, mse, b
-
 
 def interaction_eval(model, test_iterator, tensors, use_cuda,
                              ### Foldseek added here
@@ -516,6 +608,94 @@ def interaction_eval(model, test_iterator, tensors, use_cuda,
 
     return loss, correct, mse, pr, re, f1, aupr
 
+def load_cmap_data(args, output):
+    mode_classify = args.contact_map_mode
+
+    if mode_classify:
+        cmap_activation = nn.Sigmoid()
+    else:
+        cmap_activation = nn.ReLU()
+
+    fimaps = args.contact_maps
+    cmap_train = args.contact_map_train
+    cmap_test = args.contact_map_test
+    cmap_embedding_h5 = args.contact_map_embedding
+
+    threshold = args.contact_map_threshold
+    if threshold is not None:
+        threshold = float(threshold)
+
+    log("Loading training pairs for contact maps", file=output)
+    output.flush()
+
+    cmap_trainfi = pd.read_csv(cmap_train, sep="\t", header=None)
+    cmap_trainfi.columns = ["prot1", "prot2", "label"]
+    # create paired dataset for contact map proteins
+    cmap_train_p1 = cmap_trainfi["prot1"]
+    cmap_train_p2 = cmap_trainfi["prot2"]
+    cmap_train_y = torch.from_numpy(cmap_trainfi["label"].values)
+
+    cmap_train_dataset = PairedDataset(
+        cmap_train_p1, cmap_train_p2, cmap_train_y
+    )
+    cmap_train_iterator = torch.utils.data.DataLoader(
+        cmap_train_dataset,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=True,
+    )
+
+    log(
+        f"Loaded {len(cmap_train_p1)} contact map training pairs",
+        file=output,
+    )
+    log("Loading testing pairs for contact maps", file=output)
+    output.flush()
+
+    cmap_testfi = pd.read_csv(cmap_test, sep="\t", header=None)
+    cmap_testfi.columns = ["prot1", "prot2", "label"]
+    cmap_test_p1 = cmap_testfi["prot1"]
+    cmap_test_p2 = cmap_testfi["prot2"]
+    cmap_test_y = torch.from_numpy(cmap_testfi["label"].values)
+
+    cmap_test_dataset = PairedDataset(
+        cmap_test_p1, cmap_test_p2, cmap_test_y
+    )
+    cmap_test_iterator = torch.utils.data.DataLoader(
+        cmap_test_dataset,
+        batch_size=batch_size,
+        collate_fn=collate_paired_sequences,
+        shuffle=False,
+    )
+
+    log(f"Loaded {len(cmap_test_p1)} test pairs", file=output)
+    log("Loading dictionary of contact maps", file=output)
+    output.flush()
+
+    # load in dictionary of contact maps
+    cmap_tensors = {}
+    fi = h5py.File(fimaps, "r")
+    for i in range(len(cmap_train_p1)):
+        item = f"{cmap_train_p1[i]}x{cmap_train_p2[i]}"
+        c_map = np.array(fi[item][:])
+        if not mode_classify:
+            cmap_tensors[f"{item}"] = c_map
+        else:
+            contact_map = (c_map <= threshold).astype(float)
+            cmap_tensors[f"{item}"] = contact_map
+
+    log(f"Loaded {len(cmap_tensors.keys())} contact maps", file=output)
+    output.flush()
+
+    # load in dictionary of cmap protein embeddings
+    log("Loading embeddings of contact maps", file=output)
+    output.flush()
+
+    all_cmap_proteins = set(cmap_train_p1).union(cmap_train_p2).union(cmap_test_p1).union(cmap_test_p2)
+    cmap_embeddings = load_hdf5_parallel(cmap_embedding_h5, all_cmap_proteins)
+
+    return cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation
+
 
 def train_model(args, output):
     # Create data sets
@@ -527,7 +707,6 @@ def train_model(args, output):
     no_augment = args.no_augment
 
     embedding_h5 = args.embedding
-    # h5fi = h5py.File(embedding_h5, "r")
 
     ########## Foldseek code #########################3
     allow_foldseek = args.allow_foldseek
@@ -593,10 +772,7 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
-    # embeddings = {}
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    # for prot_name in tqdm(all_proteins):
-    #     embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
     embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
 
     # Topsy-Turvy
@@ -616,6 +792,11 @@ def train_model(args, output):
         )
     else:
         glider_mat, glider_map = (None, None)
+
+    ########################## CONTACT MAP DATA LOADING ####################
+    if args.run_cmap:
+        cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation = load_cmap_data(args, output)
+    ############################################################################
 
     if args.checkpoint is None:
 
@@ -650,7 +831,9 @@ def train_model(args, output):
         proj_dim = projection_dim
         if allow_foldseek and not add_first:
             proj_dim  += len(fold_vocab)
-        contact_model = ContactCNN(proj_dim, hidden_dim, kernel_width)
+
+        activation = nn.Sigmoid() if not args.run_cmap else cmap_activation
+        contact_model = ContactCNN(proj_dim, hidden_dim, kernel_width, activation)
 
         # Create the full model
         do_w = not args.no_w
@@ -658,7 +841,7 @@ def train_model(args, output):
         pool_width = args.pool_width
         do_sigmoid = not args.no_sigmoid
         log("Initializing interaction model with:", file=output)
-        log(f"\tdo_poool: {do_pool}", file=output)
+        log(f"\tdo_pool: {do_pool}", file=output)
         log(f"\tpool_width: {pool_width}", file=output)
         log(f"\tdo_w: {do_w}", file=output)
         log(f"\tdo_sigmoid: {do_sigmoid}", file=output)
@@ -688,35 +871,52 @@ def train_model(args, output):
     # Train the model
     lr = args.lr
     wd = args.weight_decay
+    if args.run_cmap:
+        cmap_lr = args.contact_map_lr
+        cmap_inter_weight = args.contact_map_lambda
     num_epochs = args.num_epochs
     batch_size = args.batch_size
     inter_weight = args.interaction_weight
-    cmap_weight = 1 - inter_weight
     digits = int(np.floor(np.log10(num_epochs))) + 1
     save_prefix = args.save_prefix
 
     params = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.Adam(params, lr=lr, weight_decay=wd)
+    if args.run_cmap:
+        optim_cmap = torch.optim.Adam(params, lr=cmap_lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
     log(f"\tnum_epochs: {num_epochs}", file=output)
     log(f"\tbatch_size: {batch_size}", file=output)
     log(f"\tinteraction weight: {inter_weight}", file=output)
-    log(f"\tcontact map weight: {cmap_weight}", file=output)
+    if args.run_cmap:
+        log(
+            f"Contact maps -- Training with Adam: lr={cmap_lr}, weight_decay={wd}",
+            file=output,
+        )
+        log(
+            f"\tcmap training interaction weight: {cmap_inter_weight}",
+            file=output,
+        )
     output.flush()
 
     batch_report_fmt = (
         "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     )
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
+    epoch_report_cmap = "Finished Contact Map Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     N = len(train_iterator) * batch_size
+    if args.run_cmap:
+        N_cmap = len(cmap_train_iterator) * batch_size
+
     for epoch in range(num_epochs):
 
         model.train()
 
         n = 0
+        n_cmap = 0
         loss_accum = 0
         acc_accum = 0
         mse_accum = 0
@@ -767,9 +967,67 @@ def train_model(args, output):
                 log(batch_report_fmt.format(*tokens), file=output)
                 output.flush()
 
+        # CONTACT MAP TRAINING LOOP
+        if args.run_cmap:
+            loss_accum_cmap = 0
+            acc_accum_cmap = 0
+            mse_accum_cmap = 0
+
+            # Train batches
+            for (z0, z1, y) in cmap_train_iterator:
+
+                loss, mse, correct, b = interaction_grad(
+                    model,
+                    z0,
+                    z1,
+                    y,
+                    embeddings,
+                    accuracy_weight=cmap_inter_weight,
+                    run_tt=run_tt,
+                    glider_weight=glider_weight,
+                    glider_map=glider_map,
+                    glider_mat=glider_mat,
+                    use_cuda=use_cuda,
+                    allow_foldseek = allow_foldseek, fold_record = fold_record, 
+                    fold_vocab = fold_vocab, add_first = add_first,
+                    cmap_tensors = cmap_tensors,
+                    cmap_mode_classify = args.contact_map_mode
+                )
+
+                n_cmap += b
+                delta = b * (loss - loss_accum_cmap)
+                loss_accum_cmap += delta / n_cmap
+
+                delta = correct - b * acc_accum_cmap
+                acc_accum_cmap += delta / n_cmap
+
+                delta = b * (mse - mse_accum_cmap)
+                mse_accum_cmap += delta / n_cmap
+
+                report = (n_cmap - b) // 100 < n_cmap // 100
+                # print(report)
+
+                optim_cmap.step()
+                optim_cmap.zero_grad()
+                model.clip()
+
+                if report:
+                    tokens = [
+                        epoch + 1,
+                        num_epochs,
+                        n_cmap / N_cmap,
+                        loss_accum_cmap,
+                        acc_accum_cmap,
+                        mse_accum_cmap,
+                    ]
+                    log(batch_report_fmt.format(*tokens), file=output)
+                    output.flush()
+
+
+        # Validation starts here
         model.eval()
 
-        with torch.no_grad():
+        with torch.set_grad_enabled(False):
 
             (
                 inter_loss,
@@ -794,6 +1052,33 @@ def train_model(args, output):
             ]
             log(epoch_report_fmt.format(*tokens), file=output)
             output.flush()
+
+            if args.run_cmap:
+                (
+                    inter_loss,
+                    inter_correct,
+                    inter_mse,
+                    inter_pr,
+                    inter_re,
+                    inter_f1,
+                    inter_aupr,
+                ) = interaction_eval(
+                    model, cmap_test_iterator, cmap_embeddings, use_cuda,
+                    allow_foldseek, fold_record, fold_vocab, add_first
+                )
+                tokens = [
+                    epoch + 1,
+                    num_epochs,
+                    inter_loss,
+                    inter_correct / (len(cmap_test_iterator) * batch_size),
+                    inter_mse,
+                    inter_pr,
+                    inter_re,
+                    inter_f1,
+                    inter_aupr,
+                ]
+                log(epoch_report_cmap.format(*tokens), file=output)
+                output.flush()
 
             # Save the model
             if save_prefix is not None:
@@ -826,6 +1111,8 @@ def main(args):
 
     :meta private:
     """
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
 
     output = args.outfile
     if output is None:
