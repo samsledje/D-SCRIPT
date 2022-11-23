@@ -62,6 +62,7 @@ class TrainArguments(NamedTuple):
     outfile: Optional[str]
     save_prefix: Optional[str]
     checkpoint: Optional[str]
+    seed: Optional[int]
     func: Callable[[TrainArguments], None]
 
 
@@ -224,6 +225,7 @@ def add_args(parser):
     misc_grp.add_argument(
         "--checkpoint", help="checkpoint model to start training from"
     )
+    misc_grp.add_argument("--seed", help="Set random seed", type=int)
     
     ## Foldseek arguments
     foldseek_grp.add_argument(
@@ -235,11 +237,9 @@ def add_args(parser):
     foldseek_grp.add_argument(
         "--foldseek_vocab", help = "foldseek vocab json file mapping foldseek alphabet to json"
     )
-    
     foldseek_grp.add_argument(
         "--add_foldseek_after_projection", default = False, action = "store_true", help = "If set to true, adds the fold seek embedding after the projection layer"
     )
-    
 
     return parser
 
@@ -850,6 +850,9 @@ def main(args):
         log("Using CPU", file=output, print_also=True)
         device = "cpu"
 
+    if args.seed is not None:
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
     train_model(args, output)
 
     output.close()
