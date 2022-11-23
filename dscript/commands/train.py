@@ -1111,9 +1111,6 @@ def main(args):
 
     :meta private:
     """
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
-
     output = args.outfile
     if output is None:
         output = sys.stdout
