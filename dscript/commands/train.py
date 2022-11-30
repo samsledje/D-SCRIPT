@@ -608,7 +608,7 @@ def interaction_eval(model, test_iterator, tensors, use_cuda,
 
     return loss, correct, mse, pr, re, f1, aupr
 
-def load_cmap_data(args, output):
+def load_cmap_data(args, output, batch_size):
     mode_classify = args.contact_map_mode
 
     if mode_classify:
@@ -795,7 +795,7 @@ def train_model(args, output):
 
     ########################## CONTACT MAP DATA LOADING ####################
     if args.run_cmap:
-        cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation = load_cmap_data(args, output)
+        cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation = load_cmap_data(args, output, batch_size)
     ############################################################################
 
     if args.checkpoint is None:
