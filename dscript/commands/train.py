@@ -464,18 +464,11 @@ def interaction_grad(
 
     do_cmap_supervision = cmap_tensors is not None
 
-    if not do_cmap_supervision:
-        c_map, p_hat = predict_interaction_cmap(
-                model, n0, n1, tensors, use_cuda,
-                allow_foldseek, fold_record, fold_vocab, add_first,
-                full_cmap = do_cmap_supervision
-            )
-    else:
-        c_map, p_hat = predict_interaction_cmap(
-                model, n0, n1, cmap_tensors, use_cuda,
-                allow_foldseek, fold_record, fold_vocab, add_first,
-                full_cmap = do_cmap_supervision
-            )
+    c_map, p_hat = predict_interaction_cmap(
+            model, n0, n1, tensors, use_cuda,
+            allow_foldseek, fold_record, fold_vocab, add_first,
+            full_cmap = do_cmap_supervision
+        )
 
     if use_cuda:
         y = y.cuda()
@@ -988,7 +981,7 @@ def train_model(args, output):
                     z0,
                     z1,
                     y,
-                    embeddings,
+                    cmap_embeddings,
                     accuracy_weight=cmap_inter_weight,
                     run_tt=run_tt,
                     glider_weight=glider_weight,
