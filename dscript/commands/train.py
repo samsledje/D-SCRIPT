@@ -380,7 +380,8 @@ def predict_interaction_cmap(model, n0, n1, tensors,
         else:
             c_map.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
-    c_map = torch.stack(c_map, 0)
+    if not full_cmap:
+        c_map = torch.stack(c_map, 0)
     return c_map, p_hat
 
 def predict_interaction(model, n0, n1, tensors, use_cuda,
@@ -516,7 +517,7 @@ def interaction_grad(
                 true_cmap = true_cmap.cuda()
                 pred_cmap = pred_cmap.cuda()
 
-            map_loss = loss_fn(pred_cmap, true_cmap)
+            map_loss = cmap_loss_fn(pred_cmap, true_cmap)
             cmap_losses.append(map_loss)
 
         # contact map accuracy loss
