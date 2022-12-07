@@ -10,6 +10,7 @@ import sys
 import gzip as gz
 import h5py
 import multiprocessing as mp
+import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from functools import partial
@@ -130,3 +131,8 @@ def collate_paired_sequences(args):
     x1 = [a[1] for a in args]
     y = [a[2] for a in args]
     return x0, x1, torch.stack(y, 0)
+
+
+def save_cmap_img(contact_map, save_path, cmap="Blues_r"):
+    plt.imshow(contact_map)
+    plt.savefig(save_path, bbox_inches = "tight")

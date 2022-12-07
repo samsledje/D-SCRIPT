@@ -29,6 +29,7 @@ from ..utils import (
     collate_paired_sequences,
     log,
     load_hdf5_parallel,
+    save_cmap_img
 )
 from ..models.embedding import FullyConnectedEmbed
 from ..models.contact import ContactCNN
@@ -609,6 +610,75 @@ def interaction_eval(model, test_iterator, tensors, use_cuda,
 
     return loss, correct, mse, pr, re, f1, aupr
 
+def cmap_eval(model, test_iterator, tensors, cmap_tensors, use_cuda,
+                             ### Foldseek added here
+                             allow_foldseek = False,
+                             fold_record = None,
+                             fold_vocab  = None,
+                             add_first = True,
+                             ###
+                             save_img_every = -1,
+                             save_prefix=None
+                    ):
+    """
+    Evaluate test data set performance.
+
+    :param model: Model to be trained
+    :type model: dscript.models.interaction.ModelInteraction
+    :param test_iterator: Test data iterator
+    :type test_iterator: torch.utils.data.DataLoader
+    :param tensors: Dictionary of protein names to embeddings
+    :type tensors: dict[str, torch.Tensor]
+    :param use_cuda: Whether to use GPU
+    :type use_cuda: bool
+
+    :return: (Loss, number correct, mean square error, precision, recall, F1 Score, AUPR)
+    :rtype: (torch.Tensor, int, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor)
+    """
+    p_hat = []
+    true_y = []
+
+    for i, (n0, n1, y) in enumerate(test_iterator):
+        cmap_pred, _ = (predict_interaction_cmap(model, n0, n1, tensors, use_cuda, allow_foldseek, fold_record, fold_vocab, add_first, full_cmap = True))
+        p_hat.extend([torch.ravel(i) for i in cmap_pred])
+        for n0_, n1_ in zip(n0,n1):
+            cmap_true = torch.from_numpy(cmap_tensors[f"{n0_}x{n1_}"])
+            true_y.append(cmap_true.flatten())
+        if (save_img_every != -1) and (i % save_img_every == 0):
+            save_cmap_img(cmap_pred[0].squeeze(), f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png")
+            save_cmap_img(cmap_tensors[f"{n0[0]}x{n1[0]}"].squeeze(), f"{save_prefix}--{n0[0]}x{n1[0]}_true.png")
+
+    y = torch.cat(true_y, 0)
+    p_hat = torch.cat(p_hat, 0)
+
+    if use_cuda:
+        y.cuda()
+        p_hat = torch.Tensor([x.cuda() for x in p_hat])
+        p_hat.cuda()
+
+    loss = F.binary_cross_entropy(p_hat.float(), y.float()).item()
+    b = len(y)
+
+    with torch.no_grad():
+        guess_cutoff = torch.Tensor([0.5]).float()
+        p_hat = p_hat.float()
+        y = y.float()
+        p_guess = (guess_cutoff * torch.ones(b) < p_hat).float()
+        correct = torch.sum(p_guess == y).item()
+        mse = torch.mean((y.float() - p_hat) ** 2).item()
+
+        tp = torch.sum(y * p_hat).item()
+        pr = tp / torch.sum(p_hat).item()
+        re = tp / torch.sum(y).item()
+        f1 = 2 * pr * re / (pr + re)
+
+    y = y.cpu().numpy()
+    p_hat = p_hat.data.cpu().numpy()
+
+    aupr = average_precision(y, p_hat)
+
+    return loss, correct, mse, pr, re, f1, aupr
+
 def load_cmap_data(args, output, batch_size):
     mode_classify = args.contact_map_mode
 
@@ -678,6 +748,15 @@ def load_cmap_data(args, output, batch_size):
     fi = h5py.File(fimaps, "r")
     for i in range(len(cmap_train_p1)):
         item = f"{cmap_train_p1[i]}x{cmap_train_p2[i]}"
+        c_map = np.array(fi[item][:])
+        if not mode_classify:
+            cmap_tensors[f"{item}"] = c_map
+        else:
+            contact_map = (c_map <= threshold).astype(float)
+            cmap_tensors[f"{item}"] = contact_map
+
+    for i in range(len(cmap_test_p1)):
+        item = f"{cmap_test_p1[i]}x{cmap_test_p2[i]}"
         c_map = np.array(fi[item][:])
         if not mode_classify:
             cmap_tensors[f"{item}"] = c_map
@@ -1063,9 +1142,9 @@ def train_model(args, output):
                     inter_re,
                     inter_f1,
                     inter_aupr,
-                ) = interaction_eval(
-                    model, cmap_test_iterator, cmap_embeddings, use_cuda,
-                    allow_foldseek, fold_record, fold_vocab, add_first
+                ) = cmap_eval(
+                    model, cmap_test_iterator, cmap_embeddings, cmap_tensors, use_cuda,
+                    allow_foldseek, fold_record, fold_vocab, add_first, save_img_every = len(cmap_test_iterator)//20, save_prefix=save_prefix 
                 )
                 tokens = [
                     epoch + 1,
