@@ -645,7 +645,7 @@ def cmap_eval(model, test_iterator, tensors, cmap_tensors, use_cuda,
             cmap_true = torch.from_numpy(cmap_tensors[f"{n0_}x{n1_}"])
             true_y.append(cmap_true.flatten())
         if (save_img_every != -1) and (i % save_img_every == 0):
-            save_cmap_img(cmap_pred[0].squeeze(), f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png")
+            save_cmap_img(cmap_pred[0].squeeze().cpu().numpy(), f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png")
             save_cmap_img(cmap_tensors[f"{n0[0]}x{n1[0]}"].squeeze(), f"{save_prefix}--{n0[0]}x{n1[0]}_true.png")
 
     y = torch.cat(true_y, 0)
