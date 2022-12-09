@@ -134,5 +134,5 @@ def collate_paired_sequences(args):
 
 
 def save_cmap_img(contact_map, save_path, cmap="Blues_r"):
-    plt.imshow(contact_map)
+    plt.imshow(contact_map, cmap, vmin=0, vmax=1)
     plt.savefig(save_path, bbox_inches = "tight")
