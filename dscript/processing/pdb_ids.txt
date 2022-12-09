@@ -1,9 +1,5 @@
-dscript/pdb/4L8R.pdb
-dscript/pdb/1GD2.pdb
-dscript/pdb/3DO7.pdb
-dscript/pdb/1XF2.pdb
-dscript/pdb/1NOP.pdb
-dscript/pdb/4QOZ.pdb
-dscript/pdb/1UN6.pdb
-dscript/pdb/4C7O.pdb
-dscript/pdb/5GKR.pdb
+dscript/pdb/1M7E.pdb
+dscript/pdb/2W80.pdb
+dscript/pdb/3VON.pdb
+dscript/pdb/4EVN.pdb
+dscript/pdb/4UD6.pdb

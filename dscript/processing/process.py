@@ -72,8 +72,8 @@ def add_args(parser):
     data_grp.add_argument(
         "--interaction_threshold",
         required=False,
-        default=0.01,
-        help="enter percentage threshold for # of interactions (0 < x < distance threshold) to classify contact map as TP (e.g., .01, meaning map will count as TP if over 1/1000 of the values are (0 < x < distance threshold))",
+        default=8,
+        help="enter angstrom threshold to classify as interaction",
     )
     return parser
 
@@ -632,7 +632,7 @@ def main(args):
     chain_maxlen = int(args.filter_chain_maxlen)
     dist_thresh = float(args.distance_threshold)
     discont_thresh = float(args.discontinuity_threshold) / 100
-    interact_thresh = float(args.interaction_threshold) / 100
+    interact_thresh = int(args.interaction_threshold)
 
     with h5py.File(f"{h5_name}", "w") as hf_pair:
         total = 0
@@ -752,11 +752,8 @@ def main(args):
                     count_discontinuities
                     < discont_thresh * D.shape[0] * D.shape[1]
                 ):
-                    interactions = ((0 < D) & (D < dist_thresh)).sum()
-                    if (
-                        interactions
-                        > D.shape[0] * D.shape[1] * interact_thresh
-                    ):
+                    interactions = ((D < interact_thresh)).sum()
+                    if interactions > 0:
                         hf_pair.create_dataset(
                             f"{pdb_id.upper()}:{str(chains_two[0].get_id())}x{pdb_id.upper()}:{str(chains_two[1].get_id())}",
                             data=D,
