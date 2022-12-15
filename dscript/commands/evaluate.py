@@ -181,8 +181,8 @@ def main(args):
     labels = np.array(labels)
 
     with open(outPath + "metrics.txt", "w+") as f:
-        aupr = average_precision_score(labels, predictions)
-        auroc = roc_auc_score(labels, predictions)
+        aupr = average_precision_score(labels, phats)
+        auroc = roc_auc_score(labels, phats)
 
         log(f"AUPR: {aupr}", file=f, print_also=True)
         log(f"AUROC: {auroc}", file=f, print_also=True)
