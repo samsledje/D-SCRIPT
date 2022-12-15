@@ -12,6 +12,7 @@
 - Update pretrained API and docs to include Topsy-Turvy
 - Add retry decorator to get_pretrained if download fails
 - Add ability to set a random seed for training
+- Update `evaluate` code to also store metrics in a file 
 
 ### v0.2.1: 2022-06-28 -- Bug fixes
 - Add biopython to setup.py
