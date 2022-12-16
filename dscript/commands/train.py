@@ -772,8 +772,11 @@ def load_cmap_data(args, output, batch_size):
     log("Loading embeddings of contact maps", file=output)
     output.flush()
 
+    cmap_h5fi = h5py.File(cmap_embedding_h5, "r")
+    cmap_embeddings = {}
     all_cmap_proteins = set(cmap_train_p1).union(cmap_train_p2).union(cmap_test_p1).union(cmap_test_p2)
-    cmap_embeddings = load_hdf5_parallel(cmap_embedding_h5, all_cmap_proteins, n_jobs=args.n_jobs)
+    for prot_name in tqdm(all_cmap_proteins):
+        cmap_embeddings[prot_name] = torch.from_numpy(cmap_h5fi[prot_name][:, :])
 
     return cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation
 
@@ -853,8 +856,12 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
+    embeddings_h5fi = h5py.File(embedding_h5, "r")
+    embeddings = {}
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    embeddings = load_hdf5_parallel(embedding_h5, all_proteins, n_jobs=args.n_jobs)
+    for prot_name in tqdm(all_proteins):
+        embeddings[prot_name] = torch.from_numpy(embeddings_h5fi[prot_name][:, :])
+    # embeddings = load_hdf5_parallel(embedding_h5, all_proteins, n_jobs=args.n_jobs)
 
     # Topsy-Turvy
     run_tt = args.run_tt
