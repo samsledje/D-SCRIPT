@@ -288,6 +288,7 @@ def add_args(parser):
         "--checkpoint", help="checkpoint model to start training from"
     )
     misc_grp.add_argument("--seed", help="Set random seed", type=int)
+    misc_grp.add_argument("--n_jobs", help="Number of workers to load embeddings", default=16, type=int)
     
     ## Foldseek arguments
     foldseek_grp.add_argument(
@@ -772,7 +773,7 @@ def load_cmap_data(args, output, batch_size):
     output.flush()
 
     all_cmap_proteins = set(cmap_train_p1).union(cmap_train_p2).union(cmap_test_p1).union(cmap_test_p2)
-    cmap_embeddings = load_hdf5_parallel(cmap_embedding_h5, all_cmap_proteins)
+    cmap_embeddings = load_hdf5_parallel(cmap_embedding_h5, all_cmap_proteins, n_jobs=args.n_jobs)
 
     return cmap_train_iterator, cmap_test_iterator, cmap_embeddings, cmap_tensors, cmap_activation
 
@@ -853,7 +854,7 @@ def train_model(args, output):
     output.flush()
 
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
+    embeddings = load_hdf5_parallel(embedding_h5, all_proteins, n_jobs=args.n_jobs)
 
     # Topsy-Turvy
     run_tt = args.run_tt

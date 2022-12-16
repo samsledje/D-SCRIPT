@@ -56,7 +56,7 @@ def _hdf5_load_partial_func(k, file_path):
     return emb
 
 
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+def load_hdf5_parallel(file_path, keys, n_jobs=16):
     """
     Load keys from hdf5 file into memory
 
