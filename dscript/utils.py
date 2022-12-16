@@ -72,6 +72,7 @@ def load_hdf5_parallel(file_path, keys, n_jobs=16):
     if n_jobs == -1:
         n_jobs = mp.cpu_count()
 
+    log(f"Using {n_jobs} processes")
     with mp.Pool(processes=n_jobs) as pool:
         all_embs = list(
             tqdm(
