@@ -1,0 +1,6 @@
+[2022-12-26-12:51:38] D-SCRIPT Version 0.2.2
+[2022-12-26-12:51:38] Called as: /scratch2/kdevko01/conda/.conda/envs/dscript/bin/dscript train --train seqs-pairs/pairs/human_train.tsv --test seqs-pairs/pairs/human_test.tsv --embedding embeddings/human.h5 -o fseek_after_human_model_dscript_cmap_ot/results.log --save-prefix fseek_after_human_model_dscript_cmap_ot/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 3 --run-cmap --contact-map-train ../data/pairs/cmap_train_lt_400.tsv --contact-map-test ../data/pairs/cmap_test_lt_400.tsv --contact-map-mode ot --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap_filtered_lt_400.h5 --contact-map-sampler ../data/models/sampler/iter_9.sav --ot-cmap-nsamples 100 --contact-map-lr 1 --contact-map-lambda 0.2
+[2022-12-26-12:51:38] Using CUDA device 3 - Tesla V100-PCIE-32GB
+[2022-12-26-12:51:39] Loaded 843584 training pairs
+[2022-12-26-12:51:39] Loaded 52725 test pairs
+[2022-12-26-12:51:39] Loading embeddings...

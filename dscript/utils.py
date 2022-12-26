@@ -94,7 +94,8 @@ class PairedDataset(torch.utils.data.Dataset):
     :param Y: List of labels
     """
 
-    def __init__(self, X0, X1, Y):
+    def __init__(self, X0, X1, Y, allow_cmap = False, cmap_file = None,
+                process_cmap = None, sampler = None):
         self.X0 = X0
         self.X1 = X1
         self.Y = Y
@@ -114,11 +115,21 @@ class PairedDataset(torch.utils.data.Dataset):
             + " Y: "
             + str(len(Y))
         )
-
+        if allow_cmap:
+            self.cmap = h5py.File(cmap_file, "r")
+            self.process_cmap = process_cmap 
+            self.sampler = sampler
+        self.allow_cmap = allow_cmap
+        
     def __len__(self):
         return len(self.X0)
 
     def __getitem__(self, i):
+        if self.allow_cmap:
+            A = self.cmap.get(f"{self.X0[i]}x{self.X1[i]}")[()].squeeze(0)
+            A = self.process_cmap(A)
+            X = self.sampler(A)
+            return self.X0[i], self.X1[i], self.Y[i], A, X
         return self.X0[i], self.X1[i], self.Y[i]
 
 
@@ -129,4 +140,7 @@ def collate_paired_sequences(args):
     x0 = [a[0] for a in args]
     x1 = [a[1] for a in args]
     y = [a[2] for a in args]
+    if len(args[0]) > 3:
+        samples = [a[3] for a in args]
+        
     return x0, x1, torch.stack(y, 0)

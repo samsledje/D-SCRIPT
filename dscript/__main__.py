@@ -10,9 +10,11 @@ from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
 from .commands.predict import PredictionArguments
 from .commands.train import TrainArguments
+from .commands.sampler import SamplerArguments
+
 
 DScriptArguments = Union[
-    EmbeddingArguments, EvaluateArguments, PredictionArguments, TrainArguments
+    EmbeddingArguments, EvaluateArguments, PredictionArguments, TrainArguments, SamplerArguments
 ]
 
 
@@ -47,13 +49,14 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
-    from .commands import train, embed, evaluate, predict
+    from .commands import train, embed, evaluate, predict, sampler
 
     modules = {
         "train": train,
         "embed": embed,
         "evaluate": evaluate,
         "predict": predict,
+        "sampler": sampler
     }
 
     for name, module in modules.items():
