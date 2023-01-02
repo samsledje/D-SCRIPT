@@ -35,4 +35,4 @@ echo "MAX_DATA=${MAX_DATA}, ITER=${ITER}, DEVICE=${DEVICE}, OUTPUT=${OUTPUT}, LR
 
 if [ ! -d $OUTPUT ]; then mkdir $OUTPUT; fi
 
-dscript sampler  --embedding $EMBEDDING --output $OUTPUT --device $DEVICE $CHECKPOINT --lr $LR --max-data ${MAX_DATA} --save-at-iter ${SAVE_AT_ITER}
+dscript sampler  --embedding $EMBEDDING --output $OUTPUT --device $DEVICE $CHECKPOINT --iter $ITER --lr $LR --max-data ${MAX_DATA} --save-at-iter ${SAVE_AT_ITER}

@@ -24,7 +24,7 @@ while getopts "d:t:T:e:vo:p:s:c:C:l:m:" args; do
         ;;
         e) EMBEDDING=${OPTARG}
         ;;
-        v) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"; OUTPUT_FOLDER=fseek_after_human_model_topsyturvy;
+        v) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"; OUTPUT_FOLDER=fseek_after_human_model_topsyturvy_cmap_ot;
         ;;
         o) OUTPUT_FOLDER=${OPTARG}
         ;;
@@ -45,7 +45,7 @@ done
     
 if [ ! -d ${OUTPUT_FOLDER} ]; then mkdir -p $OUTPUT_FOLDER; fi
 
-
+#./train_foldseek_after-cmap-ot.sh -v -s ../data/models/sampler/sampler-run-Mon-26-Dec-2022-12\:07\:02-PM-EST/iter_999.sav -d 3
 
 dscript train --train $TRAIN --test $TEST --embedding $EMBEDDING $TOPSY_TURVY \
               -o ${OUTPUT_FOLDER}/results.log \
@@ -53,4 +53,4 @@ dscript train --train $TRAIN --test $TEST --embedding $EMBEDDING $TOPSY_TURVY \
               --lr 0.0005 --lambda 0.05 --num-epoch 10 \
               --weight-decay 0 --batch-size 25 --pool-width 9 \
               --kernel-width 7 --dropout-p 0.2 --projection-dim 100 \
-              --hidden-dim 50 --kernel-width 7 --device $DEVICE --run-cmap --contact-map-train ${CMAP_TRAIN} --contact-map-test ${CMAP_TEST} --contact-map-mode ot --contact-map-embedding ${CMAP_LANG_EMB} --contact-maps ${CMAP_EMB} --contact-map-sampler ${SAMPLER} --ot-cmap-nsamples 100 --contact-map-lr 1 --contact-map-lambda 0.2 # --allow_foldseek --foldseek_fasta ${FOLDSEEK_FASTA} --foldseek_vocab ${FOLDSEEK_VOCAB} --add_foldseek_after_projection  ## need to add the foldseek part
+              --hidden-dim 50 --kernel-width 7 --device $DEVICE --run-cmap --contact-map-train ${CMAP_TRAIN} --contact-map-test ${CMAP_TEST} --contact-map-mode ot --contact-map-embedding ${CMAP_LANG_EMB} --contact-maps ${CMAP_EMB} --contact-map-sampler ${SAMPLER} --ot-cmap-nsamples 100 --contact-map-lr 0.0001 --contact-map-lambda 0.1 # --allow_foldseek --foldseek_fasta ${FOLDSEEK_FASTA} --foldseek_vocab ${FOLDSEEK_VOCAB} --add_foldseek_after_projection  ## need to add the foldseek part

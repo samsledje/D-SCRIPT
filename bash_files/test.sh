@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ORGS=( ecoli yeast mouse fly )
+ORGS=( fly human mouse ) # ecoli yeast
 
 TOPSY_TURVY=
 EMBEDDING_DIR=embeddings/
@@ -51,4 +51,4 @@ done
 
 #Topsyturvy BEFORE: ./test.sh -d 2 -m fseek_before_human_model_dscript/ep__epoch01.sav -T fseek_before -D fseek_before_human_model_dscript/eval -f results -t
 
-#Topsyturvy DSCRIPT: ./test.sh -d 3 -m original_human_model_dscript/ep__epoch03.sav -T dscript -D original_human_model_dscript/eval -f results -t
+#Topsyturvy DSCRIPT: ./test.sh -d 5 -m fseek_after_human_model_topsyturvy_cmap_ot/ep__epoch02.sav -T dscript -D fseek_after_human_model_topsyturvy_cmap_ot/eval -f results -t

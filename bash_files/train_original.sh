@@ -4,7 +4,7 @@ TOPSY_TURVY=
 TRAIN=seqs-pairs/pairs/human_train.tsv
 TEST=seqs-pairs/pairs/human_test.tsv
 EMBEDDING=embeddings/human.h5
-OUTPUT_FOLDER=original_human_model_dscript
+OUTPUT_FOLDER=original_human_model_dscript-v2
 OUTPUT_PREFIX=results-
 while getopts "d:t:T:e:vo:p:" args; do
     case $args in
@@ -16,7 +16,7 @@ while getopts "d:t:T:e:vo:p:" args; do
         ;;
         e) EMBEDDING=${OPTARG}
         ;;
-        v) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"
+        v) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"; OUTPUT_FOLDER=original_human_model_tt-v2
         ;;
         o) OUTPUT_FOLDER=${OPTARG}
         ;;
@@ -30,7 +30,7 @@ if [ ! -d ${OUTPUT_FOLDER} ]; then mkdir -p $OUTPUT_FOLDER; fi
 
 
 dscript train --train $TRAIN --test $TEST --embedding $EMBEDDING $TOPSY_TURVY \
-              --o ${OUTPUT_FOLDER}/results.log \
+              -o ${OUTPUT_FOLDER}/results.log \
               --save-prefix  ${OUTPUT_FOLDER}/ep_ \
               --lr 0.001 --lambda 0.05 --num-epoch 10 \
               --weight-decay 0 --batch-size 25 --pool-width 9 \

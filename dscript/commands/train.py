@@ -904,7 +904,7 @@ def train_model(args, output):
 
     if use_cuda:
         model.cuda()
-        if mode_classify == "ot":
+        if cmap_flag and mode_classify == "ot":
             sampler.cuda()
 
     # Train the model
