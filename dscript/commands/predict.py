@@ -4,19 +4,16 @@ Make new predictions with a pre-trained model. One of --seqs or --embeddings is 
 from __future__ import annotations
 import argparse
 import datetime
-import os
 import sys
 
 import h5py
 import numpy as np
 import pandas as pd
 import torch
-from scipy.special import comb
 from tqdm import tqdm
 from typing import Callable, NamedTuple, Optional
 
 
-from ..alphabets import Uniprot21
 from ..fasta import parse
 from ..language_model import lm_embed
 from ..utils import log, load_hdf5_parallel

@@ -1,4 +1,4 @@
-from functools import wraps, partial
+from functools import wraps
 import os
 import os.path
 import sys
@@ -148,7 +148,7 @@ def get_pretrained(version="human_v2"):
     :return: Pre-trained model
     :rtype: dscript.models.*
     """
-    if version not in VALID_MODELS:
+    if version not in VALID_MODELS.keys():
         raise ValueError("Model {} does not exist".format(version))
 
     state_dict_path = get_state_dict(version)

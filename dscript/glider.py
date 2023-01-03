@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.spatial.distance as spatial
-from numpy import linalg as LA
 
 
 def get_dim(edgelist):

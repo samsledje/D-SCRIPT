@@ -2,7 +2,6 @@
 D-SCRIPT: Structure Aware PPI Prediction
 """
 import argparse
-import os
 import sys
 from typing import Union
 

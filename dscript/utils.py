@@ -4,10 +4,6 @@ import torch
 import torch.utils.data
 
 import numpy as np
-import pandas as pd
-import subprocess as sp
-import sys
-import gzip as gz
 import h5py
 import multiprocessing as mp
 import matplotlib.pyplot as plt
@@ -136,4 +132,4 @@ def collate_paired_sequences(args):
 
 def save_cmap_img(contact_map, save_path, cmap="Blues_r"):
     plt.imshow(contact_map, cmap, vmin=0, vmax=1)
-    plt.savefig(save_path, bbox_inches = "tight")
+    plt.savefig(save_path, bbox_inches="tight")

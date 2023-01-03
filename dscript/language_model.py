@@ -1,14 +1,11 @@
 import os
 import sys
-import subprocess as sp
-import random
 import torch
 import h5py
 from tqdm import tqdm
 from .fasta import parse, parse_directory, write
 from .pretrained import get_pretrained
 from .alphabets import Uniprot21
-from .models.embedding import SkipLSTM
 from .utils import log
 from datetime import datetime
 

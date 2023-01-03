@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import torch.functional as F
 import torch.nn as nn
 
 
@@ -136,9 +135,15 @@ class ModelInteraction(nn.Module):
         else:
             return self.embedding(x)
 
-    def cpred(self, z0, z1, 
-              ### Foldseek embedding added
-              embed_foldseek = False, f0 = None, f1 = None):
+    def cpred(
+        self,
+        z0,
+        z1,
+        ### Foldseek embedding added
+        embed_foldseek=False,
+        f0=None,
+        f1=None,
+    ):
         """
         Project down input language model embeddings into low dimension using projection module
 
@@ -151,24 +156,35 @@ class ModelInteraction(nn.Module):
         """
         e0 = self.embed(z0)
         e1 = self.embed(z1)
-        
+
         if embed_foldseek:
             assert f0 is not None and f1 is not None
-            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
-            assert z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
+            assert isinstance(f0, torch.Tensor) and isinstance(
+                f1, torch.Tensor
+            )
+            assert (
+                z0.get_device() == f0.get_device()
+                and z0.get_device() == f1.get_device()
+            )
             assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
-            
+
             # concatenate foldseek one hot embedding
-            e0 = torch.concat([e0, f0], dim = 2)
-            e1 = torch.concat([e1, f1], dim = 2)
-            
+            e0 = torch.concat([e0, f0], dim=2)
+            e1 = torch.concat([e1, f1], dim=2)
+
         B = self.contact.cmap(e0, e1)
         C = self.contact.predict(B)
         return C
 
-    def map_predict(self, z0, z1, 
-                    ### Foldseek embedding added
-                    embed_foldseek = False, f0 = None, f1 = None):
+    def map_predict(
+        self,
+        z0,
+        z1,
+        ### Foldseek embedding added
+        embed_foldseek=False,
+        f0=None,
+        f1=None,
+    ):
         """
         Project down input language model embeddings into low dimension using projection module
 
@@ -181,8 +197,13 @@ class ModelInteraction(nn.Module):
         """
         if embed_foldseek:
             assert f0 is not None and f1 is not None
-            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
-            assert z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
+            assert isinstance(f0, torch.Tensor) and isinstance(
+                f1, torch.Tensor
+            )
+            assert (
+                z0.get_device() == f0.get_device()
+                and z0.get_device() == f1.get_device()
+            )
             assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
 
         C = self.cpred(z0, z1, embed_foldseek, f0, f1)
