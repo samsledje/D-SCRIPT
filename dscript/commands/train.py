@@ -105,7 +105,7 @@ def add_args(parser):
     inter_grp = parser.add_argument_group("Interaction Module")
     train_grp = parser.add_argument_group("Training")
     misc_grp = parser.add_argument_group("Output and Device")
-
+    foldseek_grp = parser.add_argument_group("Foldseek related commands")
     # Data
     data_grp.add_argument(
         "--train", required=True, help="list of training pairs"
@@ -289,7 +289,15 @@ def add_args(parser):
         default=0.35,
         help="weight on the similarity objective (default: 0.35)",
     )
-
+    
+    train_grp.add_argument(
+        "--n-jobs",
+        dest="n_jobs",
+        default = -1,
+        type = int,
+        help = "Number of jobs for extracting h5 embeddings"
+    )
+    
     # Topsy-Turvy
     train_grp.add_argument(
         "--topsy-turvy",
@@ -326,6 +334,28 @@ def add_args(parser):
         "--checkpoint", help="checkpoint model to start training from"
     )
 
+    ## Foldseek arguments
+    foldseek_grp.add_argument(
+        "--allow_foldseek",
+        default=False,
+        action="store_true",
+        help="If set to true, adds the foldseek one-hot representation",
+    )
+    foldseek_grp.add_argument(
+        "--foldseek_fasta",
+        help="foldseek fasta file containing the foldseek representation",
+    )
+    foldseek_grp.add_argument(
+        "--foldseek_vocab",
+        help="foldseek vocab json file mapping foldseek alphabet to json",
+    )
+    foldseek_grp.add_argument(
+        "--add_foldseek_after_projection",
+        default=False,
+        action="store_true",
+        help="If set to true, adds the fold seek embedding after the projection layer",
+    )
+    
     return parser
 
 
@@ -705,8 +735,14 @@ def train_model(args, output):
     output.flush()
 
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
-
+    embeddings = {}
+    # embeddings = load_hdf5_parallel(embedding_h5, all_proteins, n_jobs = args.n_jobs)
+    with h5py.File(embedding_h5, "r") as embh5:
+        for prot_name in tqdm(all_proteins):
+            embeddings[prot_name] = torch.from_numpy(
+                embh5[prot_name][:, :]
+            )
+    
     # Topsy-Turvy
     run_tt = args.run_tt
     glider_weight = args.glider_weight
