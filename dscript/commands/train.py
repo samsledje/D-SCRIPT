@@ -816,7 +816,7 @@ def train_model(args, output):
         for i in range(0, len(cmap_train_p1)):
             item = f"{cmap_train_p1[i]}x{cmap_train_p2[i]}"
             c_map = np.array(fi[item][:])
-            if not mode_classify:
+            if mode_classify == "regression":
                 maps[f"{item}"] = c_map
             else:
                 if c_map is None:

@@ -1,0 +1,6 @@
+[2023-01-04-03:41:40] D-SCRIPT Version 0.2.2
+[2023-01-04-03:41:40] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train seqs-pairs/pairs/human_train.tsv --test seqs-pairs/pairs/human_test.tsv --embedding embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_cmap-regression/results.log --save-prefix topsyturvy_cmap-regression/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7
+[2023-01-04-03:41:40] Using CUDA device 7 - NVIDIA A100 80GB PCIe
+[2023-01-04-03:41:40] Loaded 843584 training pairs
+[2023-01-04-03:41:40] Loaded 52725 test pairs
+[2023-01-04-03:41:40] Loading embeddings...
