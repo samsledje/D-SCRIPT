@@ -4,12 +4,9 @@ import torch
 import torch.utils.data
 
 import numpy as np
-import pandas as pd
-import subprocess as sp
-import sys
-import gzip as gz
 import h5py
 import multiprocessing as mp
+import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from functools import partial
@@ -55,7 +52,7 @@ def _hdf5_load_partial_func(k, file_path):
     return emb
 
 
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+def load_hdf5_parallel(file_path, keys, n_jobs=16):
     """
     Load keys from hdf5 file into memory
 
@@ -71,6 +68,7 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     if n_jobs == -1:
         n_jobs = mp.cpu_count()
 
+    log(f"Using {n_jobs} processes")
     with mp.Pool(processes=n_jobs) as pool:
         all_embs = list(
             tqdm(
@@ -144,3 +142,8 @@ def collate_paired_sequences(args):
         samples = [a[3] for a in args]
         
     return x0, x1, torch.stack(y, 0)
+
+
+def save_cmap_img(contact_map, save_path, cmap="Blues_r"):
+    plt.imshow(contact_map, cmap, vmin=0, vmax=1)
+    plt.savefig(save_path, bbox_inches="tight")

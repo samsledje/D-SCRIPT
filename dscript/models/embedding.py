@@ -2,7 +2,6 @@ from __future__ import print_function, division
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence
 
 
@@ -56,6 +55,7 @@ class FullyConnectedEmbed(nn.Module):
         t = self.activation(t)
         t = self.drop(t)
         return t
+
 
 class SkipLSTM(nn.Module):
     """
