@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from sklearn.metrics import average_precision_score as average_precision
 from typing import Callable, NamedTuple, Optional
-
+import json
 import sys
 import argparse
 import h5py
@@ -381,7 +381,9 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
             foldseek_enc[i, fold_vocab[a]] = 1
         return foldseek_enc
     else:
-        return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
+        return_vec = torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
+        return_vec[:, len(fold_vocab) - 1] = 1
+        return return_vec
 
 
 def predict_interaction_cmap(
@@ -501,7 +503,13 @@ def predict_interaction(
     return c_map, p_hat
 
 
-def predict_interaction(model, n0, n1, tensors, use_cuda):
+def predict_interaction(model, n0, n1, tensors, use_cuda,    ### Foldseek added here
+    allow_foldseek=False,
+    fold_record=None,
+    fold_vocab=None,
+    add_first=True
+    ###
+    ):
     """
     Predict whether a list of protein pairs will interact.
     :param model: Model to be trained
@@ -1161,7 +1169,7 @@ def train_model(args, output):
 
     if use_cuda:
         model.cuda()
-        if cmap_flag and mode_classify == "ot":
+        if args.run_cmap and mode_classify == "ot":
             sampler.cuda()
 
     # Train the model
@@ -1192,7 +1200,7 @@ def train_model(args, output):
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
-    if cmap_flag:
+    if args.run_cmap:
         log(
             f"Contact maps -- Training with Adam: lr={map_lr}, weight_decay={wd}",
             file=output,

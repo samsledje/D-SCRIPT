@@ -155,8 +155,9 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
             foldseek_enc[i, fold_vocab[a]] = 1
         return foldseek_enc
     else:
-        return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
-
+        return_vec = torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
+        return_vec[:, len(fold_vocab) - 1] = 1
+        return return_vec
 
 def main(args):
     """
@@ -213,7 +214,14 @@ def main(args):
     outFile = open(outPath + ".predictions.tsv", "w+")
 
     allProteins = set(test_df[0]).union(test_df[1])
-    embeddings = load_hdf5_parallel(embPath, allProteins)
+    embeddings = {}
+    ## Load HDFS
+    # embeddings = load_hdf5_parallel(embPath, allProteins)
+    with h5py.File(embPath, "r") as embh5:
+        for prot_name in tqdm(allProteins):
+            embeddings[prot_name] = torch.from_numpy(
+                embh5[prot_name][:, :]
+            )
 
     model.eval()
     with torch.no_grad():
