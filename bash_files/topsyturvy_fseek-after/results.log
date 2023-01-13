@@ -1,0 +1,6 @@
+[2023-01-10-01:20:52] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-10-01:20:52] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_esm.tsv --test ../data/pairs/human_test_esm.tsv --embedding ../data/embeddings/esm_emb.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_fseek-after/results.log --save-prefix topsyturvy_fseek-after/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 2 --allow_foldseek --foldseek_fasta ../data/foldseek_emb/r2_foldseekrep_seq.fa --foldseek_vocab ../data/foldseek_vocab.json --add_foldseek_after_projection --input-dim 1280
+[2023-01-10-01:20:53] Using CUDA device 2 - NVIDIA A100 80GB PCIe
+[2023-01-10-01:20:54] Loaded 637088 training pairs
+[2023-01-10-01:20:54] Loaded 39879 test pairs
+[2023-01-10-01:20:54] Loading embeddings...

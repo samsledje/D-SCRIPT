@@ -1,0 +1,96 @@
+[2023-01-07-01:48:46] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-07-01:48:46] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_debug_cmap-regression_lr-0.0001/results.log --save-prefix topsyturvy_debug_cmap-regression_lr-0.0001/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 3 --run-cmap --contact-map-train ../data/pairs/lynntao_pdbseqs_TRAIN-SET_cmap-filtered-lt400_debug.tsv --contact-map-test ../data/pairs/lynntao_pdbseqs_TEST-SET_cmap-filtered-lt400_debug.tsv --contact-map-mode regression --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap-latest.h5 --contact-map-lr 0.0001 --contact-map-lambda 0.1
+[2023-01-07-01:48:46] Using CUDA device 3 - NVIDIA A100 80GB PCIe
+[2023-01-07-01:48:46] Loaded 120 training pairs
+[2023-01-07-01:48:46] Loaded 60 test pairs
+[2023-01-07-01:48:46] Loading embeddings...
+[2023-01-07-01:48:49] Running D-SCRIPT Topsy-Turvy:
+[2023-01-07-01:48:49] 	glider_weight: 0.2
+[2023-01-07-01:48:49] 	glider_thresh: 92.5th percentile
+[2023-01-07-01:48:49] Computing GLIDER matrix...
+[2023-01-07-01:48:49] Loading training pairs for contact maps
+[2023-01-07-01:48:49] Loaded 10 contact map training pairs
+[2023-01-07-01:48:49] Loading testing pairs for contact maps
+[2023-01-07-01:48:49] Loaded 10 test pairs
+[2023-01-07-01:48:49] Loading dictionary of contact maps
+[2023-01-07-01:48:49] Loaded 20 contact maps
+[2023-01-07-01:48:49] Loading embeddings of contact maps
+[2023-01-07-01:48:49] Initializing embedding model with:
+[2023-01-07-01:48:49] 	projection_dim: 100
+[2023-01-07-01:48:49] 	dropout_p: 0.2
+[2023-01-07-01:48:49] Initializing contact model with:
+[2023-01-07-01:48:49] 	hidden_dim: 50
+[2023-01-07-01:48:49] 	kernel_width: 7
+[2023-01-07-01:48:49] Initializing interaction model with:
+[2023-01-07-01:48:49] 	do_pool: False
+[2023-01-07-01:48:49] 	pool_width: 9
+[2023-01-07-01:48:49] 	do_w: True
+[2023-01-07-01:48:49] 	do_sigmoid: True
+[2023-01-07-01:48:49] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(200, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-07-01:48:50] Using save prefix "topsyturvy_debug_cmap-regression_lr-0.0001/ep_"
+[2023-01-07-01:48:50] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-07-01:48:50] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-07-01:48:50] 	num_epochs: 10
+[2023-01-07-01:48:50] 	batch_size: 25
+[2023-01-07-01:48:50] 	interaction weight: 0.05
+[2023-01-07-01:48:50] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-07-01:48:50] 	cmap training interaction weight: 0.1
+[2023-01-07-01:48:54] [1/10] training 80.0%: Loss=0.502231, Accuracy=85.000%, MSE=0.149288
+[2023-01-07-01:48:55] Finished Epoch 1/10: Loss=1.0272, Accuracy=66.667%, MSE=0.163669, Precision=0.357012, Recall=0.00930243, F1=0.0181324, AUPR=0.364366
+[2023-01-07-01:48:59] Finished Contact Map Epoch 1/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:48:59] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch01.sav
+[2023-01-07-01:49:01] [2/10] training 80.0%: Loss=0.486201, Accuracy=85.000%, MSE=0.148401
+[2023-01-07-01:49:01] Finished Epoch 2/10: Loss=1.06682, Accuracy=66.667%, MSE=0.163707, Precision=0.23651, Recall=0.00984683, F1=0.0189065, AUPR=0.263043
+[2023-01-07-01:49:06] Finished Contact Map Epoch 2/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:06] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch02.sav
+[2023-01-07-01:49:07] [3/10] training 80.0%: Loss=0.488381, Accuracy=82.000%, MSE=0.177325
+[2023-01-07-01:49:07] Finished Epoch 3/10: Loss=1.03442, Accuracy=66.667%, MSE=0.160528, Precision=0.346549, Recall=0.020176, F1=0.038132, AUPR=0.344962
+[2023-01-07-01:49:12] Finished Contact Map Epoch 3/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:12] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch03.sav
+[2023-01-07-01:49:13] [4/10] training 80.0%: Loss=0.482906, Accuracy=84.000%, MSE=0.157572
+[2023-01-07-01:49:14] Finished Epoch 4/10: Loss=0.983353, Accuracy=66.667%, MSE=0.16014, Precision=0.312586, Recall=0.0216956, F1=0.0405751, AUPR=0.356573
+[2023-01-07-01:49:18] Finished Contact Map Epoch 4/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:18] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch04.sav
+[2023-01-07-01:49:20] [5/10] training 80.0%: Loss=0.483325, Accuracy=83.000%, MSE=0.167495
+[2023-01-07-01:49:20] Finished Epoch 5/10: Loss=0.987995, Accuracy=66.667%, MSE=0.160761, Precision=0.3057, Recall=0.0194039, F1=0.0364915, AUPR=0.367025
+[2023-01-07-01:49:25] Finished Contact Map Epoch 5/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:25] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch05.sav
+[2023-01-07-01:49:26] [6/10] training 80.0%: Loss=0.482059, Accuracy=83.000%, MSE=0.167518
+[2023-01-07-01:49:27] Finished Epoch 6/10: Loss=0.979646, Accuracy=66.667%, MSE=0.160118, Precision=0.328445, Recall=0.0220534, F1=0.0413316, AUPR=0.349665
+[2023-01-07-01:49:32] Finished Contact Map Epoch 6/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:32] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch06.sav
+[2023-01-07-01:49:33] [7/10] training 80.0%: Loss=0.484841, Accuracy=81.000%, MSE=0.187469
+[2023-01-07-01:49:34] Finished Epoch 7/10: Loss=0.934348, Accuracy=66.667%, MSE=0.157223, Precision=0.415695, Recall=0.0322935, F1=0.0599312, AUPR=0.380562
+[2023-01-07-01:49:38] Finished Contact Map Epoch 7/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:38] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch07.sav
+[2023-01-07-01:49:40] [8/10] training 80.0%: Loss=0.483897, Accuracy=81.000%, MSE=0.187073
+[2023-01-07-01:49:41] Finished Epoch 8/10: Loss=0.918584, Accuracy=66.667%, MSE=0.157095, Precision=0.464868, Recall=0.0321418, F1=0.0601264, AUPR=0.385716
+[2023-01-07-01:49:46] Finished Contact Map Epoch 8/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:46] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch08.sav
+[2023-01-07-01:49:47] [9/10] training 80.0%: Loss=0.476711, Accuracy=84.000%, MSE=0.157787
+[2023-01-07-01:49:48] Finished Epoch 9/10: Loss=0.911508, Accuracy=66.667%, MSE=0.157896, Precision=0.376187, Recall=0.0305271, F1=0.0564716, AUPR=0.358926
+[2023-01-07-01:49:53] Finished Contact Map Epoch 9/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:49:53] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch09.sav
+[2023-01-07-01:49:54] [10/10] training 80.0%: Loss=0.478137, Accuracy=83.000%, MSE=0.167781
+[2023-01-07-01:49:55] Finished Epoch 10/10: Loss=0.885838, Accuracy=66.667%, MSE=0.157058, Precision=0.471731, Recall=0.0326943, F1=0.0611505, AUPR=0.383411
+[2023-01-07-01:50:01] Finished Contact Map Epoch 10/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-07-01:50:01] Saving model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__epoch10.sav
+[2023-01-07-01:50:01] Saving final model to topsyturvy_debug_cmap-regression_lr-0.0001/ep__final.sav

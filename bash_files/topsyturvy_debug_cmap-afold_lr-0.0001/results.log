@@ -1,0 +1,55 @@
+[2023-01-12-07:21:28] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-12-07:21:28] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_debug_cmap-afold_lr-0.0001/results.log --save-prefix topsyturvy_debug_cmap-afold_lr-0.0001/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 3 --run-cmap --contact-map-train ../data/pairs/lynntao_pdbseqs_TRAIN-SET_cmap-filtered-lt400_debug.tsv --contact-map-test ../data/pairs/lynntao_pdbseqs_TEST-SET_cmap-filtered-lt400_debug.tsv --contact-map-mode afold --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap-latest.h5 --contact-map-lr 0.0001 --contact-map-lambda 0.1
+[2023-01-12-07:21:29] Using CUDA device 3 - NVIDIA A100 80GB PCIe
+[2023-01-12-07:21:29] Loaded 120 training pairs
+[2023-01-12-07:21:29] Loaded 60 test pairs
+[2023-01-12-07:21:29] Loading embeddings...
+[2023-01-12-07:21:32] Running D-SCRIPT Topsy-Turvy:
+[2023-01-12-07:21:32] 	glider_weight: 0.2
+[2023-01-12-07:21:32] 	glider_thresh: 92.5th percentile
+[2023-01-12-07:21:32] Computing GLIDER matrix...
+[2023-01-12-07:21:32] Loading training pairs for contact maps
+[2023-01-12-07:21:32] Loaded 10 contact map training pairs
+[2023-01-12-07:21:32] Loading testing pairs for contact maps
+[2023-01-12-07:21:32] Loaded 10 test pairs
+[2023-01-12-07:21:32] Loading dictionary of contact maps
+[2023-01-12-07:21:33] Loaded 20 contact maps
+[2023-01-12-07:21:33] Loading embeddings of contact maps
+[2023-01-12-07:21:37] Initializing embedding model with:
+[2023-01-12-07:21:37] 	projection_dim: 100
+[2023-01-12-07:21:37] 	dropout_p: 0.2
+[2023-01-12-07:21:37] Initializing contact model with:
+[2023-01-12-07:21:37] 	hidden_dim: 50
+[2023-01-12-07:21:37] 	kernel_width: 7
+[2023-01-12-07:21:37] Initializing interaction model with:
+[2023-01-12-07:21:37] 	do_pool: False
+[2023-01-12-07:21:37] 	pool_width: 9
+[2023-01-12-07:21:37] 	do_w: True
+[2023-01-12-07:21:37] 	do_sigmoid: True
+[2023-01-12-07:21:37] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(200, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-12-07:21:39] Using save prefix "topsyturvy_debug_cmap-afold_lr-0.0001/ep_"
+[2023-01-12-07:21:39] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-12-07:21:39] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-12-07:21:39] 	num_epochs: 10
+[2023-01-12-07:21:39] 	batch_size: 25
+[2023-01-12-07:21:39] 	interaction weight: 0.05
+[2023-01-12-07:21:39] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-12-07:21:39] 	cmap training interaction weight: 0.1

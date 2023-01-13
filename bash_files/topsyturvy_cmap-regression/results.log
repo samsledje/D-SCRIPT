@@ -1,6 +1,17 @@
-[2023-01-04-03:41:40] D-SCRIPT Version 0.2.2
-[2023-01-04-03:41:40] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train seqs-pairs/pairs/human_train.tsv --test seqs-pairs/pairs/human_test.tsv --embedding embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_cmap-regression/results.log --save-prefix topsyturvy_cmap-regression/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7
-[2023-01-04-03:41:40] Using CUDA device 7 - NVIDIA A100 80GB PCIe
-[2023-01-04-03:41:40] Loaded 843584 training pairs
-[2023-01-04-03:41:40] Loaded 52725 test pairs
-[2023-01-04-03:41:40] Loading embeddings...
+[2023-01-05-20:46:46] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-05-20:46:46] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train.tsv --test ../data/pairs/human_test.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_cmap-regression/results.log --save-prefix topsyturvy_cmap-regression/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 0 --run-cmap --contact-map-train ../data/pairs/lynntao_pdbseqs_TRAIN-SET_cmap-filtered-lt400.tsv --contact-map-test ../data/pairs/lynntao_pdbseqs_TEST-SET_cmap-filtered-lt400.tsv --contact-map-mode regression --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap-latest.h5 --contact-map-lr 0.0001 --contact-map-lambda 0.1
+[2023-01-05-20:46:47] Using CUDA device 0 - NVIDIA A100 80GB PCIe
+[2023-01-05-20:46:47] Loaded 843584 training pairs
+[2023-01-05-20:46:47] Loaded 52725 test pairs
+[2023-01-05-20:46:47] Loading embeddings...
+[2023-01-05-21:03:21] Running D-SCRIPT Topsy-Turvy:
+[2023-01-05-21:03:21] 	glider_weight: 0.2
+[2023-01-05-21:03:21] 	glider_thresh: 92.5th percentile
+[2023-01-05-21:03:21] Computing GLIDER matrix...
+[2023-01-05-21:10:29] Loading training pairs for contact maps
+[2023-01-05-21:10:29] Loaded 20062 contact map training pairs
+[2023-01-05-21:10:29] Loading testing pairs for contact maps
+[2023-01-05-21:10:29] Loaded 4421 test pairs
+[2023-01-05-21:10:29] Loading dictionary of contact maps
+[2023-01-05-21:12:52] Loaded 24483 contact maps
+[2023-01-05-21:12:52] Loading embeddings of contact maps

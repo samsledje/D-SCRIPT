@@ -21,6 +21,7 @@ from sklearn.metrics import (
 )
 from Bio import SeqIO
 from tqdm import tqdm
+import h5py
 
 from ..utils import log, load_hdf5_parallel
 

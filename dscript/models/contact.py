@@ -3,6 +3,7 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class FullyConnected(nn.Module):
@@ -19,7 +20,9 @@ class FullyConnected(nn.Module):
     :type activation: torch.nn.Module
     """
 
-    def __init__(self, embed_dim, hidden_dim, activation=nn.ReLU()):
+    def __init__(self, embed_dim, 
+                 hidden_dim, 
+                 activation=nn.ReLU()):
         super(FullyConnected, self).__init__()
 
         self.D = embed_dim
@@ -69,12 +72,20 @@ class ContactCNN(nn.Module):
     """
 
     def __init__(
-        self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()
+        self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid(), alphafoldlike = False
     ):
         super(ContactCNN, self).__init__()
 
         self.hidden = FullyConnected(embed_dim, hidden_dim)
-
+        
+        # Divide 25 Angstrom into <hidden_dim> number of bins
+        self.hidden_dim = hidden_dim
+        self.aggregate = nn.Parameter(torch.linspace(0, 
+                                        25,
+                        self.hidden_dim).unsqueeze(0).unsqueeze(2).unsqueeze(2),
+                                        requires_grad = False)
+        self.alphafoldlike = alphafoldlike
+        
         self.conv = nn.Conv2d(hidden_dim, 1, width, padding=width // 2)
         self.batchnorm = nn.BatchNorm2d(1)
         self.activation = activation
@@ -86,8 +97,9 @@ class ContactCNN(nn.Module):
 
         :meta private:
         """
-        w = self.conv.weight
-        self.conv.weight.data[:] = 0.5 * (w + w.transpose(2, 3))
+        if not self.alphafoldlike:
+            w = self.conv.weight
+            self.conv.weight.data[:] = 0.5 * (w + w.transpose(2, 3))
 
     def forward(self, z0, z1):
         """
@@ -98,9 +110,12 @@ class ContactCNN(nn.Module):
         :return: Predicted contact map :math:`(b \\times N \\times M)`
         :rtype: torch.Tensor
         """
-        C = self.cmap(z0, z1)
-        return self.predict(C)
-
+        Calph = self.cmap(z0, z1)
+        if self.alphafoldlike:
+            Cagg, Cppi = self.predict(Calph)
+            return [Calph, Cagg], Cppi
+        return self.predict(Calph)
+    
     def cmap(self, z0, z1):
         """
         Calls `dscript.models.contact.FullyConnected <#module-dscript.models.contact.FullyConnected>`_.
@@ -124,9 +139,16 @@ class ContactCNN(nn.Module):
         :return: Predicted contact map :math:`(b \\times N \\times M)`
         :rtype: torch.Tensor
         """
-
-        # S is (b,N,M)
+        if self.alphafoldlike:
+            s = F.softmax(C, dim = 1)
+            #print(s.shape)
+            s = s * self.aggregate
+            s0 = torch.sum(s, dim = 1)
         s = self.conv(C)
         s = self.batchnorm(s)
         s = self.activation(s)
-        return s
+        
+        if self.alphafoldlike:
+            return s0, s
+        else:
+            return s

@@ -47,6 +47,9 @@ def draw_samples(A, n, dtype=torch.FloatTensor):
     )
     grid = list(zip(xg.ravel(), yg.ravel()))
     dens = A.ravel() 
+    if np.sum(dens) <= 0:
+        dens = dens + 1e-5
+        
     dots = np.array(choices(grid, dens, k=n))
     dots += (0.5 / A.shape[0]) * np.random.standard_normal(dots.shape)
     return torch.from_numpy(dots).type(dtype)
@@ -146,7 +149,7 @@ def add_args(parser):
         "--contact-map-mode",
         required=False,
         default = "ot",
-        choices = ["ot", "regression", "classification"],
+        choices = ["ot", "regression", "classification", "afold"],
         help="enter either regression mode or classification mode",
     )
     map_grp.add_argument(
@@ -320,6 +323,7 @@ def add_args(parser):
         default=0.925,
         help="threshold beyond which GLIDER scores treated as positive edges (0 < gt < 1) (default: 0.925)",
     )
+    
 
     # Output
     misc_grp.add_argument(
@@ -363,6 +367,7 @@ def add_args(parser):
         action="store_true",
         help="If set to true, adds the fold seek embedding after the projection layer",
     )
+    
     return parser
 
 
@@ -398,7 +403,7 @@ def predict_interaction_cmap(
     fold_vocab=None,
     add_first=True,
     ###
-    full_cmap=False,
+    full_cmap=False
 ):
     """
     Predict whether a list of protein pairs will interact, as well as their contact map.
@@ -421,6 +426,13 @@ def predict_interaction_cmap(
     for i in range(b):
         z_a = tensors[n0[i]]  # 1 x seqlen x dim
         z_b = tensors[n1[i]]
+        
+        if len(z_a.shape) == 2:
+            z_a = z_a.unsqueeze(0)
+        
+        if len(z_b.shape) == 2:
+            z_b = z_b.unsqueeze(0)
+        
         if use_cuda:
             z_a = z_a.cuda()
             z_b = z_b.cuda()
@@ -448,10 +460,13 @@ def predict_interaction_cmap(
             cm, ph = model.map_predict(z_a, z_b, True, f_a, f_b)
         else:
             cm, ph = model.map_predict(z_a, z_b)
+        
         p_hat.append(ph)
         if full_cmap:
             c_map.append(cm)
         else:
+            if model.alphafoldlike:
+                cm = cm[1]
             c_map.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
 
@@ -470,7 +485,7 @@ def predict_interaction(
     allow_foldseek=False,
     fold_record=None,
     fold_vocab=None,
-    add_first=True
+    add_first=True,
     ###
 ):
     """
@@ -493,48 +508,54 @@ def predict_interaction(
     for i in range(b):
         z_a = tensors[n0[i]]
         z_b = tensors[n1[i]]
+        if len(z_a.shape) == 2:
+            z_a = z_a.unsqueeze(0)
+        
+        if len(z_b.shape) == 2:
+            z_b = z_b.unsqueeze(0)
         if use_cuda:
             z_a = z_a.cuda()
             z_b = z_b.cuda()
         cm, ph = model.map_predict(z_a, z_b)
         p_hat.append(ph)
         c_map.append(cm)
+        
     p_hat = torch.stack(p_hat, 0)
     return c_map, p_hat
 
 
-def predict_interaction(model, n0, n1, tensors, use_cuda,    ### Foldseek added here
-    allow_foldseek=False,
-    fold_record=None,
-    fold_vocab=None,
-    add_first=True
-    ###
-    ):
-    """
-    Predict whether a list of protein pairs will interact.
-    :param model: Model to be trained
-    :type model: dscript.models.interaction.ModelInteraction
-    :param n0: First protein names
-    :type n0: list[str]
-    :param n1: Second protein names
-    :type n1: list[str]
-    :param tensors: Dictionary of protein names to embeddings
-    :type tensors: dict[str, torch.Tensor]
-    :param use_cuda: Whether to use GPU
-    :type use_cuda: bool
-    """
-    _, p_hat = predict_interaction_cmap(
-        model,
-        n0,
-        n1,
-        tensors,
-        use_cuda,
-        allow_foldseek,
-        fold_record,
-        fold_vocab,
-        add_first,
-    )
-    return p_hat
+# def predict_interaction(model, n0, n1, tensors, use_cuda,    ### Foldseek added here
+#     allow_foldseek=False,
+#     fold_record=None,
+#     fold_vocab=None,
+#     add_first=True
+#     ###
+#     ):
+#     """
+#     Predict whether a list of protein pairs will interact.
+#     :param model: Model to be trained
+#     :type model: dscript.models.interaction.ModelInteraction
+#     :param n0: First protein names
+#     :type n0: list[str]
+#     :param n1: Second protein names
+#     :type n1: list[str]
+#     :param tensors: Dictionary of protein names to embeddings
+#     :type tensors: dict[str, torch.Tensor]
+#     :param use_cuda: Whether to use GPU
+#     :type use_cuda: bool
+#     """
+#     _, p_hat = predict_interaction_cmap(
+#         model,
+#         n0,
+#         n1,
+#         tensors,
+#         use_cuda,
+#         allow_foldseek,
+#         fold_record,
+#         fold_vocab,
+#         add_first,
+#     )
+#     return p_hat
 
 
 def interaction_grad(
@@ -587,7 +608,8 @@ def interaction_grad(
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
     do_cmap_supervision = cmap_tensors is not None
-
+    #print(do_cmap_supervision)
+    
     c_map, p_hat = predict_interaction_cmap(
         model,
         n0,
@@ -598,9 +620,10 @@ def interaction_grad(
         fold_record,
         fold_vocab,
         add_first,
-        full_cmap=do_cmap_supervision,
+        full_cmap=do_cmap_supervision
     )
 
+    
     if use_cuda:
         y = y.cuda()
     y = Variable(y)
@@ -643,10 +666,13 @@ def interaction_grad(
             sampler = kwargs["sampler"]
             cmap_img_size = kwargs["cmap_img_size"]
             no_samples = kwargs["no_samples"]
+        elif cmap_mode_classify == "afold":
+            loss_fn = torch.nn.CrossEntropyLoss()
+            
         losses = []
         
         for i in range(0, len(n0)):
-            true_cmap = torch.from_numpy(cmaps[f"{n0[i]}x{n1[i]}"]).float()
+            true_cmap = torch.from_numpy(cmap_tensors[f"{n0[i]}x{n1[i]}"]).float()
             #KAPIL################### Code for optimal transport loss #########################
             if cmap_mode_classify == "ot":
                 row_pad, col_pad = cmap_img_size - c_map[i].shape[-2], cmap_img_size - c_map[i].shape[-1]
@@ -657,17 +683,30 @@ def interaction_grad(
                     true_cmap_samples = true_cmap_samples.cuda()
                     cmap_samples = cmap_samples.cuda()
                 map_loss = loss_fn(true_cmap_samples, cmap_samples)
-
+            elif cmap_mode_classify == "afold":
+                c_map_alph, c_map_agg = c_map[i]
+                true_cmap = true_cmap.squeeze()
+                c_map_alph = c_map_alph.squeeze()
+                ## need to transpose here
+                c_map_alph = torch.transpose(c_map_alph, 0, 2).contiguous()
+                true_cmap = torch.transpose(true_cmap, 0, 1).contiguous()
+                if use_cuda:
+                    c_map_alph = c_map_alph.cuda()
+                    true_cmap  = true_cmap.cuda()
+                #print(f"cmap-alph shape {c_map_alph.shape}, true_cmap shape {true_cmap.shape}")
+                alphbins = c_map_alph.shape[2]
+                true_cmap = (true_cmap * (alphbins-1) / 25).long() 
+                map_loss = loss_fn(c_map_alph.view(-1, c_map_alph.shape[2]), true_cmap.view(-1))
             else:
                 pred_cmap = torch.squeeze(c_map[i]).float()
                 if use_cuda:
                     true_cmap = true_cmap.cuda()
                     pred_cmap = pred_cmap.cuda()
-                map_loss = loss_fn(c_map_fl, true_cmap_fl)
+                map_loss = loss_fn(c_map[i].squeeze(), true_cmap)
                 
             losses.append(map_loss)
         # contact map accuracy loss
-        representation_loss = torch.mean(torch.stack(cmap_losses))
+        representation_loss = torch.mean(torch.stack(losses))
 
     loss = (accuracy_weight * accuracy_loss) + (
         (1 - accuracy_weight) * representation_loss
@@ -722,9 +761,7 @@ def interaction_eval(
     true_y = []
 
     for n0, n1, y in test_iterator:
-
-        p_hat.append(
-            predict_interaction(
+        _, ph = predict_interaction_cmap(
                 model,
                 n0,
                 n1,
@@ -734,8 +771,8 @@ def interaction_eval(
                 fold_record,
                 fold_vocab,
                 add_first,
-            )
         )
+        p_hat.append(ph)
         true_y.append(y)
 
     y = torch.cat(true_y, 0)
@@ -784,7 +821,7 @@ def cmap_eval(
     add_first=True,
     ###
     save_img_every=-1,
-    save_prefix=None,
+    save_prefix=None
 ):
     """
     Evaluate test data set performance.
@@ -803,7 +840,11 @@ def cmap_eval(
     """
     p_hat = []
     true_y = []
-
+    
+    if model.alphafoldlike:
+        loss_f = nn.CrossEntropyLoss()
+        loss = 0
+        
     for i, (n0, n1, y) in enumerate(test_iterator):
         cmap_pred, _ = predict_interaction_cmap(
             model,
@@ -817,20 +858,46 @@ def cmap_eval(
             add_first,
             full_cmap=True,
         )
-        p_hat.extend([torch.ravel(i) for i in cmap_pred])
-        for n0_, n1_ in zip(n0, n1):
-            cmap_true = torch.from_numpy(cmap_tensors[f"{n0_}x{n1_}"])
-            true_y.append(cmap_true.flatten())
+        if model.alphafoldlike:
+            loss_c = 0
+            for j, (n0_, n1_) in enumerate(zip(n0, n1)):
+                cmap_true = torch.from_numpy(cmap_tensors[f"{n0_}x{n1_}"]).squeeze()
+                c_map_alph = cmap_pred[j][0].squeeze().float()
+                ## need to transpose here
+                c_map_alph = torch.transpose(c_map_alph, 0, 2).contiguous()
+                cmap_true = torch.transpose(cmap_true, 0, 1).contiguous()
+                alphbins = c_map_alph.shape[2]
+                cmap_true = (cmap_true * (alphbins-1) / 25).long() 
+                if use_cuda:
+                    cmap_true = cmap_true.cuda()
+                #print(f"cmap-alph shape {c_map_alph.shape}, true_cmap shape {cmap_true.shape}")
+                loss_c += loss_f(c_map_alph.view(-1, c_map_alph.shape[2]), cmap_true.view(-1))
+            loss += loss_c/j
+        else:
+            p_hat.extend([torch.ravel(i) for i in cmap_pred])
+            for n0_, n1_ in zip(n0, n1):
+                cmap_true = torch.from_numpy(cmap_tensors[f"{n0_}x{n1_}"])
+                true_y.append(cmap_true.flatten())
+                
         if (save_img_every != -1) and (i % save_img_every == 0):
-            save_cmap_img(
-                cmap_pred[0].squeeze().cpu().numpy(),
-                f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png",
-            )
+            if model.alphafoldlike:
+                save_cmap_img(
+                    cmap_pred[0][1].squeeze().int().cpu().numpy(),
+                    f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png",
+                )
+            else:
+                save_cmap_img(
+                    cmap_pred[0].squeeze().cpu().numpy(),
+                    f"{save_prefix}--{n0[0]}x{n1[0]}_pred.png",
+                )
             save_cmap_img(
                 cmap_tensors[f"{n0[0]}x{n1[0]}"].squeeze(),
                 f"{save_prefix}--{n0[0]}x{n1[0]}_true.png",
             )
 
+    if model.alphafoldlike:
+        return loss / i, 0., 0., 0., 0., 0., 0.
+    
     y = torch.cat(true_y, 0)
     p_hat = torch.cat(p_hat, 0)
 
@@ -838,7 +905,7 @@ def cmap_eval(
         y.cuda()
         p_hat = torch.Tensor([x.cuda() for x in p_hat])
         p_hat.cuda()
-
+    
     loss = F.binary_cross_entropy(p_hat.float(), y.float()).item()
     b = len(y)
 
@@ -1103,7 +1170,7 @@ def train_model(args, output):
 
         # Create embedding model
         input_dim = args.input_dim
-
+        alphafoldlike = mode_classify == "afold"
         ############### foldseek code ###########################
 
         if allow_foldseek and add_first:
@@ -1134,7 +1201,7 @@ def train_model(args, output):
 
         activation = nn.Sigmoid() if not args.run_cmap else cmap_activation
         contact_model = ContactCNN(
-            proj_dim, hidden_dim, kernel_width, activation
+            proj_dim, hidden_dim, kernel_width, activation, alphafoldlike = alphafoldlike
         )
 
         # Create the full model
@@ -1155,6 +1222,7 @@ def train_model(args, output):
             pool_size=pool_width,
             do_pool=do_pool,
             do_sigmoid=do_sigmoid,
+            alphafoldlike = alphafoldlike
         )
 
         log(model, file=output)
@@ -1190,19 +1258,19 @@ def train_model(args, output):
     if args.run_cmap:
         #KAPIL#### Additional code for the optimal transport #####
         if mode_classify == "ot":
-            optim_cmap = torch.optim.SGD([{"params" : sampler.parameters(), "lr" : map_lr/10, "weight_decay" : 0},
+            optim_cmap = torch.optim.SGD([{"params" : sampler.parameters(), "lr" : cmap_lr/10, "weight_decay" : 0},
                                           {"params"  : params}
-                                         ], lr = map_lr, weight_decay = wd)
+                                         ], lr = cmap_lr, weight_decay = wd)
             
         ########################################################
         else:
-            optim_cmap = torch.optim.Adam(params, lr=map_lr, weight_decay=wd)
+            optim_cmap = torch.optim.Adam(params, lr=cmap_lr, weight_decay=wd)
 
     log(f'Using save prefix "{save_prefix}"', file=output)
     log(f"Training with Adam: lr={lr}, weight_decay={wd}", file=output)
     if args.run_cmap:
         log(
-            f"Contact maps -- Training with Adam: lr={map_lr}, weight_decay={wd}",
+            f"Contact maps -- Training with Adam: lr={cmap_lr}, weight_decay={wd}",
             file=output,
         )
     log(f"\tnum_epochs: {num_epochs}", file=output)
@@ -1407,7 +1475,7 @@ def train_model(args, output):
                     fold_record,
                     fold_vocab,
                     add_first,
-                    save_img_every=len(cmap_test_iterator) // 20,
+                    save_img_every= max(len(cmap_test_iterator) // 20, 1),
                     save_prefix=save_prefix,
                 )
                 tokens = [

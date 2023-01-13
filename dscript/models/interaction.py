@@ -60,6 +60,7 @@ class ModelInteraction(nn.Module):
         theta_init=1,
         lambda_init=0,
         gamma_init=0,
+        alphafoldlike=False
     ):
         """
         Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.
@@ -93,6 +94,7 @@ class ModelInteraction(nn.Module):
         if do_sigmoid:
             self.activation = LogisticActivation(x0=0.5, k=20)
 
+        self.alphafoldlike = alphafoldlike
         self.embedding = embedding
         self.contact = contact
 
@@ -172,9 +174,11 @@ class ModelInteraction(nn.Module):
             e0 = torch.concat([e0, f0], dim=2)
             e1 = torch.concat([e1, f1], dim=2)
 
-        B = self.contact.cmap(e0, e1)
-        C = self.contact.predict(B)
-        return C
+        
+        return self.contact(e0, e1)
+        # B = self.contact.cmap(e0, e1)
+        # C = self.contact.predict(B)
+        # return C
 
     def map_predict(
         self,
@@ -205,9 +209,15 @@ class ModelInteraction(nn.Module):
                 and z0.get_device() == f1.get_device()
             )
             assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
+        
+        C_ = self.cpred(z0, z1, embed_foldseek, f0, f1)
 
-        C = self.cpred(z0, z1, embed_foldseek, f0, f1)
-
+        if self.alphafoldlike:
+            [Calph, Cagg], C = C_
+        else:
+            C = C_
+                
+        
         if self.do_w:
             # Create contact weighting matrix
             N, M = C.shape[2:]
@@ -251,6 +261,9 @@ class ModelInteraction(nn.Module):
         phat = torch.sum(Q) / (torch.sum(torch.sign(Q)) + 1)
         if self.do_sigmoid:
             phat = self.activation(phat)
+            
+        if self.alphafoldlike:
+            return [Calph, Cagg], phat
         return C, phat
 
     def predict(self, z0, z1):
@@ -264,8 +277,12 @@ class ModelInteraction(nn.Module):
         :return: Predicted probability of interaction
         :rtype: torch.Tensor, torch.Tensor
         """
-        _, phat = self.map_predict(z0, z1)
-        return phat
+        if self.alphafoldlike:
+            C, phat = self.map_predict(z0, z1)
+            return C, phat
+        else:
+            _, phat = self.map_predict(z0, z1)
+            return phat
 
     def forward(self, z0, z1):
         """

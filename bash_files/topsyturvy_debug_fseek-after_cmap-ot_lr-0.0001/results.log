@@ -1,0 +1,96 @@
+[2023-01-06-19:55:37] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-06-19:55:37] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/results.log --save-prefix topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 3 --run-cmap --contact-map-train ../data/pairs/lynntao_pdbseqs_TRAIN-SET_cmap-filtered-lt400_debug.tsv --contact-map-test ../data/pairs/lynntao_pdbseqs_TEST-SET_cmap-filtered-lt400_debug.tsv --contact-map-mode ot --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap-latest.h5 --contact-map-lr 0.0001 --contact-map-lambda 0.1 --contact-map-sampler ../data/models/sampler/sampler-run-Mon-26-Dec-2022-12:07:02-PM-EST/iter_999.sav --ot-cmap-nsamples 100 --allow_foldseek --foldseek_fasta ../data/foldseek_emb/r2_foldseekrep_seq.fa --foldseek_vocab ../data/foldseek_vocab.json --add_foldseek_after_projection
+[2023-01-06-19:55:37] Using CUDA device 3 - NVIDIA A100 80GB PCIe
+[2023-01-06-19:55:38] Loaded 120 training pairs
+[2023-01-06-19:55:38] Loaded 60 test pairs
+[2023-01-06-19:55:38] Loading embeddings...
+[2023-01-06-19:55:40] Running D-SCRIPT Topsy-Turvy:
+[2023-01-06-19:55:40] 	glider_weight: 0.2
+[2023-01-06-19:55:40] 	glider_thresh: 92.5th percentile
+[2023-01-06-19:55:40] Computing GLIDER matrix...
+[2023-01-06-19:55:40] Loading training pairs for contact maps
+[2023-01-06-19:55:40] Loaded 10 contact map training pairs
+[2023-01-06-19:55:40] Loading testing pairs for contact maps
+[2023-01-06-19:55:40] Loaded 10 test pairs
+[2023-01-06-19:55:40] Loading dictionary of contact maps
+[2023-01-06-19:55:40] Loaded 20 contact maps
+[2023-01-06-19:55:40] Loading embeddings of contact maps
+[2023-01-06-19:55:42] Initializing embedding model with:
+[2023-01-06-19:55:42] 	projection_dim: 100
+[2023-01-06-19:55:42] 	dropout_p: 0.2
+[2023-01-06-19:55:42] Initializing contact model with:
+[2023-01-06-19:55:42] 	hidden_dim: 50
+[2023-01-06-19:55:42] 	kernel_width: 7
+[2023-01-06-19:55:42] Initializing interaction model with:
+[2023-01-06-19:55:42] 	do_pool: False
+[2023-01-06-19:55:42] 	pool_width: 9
+[2023-01-06-19:55:42] 	do_w: True
+[2023-01-06-19:55:42] 	do_sigmoid: True
+[2023-01-06-19:55:42] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(242, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-06-19:55:43] Using save prefix "topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep_"
+[2023-01-06-19:55:43] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-06-19:55:43] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-06-19:55:43] 	num_epochs: 10
+[2023-01-06-19:55:43] 	batch_size: 25
+[2023-01-06-19:55:43] 	interaction weight: 0.05
+[2023-01-06-19:55:43] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-06-19:55:43] 	cmap training interaction weight: 0.1
+[2023-01-06-19:55:47] [1/10] training 80.0%: Loss=0.516291, Accuracy=82.000%, MSE=0.179308
+[2023-01-06-19:55:49] Finished Epoch 1/10: Loss=1.03612, Accuracy=66.667%, MSE=0.165846, Precision=0.132322, Recall=0.00250274, F1=0.00491257, AUPR=0.145061
+[2023-01-06-19:55:53] Finished Contact Map Epoch 1/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:55:53] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch01.sav
+[2023-01-06-19:55:55] [2/10] training 80.0%: Loss=0.503936, Accuracy=82.000%, MSE=0.178909
+[2023-01-06-19:55:56] Finished Epoch 2/10: Loss=1.06897, Accuracy=66.667%, MSE=0.165831, Precision=0.170993, Recall=0.00253599, F1=0.00499786, AUPR=0.215593
+[2023-01-06-19:56:01] Finished Contact Map Epoch 2/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:01] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch02.sav
+[2023-01-06-19:56:02] [3/10] training 80.0%: Loss=0.488253, Accuracy=86.000%, MSE=0.138925
+[2023-01-06-19:56:04] Finished Epoch 3/10: Loss=1.06797, Accuracy=66.667%, MSE=0.165609, Precision=0.201048, Recall=0.00321852, F1=0.00633562, AUPR=0.270736
+[2023-01-06-19:56:09] Finished Contact Map Epoch 3/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:09] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch03.sav
+[2023-01-06-19:56:11] [4/10] training 80.0%: Loss=0.488066, Accuracy=84.000%, MSE=0.158432
+[2023-01-06-19:56:12] Finished Epoch 4/10: Loss=1.02064, Accuracy=66.667%, MSE=0.163959, Precision=0.284615, Recall=0.0084181, F1=0.0163525, AUPR=0.245768
+[2023-01-06-19:56:17] Finished Contact Map Epoch 4/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:17] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch04.sav
+[2023-01-06-19:56:19] [5/10] training 80.0%: Loss=0.487369, Accuracy=83.000%, MSE=0.16814
+[2023-01-06-19:56:21] Finished Epoch 5/10: Loss=1.04878, Accuracy=66.667%, MSE=0.164037, Precision=0.26154, Recall=0.00824225, F1=0.0159809, AUPR=0.256009
+[2023-01-06-19:56:26] Finished Contact Map Epoch 5/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:26] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch05.sav
+[2023-01-06-19:56:28] [6/10] training 80.0%: Loss=0.489893, Accuracy=81.000%, MSE=0.187816
+[2023-01-06-19:56:30] Finished Epoch 6/10: Loss=1.10361, Accuracy=66.667%, MSE=0.165005, Precision=0.242499, Recall=0.00513237, F1=0.010052, AUPR=0.265895
+[2023-01-06-19:56:35] Finished Contact Map Epoch 6/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:35] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch06.sav
+[2023-01-06-19:56:37] [7/10] training 80.0%: Loss=0.484102, Accuracy=83.000%, MSE=0.167983
+[2023-01-06-19:56:39] Finished Epoch 7/10: Loss=1.13033, Accuracy=66.667%, MSE=0.165512, Precision=0.176484, Recall=0.00358913, F1=0.00703518, AUPR=0.192659
+[2023-01-06-19:56:44] Finished Contact Map Epoch 7/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:44] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch07.sav
+[2023-01-06-19:56:45] [8/10] training 80.0%: Loss=0.484855, Accuracy=82.000%, MSE=0.177668
+[2023-01-06-19:56:47] Finished Epoch 8/10: Loss=1.11072, Accuracy=66.667%, MSE=0.165063, Precision=0.276868, Recall=0.00492666, F1=0.00968104, AUPR=0.283917
+[2023-01-06-19:56:52] Finished Contact Map Epoch 8/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:56:52] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch08.sav
+[2023-01-06-19:56:54] [9/10] training 80.0%: Loss=0.477428, Accuracy=85.000%, MSE=0.148093
+[2023-01-06-19:56:56] Finished Epoch 9/10: Loss=1.10293, Accuracy=66.667%, MSE=0.165086, Precision=0.238718, Recall=0.00487931, F1=0.00956315, AUPR=0.275113
+[2023-01-06-19:57:01] Finished Contact Map Epoch 9/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:57:01] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch09.sav
+[2023-01-06-19:57:03] [10/10] training 80.0%: Loss=0.478604, Accuracy=84.000%, MSE=0.158068
+[2023-01-06-19:57:04] Finished Epoch 10/10: Loss=1.0781, Accuracy=66.667%, MSE=0.164737, Precision=0.293843, Recall=0.0059502, F1=0.0116642, AUPR=0.306343
+[2023-01-06-19:57:10] Finished Contact Map Epoch 10/10: Loss=0.0, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-06-19:57:10] Saving model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__epoch10.sav
+[2023-01-06-19:57:10] Saving final model to topsyturvy_debug_fseek-after_cmap-ot_lr-0.0001/ep__final.sav

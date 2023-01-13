@@ -1,13 +1,12 @@
 #!/bin/bash
 
-ORGS=( fly human mouse ) # ecoli yeast
-
+ORGS=( ecoli yeast fly worm mouse ) 
 TOPSY_TURVY=
-EMBEDDING_DIR=embeddings/
-SEQ_DIR=seqs-pairs/pairs
+EMBEDDING_DIR=../data/embeddings/
+SEQ_DIR=../data/pairs
 OUTPUT_FOLDER=fseek_after_human_model_dscript
 OUTPUT_PREFIX=results-
-FOLDSEEK_FASTA=../../foldseek_emb/r1_foldseekrep_seq.fa
+FOLDSEEK_FASTA=../data/foldseek_emb/r3-ALLSPECIES_foldseekrep_seq.fa
 FOLDSEEK_VOCAB=../data/foldseek_vocab.json
 MODEL_PARAMS="--allow_foldseek --foldseek_fasta ${FOLDSEEK_FASTA} --foldseek_vocab ${FOLDSEEK_VOCAB}"
 DEVICE=0
@@ -40,6 +39,9 @@ do
     OP_FILE=${OP_FOLDER_ORG}/${OUTPUT_FILE}
     dscript evaluate --model ${MODEL} --embedding ${EMBEDDING} --test ${TEST} -d $DEVICE ${MODEL_PARAMS} -o $OP_FILE
 done
+
+# dev 4, 3, 2
+
 
 #AFTER: ./test.sh -d 1 -m fseek_after_human_model_dscript/ep__epoch07.sav -T fseek_after -D fseek_after_human_model_dscript/eval -f results
 

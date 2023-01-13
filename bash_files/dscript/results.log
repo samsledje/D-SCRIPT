@@ -1,0 +1,6 @@
+[2022-11-12-01:40:37] D-SCRIPT Version 0.2.2
+[2022-11-12-01:40:37] Called as: /scratch2/kdevko01/conda/.conda/envs/dscript/bin/dscript train --train seqs-pairs/pairs/human_train.tsv --test seqs-pairs/pairs/human_test.tsv --embedding embeddings/foldseek_emb.h5 --o original_human_model_dscript/results.log --save-prefix original_human_model_dscript/ep_ --lr 0.001 --lambda 0.05 --num-epoch 10 --input-dim 21 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 5
+[2022-11-12-01:40:37] Using CUDA device 5 - Tesla V100-PCIE-32GB
+[2022-11-12-01:40:37] Loaded 843584 training pairs
+[2022-11-12-01:40:38] Loaded 52725 test pairs
+[2022-11-12-01:40:38] Loading embeddings...

@@ -1,0 +1,92 @@
+[2023-01-12-10:00:24] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-12-10:00:24] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 -o dscript_debug_cmap-afold_lr-0.0001/results.log --save-prefix dscript_debug_cmap-afold_lr-0.0001/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7 --run-cmap --contact-map-train ../data/pairs/lynntao_pdbseqs_TRAIN-SET_cmap-filtered-lt400_debug.tsv --contact-map-test ../data/pairs/lynntao_pdbseqs_TEST-SET_cmap-filtered-lt400_debug.tsv --contact-map-mode afold --contact-map-embedding ../lynnfiles/new_cmap_embed --contact-maps ../data/embeddings/cmap-latest.h5 --contact-map-lr 0.0001 --contact-map-lambda 0.1
+[2023-01-12-10:00:24] Using CUDA device 7 - NVIDIA A100 80GB PCIe
+[2023-01-12-10:00:24] Loaded 120 training pairs
+[2023-01-12-10:00:24] Loaded 60 test pairs
+[2023-01-12-10:00:24] Loading embeddings...
+[2023-01-12-10:00:26] Loading training pairs for contact maps
+[2023-01-12-10:00:26] Loaded 10 contact map training pairs
+[2023-01-12-10:00:26] Loading testing pairs for contact maps
+[2023-01-12-10:00:26] Loaded 10 test pairs
+[2023-01-12-10:00:26] Loading dictionary of contact maps
+[2023-01-12-10:00:26] Loaded 20 contact maps
+[2023-01-12-10:00:26] Loading embeddings of contact maps
+[2023-01-12-10:00:26] Initializing embedding model with:
+[2023-01-12-10:00:26] 	projection_dim: 100
+[2023-01-12-10:00:26] 	dropout_p: 0.2
+[2023-01-12-10:00:26] Initializing contact model with:
+[2023-01-12-10:00:26] 	hidden_dim: 50
+[2023-01-12-10:00:26] 	kernel_width: 7
+[2023-01-12-10:00:26] Initializing interaction model with:
+[2023-01-12-10:00:26] 	do_pool: False
+[2023-01-12-10:00:26] 	pool_width: 9
+[2023-01-12-10:00:26] 	do_w: True
+[2023-01-12-10:00:26] 	do_sigmoid: True
+[2023-01-12-10:00:26] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(200, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-12-10:00:28] Using save prefix "dscript_debug_cmap-afold_lr-0.0001/ep_"
+[2023-01-12-10:00:28] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-12-10:00:28] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-12-10:00:28] 	num_epochs: 10
+[2023-01-12-10:00:28] 	batch_size: 25
+[2023-01-12-10:00:28] 	interaction weight: 0.05
+[2023-01-12-10:00:28] Contact maps -- Training with Adam: lr=0.0001, weight_decay=0.0
+[2023-01-12-10:00:28] 	cmap training interaction weight: 0.1
+[2023-01-12-10:00:33] [1/10] training 80.0%: Loss=11.3392, Accuracy=84.000%, MSE=0.159579
+[2023-01-12-10:00:34] Finished Epoch 1/10: Loss=1.26513, Accuracy=66.667%, MSE=0.166452, Precision=0.151539, Recall=0.000647539, F1=0.00128957, AUPR=0.227714
+[2023-01-12-10:00:35] Finished Contact Map Epoch 1/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:35] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch01.sav
+[2023-01-12-10:00:36] [2/10] training 80.0%: Loss=10.4757, Accuracy=83.000%, MSE=0.169572
+[2023-01-12-10:00:37] Finished Epoch 2/10: Loss=1.27152, Accuracy=66.667%, MSE=0.166439, Precision=0.152059, Recall=0.000688566, F1=0.00137092, AUPR=0.251883
+[2023-01-12-10:00:38] Finished Contact Map Epoch 2/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:38] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch02.sav
+[2023-01-12-10:00:39] [3/10] training 80.0%: Loss=9.99937, Accuracy=86.000%, MSE=0.139603
+[2023-01-12-10:00:40] Finished Epoch 3/10: Loss=1.26085, Accuracy=66.667%, MSE=0.166444, Precision=0.141993, Recall=0.000673367, F1=0.00134038, AUPR=0.220168
+[2023-01-12-10:00:41] Finished Contact Map Epoch 3/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:41] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch03.sav
+[2023-01-12-10:00:43] [4/10] training 80.0%: Loss=9.68799, Accuracy=83.000%, MSE=0.169497
+[2023-01-12-10:00:44] Finished Epoch 4/10: Loss=1.25663, Accuracy=66.667%, MSE=0.166448, Precision=0.135162, Recall=0.000661359, F1=0.00131628, AUPR=0.212812
+[2023-01-12-10:00:44] Finished Contact Map Epoch 4/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:44] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch04.sav
+[2023-01-12-10:00:46] [5/10] training 80.0%: Loss=9.47378, Accuracy=82.000%, MSE=0.179465
+[2023-01-12-10:00:47] Finished Epoch 5/10: Loss=1.28099, Accuracy=66.667%, MSE=0.166483, Precision=0.134457, Recall=0.000555922, F1=0.00110727, AUPR=0.216594
+[2023-01-12-10:00:48] Finished Contact Map Epoch 5/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:48] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch05.sav
+[2023-01-12-10:00:50] [6/10] training 80.0%: Loss=9.31387, Accuracy=84.000%, MSE=0.159477
+[2023-01-12-10:00:51] Finished Epoch 6/10: Loss=1.27038, Accuracy=66.667%, MSE=0.166471, Precision=0.12546, Recall=0.000594388, F1=0.00118317, AUPR=0.219347
+[2023-01-12-10:00:52] Finished Contact Map Epoch 6/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:52] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch06.sav
+[2023-01-12-10:00:53] [7/10] training 80.0%: Loss=9.16115, Accuracy=83.000%, MSE=0.169371
+[2023-01-12-10:00:54] Finished Epoch 7/10: Loss=1.24273, Accuracy=66.667%, MSE=0.166433, Precision=0.11728, Recall=0.000710893, F1=0.00141322, AUPR=0.214101
+[2023-01-12-10:00:56] Finished Contact Map Epoch 7/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:56] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch07.sav
+[2023-01-12-10:00:57] [8/10] training 80.0%: Loss=9.05059, Accuracy=85.000%, MSE=0.149421
+[2023-01-12-10:00:58] Finished Epoch 8/10: Loss=1.24188, Accuracy=66.667%, MSE=0.166434, Precision=0.109225, Recall=0.000714682, F1=0.00142007, AUPR=0.218029
+[2023-01-12-10:00:59] Finished Contact Map Epoch 8/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:00:59] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch08.sav
+[2023-01-12-10:01:01] [9/10] training 80.0%: Loss=8.94703, Accuracy=82.000%, MSE=0.179286
+[2023-01-12-10:01:02] Finished Epoch 9/10: Loss=1.24466, Accuracy=66.667%, MSE=0.166441, Precision=0.0927333, Recall=0.000702817, F1=0.00139506, AUPR=0.219029
+[2023-01-12-10:01:04] Finished Contact Map Epoch 9/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:01:04] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch09.sav
+[2023-01-12-10:01:05] [10/10] training 80.0%: Loss=8.84334, Accuracy=84.000%, MSE=0.159327
+[2023-01-12-10:01:06] Finished Epoch 10/10: Loss=1.23238, Accuracy=66.667%, MSE=0.166428, Precision=0.0791, Recall=0.000766508, F1=0.0015183, AUPR=0.215055
+[2023-01-12-10:01:08] Finished Contact Map Epoch 10/10: Loss=inf, Accuracy=0.000%, MSE=0.0, Precision=0.0, Recall=0.0, F1=0.0, AUPR=0.0
+[2023-01-12-10:01:08] Saving model to dscript_debug_cmap-afold_lr-0.0001/ep__epoch10.sav
+[2023-01-12-10:01:08] Saving final model to dscript_debug_cmap-afold_lr-0.0001/ep__final.sav

@@ -1,0 +1,76 @@
+[2023-01-04-18:42:31] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-04-18:42:31] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_debug_cmap-regression/results.log --save-prefix topsyturvy_debug_cmap-regression/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7
+[2023-01-04-18:42:31] Using CUDA device 7 - NVIDIA A100 80GB PCIe
+[2023-01-04-18:42:31] Loaded 120 training pairs
+[2023-01-04-18:42:31] Loaded 60 test pairs
+[2023-01-04-18:42:31] Loading embeddings...
+[2023-01-04-18:42:33] Running D-SCRIPT Topsy-Turvy:
+[2023-01-04-18:42:33] 	glider_weight: 0.2
+[2023-01-04-18:42:33] 	glider_thresh: 92.5th percentile
+[2023-01-04-18:42:33] Computing GLIDER matrix...
+[2023-01-04-18:42:33] Initializing embedding model with:
+[2023-01-04-18:42:33] 	projection_dim: 100
+[2023-01-04-18:42:33] 	dropout_p: 0.2
+[2023-01-04-18:42:33] Initializing contact model with:
+[2023-01-04-18:42:33] 	hidden_dim: 50
+[2023-01-04-18:42:33] 	kernel_width: 7
+[2023-01-04-18:42:33] Initializing interaction model with:
+[2023-01-04-18:42:33] 	do_pool: False
+[2023-01-04-18:42:33] 	pool_width: 9
+[2023-01-04-18:42:33] 	do_w: True
+[2023-01-04-18:42:33] 	do_sigmoid: True
+[2023-01-04-18:42:33] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(200, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-04-18:42:35] Using save prefix "topsyturvy_debug_cmap-regression/ep_"
+[2023-01-04-18:42:35] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-04-18:42:35] 	num_epochs: 10
+[2023-01-04-18:42:35] 	batch_size: 25
+[2023-01-04-18:42:35] 	interaction weight: 0.05
+[2023-01-04-18:42:39] [1/10] training 80.0%: Loss=0.517633, Accuracy=81.000%, MSE=0.189314
+[2023-01-04-18:42:40] Finished Epoch 1/10: Loss=1.09198, Accuracy=66.667%, MSE=0.165831, Precision=0.114216, Recall=0.00277191, F1=0.00541246, AUPR=0.197586
+[2023-01-04-18:42:40] Saving model to topsyturvy_debug_cmap-regression/ep__epoch01.sav
+[2023-01-04-18:42:41] [2/10] training 80.0%: Loss=0.494664, Accuracy=83.000%, MSE=0.168807
+[2023-01-04-18:42:42] Finished Epoch 2/10: Loss=1.02894, Accuracy=66.667%, MSE=0.165092, Precision=0.142611, Recall=0.00529356, F1=0.0102082, AUPR=0.219715
+[2023-01-04-18:42:42] Saving model to topsyturvy_debug_cmap-regression/ep__epoch02.sav
+[2023-01-04-18:42:43] [3/10] training 80.0%: Loss=0.484819, Accuracy=85.000%, MSE=0.148563
+[2023-01-04-18:42:43] Finished Epoch 3/10: Loss=1.1997, Accuracy=66.667%, MSE=0.16622, Precision=0.0713826, Recall=0.00165428, F1=0.00323362, AUPR=0.204068
+[2023-01-04-18:42:43] Saving model to topsyturvy_debug_cmap-regression/ep__epoch03.sav
+[2023-01-04-18:42:44] [4/10] training 80.0%: Loss=0.485972, Accuracy=83.000%, MSE=0.167812
+[2023-01-04-18:42:45] Finished Epoch 4/10: Loss=1.17541, Accuracy=66.667%, MSE=0.16617, Precision=0.081403, Recall=0.00188802, F1=0.00369044, AUPR=0.213609
+[2023-01-04-18:42:45] Saving model to topsyturvy_debug_cmap-regression/ep__epoch04.sav
+[2023-01-04-18:42:46] [5/10] training 80.0%: Loss=0.487086, Accuracy=82.000%, MSE=0.177737
+[2023-01-04-18:42:47] Finished Epoch 5/10: Loss=1.10072, Accuracy=66.667%, MSE=0.165761, Precision=0.110343, Recall=0.00319875, F1=0.00621727, AUPR=0.226908
+[2023-01-04-18:42:47] Saving model to topsyturvy_debug_cmap-regression/ep__epoch05.sav
+[2023-01-04-18:42:48] [6/10] training 80.0%: Loss=0.48557, Accuracy=82.000%, MSE=0.177664
+[2023-01-04-18:42:49] Finished Epoch 6/10: Loss=1.16428, Accuracy=66.667%, MSE=0.166024, Precision=0.0870892, Recall=0.00224809, F1=0.00438303, AUPR=0.199491
+[2023-01-04-18:42:49] Saving model to topsyturvy_debug_cmap-regression/ep__epoch06.sav
+[2023-01-04-18:42:50] [7/10] training 80.0%: Loss=0.478126, Accuracy=85.000%, MSE=0.148314
+[2023-01-04-18:42:51] Finished Epoch 7/10: Loss=1.20339, Accuracy=66.667%, MSE=0.166196, Precision=0.0730397, Recall=0.00161603, F1=0.0031621, AUPR=0.202987
+[2023-01-04-18:42:51] Saving model to topsyturvy_debug_cmap-regression/ep__epoch07.sav
+[2023-01-04-18:42:52] [8/10] training 80.0%: Loss=0.483283, Accuracy=82.000%, MSE=0.177989
+[2023-01-04-18:42:53] Finished Epoch 8/10: Loss=1.15538, Accuracy=66.667%, MSE=0.16603, Precision=0.0869416, Recall=0.0021938, F1=0.0042796, AUPR=0.215622
+[2023-01-04-18:42:53] Saving model to topsyturvy_debug_cmap-regression/ep__epoch08.sav
+[2023-01-04-18:42:54] [9/10] training 80.0%: Loss=0.480312, Accuracy=83.000%, MSE=0.167752
+[2023-01-04-18:42:54] Finished Epoch 9/10: Loss=1.18124, Accuracy=66.667%, MSE=0.16613, Precision=0.0765079, Recall=0.00189886, F1=0.00370575, AUPR=0.206436
+[2023-01-04-18:42:54] Saving model to topsyturvy_debug_cmap-regression/ep__epoch09.sav
+[2023-01-04-18:42:56] [10/10] training 80.0%: Loss=0.481421, Accuracy=82.000%, MSE=0.177401
+[2023-01-04-18:42:56] Finished Epoch 10/10: Loss=1.16945, Accuracy=66.667%, MSE=0.166064, Precision=0.0844355, Recall=0.00210385, F1=0.00410541, AUPR=0.211494
+[2023-01-04-18:42:56] Saving model to topsyturvy_debug_cmap-regression/ep__epoch10.sav
+[2023-01-04-18:42:56] Saving final model to topsyturvy_debug_cmap-regression/ep__final.sav

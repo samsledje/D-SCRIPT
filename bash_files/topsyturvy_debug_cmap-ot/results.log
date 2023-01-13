@@ -1,0 +1,76 @@
+[2023-01-04-18:44:02] D-SCRIPT Version 0.3-dev.1-4-23.ISMB
+[2023-01-04-18:44:02] Called as: /net/scratch3.mit.edu/scratch3-3/kdevko01/conda/.conda/envs/main/bin/dscript train --train ../data/pairs/human_train_debug.tsv --test ../data/pairs/human_test_debug.tsv --embedding /net/scratch3.mit.edu/scratch3-3/kdevko01/Project/coral_PPI/data/embeddings/human.h5 --topsy-turvy --glider-weight 0.2 --glider-thres 0.925 -o topsyturvy_debug_cmap-ot/results.log --save-prefix topsyturvy_debug_cmap-ot/ep_ --lr 0.0005 --lambda 0.05 --num-epoch 10 --n-jobs 40 --weight-decay 0 --batch-size 25 --pool-width 9 --kernel-width 7 --dropout-p 0.2 --projection-dim 100 --hidden-dim 50 --kernel-width 7 --device 7
+[2023-01-04-18:44:02] Using CUDA device 7 - NVIDIA A100 80GB PCIe
+[2023-01-04-18:44:02] Loaded 120 training pairs
+[2023-01-04-18:44:02] Loaded 60 test pairs
+[2023-01-04-18:44:02] Loading embeddings...
+[2023-01-04-18:44:04] Running D-SCRIPT Topsy-Turvy:
+[2023-01-04-18:44:04] 	glider_weight: 0.2
+[2023-01-04-18:44:04] 	glider_thresh: 92.5th percentile
+[2023-01-04-18:44:04] Computing GLIDER matrix...
+[2023-01-04-18:44:04] Initializing embedding model with:
+[2023-01-04-18:44:04] 	projection_dim: 100
+[2023-01-04-18:44:04] 	dropout_p: 0.2
+[2023-01-04-18:44:04] Initializing contact model with:
+[2023-01-04-18:44:04] 	hidden_dim: 50
+[2023-01-04-18:44:04] 	kernel_width: 7
+[2023-01-04-18:44:04] Initializing interaction model with:
+[2023-01-04-18:44:04] 	do_pool: False
+[2023-01-04-18:44:04] 	pool_width: 9
+[2023-01-04-18:44:04] 	do_w: True
+[2023-01-04-18:44:04] 	do_sigmoid: True
+[2023-01-04-18:44:04] ModelInteraction(
+  (activation): LogisticActivation()
+  (embedding): FullyConnectedEmbed(
+    (transform): Linear(in_features=6165, out_features=100, bias=True)
+    (drop): Dropout(p=0.2, inplace=False)
+    (activation): ReLU()
+  )
+  (contact): ContactCNN(
+    (hidden): FullyConnected(
+      (conv): Conv2d(200, 50, kernel_size=(1, 1), stride=(1, 1))
+      (batchnorm): BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activation): ReLU()
+    )
+    (conv): Conv2d(50, 1, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3))
+    (batchnorm): BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (activation): Sigmoid()
+  )
+  (maxPool): MaxPool2d(kernel_size=9, stride=9, padding=4, dilation=1, ceil_mode=False)
+)
+[2023-01-04-18:44:06] Using save prefix "topsyturvy_debug_cmap-ot/ep_"
+[2023-01-04-18:44:06] Training with Adam: lr=0.0005, weight_decay=0.0
+[2023-01-04-18:44:06] 	num_epochs: 10
+[2023-01-04-18:44:06] 	batch_size: 25
+[2023-01-04-18:44:06] 	interaction weight: 0.05
+[2023-01-04-18:44:10] [1/10] training 80.0%: Loss=0.503326, Accuracy=86.000%, MSE=0.139345
+[2023-01-04-18:44:12] Finished Epoch 1/10: Loss=1.08197, Accuracy=66.667%, MSE=0.16562, Precision=0.111643, Recall=0.00406011, F1=0.00783527, AUPR=0.214404
+[2023-01-04-18:44:12] Saving model to topsyturvy_debug_cmap-ot/ep__epoch01.sav
+[2023-01-04-18:44:13] [2/10] training 80.0%: Loss=0.492895, Accuracy=83.000%, MSE=0.168372
+[2023-01-04-18:44:13] Finished Epoch 2/10: Loss=1.18076, Accuracy=66.667%, MSE=0.165554, Precision=0.133451, Recall=0.00362781, F1=0.00706359, AUPR=0.215535
+[2023-01-04-18:44:13] Saving model to topsyturvy_debug_cmap-ot/ep__epoch02.sav
+[2023-01-04-18:44:14] [3/10] training 80.0%: Loss=0.492818, Accuracy=81.000%, MSE=0.187899
+[2023-01-04-18:44:15] Finished Epoch 3/10: Loss=1.20987, Accuracy=66.667%, MSE=0.165785, Precision=0.0975289, Recall=0.00309382, F1=0.00599739, AUPR=0.190217
+[2023-01-04-18:44:15] Saving model to topsyturvy_debug_cmap-ot/ep__epoch03.sav
+[2023-01-04-18:44:16] [4/10] training 80.0%: Loss=0.490333, Accuracy=81.000%, MSE=0.187643
+[2023-01-04-18:44:17] Finished Epoch 4/10: Loss=1.1998, Accuracy=66.667%, MSE=0.165735, Precision=0.102849, Recall=0.00319431, F1=0.00619617, AUPR=0.186524
+[2023-01-04-18:44:17] Saving model to topsyturvy_debug_cmap-ot/ep__epoch04.sav
+[2023-01-04-18:44:18] [5/10] training 80.0%: Loss=0.475545, Accuracy=87.000%, MSE=0.128389
+[2023-01-04-18:44:18] Finished Epoch 5/10: Loss=1.1978, Accuracy=66.667%, MSE=0.166223, Precision=0.054535, Recall=0.00358923, F1=0.00673518, AUPR=0.180855
+[2023-01-04-18:44:18] Saving model to topsyturvy_debug_cmap-ot/ep__epoch05.sav
+[2023-01-04-18:44:19] [6/10] training 80.0%: Loss=0.487512, Accuracy=81.000%, MSE=0.187758
+[2023-01-04-18:44:20] Finished Epoch 6/10: Loss=1.15931, Accuracy=66.667%, MSE=0.16584, Precision=0.0700059, Recall=0.00399716, F1=0.00756252, AUPR=0.17941
+[2023-01-04-18:44:20] Saving model to topsyturvy_debug_cmap-ot/ep__epoch06.sav
+[2023-01-04-18:44:21] [7/10] training 80.0%: Loss=0.482348, Accuracy=83.000%, MSE=0.16844
+[2023-01-04-18:44:21] Finished Epoch 7/10: Loss=1.19204, Accuracy=66.667%, MSE=0.166109, Precision=0.0592968, Recall=0.00367702, F1=0.00692464, AUPR=0.17732
+[2023-01-04-18:44:21] Saving model to topsyturvy_debug_cmap-ot/ep__epoch07.sav
+[2023-01-04-18:44:22] [8/10] training 80.0%: Loss=0.485843, Accuracy=81.000%, MSE=0.187931
+[2023-01-04-18:44:23] Finished Epoch 8/10: Loss=1.22456, Accuracy=66.667%, MSE=0.16633, Precision=0.0472418, Recall=0.00250927, F1=0.00476543, AUPR=0.183477
+[2023-01-04-18:44:23] Saving model to topsyturvy_debug_cmap-ot/ep__epoch08.sav
+[2023-01-04-18:44:24] [9/10] training 80.0%: Loss=0.478438, Accuracy=84.000%, MSE=0.158641
+[2023-01-04-18:44:24] Finished Epoch 9/10: Loss=1.20069, Accuracy=66.667%, MSE=0.1663, Precision=0.0492939, Recall=0.00307306, F1=0.00578545, AUPR=0.183358
+[2023-01-04-18:44:24] Saving model to topsyturvy_debug_cmap-ot/ep__epoch09.sav
+[2023-01-04-18:44:25] [10/10] training 80.0%: Loss=0.476984, Accuracy=84.000%, MSE=0.157857
+[2023-01-04-18:44:26] Finished Epoch 10/10: Loss=1.22725, Accuracy=66.667%, MSE=0.166042, Precision=0.0676117, Recall=0.00337243, F1=0.00642441, AUPR=0.192566
+[2023-01-04-18:44:26] Saving model to topsyturvy_debug_cmap-ot/ep__epoch10.sav
+[2023-01-04-18:44:26] Saving final model to topsyturvy_debug_cmap-ot/ep__final.sav

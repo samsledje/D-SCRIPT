@@ -143,7 +143,7 @@ def main(args):
                 Y_pred = Y_pred.to("cpu")
         running_loss /= (e+1)
         print(f"Running Interation {i+1}, Loss: {running_loss}")
-        ofile.write(f"Running Interation {i+1}, Loss: {running_loss}")
+        ofile.write(f"Running Interation {i+1}, Loss: {running_loss}\n")
         ofile.flush()
         if (i+1) % args.save_at_iter == 0:
             torch.save(model, f"{args.output}/iter_{i}.sav")
