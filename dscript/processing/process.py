@@ -754,6 +754,8 @@ def main(args):
                 ):
                     interactions = ((D < interact_thresh)).sum()
                     if interactions > 0:
+                        # D = (D <= 8).astype(float)
+                        print(D)
                         hf_pair.create_dataset(
                             f"{pdb_id.upper()}:{str(chains_two[0].get_id())}x{pdb_id.upper()}:{str(chains_two[1].get_id())}",
                             data=D,
