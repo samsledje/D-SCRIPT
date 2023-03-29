@@ -20,3 +20,4 @@ RUN_DSCRIPT.sh
 **/*_log.txt
 **/*.h5
 **/.nfs*
+**/*.swp
