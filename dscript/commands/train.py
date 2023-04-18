@@ -446,7 +446,6 @@ def train_model(args, output):
     no_augment = args.no_augment
 
     embedding_h5 = args.embedding
-    # h5fi = h5py.File(embedding_h5, "r")
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)
     train_df.columns = ["prot1", "prot2", "label"]
@@ -495,10 +494,13 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
-    embeddings = {}
+    
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    for prot_name in tqdm(all_proteins):
-        embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
+    
+    embeddings = {}
+    with h5py.File(embedding_h5, "r") as h5fi:
+        for prot_name in tqdm(all_proteins):
+            embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
     # embeddings = load_hdf5_parallel(embedding_h5, all_proteins)
 
     # Topsy-Turvy
