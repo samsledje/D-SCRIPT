@@ -495,7 +495,7 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
-    # embeddings = {}
+    embeddings = {}
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
     for prot_name in tqdm(all_proteins):
         embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
