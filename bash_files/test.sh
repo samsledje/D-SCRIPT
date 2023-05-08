@@ -1,35 +1,37 @@
 #!/bin/bash
 
-ORGS=( worm mouse fly ) #ecoli yeast worm mouse fly )
+ORGS=( ecoli yeast worm mouse fly )
 
 TOPSY_TURVY=
-EMBEDDING_DIR=embeddings/
+EMBEDDING_DIR=/afs/csail.mit.edu/u/s/samsl/Work/DSCRIPT_Dev_and_Testing/FoldSeek_BriefCommunication/embeddings/
 SEQ_DIR=seqs-pairs/pairs
-OUTPUT_FOLDER=fseek_after_human_model_dscript
-OUTPUT_PREFIX=results-
-FOLDSEEK_FASTA=../../foldseek_emb/r1_foldseekrep_seq.fa
+FOLDSEEK_FASTA=../data/r1_foldseekrep_seq.fa
 FOLDSEEK_VOCAB=../data/foldseek_vocab.json
-MODEL_PARAMS="--allow_foldseek --foldseek_fasta ${FOLDSEEK_FASTA} --foldseek_vocab ${FOLDSEEK_VOCAB}"
+MODEL_PARAMS=""
 DEVICE=0
-OUTPUT_FILE="results.txt"
-while getopts "d:m:T:tD:f:" args; do
+while getopts "d:m:T:tf:" args; do
     case $args in
         d) DEVICE=${OPTARG}
         ;;
         m) MODEL=${OPTARG}
         ;;
-        T) if [ ${OPTARG} = "fseek_before" ]; then MODEL_PARAMS=$MODEL_PARAMS; elif [ ${OPTARG} = "fseek_after" ]; then MODEL_PARAMS="${MODEL_PARAMS} --add_foldseek_after_projection"; else MODEL_PARAMS=""; fi
+        T) if [ ${OPTARG} = "fseek_after" ]; then MODEL_PARAMS="${MODEL_PARAMS} --add_foldseek_after_projection --foldseek_vocab ${FOLDSEEK_VOCAB} --foldseek_fasta ${FOLDSEEK_FASTA} --allow_foldseek"; else MODEL_PARAMS=""; fi
         ;;
         t) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"
-        ;;
-        D) OUTPUT_FOLDER=${OPTARG}
         ;;
         f) OUTPUT_FILE=${OPTARG}
         ;;
     esac
 done
-    
-if [ ! -d ${OUTPUT_FOLDER} ]; then mkdir -p $OUTPUT_FOLDER; fi
+
+# Construct the folder 
+OUTPUT_FLD=${MODEL%/*}
+OUTPUT_FILE=${MODEL##*/}
+OUTPUT_FILE_PREF=${OUTPUT_FILE%.*}
+OUTPUT_FOLDER=${OUTPUT_FLD}/eval-${OUTPUT_FILE_PREF}
+
+echo "Output folder: ${OUTPUT_FOLDER}, model: ${MODEL}, DEVICE: ${DEVICE}"
+if [ ! -d ${OUTPUT_FOLDER} ]; then mkdir $OUTPUT_FOLDER; fi
 
 for ORG in ${ORGS[@]}
 do
@@ -52,3 +54,6 @@ done
 #Topsyturvy BEFORE: ./test.sh -d 2 -m fseek_before_human_model_dscript/ep__epoch01.sav -T fseek_before -D fseek_before_human_model_dscript/eval -f results -t
 
 #Topsyturvy DSCRIPT: ./test.sh -d 3 -m original_human_model_dscript/ep__epoch03.sav -T dscript -D original_human_model_dscript/eval -f results -t
+
+## m = x^y, log_x(m) = y, log_2(m) = log_2(2^log_2(m)) = log_2(x^y) = y log_2(x)
+## log_2(x) log_x(m) = log_2(m)

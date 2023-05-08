@@ -27,6 +27,9 @@ class FullyConnected(nn.Module):
         self.H = hidden_dim
         self.conv = nn.Conv2d(2 * self.D, self.H, 1)
         self.batchnorm = nn.BatchNorm2d(self.H)
+        """
+        self.proj = nn.Linear(121, 100)
+        """
         self.activation = activation
 
     def forward(self, z0, z1):
@@ -40,11 +43,17 @@ class FullyConnected(nn.Module):
         """
 
         # z0 is (b,N,d), z1 is (b,M,d)
+        """
+        z0 = self.proj(z0)
+        z1 = self.proj(z1)
+        """
+        
         z0 = z0.transpose(1, 2)
         z1 = z1.transpose(1, 2)
+        
         # z0 is (b,d,N), z1 is (b,d,M)
 
-        z_dif = torch.abs(z0.unsqueeze(3) - z1.unsqueeze(2))
+        z_dif = torch.abs(z0.unsqueeze(3) - z1.unsqueeze(2)) # (b, d, N)
         z_mul = z0.unsqueeze(3) * z1.unsqueeze(2)
         z_cat = torch.cat([z_dif, z_mul], 1)
 

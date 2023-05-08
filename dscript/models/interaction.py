@@ -55,6 +55,7 @@ class ModelInteraction(nn.Module):
         contact,
         use_cuda,
         do_w=True,
+        #language_mod_size=25,
         do_sigmoid=True,
         do_pool=False,
         pool_size=9,
@@ -96,7 +97,8 @@ class ModelInteraction(nn.Module):
 
         self.embedding = embedding
         self.contact = contact
-
+        
+        
         if self.do_w:
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
@@ -107,6 +109,10 @@ class ModelInteraction(nn.Module):
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
 
         self.clip()
+        
+        # self.xx = nn.Parameter(torch.arange(2000), requires_grad = False)
+        
+        
 
     def clip(self):
         """
@@ -188,9 +194,35 @@ class ModelInteraction(nn.Module):
         C = self.cpred(z0, z1, embed_foldseek, f0, f1)
 
         if self.do_w:
-            # Create contact weighting matrix
+            """
+            Previous formulation: 
+            
+            x1 = -1 (([1 .... N] + 1 - (N+1)/2) / ((N+1)/2)) ** 2
+            x2 = -1 ([1 ... M] + 1 - (M+1)/2) / ((M+1) / 2)) ** 2
+            
+            x1 => exp(lambda * x1)
+            x2 => exp(lambda * x2)
+            W := torch.multiply(x1.unsqueeze(1), x2)
+            W => (1 - self.theta) * W + self.theta
+            yhat = C * W
+            """
             N, M = C.shape[2:]
-
+            """
+            # Create contact weighting matrix
+            
+            
+            x1 = -1 * torch.square((self.xx[:N] + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+                
+            x2 = -1 * torch.square((self.xx[:M] + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+                
+            x1 = torch.exp(self.lambda_ * x1)
+            x2 = torch.exp(self.lambda_ * x2)
+            
+            W = x1.unsqueeze(1) * x2
+            W = (1 - self.theta) * W + self.theta
+            yhat = C * W
+            
+            """
             x1 = torch.from_numpy(
                 -1
                 * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
