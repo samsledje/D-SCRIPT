@@ -110,7 +110,7 @@ class ModelInteraction(nn.Module):
 
         self.clip()
         
-        # self.xx = nn.Parameter(torch.arange(2000), requires_grad = False)
+        self.xx = nn.Parameter(torch.arange(2000), requires_grad = False)
         
         
 
@@ -194,22 +194,7 @@ class ModelInteraction(nn.Module):
         C = self.cpred(z0, z1, embed_foldseek, f0, f1)
 
         if self.do_w:
-            """
-            Previous formulation: 
-            
-            x1 = -1 (([1 .... N] + 1 - (N+1)/2) / ((N+1)/2)) ** 2
-            x2 = -1 ([1 ... M] + 1 - (M+1)/2) / ((M+1) / 2)) ** 2
-            
-            x1 => exp(lambda * x1)
-            x2 => exp(lambda * x2)
-            W := torch.multiply(x1.unsqueeze(1), x2)
-            W => (1 - self.theta) * W + self.theta
-            yhat = C * W
-            """
-            N, M = C.shape[2:]
-            """
-            # Create contact weighting matrix
-            
+            N, M = C.shape[2:] 
             
             x1 = -1 * torch.square((self.xx[:N] + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
                 
@@ -220,32 +205,6 @@ class ModelInteraction(nn.Module):
             
             W = x1.unsqueeze(1) * x2
             W = (1 - self.theta) * W + self.theta
-            yhat = C * W
-            
-            """
-            x1 = torch.from_numpy(
-                -1
-                * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
-                ** 2
-            ).float()
-            if self.use_cuda:
-                x1 = x1.cuda()
-            # x1 = torch.exp(self.lambda1 * x1)
-            x1 = torch.exp(self.lambda_ * x1)
-
-            x2 = torch.from_numpy(
-                -1
-                * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
-                ** 2
-            ).float()
-            if self.use_cuda:
-                x2 = x2.cuda()
-            # x2 = torch.exp(self.lambda2 * x2)
-            x2 = torch.exp(self.lambda_ * x2)
-
-            W = x1.unsqueeze(1) * x2
-            W = (1 - self.theta) * W + self.theta
-
             yhat = C * W
 
         else:
