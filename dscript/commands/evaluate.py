@@ -55,24 +55,32 @@ def add_args(parser):
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
     )
-    
+
     # Foldseek arguments
-    
+
     ## Foldseek arguments
     parser.add_argument(
-        "--allow_foldseek", default = False, action = "store_true", help = "If set to true, adds the foldseek one-hot representation"
+        "--allow_foldseek",
+        default=False,
+        action="store_true",
+        help="If set to true, adds the foldseek one-hot representation",
     )
     parser.add_argument(
-        "--foldseek_fasta", help = "foldseek fasta file containing the foldseek representation"
+        "--foldseek_fasta",
+        help="foldseek fasta file containing the foldseek representation",
     )
     parser.add_argument(
-        "--foldseek_vocab", help = "foldseek vocab json file mapping foldseek alphabet to json"
+        "--foldseek_vocab",
+        help="foldseek vocab json file mapping foldseek alphabet to json",
     )
-    
+
     parser.add_argument(
-        "--add_foldseek_after_projection", default = False, action = "store_true", help = "If set to true, adds the fold seek embedding after the projection layer"
+        "--add_foldseek_after_projection",
+        default=False,
+        action="store_true",
+        help="If set to true, adds the fold seek embedding after the projection layer",
     )
-    
+
     return parser
 
 
@@ -131,22 +139,26 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
     plt.savefig(path + ".auroc.png")
     plt.close()
-    
+
+
 def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     """
     fold_record is just a dictionary {ensembl_gene_name => foldseek_sequence}
     """
     if n0 in fold_record:
-        fold_seq  = fold_record[n0]
+        fold_seq = fold_record[n0]
         assert size_n0 == len(fold_seq)
-        foldseek_enc = torch.zeros(size_n0, len(fold_vocab), dtype = torch.float32)
+        foldseek_enc = torch.zeros(
+            size_n0, len(fold_vocab), dtype=torch.float32
+        )
         for i, a in enumerate(fold_seq):
             assert a in fold_vocab
             foldseek_enc[i, fold_vocab[a]] = 1
         return foldseek_enc
     else:
-        return torch.zeros(size_n0, len(fold_vocab), dtype = torch.float32)
-    
+        return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
+
+
 def main(args):
     """
     Run model evaluation from arguments.
@@ -157,7 +169,7 @@ def main(args):
     allow_foldseek = args.allow_foldseek
     fold_fasta_file = args.foldseek_fasta
     fold_vocab_file = args.foldseek_vocab
-    add_first=  not args.add_foldseek_after_projection
+    add_first = not args.add_foldseek_after_projection
     fold_record = {}
     fold_vocab = None
     if allow_foldseek:
@@ -168,8 +180,7 @@ def main(args):
         with open(fold_vocab_file, "r") as fv:
             fold_vocab = json.load(fv)
     ##################################################
-    
-    
+
     # Set Device
     device = args.device
     use_cuda = (device >= 0) and torch.cuda.is_available()
@@ -215,30 +226,34 @@ def main(args):
             try:
                 p0 = embeddings[n0]
                 p1 = embeddings[n1]
-                
+
                 if use_cuda:
                     p0 = p0.cuda()
                     p1 = p1.cuda()
-                
+
                 if allow_foldseek:
-                    f_a = get_foldseek_onehot(n0, p0.shape[1], fold_record, fold_vocab).unsqueeze(0)
-                    f_b = get_foldseek_onehot(n1, p1.shape[1], fold_record, fold_vocab).unsqueeze(0)
-                    
+                    f_a = get_foldseek_onehot(
+                        n0, p0.shape[1], fold_record, fold_vocab
+                    ).unsqueeze(0)
+                    f_b = get_foldseek_onehot(
+                        n1, p1.shape[1], fold_record, fold_vocab
+                    ).unsqueeze(0)
+
                     if use_cuda:
                         f_a = f_a.cuda()
                         f_b = f_b.cuda()
-                        
+
                     if add_first:
-                        p0 = torch.concat([p0, f_a], dim = 2)
-                        p1 = torch.concat([p0, f_a], dim = 2)
-                        
+                        p0 = torch.concat([p0, f_a], dim=2)
+                        p1 = torch.concat([p0, f_a], dim=2)
+
                 if allow_foldseek and (not add_first):
                     _, pred = model.map_predict(p0, p1, True, f_a, f_b)
                     pred = pred.item()
                 else:
                     _, pred = model.map_predict(p0, p1)
                     pred = pred.item()
-                    
+
                 phats.append(pred)
                 labels.append(label)
                 outFile.write(f"{n0}\t{n1}\t{label}\t{pred:.5}\n")
