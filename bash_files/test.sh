@@ -9,22 +9,33 @@ FOLDSEEK_FASTA=../data/r1_foldseekrep_seq.fa
 FOLDSEEK_VOCAB=../data/foldseek_vocab.json
 MODEL_PARAMS=""
 DEVICE=0
-while getopts "d:m:T:tf:" args; do
+
+usage() {
+    echo "USAGE: ./test.sh [-d DEVICE] [-m MODEL] [-T MODEL_TYPE]
+
+    OPTIONS:
+
+    -d DEVICE: Device used
+    -m MODEL: The model sav file
+    -T: Set this flag if if the model passed by the `-m MODEL` command is a TT3D Model. Unset this for Topsy-Turvy/D-SCRIPT
+    "
+}
+
+
+while getopts "d:m:T" args; do
     case $args in
         d) DEVICE=${OPTARG}
         ;;
         m) MODEL=${OPTARG}
         ;;
-        T) if [ ${OPTARG} = "fseek_after" ]; then MODEL_PARAMS="${MODEL_PARAMS} --add_foldseek_after_projection --foldseek_vocab ${FOLDSEEK_VOCAB} --foldseek_fasta ${FOLDSEEK_FASTA} --allow_foldseek"; else MODEL_PARAMS=""; fi
+        T) MODEL_PARAMS="${MODEL_PARAMS} --add_foldseek_after_projection --foldseek_vocab ${FOLDSEEK_VOCAB} --foldseek_fasta ${FOLDSEEK_FASTA} --allow_foldseek"
         ;;
-        t) TOPSY_TURVY="--topsy-turvy --glider-weight 0.2 --glider-thres 0.925"
-        ;;
-        f) OUTPUT_FILE=${OPTARG}
-        ;;
+        *) usage
+        exit 1;
     esac
 done
 
-# Construct the folder 
+# Construct the folder
 OUTPUT_FLD=${MODEL%/*}
 OUTPUT_FILE=${MODEL##*/}
 OUTPUT_FILE_PREF=${OUTPUT_FILE%.*}
@@ -42,18 +53,3 @@ do
     OP_FILE=${OP_FOLDER_ORG}/${OUTPUT_FILE}
     dscript evaluate --model ${MODEL} --embedding ${EMBEDDING} --test ${TEST} -d $DEVICE ${MODEL_PARAMS} -o $OP_FILE
 done
-
-#AFTER: ./test.sh -d 1 -m fseek_after_human_model_dscript/ep__epoch07.sav -T fseek_after -D fseek_after_human_model_dscript/eval -f results
-
-#BEFORE: ./test.sh -d 2 -m fseek_before_human_model_dscript/ep__epoch01.sav -T fseek_before -D fseek_before_human_model_dscript/eval -f results
-
-#DSCRIPT: ./test.sh -d 3 -m original_human_model_dscript/ep__epoch03.sav -T dscript -D original_human_model_dscript/eval -f results
-
-#Topsyturvy AFTER: ./test.sh -d 1 -m fseek_after_human_model_dscript/ep__epoch07.sav -T fseek_after -D fseek_after_human_model_dscript/eval -f results -t
-
-#Topsyturvy BEFORE: ./test.sh -d 2 -m fseek_before_human_model_dscript/ep__epoch01.sav -T fseek_before -D fseek_before_human_model_dscript/eval -f results -t
-
-#Topsyturvy DSCRIPT: ./test.sh -d 3 -m original_human_model_dscript/ep__epoch03.sav -T dscript -D original_human_model_dscript/eval -f results -t
-
-## m = x^y, log_x(m) = y, log_2(m) = log_2(2^log_2(m)) = log_2(x^y) = y log_2(x)
-## log_2(x) log_x(m) = log_2(m)
