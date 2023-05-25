@@ -17,7 +17,7 @@ usage() {
 
     -d DEVICE: Device used
     -m MODEL: The model sav file
-    -T: Set this flag if if the model passed by the `-m MODEL` command is a TT3D Model. Unset this for Topsy-Turvy/D-SCRIPT
+    -T: Set this flag if if the model passed by the '-m MODEL' command is a TT3D Model. Unset this for Topsy-Turvy/D-SCRIPT
     "
 }
 
