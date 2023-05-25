@@ -10,7 +10,6 @@ from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
 from .commands.predict import PredictionArguments
 from .commands.train import TrainArguments
-from .commands.train_fseek import TrainFArguments
 from .commands.extract_3di import Extract3DiArguments
 
 DScriptArguments = Union[
@@ -18,7 +17,6 @@ DScriptArguments = Union[
     EvaluateArguments,
     PredictionArguments,
     TrainArguments,
-    TrainFArguments,
     Extract3DiArguments,
 ]
 
@@ -59,7 +57,6 @@ def main():
         embed,
         evaluate,
         predict,
-        train_fseek,
         extract_3di,
     )
 
@@ -68,7 +65,6 @@ def main():
         "embed": embed,
         "evaluate": evaluate,
         "predict": predict,
-        "fseek": train_fseek,
         "extract-3di": extract_3di,
     }
 

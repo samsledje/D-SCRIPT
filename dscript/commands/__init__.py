@@ -3,6 +3,5 @@ __all__ = [
     "evaluate",
     "embed",
     "predict",
-    "train_fseek",
     "extract_3di",
 ]
