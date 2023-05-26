@@ -262,6 +262,14 @@ def main(args):
 
     phats = np.array(phats)
     labels = np.array(labels)
+
+    with open(outPath + "_metrics.txt", "w+") as f:
+        aupr = average_precision_score(labels, phats)
+        auroc = roc_auc_score(labels, phats)
+
+        log(f"AUPR: {aupr}", file=f)
+        log(f"AUROC: {auroc}", file=f)
+
     plot_eval_predictions(labels, phats, outPath)
 
     outFile.close()
