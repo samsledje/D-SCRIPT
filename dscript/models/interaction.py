@@ -55,6 +55,7 @@ class ModelInteraction(nn.Module):
         contact,
         use_cuda,
         do_w=True,
+        #language_mod_size=25,
         do_sigmoid=True,
         do_pool=False,
         pool_size=9,
@@ -96,7 +97,8 @@ class ModelInteraction(nn.Module):
 
         self.embedding = embedding
         self.contact = contact
-
+        
+        
         if self.do_w:
             self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
@@ -107,6 +109,10 @@ class ModelInteraction(nn.Module):
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
 
         self.clip()
+        
+        self.xx = nn.Parameter(torch.arange(2000), requires_grad = False)
+        
+        
 
     def clip(self):
         """
@@ -136,7 +142,9 @@ class ModelInteraction(nn.Module):
         else:
             return self.embedding(x)
 
-    def cpred(self, z0, z1):
+    def cpred(self, z0, z1, 
+              ### Foldseek embedding added
+              embed_foldseek = False, f0 = None, f1 = None):
         """
         Project down input language model embeddings into low dimension using projection module
 
@@ -149,11 +157,24 @@ class ModelInteraction(nn.Module):
         """
         e0 = self.embed(z0)
         e1 = self.embed(z1)
+        
+        if embed_foldseek:
+            assert f0 is not None and f1 is not None
+            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
+            assert z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
+            assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
+            
+            # concatenate foldseek one hot embedding
+            e0 = torch.concat([e0, f0], dim = 2)
+            e1 = torch.concat([e1, f1], dim = 2)
+            
         B = self.contact.cmap(e0, e1)
         C = self.contact.predict(B)
         return C
 
-    def map_predict(self, z0, z1):
+    def map_predict(self, z0, z1, 
+                    ### Foldseek embedding added
+                    embed_foldseek = False, f0 = None, f1 = None):
         """
         Project down input language model embeddings into low dimension using projection module
 
@@ -164,36 +185,26 @@ class ModelInteraction(nn.Module):
         :return: Predicted contact map, predicted probability of interaction :math:`(b \\times N \\times d_0), (1)`
         :rtype: torch.Tensor, torch.Tensor
         """
+        if embed_foldseek:
+            assert f0 is not None and f1 is not None
+            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
+            assert z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
+            assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
 
-        C = self.cpred(z0, z1)
+        C = self.cpred(z0, z1, embed_foldseek, f0, f1)
 
         if self.do_w:
-            # Create contact weighting matrix
-            N, M = C.shape[2:]
-
-            x1 = torch.from_numpy(
-                -1
-                * ((np.arange(N) + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
-                ** 2
-            ).float()
-            if self.use_cuda:
-                x1 = x1.cuda()
-            # x1 = torch.exp(self.lambda1 * x1)
+            N, M = C.shape[2:] 
+            
+            x1 = -1 * torch.square((self.xx[:N] + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+                
+            x2 = -1 * torch.square((self.xx[:M] + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+                
             x1 = torch.exp(self.lambda_ * x1)
-
-            x2 = torch.from_numpy(
-                -1
-                * ((np.arange(M) + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
-                ** 2
-            ).float()
-            if self.use_cuda:
-                x2 = x2.cuda()
-            # x2 = torch.exp(self.lambda2 * x2)
             x2 = torch.exp(self.lambda_ * x2)
-
+            
             W = x1.unsqueeze(1) * x2
             W = (1 - self.theta) * W + self.theta
-
             yhat = C * W
 
         else:
