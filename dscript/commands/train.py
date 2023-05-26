@@ -610,7 +610,7 @@ def train_model(args, output):
     fold_record = {}
     # fold_vocab = None
     if allow_foldseek:
-        assert fold_fasta_file is not None and fold_vocab_file is not None
+        assert fold_fasta_file is not None
         fold_fasta = SeqIO.parse(fold_fasta_file, "fasta")
         for rec in fold_fasta:
             fold_record[rec.id] = rec.seq
@@ -663,9 +663,8 @@ def train_model(args, output):
     log("Loading embeddings...", file=output)
     output.flush()
 
-    
     all_proteins = set(train_p1).union(train_p2).union(test_p1).union(test_p2)
-    
+
     embeddings = {}
     with h5py.File(embedding_h5, "r") as h5fi:
         for prot_name in tqdm(all_proteins):
