@@ -18,6 +18,7 @@ from typing import Callable, NamedTuple, Optional
 
 from ..alphabets import Uniprot21
 from ..fasta import parse
+from ..foldseek import get_foldseek_onehot, fold_vocab
 from ..language_model import lm_embed
 from ..utils import log, load_hdf5_parallel
 
@@ -46,6 +47,13 @@ def add_args(parser):
     parser.add_argument("--model", help="Pretrained Model", required=True)
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
+    parser.add_argument(
+        "--foldseek_fasta",
+        help="""3di sequences in .fasta format. Can be generated using `dscript extract-3di.
+        Default is None. If provided, TT3D will be run, otherwise default D-SCRIPT/TT will be run.
+        """,
+        default=None,
+    )
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
@@ -76,6 +84,8 @@ def main(args):
     embPath = args.embeddings
     device = args.device
     threshold = args.thresh
+
+    foldseek_fasta = args.foldseek_fasta
 
     # Set Outpath
     if outPath is None:
@@ -145,6 +155,20 @@ def main(args):
         log("Loading Embeddings...", file=logFile, print_also=True)
         embeddings = load_hdf5_parallel(embPath, all_prots)
 
+    # Load Foldseek Sequences
+    if foldseek_fasta is not None:
+        try:
+            fs_names, fs_seqs = parse(foldseek_fasta, "r")
+            fsDict = {n: s for n, s in zip(fs_names, fs_seqs)}
+        except FileNotFoundError:
+            log(
+                f"Foldseek Sequence File {foldseek_fasta} not found",
+                file=logFile,
+                print_also=True,
+            )
+            logFile.close()
+            sys.exit(1)
+
     # Make Predictions
     log("Making Predictions...", file=logFile, print_also=True)
     n = 0
@@ -165,11 +189,36 @@ def main(args):
                     n += 1
                     p0 = embeddings[n0]
                     p1 = embeddings[n1]
+
                     if use_cuda:
                         p0 = p0.cuda()
                         p1 = p1.cuda()
+
+                    # Load foldseek one-hot
+                    if foldseek_fasta is not None:
+                        fs0 = get_foldseek_onehot(
+                            n0, p0.shape[0], fsDict, fold_vocab
+                        ).unsqueeze(0)
+                        fs1 = get_foldseek_onehot(
+                            n1, p1.shape[0], fsDict, fold_vocab
+                        ).unsqueeze(0)
+                        if use_cuda:
+                            fs0 = fs0.cuda()
+                            fs1 = fs1.cuda()
+
                     try:
-                        cm, p = model.map_predict(p0, p1)
+                        if foldseek_fasta is not None:
+                            try:
+                                cm, p = model.map_predict(
+                                    p0, p1, True, fs0, fs1
+                                )
+                            except TypeError as e:
+                                log(e)
+                                print(
+                                    "Loaded model does not support foldseek. Please retrain with --allow_foldseek or download a pre-trained TT3D model."
+                                )
+                        else:
+                            cm, p = model.map_predict(p0, p1)
                         p = p.item()
                         f.write(f"{n0}\t{n1}\t{p}\n")
                         if p >= threshold:
