@@ -214,9 +214,10 @@ def main(args):
                                 )
                             except TypeError as e:
                                 log(e)
-                                print(
+                                log(
                                     "Loaded model does not support foldseek. Please retrain with --allow_foldseek or download a pre-trained TT3D model."
                                 )
+                                raise e
                         else:
                             cm, p = model.map_predict(p0, p1)
                         p = p.item()
