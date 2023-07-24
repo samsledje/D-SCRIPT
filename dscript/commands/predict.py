@@ -124,9 +124,17 @@ def main(args):
         logFile.close()
         sys.exit(1)
 
+    if (
+        dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1]
+        == 242
+    ) and (foldseek_fasta is None):
+        raise ValueError(
+            "A TT3D model has been provided, but no foldseek_fasta has been provided"
+        )
+
     # Load Pairs
     try:
-        log(f"Loading pairs from {modelPath}", file=logFile, print_also=True)
+        log(f"Loading pairs from {csvPath}", file=logFile, print_also=True)
         pairs = pd.read_csv(csvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
@@ -157,6 +165,7 @@ def main(args):
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:
+        log("Loading FoldSeek 3Di sequences...", file=logFile, print_also=True)
         try:
             fs_names, fs_seqs = parse(foldseek_fasta, "r")
             fsDict = {n: s for n, s in zip(fs_names, fs_seqs)}
@@ -197,10 +206,10 @@ def main(args):
                     # Load foldseek one-hot
                     if foldseek_fasta is not None:
                         fs0 = get_foldseek_onehot(
-                            n0, p0.shape[0], fsDict, fold_vocab
+                            n0, p0.shape[1], fsDict, fold_vocab
                         ).unsqueeze(0)
                         fs1 = get_foldseek_onehot(
-                            n1, p1.shape[0], fsDict, fold_vocab
+                            n1, p1.shape[1], fsDict, fold_vocab
                         ).unsqueeze(0)
                         if use_cuda:
                             fs0 = fs0.cuda()
