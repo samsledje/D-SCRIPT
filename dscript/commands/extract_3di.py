@@ -6,10 +6,12 @@ import argparse
 import tempfile
 import subprocess as sp
 
+from pathlib import Path
 from typing import NamedTuple, Callable
 from Bio import Seq, SeqRecord, SeqIO
 
 from ..utils import log
+from ..foldseek import get_3di_sequences
 
 
 class Extract3DiArguments(NamedTuple):
@@ -41,33 +43,17 @@ def add_args(parser):
 
 def main(args):
 
-    pdb_file_list = os.listdir(args.pdb_directory)
-    pdb_file_string = " ".join(
-        [f"{args.pdb_directory}/{i}" for i in pdb_file_list]
+    pdb_file_list = [
+        Path(args.pdb_directory) / Path(p)
+        for p in os.listdir(args.pdb_directory)
+    ]
+
+    seq_records = get_3di_sequences(
+        pdb_file_list, foldseek_path=args.foldseek_path
     )
-    pdb_dir_name = hash(pdb_file_string)
+    SeqIO.write(seq_records.values(), args.out_file, "fasta-2line")
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-
-        FSEEK_BASE_CMD = f"{args.foldseek_path} createdb {pdb_file_string} {tmpdir}/{pdb_dir_name}"
-        proc = sp.Popen(
-            shlex.split(FSEEK_BASE_CMD), stdout=sp.PIPE, stderr=sp.PIPE
-        )
-        out, err = proc.communicate()
-
-        with open(f"{tmpdir}/{pdb_dir_name}_ss", "r") as seq_file:
-            seqs = [i.strip().strip("\x00") for i in seq_file]
-
-        with open(f"{tmpdir}/{pdb_dir_name}.lookup", "r") as name_file:
-            names = [i.strip().split()[1].split(".")[0] for i in name_file]
-
-        seq_records = [
-            SeqRecord.SeqRecord(Seq.Seq(s), id=n, description=n)
-            for (n, s) in zip(names, seqs)
-        ]
-        SeqIO.write(seq_records, args.out_file, "fasta-2line")
-
-        log(f"3Di sequences written to {args.out_file}")
+    log(f"3Di sequences written to {args.out_file}")
 
 
 if __name__ == "__main__":
