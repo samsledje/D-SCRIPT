@@ -4,6 +4,7 @@ Data
 Trained Models
 --------------
 - `Bepler & Berger language model <http://cb.csail.mit.edu/cb/dscript/data/models/lm_v1.sav>`_
+- `Human TT3D model <http://cb.csail.mit.edu/cb/dscript/data/models/tt3d_v1.sav>`_
 - `Human Topsy-Turvy model <http://cb.csail.mit.edu/cb/dscript/data/models/topsy_turvy_v1.sav>`_ **(recommended)**
 - `Human D-SCRIPT model  <http://cb.csail.mit.edu/cb/dscript/data/models/human_v1.sav>`_ (from original D-SCRIPT paper)
 

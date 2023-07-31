@@ -46,6 +46,7 @@ def build_human_1(state_dict_path):
 VALID_MODELS = {
     "human_v1": build_human_1,  # Original D-SCRIPT
     "human_v2": build_human_1,  # Topsy-Turvy
+    "human_tt3d": build_human_1,  # TT3D
     "lm_v1": build_lm_1,  # Bepler & Berger 2019
 }
 
@@ -140,6 +141,7 @@ def get_pretrained(version="human_v2"):
     - ``lm_v1`` - Language model from `Bepler & Berger <https://github.com/tbepler/protein-sequence-embedding-iclr2019>`_.
     - ``human_v1`` - Human trained model from D-SCRIPT manuscript.
     - ``human_v2`` - Human trained model from Topsy-Turvy manuscript.
+    - ``tt3d`` - Human trained model with FoldSeek sequence inputs
 
     Default: ``human_v2``
 
