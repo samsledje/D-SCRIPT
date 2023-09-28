@@ -43,10 +43,31 @@ def build_human_1(state_dict_path):
     return model
 
 
+def build_human_tt3d(state_dict_path):
+    """
+    :meta private:
+    """
+    embModel = FullyConnectedEmbed(6165, 100, 0.5)
+    conModel = ContactCNN(121, 50, 7)
+    model = ModelInteraction(
+        embModel,
+        conModel,
+        use_cuda=True,
+        do_w=True,
+        do_pool=True,
+        do_sigmoid=True,
+        pool_size=9,
+    )
+    state_dict = torch.load(state_dict_path)
+    model.load_state_dict(state_dict)
+    model.eval()
+    return model
+
+
 VALID_MODELS = {
     "human_v1": build_human_1,  # Original D-SCRIPT
     "human_v2": build_human_1,  # Topsy-Turvy
-    "human_tt3d": build_human_1,  # TT3D
+    "human_tt3d": build_human_tt3d,  # TT3D
     "lm_v1": build_lm_1,  # Bepler & Berger 2019
 }
 
