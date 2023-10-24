@@ -7,7 +7,7 @@ EMBEDDING=/afs/csail.mit.edu/u/s/samsl/Work/DSCRIPT_Dev_and_Testing/FoldSeek_Bri
 OUTPUT_BASE=/afs/csail.mit.edu/u/s/samsl/Work/DSCRIPT_Dev_and_Testing/FoldSeek_BriefCommunication/results
 OUTPUT_FOLDER=${OUTPUT_BASE}/tt
 OUTPUT_PREFIX=results-
-FOLDSEEK_FASTA=../data/r1_foldseekrep_seq.fa
+FOLDSEEK_FASTA=../data/r3-ALLSPECIES_foldseekrep_seq.fa
 
 usage() {
     echo "Usage ./train.sh [-d DEVICE] [-v] [-f] [-F foldseek_fasta_file]
