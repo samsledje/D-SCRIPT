@@ -1,0 +1,99 @@
+---
+title: "generate_orthologs_and_analyze"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-08-07"
+---
+
+## Using Biomart to generate the orthologs: Get the ensemble orthologs
+
+Biomart uses genetrees to get the orthologous and paralogous protein pairs. The detailed description of the method is provided [here](https://www.ensembl.org/Help/View?id=135)
+
+## Filter orthologs from the list
+```{r get-orthologs}
+library(readr)
+library(dplyr)
+
+# Many Humans to Many Fly mappings
+mh2mf <- read_delim("orthologs-fly-2-human.tsv", delim = "\t")
+mh2mf$`FlybaseId-Fly` <- sapply(mh2mf$`FlybaseId-Fly`, function(i){return(paste("7227.", i, sep = ""))})
+mh2mf$`EnsemblPeptide-Human` <- sapply(mh2mf$`EnsemblPeptide-Human`, function(i){return(paste("9606.", i, sep = ""))})
+mh2mf
+```
+
+
+## Plot the histogram of frequencies of human and fly proteins from the many to many ortholog mappings.
+```{r plot}
+library(ggplot2)
+library(ggpubr)
+freqh <- mh2mf["EnsemblPeptide-Human"] %>% 
+  group_by(`EnsemblPeptide-Human`) %>% 
+  summarize(x = n()) %>% 
+  select(x) 
+
+freqf <-  mh2mf %>% 
+  group_by(`FlybaseId-Fly`) %>% 
+  summarize(x = n()) %>% 
+  select(x) 
+par(mfrow = c(1, 2))
+
+ggarrange(ggplot(freqh, aes(x=x)) +
+  geom_histogram(binwidth = 1) + xlim(c(0, 200)), ggplot(freqf, aes(x=x)) +
+  geom_histogram(binwidth = 1) + xlim(c(0, 200)), labels = c("A", "B"))
+```
+
+
+## Choose the `mh2mf` many-to-many mappings and compute the AUPRs using the baseline method.
+```{r get-fly-human-m2m}
+flym.orths <- unique(mh2mf$`FlybaseId-Fly`)
+humanm.orths <- unique(mh2mf$`EnsemblPeptide-Human`)
+
+flym2m <- fly %>% filter(p1 %in% flym.orths & p2 %in% flym.orths)
+flyelse <- fly %>% filter(!(p1 %in% flym.orths & p2 %in% flym.orths))
+
+human <- read_delim("human_train.tsv", delim = "\t", col_names = FALSE)
+colnames(human) <- c("p1", "p2", "score")
+human[which(human$p1 > human$p2), c("p1", "p2")] <- human[which(human$p1 > human$p2), c("p2", "p1")] 
+humanpos <- human %>% filter(score == 1) %>% select(p1, p2)
+
+
+# Prediction function for fly proteins f1, f2
+predict.fly <- function(f1, f2, mapping, human_net) {
+  h1s <- mapping %>% filter(`FlybaseId-Fly` == f1) %>% select(`EnsemblPeptide-Human`) %>% pull()
+  h2s <- mapping %>% filter(`FlybaseId-Fly` == f2) %>% select(`EnsemblPeptide-Human`) %>% pull()
+  all_comb <- expand.grid(p1=h1s, p2=h2s)
+  all_comb$p1 <- as.character(all_comb$p1)
+  all_comb$p2 <- as.character(all_comb$p2)
+  all_comb[which(all_comb$p1 > all_comb$p2), c("p1", "p2")] <- all_comb[which(all_comb$p1 > all_comb$p2), c("p2", "p1")]
+  inter <- inner_join(all_comb, human_net, by = c("p1", "p2"))
+  return(as.integer(dim(inter)[1] != 0))
+}
+
+flym2m$predictions <- apply(flym2m, 1, function(row){
+  f1 <- unname(row[1])
+  f2 <- unname(row[2])
+  return(predict.fly(f1, f2, mh2mf, humanpos))
+})
+
+compute_prec_recall <- function(allpred) {
+  predtrues <- sum(allpred$predictions)
+  realtrues <- sum(allpred$score)
+  
+  print(c(predtrues, realtrues))
+  tp <- sum(allpred %>% filter(score == 1 & predictions == 1) %>% select(predictions) %>% pull())
+  fp <- predtrues - tp
+  prec <- tp / predtrues
+  rec <- tp / realtrues
+  return(c(prec, rec))
+}
+
+flyelse$predictions <- 0
+
+compute_prec_recall(flym2m)
+flyall <- rbind(flym2m, flyelse)
+compute_prec_recall(flyall)
+
+write_delim(flyall, "output_fly-2-human.tsv", delim="\t")
+```
+
