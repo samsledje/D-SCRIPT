@@ -1,0 +1,48 @@
+---
+title: "get-all-species-orthologs"
+output: html_document
+date: "2023-09-17"
+---
+
+## Using Biomart to generate the orthologs: Get the ensemble orthologs
+
+Biomart uses genetrees to get the orthologous and paralogous protein pairs. The detailed description of the method is provided [here](https://www.ensembl.org/Help/View?id=135)
+
+```{r biomart}
+library(biomaRt)
+library(readr)
+library(dplyr)
+listDatasets(useMart('ensembl'))
+
+human <- useMart("ensembl", dataset = "hsapiens_gene_ensembl", host="dec2021.archive.ensembl.org")
+fly <- useMart("ensembl", dataset = "dmelanogaster_gene_ensembl", host="dec2021.archive.ensembl.org")
+yeast <- useMart("ensembl", dataset = "scerevisiae_gene_ensembl", host="dec2021.archive.ensembl.org")
+```
+
+Get the Human-Fly orthologs and save them to the file `orthologs-human-2-fly.tsv`
+```{r orthologs-fly}
+listAttributes(fly)
+annot_table_fh <- getLDS(mart = fly,
+                      attributes = c("external_gene_name", "flybase_translation_id"),
+                      martL=human,
+                      attributesL = c("ensembl_peptide_id", "external_gene_name"))
+
+colnames(annot_table_fh) <- c("ExternalName-Fly", "FlybaseId-Fly", 
+                            "EnsemblPeptide-Human", "ExternalName-Human")
+write_delim(annot_table_fh, file = "orthologs-human-2-fly.tsv", delim = "\t")
+```
+
+Get Yeast-Fly orthologs and save them to the file `orthologs-human-2-yeast.tsv`
+```{r orthologs-yeast}
+annot_table <- getLDS(mart = yeast,
+                      attributes = c("external_gene_name", "ensembl_gene_id"),
+                      martL=human,
+                      attributesL = c("ensembl_peptide_id", "external_gene_name"))
+
+annot_table1 <- annot_table
+annot_table1
+colnames(annot_table1) <- c("ExternalName-Yeast", "Yeast-EnsemblGeneID", 
+                            "EnsemblPeptide-Human", "ExternalName-Human")
+
+write_delim(annot_table1, file="orthologs-human-2-yeast.tsv", delim = "\t")
+```
