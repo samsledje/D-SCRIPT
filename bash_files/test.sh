@@ -3,9 +3,9 @@
 ORGS=( ecoli yeast worm mouse fly )
 
 TOPSY_TURVY=
-EMBEDDING_DIR=/afs/csail.mit.edu/u/s/samsl/Work/DSCRIPT_Dev_and_Testing/FoldSeek_BriefCommunication/embeddings/
+EMBEDDING_DIR=/afs/csail.mit.edu/u/s/samsl/Work/TT3D/FoldSeek_BriefCommunication/embeddings/
 SEQ_DIR=seqs-pairs/pairs
-FOLDSEEK_FASTA=../data/r1_foldseekrep_seq.fa
+FOLDSEEK_FASTA=../data/r3-ALLSPECIES_foldseekrep_seq.fa
 FOLDSEEK_VOCAB=../data/foldseek_vocab.json
 MODEL_PARAMS=""
 DEVICE=0
