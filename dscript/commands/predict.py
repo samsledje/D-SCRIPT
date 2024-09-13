@@ -4,7 +4,6 @@ Make new predictions with a pre-trained model. One of --seqs or --embeddings is 
 from __future__ import annotations
 import argparse
 import datetime
-import os
 import sys
 
 import h5py
@@ -14,12 +13,11 @@ import torch
 from tqdm import tqdm
 from typing import Callable, NamedTuple, Optional
 
-
-from ..alphabets import Uniprot21
 from ..fasta import parse
 from ..foldseek import get_foldseek_onehot, fold_vocab
 from ..language_model import lm_embed
 from ..utils import log, load_hdf5_parallel
+from ..models.interaction import DSCRIPTModel
 
 
 class PredictionArguments(NamedTuple):
@@ -43,7 +41,7 @@ def add_args(parser):
     parser.add_argument(
         "--pairs", help="Candidate protein pairs to predict", required=True
     )
-    parser.add_argument("--model", help="Pretrained Model", required=True)
+    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]")
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument(
@@ -113,21 +111,31 @@ def main(args):
         log("Using CPU", file=logFile, print_also=True)
 
     # Load Model
-    try:
-        log(f"Loading model from {modelPath}", file=logFile, print_also=True)
-        if use_cuda:
-            model = torch.load(modelPath).cuda()
-            model.use_cuda = True
-        else:
-            model = torch.load(
-                modelPath, map_location=torch.device("cpu")
-            ).cpu()
-            model.use_cuda = False
-    except FileNotFoundError:
-        log(f"Model {modelPath} not found", file=logFile, print_also=True)
-        logFile.close()
-        sys.exit(1)
-
+    log(f"Loading model from {modelPath}", file=logFile, print_also=True)
+    if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
+        try:
+            if use_cuda:
+                model = torch.load(modelPath).cuda()
+                model.use_cuda = True
+            else:
+                model = torch.load(
+                    modelPath, map_location=torch.device("cpu")
+                ).cpu()
+                model.use_cuda = False
+        except FileNotFoundError:
+            log(f"Model {modelPath} not found", file=logFile, print_also=True)
+            logFile.close()
+            sys.exit(1)
+    else:
+        try:
+            model = DSCRIPTModel.from_pretrained(
+                modelPath, use_cuda=use_cuda
+            )
+        except Exception as e:
+            print(e)
+            log(f"Model {modelPath} failed: {e}", file=logFile, print_also=True)
+            logFile.close()
+            sys.exit(1)
     if (
         dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1]
         == 242
@@ -135,6 +143,10 @@ def main(args):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
         )
+    
+    print(model.do_w)
+    print(model.do_sigmoid)
+    print(model.do_pool)
 
     # Load Pairs
     try:
@@ -187,7 +199,8 @@ def main(args):
     n = 0
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
-    cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
+    if args.store_cmaps:
+        cmap_file = h5py.File(f"{outPath}.cmaps.h5", "w")
     model.eval()
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
@@ -250,7 +263,8 @@ def main(args):
                         )
 
     logFile.close()
-    cmap_file.close()
+    if args.store_cmaps:
+        cmap_file.close()
 
 
 if __name__ == "__main__":
