@@ -11,7 +11,6 @@ import h5py
 import numpy as np
 import pandas as pd
 import torch
-from scipy.special import comb
 from tqdm import tqdm
 from typing import Callable, NamedTuple, Optional
 
@@ -57,6 +56,11 @@ def add_args(parser):
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
+    parser.add_argument(
+        "--store_cmaps",
+        action="store_true",
+        help="Store contact maps for predicted pairs above `--thresh` in an h5 file",
     )
     parser.add_argument(
         "--thresh",
@@ -233,11 +237,12 @@ def main(args):
                         f.write(f"{n0}\t{n1}\t{p}\n")
                         if p >= threshold:
                             pos_f.write(f"{n0}\t{n1}\t{p}\n")
-                            cm_np = cm.squeeze().cpu().numpy()
-                            dset = cmap_file.require_dataset(
-                                f"{n0}x{n1}", cm_np.shape, np.float32
-                            )
-                            dset[:] = cm_np
+                            if args.store_cmaps:
+                                cm_np = cm.squeeze().cpu().numpy()
+                                dset = cmap_file.require_dataset(
+                                    f"{n0}x{n1}", cm_np.shape, np.float32
+                                )
+                                dset[:] = cm_np
                     except RuntimeError as e:
                         log(
                             f"{n0} x {n1} skipped ({e})",
