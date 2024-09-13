@@ -143,10 +143,6 @@ def main(args):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
         )
-    
-    print(model.do_w)
-    print(model.do_sigmoid)
-    print(model.do_pool)
 
     # Load Pairs
     try:

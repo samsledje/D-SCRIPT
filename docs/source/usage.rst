@@ -56,12 +56,15 @@ Prediction
     optional arguments:
     -h, --help            show this help message and exit
     --pairs PAIRS         Candidate protein pairs to predict
-    --model MODEL         Pretrained Model
+    --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]
     --seqs SEQS           Protein sequences in .fasta format
+    --foldseek_fasta FOLDSEEK_FASTA
+                            3di sequences in .fasta format. Can be generated using `dscript extract-3di. Default is None. If provided, TT3D will be run, otherwise default D-SCRIPT/TT will be run.
     --embeddings EMBEDDINGS
                             h5 file with embedded sequences
     -o OUTFILE, --outfile OUTFILE
                             File for predictions
+    --store_cmaps      Store contact maps for predicted pairs above `--thresh` in an h5 file
     -d DEVICE, --device DEVICE
                             Compute device to use
     --thresh THRESH       Positive prediction threshold - used to store contact
