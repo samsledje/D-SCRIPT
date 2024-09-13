@@ -2,6 +2,9 @@ import numpy as np
 import torch
 import torch.functional as F
 import torch.nn as nn
+from .embedding import FullyConnectedEmbed
+from .contact import ContactCNN
+from huggingface_hub import PyTorchModelHubMixin
 
 
 class LogisticActivation(nn.Module):
@@ -268,4 +271,41 @@ class ModelInteraction(nn.Module):
         """
         return self.predict(
             z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1
+        )
+    
+class DSCRIPTModel(ModelInteraction, PyTorchModelHubMixin):
+    def __init__(
+        self,
+        emb_nin,
+        emb_nout,
+        emb_dropout,
+        con_embed_dim,
+        con_hidden_dim,
+        con_width,
+        use_cuda,
+        emb_activation=nn.ReLU(),
+        con_activation=nn.Sigmoid(),
+        do_w=True,
+        do_sigmoid=True,
+        do_pool=False,
+        pool_size=9,
+        theta_init=1,
+        lambda_init=0,
+        gamma_init=0,
+    ):
+        embedding = FullyConnectedEmbed(
+            emb_nin, emb_nout, emb_dropout, emb_activation
+        )
+        contact = ContactCNN(con_embed_dim, con_hidden_dim, con_width, con_activation)
+        super(DSCRIPTModel, self).__init__(
+            embedding=embedding,
+            contact=contact,
+            use_cuda=use_cuda,
+            do_w=do_w,
+            do_sigmoid=do_sigmoid,
+            do_pool=do_pool,
+            pool_size=pool_size,
+            theta_init=theta_init,
+            lambda_init=lambda_init,
+            gamma_init=gamma_init,
         )

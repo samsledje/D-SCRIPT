@@ -8,6 +8,8 @@ Trained Models
 - `Human Topsy-Turvy model <http://cb.csail.mit.edu/cb/dscript/data/models/topsy_turvy_v1.sav>`_ **(recommended)**
 - `Human D-SCRIPT model  <http://cb.csail.mit.edu/cb/dscript/data/models/human_v1.sav>`_ (from original D-SCRIPT paper)
 
+Pre-trained models can be loaded in the prediction script from HuggingFace hub by specifying the model name. For example, to load the Topsy-Turvy model, use `samsl/topsy_turvy_v1`.
+
 Sample Data
 -----------
 

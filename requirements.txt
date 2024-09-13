@@ -1,6 +1,7 @@
 torch>=1.11
 biopython
 h5py
+huggingface_hub
 matplotlib
 numpy
 pandas
