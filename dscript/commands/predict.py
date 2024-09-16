@@ -131,6 +131,12 @@ def main(args):
             model = DSCRIPTModel.from_pretrained(
                 modelPath, use_cuda=use_cuda
             )
+            if use_cuda:
+                model = model.cuda()
+                model.use_cuda = True
+            else:
+                model = model.cpu()
+                model.use_cuda = False
         except Exception as e:
             print(e)
             log(f"Model {modelPath} failed: {e}", file=logFile, print_also=True)
