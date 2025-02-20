@@ -9,7 +9,7 @@ import subprocess as sp
 import sys
 import gzip as gz
 import h5py
-import multiprocessing as mp
+import torch.multiprocessing as mp
 
 from tqdm import tqdm
 from functools import partial
@@ -69,7 +69,7 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     :return: Dictionary with keys and records in memory
     :rtype: dict
     """
-    torch.multiprocessing.set_sharing_strategy("file_system")
+    mp.set_sharing_strategy("file_system")
 
     if n_jobs == -1:
         n_jobs = mp.cpu_count()
