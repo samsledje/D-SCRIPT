@@ -45,14 +45,17 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
 
 
-def _hdf5_load_partial_func(k, file_path):
+def _hdf5_load_partial_func(qin, qout, file_path):
     """
     Helper function for load_hdf5_parallel
     """
-
     with h5py.File(file_path, "r") as fi:
-        emb = torch.from_numpy(fi[k][:])
-    return emb
+        for k in iter(qin.get, None):
+            emb = torch.from_numpy(fi[k][:])
+            emb.share_memory_()
+            qout.put((k, emb))
+        qout.put(None)
+    
 
 
 def load_hdf5_parallel(file_path, keys, n_jobs=-1):
@@ -70,18 +73,27 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
 
     if n_jobs == -1:
         n_jobs = mp.cpu_count()
+    input_queue = mp.Queue()
+    output_queue = mp.Queue()
+    pool = mp.Pool(processes=n_jobs, initializer=_hdf5_load_partial_func, 
+                 initargs=(input_queue, output_queue, file_path))
+    for key in keys:
+        input_queue.put(key)
+    # Signal workers to stop after processing all tasks
+    for _ in range(n_jobs):
+            input_queue.put(None)
+    embeddings = dict.fromkeys(keys)
+    done_count = 0
+    with tqdm(total=len(keys), desc="Loading Embeddings") as pbar:
+        while done_count < n_jobs:
+            res = output_queue.get()
+            if res is None: #This makes really sure that each job is finished processing
+                done_count += 1
+            else:
+                key, emb = res
+                embeddings[key] = emb
+                pbar.update(1)
 
-    with mp.Pool(processes=n_jobs) as pool:
-        all_embs = list(
-            tqdm(
-                pool.imap(
-                    partial(_hdf5_load_partial_func, file_path=file_path), keys
-                ),
-                total=len(keys),
-            )
-        )
-
-    embeddings = {k: v for k, v in zip(keys, all_embs)}
     return embeddings
 
 
