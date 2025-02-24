@@ -57,32 +57,43 @@ def _hdf5_load_partial_func(qin, qout, file_path):
         qout.put(None)
     
 
-
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+#If keis is a dict (of key -> index) will produce a list of indices instead of a dict
+def load_hdf5_parallel(file_path, keys, n_jobs=-1, indices=None):
     """
     Load keys from hdf5 file into memory
 
     :param file_path: Path to hdf5 file
     :type file_path: str
     :param keys: List of keys to get
-    :type keys: list[str]
-    :return: Dictionary with keys and records in memory
+    :type keys: iterable[str]
+    :return: Dictionary with keys and records in memory, or
+             if keys is a dict (assumed to have values [0,n]), a list of records
     :rtype: dict
     """
-    mp.set_sharing_strategy("file_system")
 
+    #This should be done by calling program
+    #mp.set_sharing_strategy("file_system")
     if n_jobs == -1:
         n_jobs = mp.cpu_count()
-    input_queue = mp.Queue()
-    output_queue = mp.Queue()
-    pool = mp.Pool(processes=n_jobs, initializer=_hdf5_load_partial_func, 
+
+    #Note: Using spawn (or torch.mp.spawn) caused errors, make sure to use fork
+    ctx = mp.get_context("fork")
+    input_queue = ctx.Queue()
+    output_queue = ctx.Queue()
+  
+    pool = ctx.Pool(processes=n_jobs, initializer=_hdf5_load_partial_func, 
                  initargs=(input_queue, output_queue, file_path))
     for key in keys:
         input_queue.put(key)
     # Signal workers to stop after processing all tasks
     for _ in range(n_jobs):
-            input_queue.put(None)
-    embeddings = dict.fromkeys(keys)
+        input_queue.put(None)
+
+    return_list = type(keys) == dict
+    if return_list:
+        embeddings = [None] * len(keys)
+    else:
+        embeddings = dict.fromkeys(keys)
     done_count = 0
     with tqdm(total=len(keys), desc="Loading Embeddings") as pbar:
         while done_count < n_jobs:
@@ -91,7 +102,10 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
                 done_count += 1
             else:
                 key, emb = res
-                embeddings[key] = emb
+                if return_list:
+                    embeddings[keys[key]] = emb
+                else:
+                    embeddings[key] = emb
                 pbar.update(1)
 
     return embeddings
