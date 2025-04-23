@@ -21,8 +21,8 @@ from ..utils import log, load_hdf5_parallel
 
 #When a new process is started with spawn, the file containing the target function will be passed
 #So, the function should be in its own file to minimize the cost and remove any risk.
-from .par_worker import predict
-from .par_writer import writer
+from .par_worker import _predict
+from .par_writer import _writer
 
 def add_args(parser):
     """
@@ -58,6 +58,12 @@ def add_args(parser):
         type=float,
         default=0.5,
         help="Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]",
+    )
+    parser.add_argument(
+        "--load_proc",
+        type=int,
+        default=-1,
+        help="Number of processes to use when loading embeddings (-1 = # of CPUs)"
     )
     return parser
     
@@ -132,7 +138,7 @@ def main(args):
             embeddings[i] = emb #Could also just append as we go, since in sequential mode.
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, prot_to_idx) #Note: this is now a list
+        embeddings = load_hdf5_parallel(embPath, prot_to_idx, n_jobs=args.load_proc) #Note: this is now a list
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:
@@ -161,7 +167,7 @@ def main(args):
 
     #This uses the pytorch spawn function to start a bunch of processes using spawn
     #Apparently, spawn is required when using CUDA in the processes
-    proc_ctx = mp.spawn(predict, 
+    proc_ctx = mp.spawn(_predict, 
                         args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None), #Can't pass an open file
                         nprocs=n_gpu, join=False)
     #for i in range(n_gpu):
@@ -178,7 +184,7 @@ def main(args):
     #The writer needs to be seperate from the main process so that writing can start before all pairs are in the queue
     #We are still passing a large array (list of seq names) but it saves us passing names of all pairs of strings
     #Note that we can't share a queue between spawned and forked processes, so this also needs to be spawned
-    write_proc = mp.Process(target=writer, args=(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue))
+    write_proc = mp.Process(target=_writer, args=(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue))
     write_proc.start()
 
 

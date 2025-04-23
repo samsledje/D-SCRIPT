@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 #Writer process function for parallel prediction
-def writer(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue):
+def _writer(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue):
     n = 0 
     f = open(outPathAll, "w+")
     pos_f = open(outPathPos, "w+")

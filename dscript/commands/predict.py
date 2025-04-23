@@ -28,6 +28,7 @@ class PredictionArguments(NamedTuple):
     seqs: str
     model: str
     thresh: Optional[float]
+    load_proc: Optional[int]
     func: Callable[[PredictionArguments], None]
 
 
@@ -65,6 +66,12 @@ def add_args(parser):
         type=float,
         default=0.5,
         help="Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]",
+    )
+    parser.add_argument(
+        "--load_proc",
+        type=int,
+        default=-1,
+        help="Number of processes to use when loading embeddings (-1 = # of CPUs)"
     )
     return parser
 
@@ -161,6 +168,7 @@ def main(args):
         sys.exit(1)
 
     # Load Sequences or Embeddings
+    torch.multiprocessing.set_sharing_strategy("file_system")
     if embPath is None:
         try:
             names, seqs = parse(seqPath, "r")
@@ -179,7 +187,7 @@ def main(args):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, all_prots)
+        embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc)
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:

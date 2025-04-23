@@ -5,7 +5,7 @@ from ..utils import log
 from ..models.interaction import DSCRIPTModel
 
 #Worker process function for parallel prediction
-def predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None):
+def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None):
     log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=logFile, #If None, will be printed

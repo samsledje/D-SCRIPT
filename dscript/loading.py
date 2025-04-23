@@ -1,0 +1,103 @@
+import torch.multiprocessing as mp
+from tqdm import tqdm
+
+from .load_worker import _hdf5_load_partial_func
+
+#Seperate managing the pool from the loading function
+#to allow the calling process to keep the pool around
+class LoadingPool:
+    def __init__(self, file_path, n_jobs=-1):
+        if n_jobs < 1:
+            self.n_jobs = mp.cpu_count()
+        else:
+            self.n_jobs = n_jobs
+        #Remark: the data loading itself is multi-threaded under the hood
+        #So, CPU utilization is high regardless of how many processes are used
+        #But throughbut is a bit faster using multiple processes for some reason
+        
+        #Note: Using spawn (or torch.mp.spawn) caused errors, make sure to use fork
+        ctx = mp.get_context("fork")
+        self.input_queue = ctx.Queue()
+        self.output_queue = ctx.Queue()
+    
+        self.pool = ctx.Pool(processes=self.n_jobs, initializer=_hdf5_load_partial_func, 
+                    initargs=(self.input_queue, self.output_queue, file_path))
+        self.pool.close()
+
+    #If keys is a dict (of key -> index) will produce a list of indices instead of a dict   
+    def load(self, keys, progress=False):
+        for key in keys:
+            self.input_queue.put(key)
+        return_list = type(keys) == dict
+        if return_list:
+            embeddings = [None] * len(keys)
+        else:
+            embeddings = dict.fromkeys(keys)
+        loaded = 0
+        target = len(keys)
+        if progress:
+            pbar = tqdm(total=target, desc="Loading Embeddings")
+        while loaded < target:
+            res = self.output_queue.get()
+            key, emb = res
+            if return_list:
+                embeddings[keys[key]] = emb
+            else:
+                embeddings[key] = emb
+            if progress:
+                pbar.update(1)
+            loaded += 1
+        if progress:
+            pbar.close()
+        return embeddings
+    
+    #Basically does load and shutdown together - based on older version
+    def load_once(self, keys, progress=True):
+        for key in keys:
+            self.input_queue.put(key)
+        return_list = type(keys) == dict
+        if return_list:
+            embeddings = [None] * len(keys)
+        else:
+            embeddings = dict.fromkeys(keys)
+        done_count = 0
+        if progress:
+            pbar = tqdm(total=len(keys), desc="Loading Embeddings")
+        for _ in range(self.n_jobs):
+            self.input_queue.put(None)
+        while done_count < self.n_jobs:
+            res = self.output_queue.get()
+            if res is None: #This makes really sure that each job is finished processing
+                done_count += 1
+            else:
+                key, emb = res
+                if return_list:
+                    embeddings[keys[key]] = emb
+                else:
+                    embeddings[key] = emb
+                if progress:
+                    pbar.update(1)
+        if progress:
+            pbar.close()
+        self.pool.join()
+        return embeddings
+
+    
+    def shutdown(self):
+        for _ in range(self.n_jobs):
+            self.input_queue.put(None)
+        for _ in range(self.n_jobs):
+            res = self.output_queue.get()
+            assert res is None
+        self.pool.join()
+
+
+    
+
+        
+        
+
+
+
+
+    

@@ -6,14 +6,14 @@ import torch.utils.data
 import numpy as np
 import pandas as pd
 import subprocess as sp
-import sys
 import gzip as gz
-import h5py
 import torch.multiprocessing as mp
 
 from tqdm import tqdm
 from functools import partial
 from datetime import datetime
+
+from .loading import LoadingPool
 
 
 def log(m, file=None, timestamped=True, print_also=False):
@@ -45,20 +45,10 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
 
 
-def _hdf5_load_partial_func(qin, qout, file_path):
-    """
-    Helper function for load_hdf5_parallel
-    """
-    with h5py.File(file_path, "r") as fi:
-        for k in iter(qin.get, None):
-            emb = torch.from_numpy(fi[k][:])
-            emb.share_memory_()
-            qout.put((k, emb))
-        qout.put(None)
-    
 
-#If keis is a dict (of key -> index) will produce a list of indices instead of a dict
-def load_hdf5_parallel(file_path, keys, n_jobs=-1, indices=None):
+#If keys is a dict (of key -> index) will produce a list of indices instead of a dict
+#Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
+def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     """
     Load keys from hdf5 file into memory
 
@@ -71,44 +61,8 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1, indices=None):
     :rtype: dict
     """
 
-    #This should be done by calling program
-    #mp.set_sharing_strategy("file_system")
-    if n_jobs == -1:
-        n_jobs = mp.cpu_count()
-
-    #Note: Using spawn (or torch.mp.spawn) caused errors, make sure to use fork
-    ctx = mp.get_context("fork")
-    input_queue = ctx.Queue()
-    output_queue = ctx.Queue()
-  
-    pool = ctx.Pool(processes=n_jobs, initializer=_hdf5_load_partial_func, 
-                 initargs=(input_queue, output_queue, file_path))
-    for key in keys:
-        input_queue.put(key)
-    # Signal workers to stop after processing all tasks
-    for _ in range(n_jobs):
-        input_queue.put(None)
-
-    return_list = type(keys) == dict
-    if return_list:
-        embeddings = [None] * len(keys)
-    else:
-        embeddings = dict.fromkeys(keys)
-    done_count = 0
-    with tqdm(total=len(keys), desc="Loading Embeddings") as pbar:
-        while done_count < n_jobs:
-            res = output_queue.get()
-            if res is None: #This makes really sure that each job is finished processing
-                done_count += 1
-            else:
-                key, emb = res
-                if return_list:
-                    embeddings[keys[key]] = emb
-                else:
-                    embeddings[key] = emb
-                pbar.update(1)
-
-    return embeddings
+    pool = LoadingPool(file_path, n_jobs)
+    return pool.load_once(keys)
 
 
 class PairedDataset(torch.utils.data.Dataset):
