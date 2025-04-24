@@ -5,7 +5,7 @@ from ..utils import log
 from ..models.interaction import DSCRIPTModel
 
 #Worker process function for parallel prediction
-def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None):
+def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None, block_queue=None):
     log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
             file=logFile, #If None, will be printed
@@ -47,6 +47,9 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
 
     with torch.no_grad():
         for tup in iter(input_queue.get, None):
+            if block_queue is not None and tup[0] is None:
+                block_queue.put(tup[1])
+                continue
             i0 = tup[0]
             i1 = tup[1]
             #Check for repeat seq - Assumes inputs may be sorted by first pair element

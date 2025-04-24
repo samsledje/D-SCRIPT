@@ -166,6 +166,7 @@ def main(args):
     # Make Predictions
     input_queue = mp.Queue()
     output_queue = mp.Queue()
+    pair_done_queue = mp.Queue()
     n_prots = len(all_prots)
     n_pairs = int(n_prots * (n_prots - 1) / 2) #n choose 2
     #n_gpu = torch.cuda.device_count()
@@ -175,7 +176,7 @@ def main(args):
     #proc_ctx = mp.spawn(_predict, 
     #                    args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None), #Can't pass an open file
     #                    nprocs=n_gpu, join=False)
-    p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None))
+    p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue))
     p.start()
     
     outPathAll = f"{outPath}.tsv"
@@ -203,7 +204,11 @@ def main(args):
         end = min(start+block_size, n_prots)
         return (start, end) #all_prots[start:end]
 
-    def load_prots(block): #TODO: make this alias, not copy
+    def load_prots(block, flag=None): #TODO: make this alias, not copy
+        if flag: #Should be a positive int if not none
+            last = pair_done_queue.get()
+            log(f"Finished numbered pair {flag}={last} before loading data for block {block}", file=logFile, print_also=False)
+            assert last == flag #Since the blocks are done in the provided order, this is just a sanity check
         return loadpool.load(all_prots[slice(*get_bounds(block))])
     
     def submit_self_block(block, embeddings):
@@ -230,9 +235,9 @@ def main(args):
                 #else:
                 tup = (i0,i1,p0,p1)
                 input_queue.put(tup) 
-        print("Self-block submitted", block)
+        log(f"Self-block submitted: {block}", file=logFile, print_also=False)
 
-    def submit_block(block1, block2, embeddings1, embeddings2, flag=True):
+    def submit_block(block1, block2, embeddings1, embeddings2, flag=None):
         start1, end1 = get_bounds(block1)
         start2, end2 = get_bounds(block2)
         for i0 in range(start1, end1):
@@ -257,14 +262,17 @@ def main(args):
                 #else:
                 tup = (i0,i1,p0,p1)
                 input_queue.put(tup) 
-        #TODO: specify block-end flag if flag
-        print("Block submitted", block1, block2)
+        if flag: #Should be a positive int if not None
+            input_queue.put((None, flag))
+        log(f"Block submitted: {block1}, {block2} with blocking number {flag}", file=logFile, print_also=False)
 
    
     data1 = load_prots(0)
     data2 = None
     data3 = None
     #TODO: set up block-done-queue, put an imaginary 0 in it...
+    cur_waiting_pair = 0
+    #pair_done_queue.put(cur_waiting_pair)
     for i in range(num_blocks):
         if i % 2 == 0:
             #Do self block
@@ -275,22 +283,28 @@ def main(args):
                 if j == i+1:
                     data2 = data3
                 else:
-                    data2 = load_prots(j) #TODO: wait here
-                submit_block(i, j, data1, data2)
+                    data2 = load_prots(j, flag=cur_waiting_pair-1) #The first call, this will wait for 0, which will skip (0 is False), as we don't really need to wait
+                cur_waiting_pair += 1
+                submit_block(i, j, data1, data2, flag=cur_waiting_pair)
         else:
-            data1 = load_prots(i) if i < num_blocks - 1 else data2 #TODO: wait here if loading
+            data1 = load_prots(i, flag=cur_waiting_pair-1) if i < num_blocks - 1 else data2
             for j in range(num_blocks-1, i+2, -1):
-                submit_block(i, j, data1, data2)
-                data2 = load_prots(j-1)# TODO: wait here
+                cur_waiting_pair += 1
+                submit_block(i, j, data1, data2, flag=cur_waiting_pair)
+                data2 = load_prots(j-1, flag=cur_waiting_pair-1)
             if i < num_blocks - 2:
-                submit_block(i, i+2, data1, data2, flag=False)
+                #This block won't be blocked on, as we will submit two more non-self blocks before blocking on the first of those
+                submit_block(i, i+2, data1, data2, flag=None)
+                #But, we now want to block on the immediately previous non-self block for the next load
+                cur_waiting_pair += 1
                 data3 = data2
             #do self-block
             submit_self_block(i, data1)
             if i < num_blocks-1:
                 if i != num_blocks-2:
-                    data2 = load_prots(i+1) #TODO: wait here
-                submit_block(i, i+1, data1, data2)
+                    data2 = load_prots(i+1, flag=cur_waiting_pair-1)
+                cur_waiting_pair += 1
+                submit_block(i, i+1, data1, data2, flag=cur_waiting_pair)
             data1 = data2
     
     loadpool.shutdown()
