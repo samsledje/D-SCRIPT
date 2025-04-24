@@ -9,6 +9,7 @@ from typing import Union
 from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
 from .commands.predict import PredictionArguments
+from .commands.predict_block import BlockedPredictionArguments
 from .commands.train import TrainArguments
 from .commands.extract_3di import Extract3DiArguments
 
@@ -16,6 +17,7 @@ DScriptArguments = Union[
     EmbeddingArguments,
     EvaluateArguments,
     PredictionArguments,
+    BlockedPredictionArguments,
     TrainArguments,
     Extract3DiArguments,
 ]
@@ -58,6 +60,7 @@ def main():
         evaluate,
         predict,
         predict_par,
+        predict_block,
         extract_3di,
     )
 
@@ -67,6 +70,7 @@ def main():
         "evaluate": evaluate,
         "predict": predict,
         "predict_par": predict_par,
+        "predict_block": predict_block,
         "extract-3di": extract_3di,
     }
 
