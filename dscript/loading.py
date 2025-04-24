@@ -24,26 +24,20 @@ class LoadingPool:
                     initargs=(self.input_queue, self.output_queue, file_path))
         self.pool.close()
 
-    #If keys is a dict (of key -> index) will produce a list of indices instead of a dict   
+    #Will always return a list in the order that inputs are received   
     def load(self, keys, progress=False):
+        count = 0
         for key in keys:
-            self.input_queue.put(key)
-        return_list = type(keys) == dict
-        if return_list:
-            embeddings = [None] * len(keys)
-        else:
-            embeddings = dict.fromkeys(keys)
+            self.input_queue.put((key, count))
+            count += 1
+        embeddings = [None] * len(keys)
         loaded = 0
-        target = len(keys)
         if progress:
-            pbar = tqdm(total=target, desc="Loading Embeddings")
-        while loaded < target:
+            pbar = tqdm(total=count, desc="Loading Embeddings")
+        while loaded < count:
             res = self.output_queue.get()
-            key, emb = res
-            if return_list:
-                embeddings[keys[key]] = emb
-            else:
-                embeddings[key] = emb
+            i, emb = res
+            embeddings[i] = emb
             if progress:
                 pbar.update(1)
             loaded += 1
@@ -53,13 +47,11 @@ class LoadingPool:
     
     #Basically does load and shutdown together - based on older version
     def load_once(self, keys, progress=True):
+        count = 0
         for key in keys:
-            self.input_queue.put(key)
-        return_list = type(keys) == dict
-        if return_list:
-            embeddings = [None] * len(keys)
-        else:
-            embeddings = dict.fromkeys(keys)
+            self.input_queue.put((key, count))
+            count += 1
+        embeddings = [None] * len(keys)
         done_count = 0
         if progress:
             pbar = tqdm(total=len(keys), desc="Loading Embeddings")
@@ -70,11 +62,8 @@ class LoadingPool:
             if res is None: #This makes really sure that each job is finished processing
                 done_count += 1
             else:
-                key, emb = res
-                if return_list:
-                    embeddings[keys[key]] = emb
-                else:
-                    embeddings[key] = emb
+                i, emb = res
+                embeddings[i] = emb
                 if progress:
                     pbar.update(1)
         if progress:

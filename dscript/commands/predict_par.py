@@ -115,7 +115,7 @@ def main(args):
         logFile.close()
         sys.exit(1)
 
-    prot_to_idx = {p:i for i,p in enumerate(all_prots)} #Name -> index
+    prot_to_idx = {p:i for i,p in enumerate(all_prots)} #Name -> index, used to convert pairs of names to pairs of IDs
 
     # Load Sequences or Embeddings
     if embPath is None:
@@ -138,7 +138,7 @@ def main(args):
             embeddings[i] = emb #Could also just append as we go, since in sequential mode.
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, prot_to_idx, n_jobs=args.load_proc) #Note: this is now a list
+        embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc, return_dict=False) #Note: this is now a list
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:
@@ -170,9 +170,6 @@ def main(args):
     proc_ctx = mp.spawn(_predict, 
                         args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None), #Can't pass an open file
                         nprocs=n_gpu, join=False)
-    #for i in range(n_gpu):
-    #    p = mp.Process(target=predict, args=(i, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, logFile if i == 0 else None)) #Only the first process gets to log
-    #    p.start()
     
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"

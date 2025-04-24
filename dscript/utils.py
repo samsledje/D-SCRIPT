@@ -48,7 +48,7 @@ def RBF(D, sigma=None):
 
 #If keys is a dict (of key -> index) will produce a list of indices instead of a dict
 #Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+def load_hdf5_parallel(file_path, keys, n_jobs=-1, return_dict=True):
     """
     Load keys from hdf5 file into memory
 
@@ -56,13 +56,16 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     :type file_path: str
     :param keys: List of keys to get
     :type keys: iterable[str]
-    :return: Dictionary with keys and records in memory, or
-             if keys is a dict (assumed to have values [0,n]), a list of records
-    :rtype: dict
+    :return: if return_dict, a mapping of keys (proteins names) to pointers to empbeddings.
+             otherwise, a list of pointers in the same order as keys
+    :rtype: list
     """
 
     pool = LoadingPool(file_path, n_jobs)
-    return pool.load_once(keys)
+    result = pool.load_once(keys)
+    if return_dict:
+        return dict(zip(keys, result))
+    return result
 
 
 class PairedDataset(torch.utils.data.Dataset):

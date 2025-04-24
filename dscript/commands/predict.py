@@ -187,7 +187,7 @@ def main(args):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc)
+        embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc) #Is a dict, legacy behavior
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:

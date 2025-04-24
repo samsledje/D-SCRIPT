@@ -12,9 +12,9 @@ def _hdf5_load_partial_func(qin, qout, file_path):
     #But, I should investigate whether having a small (but >1) number does best
     torch.set_num_threads(1) 
     with h5py.File(file_path, "r") as fi:
-        for k in iter(qin.get, None):
+        for (k, i) in iter(qin.get, None):
             emb = torch.from_numpy(fi[k][:])
             emb.share_memory_()
-            qout.put((k, emb))
+            qout.put((i, emb))
         qout.put(None)
     
