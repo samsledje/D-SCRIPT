@@ -62,7 +62,10 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
             if use_fs:
                 fs0 = tup[4].cuda(device=device)
                 fs1 = tup[5].cuda(device=device)
-
+            
+            #Clear tup to remove references to tensors in shared CPU
+            tup = None
+            
             try:
                 if use_fs:
                     try:
