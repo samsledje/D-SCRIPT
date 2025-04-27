@@ -60,7 +60,7 @@ def add_args(parser):
     )
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument(
-        "-d", "--device", type=int, default=-1, help="Compute device to use"
+        "-d", "--device", type=int, default=-1, help="Compute device to use (-1 = all)."
     )
     parser.add_argument(
         "--store_cmaps",
@@ -83,7 +83,7 @@ def add_args(parser):
         "--blocks",
         type=int,
         default=16,
-        help="Number of equal-sized blocks to split proteins into. Maximum (embedding) memory usage should be 3 blocks worth"
+        help="Number of equal-sized blocks to split proteins into. Maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs."
     )
     return parser
     
@@ -167,15 +167,26 @@ def main(args):
     pair_done_queue = mp.Queue()
     n_prots = len(all_prots)
     n_pairs = int(n_prots * (n_prots - 1) / 2) #n choose 2
-    #n_gpu = torch.cuda.device_count()
 
     #This uses the pytorch spawn function to start a bunch of processes using spawn
     #Apparently, spawn is required when using CUDA in the processes
-    #proc_ctx = mp.spawn(_predict, 
-    #                    args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None), #Can't pass an open file
-    #                    nprocs=n_gpu, join=False)
-    p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue))
-    p.start()
+
+    #device = -1 -> use all GPUs
+    #Important remark: with multiple GPUs, it is no longer 100% true that only three blocks will be needed in memory
+    #because, when a block is detected as being finished, the other n-1 GPUs will likely be finishing a last prediction
+    #task from that block. But, since the memory management is implicit (by the garbage collector), there will not be an error.
+    # Also, it is possible that blocks will finish out of order, in which case the process will wait for the earlier (expected)
+    # block to finish, which might lead the queue to be briefly empty before being re-filled. 
+    # Larger block sizes are recommended with multiple GPUs to reduce the risk/frequency of this. 
+    if device < 0: 
+        n_gpu = torch.cuda.device_count()
+        proc_ctx = mp.spawn(_predict, 
+                            args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue), #Can't pass an open file
+                            nprocs=n_gpu, join=False)
+    else:
+        p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue))
+        p.start()
+        n_gpu = 1
     
     outPathAll = f"{outPath}.tsv"
     outPathPos = f"{outPath}.positive.tsv"
@@ -206,11 +217,20 @@ def main(args):
         if flag: #Should be a positive int if not none
             last = pair_done_queue.get()
             log(f"Finished numbered pair {flag}={last} before loading data for block {block}", file=logFile, print_also=False)
-            assert last == flag #Since the blocks are done in the provided order, this is just a sanity check
+            #assert last == flag #Since the blocks are done in the provided order, this is just a sanity check for the single GPU case
+            #^ above may fail in multi-GPU mode, so switch to this loop...
+            #Now, will naively check for out of order finishes and/or wait for the expected block to finish
+            #But, could cause the GPUs to idle for a bit if all other block(s) finish before the expected one
+            while last != flag:
+                log(f"Found that numbered pair {last} was completed while expecting pair {flag}", file=logFile, print_also=False)
+                new_last = pair_done_queue.get() #By getting before re-putting, we avoid constantly looping while only the unexpected block has finished
+                pair_done_queue.put(last)
+                last = new_last
+            log(f"Finished numbered pair {flag} before loading data for block {block}", file=logFile, print_also=False)
         prot_list = all_prots[slice(*get_bounds(block))]
         embeds = loadpool.load(prot_list)
-        fsDict = parse_from_list(foldseek_fasta, prot_list)
         if use_fs:
+            fsDict = parse_from_list(foldseek_fasta, prot_list)
             fsOneHotList = [get_foldseek_onehot(n0, p0.shape[1], fsDict, fold_vocab).unsqueeze(0).share_memory_() for n0, p0 in zip(prot_list, embeds)]
             return (embeds, fsOneHotList)
         return embeds
@@ -298,7 +318,10 @@ def main(args):
             data1 = data2
     
     loadpool.shutdown()
-    input_queue.put(None)
+    # Signal workers to stop after processing all tasks
+    for _ in range(n_gpu):
+        input_queue.put(None)
+
     write_proc.join()
 
     log(f"All predictions completed", file=logFile, print_also=True)
