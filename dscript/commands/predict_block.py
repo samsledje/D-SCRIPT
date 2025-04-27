@@ -6,16 +6,13 @@ import argparse
 import datetime
 import sys
 
-import numpy as np
-import pandas as pd
 import torch
-from tqdm import tqdm
 from typing import Callable, NamedTuple, Optional
 import os, math
 
 import torch.multiprocessing as mp
 
-from ..fasta import parse
+from ..fasta import parse_from_list
 from ..foldseek import get_foldseek_onehot, fold_vocab
 from ..language_model import lm_embed
 from ..utils import log
@@ -129,7 +126,7 @@ def main(args):
     #For torch shared memory
     mp.set_sharing_strategy("file_system")
 
-    # Load Pairs
+    # Load Proteins
     try:
         log(f"Loading protein IDs from {csvPath}", file=logFile, print_also=True)
         with open(csvPath) as f:
@@ -157,6 +154,7 @@ def main(args):
         log(f"Foldseek FASTA File {foldseek_fasta} specified but not found.", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
+    #Don't want to load all sequences now to save memory, but this will cost us time later
     #fs_names, fs_seqs = parse(foldseek_fasta, "r") #Not parallel
     #fsDict = {n:s for n, s in zip(fs_names, fs_seqs)}
     #fsOnehotList = [None]*len(all_prots)
@@ -209,31 +207,30 @@ def main(args):
             last = pair_done_queue.get()
             log(f"Finished numbered pair {flag}={last} before loading data for block {block}", file=logFile, print_also=False)
             assert last == flag #Since the blocks are done in the provided order, this is just a sanity check
-        return loadpool.load(all_prots[slice(*get_bounds(block))])
+        prot_list = all_prots[slice(*get_bounds(block))]
+        embeds = loadpool.load(prot_list)
+        fsDict = parse_from_list(foldseek_fasta, prot_list)
+        if use_fs:
+            fsOneHotList = [get_foldseek_onehot(n0, p0.shape[1], fsDict, fold_vocab).unsqueeze(0).share_memory_() for n0, p0 in zip(prot_list, embeds)]
+            return (embeds, fsOneHotList)
+        return embeds
     
     def submit_self_block(block, embeddings):
         start, end = get_bounds(block)
         for i0 in range(start, end):
-            p0 = embeddings[i0-start]
+            if use_fs:
+                p0 = embeddings[0][i0-start]
+                fs0 = embeddings[1][i0-start]
+            else:
+                p0 = embeddings[i0-start]
             for i1 in range(i0+1, end):
-                p1 = embeddings[i1-start]
-                #TODO - re-enable foldseek, I guess? Ugh
-                #if use_fs:
-                #    if fsOnehotList[i0]: 
-                #        fs0 = fsOnehotList[i0]
-                #    else:
-                #        fs0 = get_foldseek_onehot(n0, p0.shape[1], fsDict, fold_vocab).unsqueeze(0)
-                #        fs0.share_memory_()
-                #        fsOnehotList[i0] = fs0
-                #    if i1 in fsOnehotList:
-                #        fs1 = fsOnehotList[i1]
-                #    else:
-                #        fs1 = get_foldseek_onehot(n1, p1.shape[1], fsDict, fold_vocab).unsqueeze(0)
-                #        fs1.share_memory_()
-                #        fsOnehotList[i1] = fs1
-                #    tup = (i0,i1,p0,p1,fs0,fs1)
-                #else:
-                tup = (i0,i1,p0,p1)
+                if use_fs:
+                    p1 = embeddings[0][i1-start]
+                    fs1 = embeddings[1][i1-start]
+                    tup = (i0,i1,p0,p1,fs0,fs1)                   
+                else:
+                    p1 = embeddings[i1-start]
+                    tup = (i0,i1,p0,p1)
                 input_queue.put(tup) 
         log(f"Self-block submitted: {block}", file=logFile, print_also=False)
 
@@ -241,31 +238,23 @@ def main(args):
         start1, end1 = get_bounds(block1)
         start2, end2 = get_bounds(block2)
         for i0 in range(start1, end1):
-            p0 = embeddings1[i0-start1]
+            if use_fs:
+                p0 = embeddings1[0][i0-start1]
+                fs0 = embeddings1[1][i0-start1]
+            else:
+                p0 = embeddings1[i0-start1]
             for i1 in range(start2, end2):
-                p1 = embeddings2[i1-start2]
-                #TODO - re-enable foldseek, I guess? Ugh
-                #if use_fs:
-                #    if fsOnehotList[i0]: 
-                #        fs0 = fsOnehotList[i0]
-                #    else:
-                #        fs0 = get_foldseek_onehot(n0, p0.shape[1], fsDict, fold_vocab).unsqueeze(0)
-                #        fs0.share_memory_()
-                #        fsOnehotList[i0] = fs0
-                #    if i1 in fsOnehotList:
-                #        fs1 = fsOnehotList[i1]
-                #    else:
-                #        fs1 = get_foldseek_onehot(n1, p1.shape[1], fsDict, fold_vocab).unsqueeze(0)
-                #        fs1.share_memory_()
-                #        fsOnehotList[i1] = fs1
-                #    tup = (i0,i1,p0,p1,fs0,fs1)
-                #else:
-                tup = (i0,i1,p0,p1)
+                if use_fs:
+                    p1 = embeddings2[0][i1-start2]
+                    fs1 = embeddings2[1][i1-start2]
+                    tup = (i0,i1,p0,p1,fs0,fs1)                   
+                else:
+                    p1 = embeddings2[i1-start2]
+                    tup = (i0,i1,p0,p1)
                 input_queue.put(tup) 
         if flag: #Should be a positive int if not None
             input_queue.put((None, flag))
         log(f"Block submitted: {block1}, {block2} with blocking number {flag}", file=logFile, print_also=False)
-
    
     data1 = load_prots(0)
     data2 = None
@@ -282,6 +271,7 @@ def main(args):
             for j in range(i+1, num_blocks):
                 if j == i+1:
                     data2 = data3
+                    data3 = None #Remove this reference
                 else:
                     data2 = load_prots(j, flag=cur_waiting_pair-1) #The first call, this will wait for 0, which will skip (0 is False), as we don't really need to wait
                 cur_waiting_pair += 1
