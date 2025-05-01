@@ -9,6 +9,7 @@ import sys
 import torch
 from typing import Callable, NamedTuple, Optional
 import os, math
+import numpy as np
 
 import torch.multiprocessing as mp
 
@@ -26,11 +27,13 @@ from .par_writer import _writer
 
 class BlockedPredictionArguments(NamedTuple):
     cmd: str
-    device: int
-    embeddings: str
-    #foldseek_fasta: Optional[str] - missing from original class for some reason?
-    outfile: Optional[str]
+    protins: Optional[str]
+    pairs: Optional[str]
     model: str
+    embeddings: str
+    foldseek_fasta: Optional[str]
+    outfile: Optional[str]
+    device: Optional[int]
     thresh: Optional[float]
     load_proc: Optional[int]
     blocks: Optional[int]
@@ -45,11 +48,14 @@ def add_args(parser):
     """
 
     parser.add_argument(
-        "--proteins", help="Protein IDs for which to predict all pairs", required=True
+        "--proteins", help="File with protein IDs for which to predict all pairs, one per line; specify one of proteins or pairs", required=False
     )
-    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]")
+    parser.add_argument(
+        "--pairs", help="File with candidate protein pairs to predict, one pair per line; specify one of proteins or pairs", required=False
+    )
+    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]") #Will it still try to load?
     #parser.add_argument("--seqs", help="Protein sequences in .fasta format")
-    parser.add_argument("--embeddings", help="h5 file with embedded sequences", required=True
+    parser.add_argument("--embeddings", help="h5 file with (a superset of) pre-embedded sequences. Generate with dscript embed.", required=True
     )
     parser.add_argument(
         "--foldseek_fasta",
@@ -60,7 +66,7 @@ def add_args(parser):
     )
     parser.add_argument("-o", "--outfile", help="File for predictions")
     parser.add_argument(
-        "-d", "--device", type=int, default=-1, help="Compute device to use (-1 = all)."
+        "-d", "--device", type=int, default=-1, help="The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand."
     )
     parser.add_argument(
         "--store_cmaps",
@@ -77,13 +83,18 @@ def add_args(parser):
         "--load_proc",
         type=int,
         default=-1,
-        help="Number of processes to use when loading embeddings (-1 = # of CPUs)"
+        help="Number of processes to use when loading embeddings (-1 = # of available CPUs)"
     )
     parser.add_argument(
         "--blocks",
         type=int,
-        default=16,
-        help="Number of equal-sized blocks to split proteins into. Maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs."
+        default=1,
+        help="Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs."
+    )
+    parser.add_argument(
+        "--sparse_loading",
+        action="store_true",
+        help="Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommented when predicting with many blocks on sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks > 1 and pairs specified"
     )
     return parser
     
@@ -93,22 +104,10 @@ def main(args):
 
     :meta private:
     """
-    if args.proteins is None or args.embeddings is None:
-        log("Both of --proteins and --embeddings are required for blocked prediction.")
-        sys.exit(0)
 
-    csvPath = args.proteins
-    modelPath = args.model
-    outPath = args.outfile
-    #seqPath = args.seqs
-    embPath = args.embeddings
-    device = args.device
-    threshold = args.thresh
-
-    foldseek_fasta = args.foldseek_fasta
-    num_blocks = args.blocks
-
+    #Deal with provided arguments
     # Set Outpath
+    outPath = args.outfile
     if outPath is None:
         outPath = datetime.datetime.now().strftime(
             "%Y-%m-%d-%H:%M.predictions"
@@ -117,8 +116,24 @@ def main(args):
     logFilePath = outPath + ".log"
     logFile = open(logFilePath, "w+")
 
-    # Set Device
-    assert torch.cuda.is_available()
+    if not torch.cuda.is_available():
+        log("A GPU/CUDA device is required.", file=logFile, print_also=True)
+        sys.exit(1)
+
+    if args.proteins is None == args.pairs is None:
+        log("Please specify exactly one of proteins and pairs.", file=logFile, print_also=True)
+        sys.exit(2)
+
+    embPath = args.embeddings
+    if not os.path.exists(embPath):
+        log(f"Embeddings File {embPath} not found.", file=logFile, print_also=True)
+        sys.exit(3)
+    
+    modelPath = args.model
+    device = args.device
+    threshold = args.thresh
+    foldseek_fasta = args.foldseek_fasta
+    num_blocks = args.blocks
 
     #CUDA-using processes need to be spawned; and, the start method needs to be
     # #set before the queues are created so they match the processes
@@ -127,46 +142,75 @@ def main(args):
     mp.set_sharing_strategy("file_system")
 
     # Load Proteins
+    all_pairs = args.proteins is not None
+    if all_pairs:
+        csvPath = args.proteins
+    else:
+        csvPath = args.pairs
     try:
         log(f"Loading protein IDs from {csvPath}", file=logFile, print_also=True)
         with open(csvPath) as f:
-            all_prots = [line.strip() for line in f if line and not line.isspace()]
-            #TODO: make slices alias, not copy
+            csv_lines = [line.strip() for line in f if line and not line.isspace()]
     except FileNotFoundError:
-        log(f"Pairs File {csvPath} not found", file=logFile, print_also=True)
+        log(f"Proteins / Pairs file {csvPath} not found", file=logFile, print_also=True)
         logFile.close()
-        sys.exit(1)
+        sys.exit(4)
 
-    #prot_to_idx = {p:i for i,p in enumerate(all_prots)} #Name -> index
+    if all_pairs:
+        all_prots = csv_lines
+        n_prots = len(all_prots)
+        n_pairs = int(n_prots * (n_prots - 1) / 2) #n choose 2
+    #Process a list of pairs into a binary matrix
+    else:
+        #Built the data structures we need jointly
+        #Also, preserve order of proteins in order of first encounter
+        pairs0 = []
+        pairs1 = []
+        all_prots = []
+        prot_to_idx = {}
+        for pair in csv_lines:
+            p0, p1 = pair.split()[:2]
+            if p0 in prot_to_idx:
+                i0 = prot_to_idx[p0]
+            else:
+                i0 = len(all_prots)
+                prot_to_idx[p0] = i0
+                all_prots.append(p0)
+            if p1 in prot_to_idx:
+                i1 = prot_to_idx[p1]
+            else:
+                i1 = len(all_prots)
+                prot_to_idx[p1] = i1
+                all_prots.append(p1)
+            pairs0.append(i0)
+            pairs1.append(i1)
+        #Alternative code to construct similar data structures:
+        #pairs = [tuple(pair.split()[:2]) for pair in all_prots]
+        #all_prots = list(set([prot for pair in pairs for prot in pair]))
+        #prot_to_idx = {p:i for i,p in enumerate(all_prots)} #Name -> index
 
-    # Check Embeddings File
-    if not os.path.exists(embPath):
-        log(f"Embeddings File {embPath} not found. Pre-computed embeddings are required to use blocked prediction.", file=logFile, print_also=True)
-        logFile.close()
-        sys.exit(1)
-    #TODO: Pre-embedding, as it is now, actually requires holding all embeddings in memory
-    #So, maybe we want to modify that or allow on the fly (but, this would re-emebd the same things...)
-    #embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc) #Note: this is now a list
+        n_prots = len(all_prots)
+        n_pairs = len(pairs0) 
 
-    # Load Foldseek Sequences
+        #Need to do this later because we don't know the # of unique proteins
+        #We could make this more efficint by keeping only the upper triangular part of the matrix
+        pairs_bool = np.zeros((n_prots, n_prots), dtype=np.bool_)
+        pairs_bool[pairs0, pairs1] = 1
+        pairs_bool[pairs1, pairs0] = 1
+        pairs_bool = np.triu(pairs_bool) #Makes a copy
+
+    # Check Foldseek Sequence File
     use_fs = foldseek_fasta is not None
     if use_fs and not os.path.exists(foldseek_fasta):
         log(f"Foldseek FASTA File {foldseek_fasta} specified but not found.", file=logFile, print_also=True)
         logFile.close()
-        sys.exit(1)
-    #Don't want to load all sequences now to save memory, but this will cost us time later
-    #fs_names, fs_seqs = parse(foldseek_fasta, "r") #Not parallel
-    #fsDict = {n:s for n, s in zip(fs_names, fs_seqs)}
-    #fsOnehotList = [None]*len(all_prots)
-    #use_fs = True
+        sys.exit(5)
 
 
     # Make Predictions
     input_queue = mp.Queue()
     output_queue = mp.Queue()
     pair_done_queue = mp.Queue()
-    n_prots = len(all_prots)
-    n_pairs = int(n_prots * (n_prots - 1) / 2) #n choose 2
 
     #This uses the pytorch spawn function to start a bunch of processes using spawn
     #Apparently, spawn is required when using CUDA in the processes
@@ -206,17 +250,15 @@ def main(args):
 
     block_size = math.ceil(n_prots / num_blocks)
 
-    #We move through pairs of blocks in the order (0,0), (0,1), ..., (0,n), (1,n), ..., (1,3), (1,1), (1,2), (2,2), ...
 
     def get_bounds(block): 
         start = block * block_size
         end = min(start+block_size, n_prots)
         return (start, end) #all_prots[start:end]
 
-    def load_prots(block, flag=None): #TODO: make this alias, not copy
+    def load_prots(block, flag=None, indices=None): #Possibly make this alias, not copy, but might create other issues
         if flag: #Should be a positive int if not none
             last = pair_done_queue.get()
-            log(f"Finished numbered pair {flag}={last} before loading data for block {block}", file=logFile, print_also=False)
             #assert last == flag #Since the blocks are done in the provided order, this is just a sanity check for the single GPU case
             #^ above may fail in multi-GPU mode, so switch to this loop...
             #Now, will naively check for out of order finishes and/or wait for the expected block to finish
@@ -227,7 +269,10 @@ def main(args):
                 pair_done_queue.put(last)
                 last = new_last
             log(f"Finished numbered pair {flag} before loading data for block {block}", file=logFile, print_also=False)
-        prot_list = all_prots[slice(*get_bounds(block))]
+        if indices is not None:
+            prot_list = [all_prots[i] for i in indices]
+        else:
+            prot_list = all_prots[slice(*get_bounds(block))]
         embeds = loadpool.load(prot_list)
         if use_fs:
             fsDict = parse_from_list(foldseek_fasta, prot_list)
@@ -235,87 +280,147 @@ def main(args):
             return (embeds, fsOneHotList)
         return embeds
     
-    def submit_self_block(block, embeddings):
-        start, end = get_bounds(block)
-        for i0 in range(start, end):
-            if use_fs:
-                p0 = embeddings[0][i0-start]
-                fs0 = embeddings[1][i0-start]
-            else:
-                p0 = embeddings[i0-start]
-            for i1 in range(i0+1, end):
+        
+    #FANCY LOADING
+    #We move through pairs of blocks in the order (0,0), (0,1), ..., (0,n), (1,n), ..., (1,3), (1,1), (1,2), (2,2), ...
+    #This requires loading at most one new block into memory for each additional pair of proteins
+    if all_pairs or num_blocks == 1 or not args.sparse_loading:
+            
+        def submit_self_block(block, embeddings):
+            start, end = get_bounds(block)
+            for i0 in range(start, end):
                 if use_fs:
-                    p1 = embeddings[0][i1-start]
-                    fs1 = embeddings[1][i1-start]
-                    tup = (i0,i1,p0,p1,fs0,fs1)                   
+                    p0 = embeddings[0][i0-start]
+                    fs0 = embeddings[1][i0-start]
                 else:
-                    p1 = embeddings[i1-start]
-                    tup = (i0,i1,p0,p1)
-                input_queue.put(tup) 
-        log(f"Self-block submitted: {block}", file=logFile, print_also=False)
+                    p0 = embeddings[i0-start]
+                for i1 in range(i0+1, end):
+                    if all_pairs or pairs_bool[i0,i1]:
+                        if use_fs:
+                            p1 = embeddings[0][i1-start]
+                            fs1 = embeddings[1][i1-start]
+                            tup = (i0,i1,p0,p1,fs0,fs1)                   
+                        else:
+                            p1 = embeddings[i1-start]
+                            tup = (i0,i1,p0,p1)
+                        input_queue.put(tup) 
+            log(f"Self-block submitted: {block}", file=logFile, print_also=False)
 
-    def submit_block(block1, block2, embeddings1, embeddings2, flag=None):
-        start1, end1 = get_bounds(block1)
-        start2, end2 = get_bounds(block2)
-        for i0 in range(start1, end1):
-            if use_fs:
-                p0 = embeddings1[0][i0-start1]
-                fs0 = embeddings1[1][i0-start1]
-            else:
-                p0 = embeddings1[i0-start1]
-            for i1 in range(start2, end2):
+        def submit_block(block1, block2, embeddings1, embeddings2, flag=None):
+            start1, end1 = get_bounds(block1)
+            start2, end2 = get_bounds(block2)
+            for i0 in range(start1, end1):
                 if use_fs:
-                    p1 = embeddings2[0][i1-start2]
-                    fs1 = embeddings2[1][i1-start2]
-                    tup = (i0,i1,p0,p1,fs0,fs1)                   
+                    p0 = embeddings1[0][i0-start1]
+                    fs0 = embeddings1[1][i0-start1]
                 else:
-                    p1 = embeddings2[i1-start2]
-                    tup = (i0,i1,p0,p1)
-                input_queue.put(tup) 
-        if flag: #Should be a positive int if not None
+                    p0 = embeddings1[i0-start1]
+                for i1 in range(start2, end2):
+                    if all_pairs or pairs_bool[i0,i1]:
+                        if use_fs:
+                            p1 = embeddings2[0][i1-start2]
+                            fs1 = embeddings2[1][i1-start2]
+                            tup = (i0,i1,p0,p1,fs0,fs1)                   
+                        else:
+                            p1 = embeddings2[i1-start2]
+                            tup = (i0,i1,p0,p1)
+                        input_queue.put(tup) 
+            if flag: #Should be a positive int if not None
+                input_queue.put((None, flag))
+            log(f"Block submitted: {block1}, {block2} with blocking number {flag}", file=logFile, print_also=False)
+    
+        data1 = load_prots(0)
+        data2 = None
+        data3 = None
+        cur_waiting_pair = 0
+        for i in range(num_blocks):
+            if i % 2 == 0:
+                #Do self block
+                submit_self_block(i, data1)
+                if i == 0 and num_blocks > 1:
+                    data3 = load_prots(1)
+                for j in range(i+1, num_blocks):
+                    if j == i+1:
+                        data2 = data3
+                        data3 = None #Remove this reference
+                    else:
+                        data2 = load_prots(j, flag=cur_waiting_pair-1) #The first call, this will wait for 0, which will skip (0 is False), as we don't really need to wait
+                    cur_waiting_pair += 1
+                    submit_block(i, j, data1, data2, flag=cur_waiting_pair)
+            else:
+                data1 = load_prots(i, flag=cur_waiting_pair-1) if i < num_blocks - 1 else data2
+                for j in range(num_blocks-1, i+2, -1):
+                    cur_waiting_pair += 1
+                    submit_block(i, j, data1, data2, flag=cur_waiting_pair)
+                    data2 = load_prots(j-1, flag=cur_waiting_pair-1)
+                if i < num_blocks - 2:
+                    #This block won't be blocked on, as we will submit two more non-self blocks before blocking on the first of those
+                    submit_block(i, i+2, data1, data2, flag=None)
+                    #But, we now want to block on the immediately previous non-self block for the next load
+                    cur_waiting_pair += 1
+                    data3 = data2
+                #do self-block
+                submit_self_block(i, data1)
+                if i < num_blocks-1:
+                    if i != num_blocks-2:
+                        data2 = load_prots(i+1, flag=cur_waiting_pair-1)
+                    cur_waiting_pair += 1
+                    submit_block(i, i+1, data1, data2, flag=cur_waiting_pair)
+                data1 = data2
+
+
+    #NON-FANCY LOADING
+    #Go through pairs of blocks in order (0,0), (0,1), ..., (0,n), (0, 1), (1,1), (1,2), ...
+    #For each pair of blocks, load only the required proteins into memory
+    else:
+        #Takes two lists of protein indices and corresponding embeddings
+        #Checks each pair in pairs_bool and submits if specified. 
+        #Done like this (versus passing a list of pairs) so embeddings can be accessed by index
+        def submit_pairs(prots1, prots2, embeddings1, embeddings2, flag):
+            for j0, i0 in enumerate(prots1):
+                if use_fs:
+                    p0 = embeddings1[0][j0]
+                    fs0 = embeddings1[1][j0]
+                else:
+                    p0 = embeddings1[j0]
+                row = pairs_bool[i0]
+                for j1, i1 in enumerate(prots2):
+                    if row[i1]:
+                        if use_fs:
+                            p1 = embeddings2[0][j1]
+                            fs1 = embeddings2[1][j1]
+                            tup = (i0,i1,p0,p1,fs0,fs1)  
+                        else:
+                            p1 = embeddings2[j1]
+                            tup = (i0,i1,p0,p1)
+                        input_queue.put(tup)
             input_queue.put((None, flag))
-        log(f"Block submitted: {block1}, {block2} with blocking number {flag}", file=logFile, print_also=False)
-   
-    data1 = load_prots(0)
-    data2 = None
-    data3 = None
-    #TODO: set up block-done-queue, put an imaginary 0 in it...
-    cur_waiting_pair = 0
-    #pair_done_queue.put(cur_waiting_pair)
-    for i in range(num_blocks):
-        if i % 2 == 0:
-            #Do self block
-            submit_self_block(i, data1)
-            if i == 0 and num_blocks > 1:
-                data3 = load_prots(1)
+        cur_waiting_pair = 0
+        for i in range(0,num_blocks):
+            start1, end1 = get_bounds(i)
+            #self-pair
+            block_pairs = pairs_bool[start1:end1, start1:end1]
+            prots_needed1 = np.nonzero(block_pairs.any(axis=0) | block_pairs.any(axis=1))[0] + start1
+            if len(prots_needed1) > 0:
+                data1 = load_prots(i, flag=max(cur_waiting_pair-1,0), indices=prots_needed1)
+                cur_waiting_pair += 1
+                submit_pairs(prots_needed1, prots_needed1, data1, data1, cur_waiting_pair)
+                log(f"Self-block submitted: {i} with blocking number {cur_waiting_pair}", file=logFile, print_also=False)
+                data1 = None
             for j in range(i+1, num_blocks):
-                if j == i+1:
-                    data2 = data3
-                    data3 = None #Remove this reference
-                else:
-                    data2 = load_prots(j, flag=cur_waiting_pair-1) #The first call, this will wait for 0, which will skip (0 is False), as we don't really need to wait
-                cur_waiting_pair += 1
-                submit_block(i, j, data1, data2, flag=cur_waiting_pair)
-        else:
-            data1 = load_prots(i, flag=cur_waiting_pair-1) if i < num_blocks - 1 else data2
-            for j in range(num_blocks-1, i+2, -1):
-                cur_waiting_pair += 1
-                submit_block(i, j, data1, data2, flag=cur_waiting_pair)
-                data2 = load_prots(j-1, flag=cur_waiting_pair-1)
-            if i < num_blocks - 2:
-                #This block won't be blocked on, as we will submit two more non-self blocks before blocking on the first of those
-                submit_block(i, i+2, data1, data2, flag=None)
-                #But, we now want to block on the immediately previous non-self block for the next load
-                cur_waiting_pair += 1
-                data3 = data2
-            #do self-block
-            submit_self_block(i, data1)
-            if i < num_blocks-1:
-                if i != num_blocks-2:
-                    data2 = load_prots(i+1, flag=cur_waiting_pair-1)
-                cur_waiting_pair += 1
-                submit_block(i, i+1, data1, data2, flag=cur_waiting_pair)
-            data1 = data2
+                start2, end2 = get_bounds(j)
+                block_pairs = pairs_bool[start1:end1, start2:end2]
+                prots_needed1 = np.nonzero(block_pairs.any(axis=1))[0] + start1
+                prots_needed2 = np.nonzero(block_pairs.any(axis=0))[0] + start2
+                if len(prots_needed1) > 0:
+                    data1 = load_prots(i, flag=max(cur_waiting_pair-1,0), indices=prots_needed1)
+                    data2 = load_prots(j, flag=None, indices=prots_needed2)
+                    cur_waiting_pair += 1
+                    submit_pairs(prots_needed1, prots_needed2, data1, data2, cur_waiting_pair)
+                    log(f"Block submitted: {i}, {j} with blocking number {cur_waiting_pair}", file=logFile, print_also=False)
+                    data1 = None
+                    data2 = None
+
     
     loadpool.shutdown()
     # Signal workers to stop after processing all tasks
