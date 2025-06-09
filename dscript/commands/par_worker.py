@@ -44,8 +44,11 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
         for tup in iter(input_queue.get, None):
             #Record that all pairs in a pair of blocks have been taken off the queue,
             #as inficated by the presence of a flag of the form (None, i)
-            if block_queue is not None and tup[0] is None:
-                block_queue.put(tup[1])
+            if tup[0] is None: 
+                #If we still get flags, even if there is no block_queue in use, we ignore them
+                #This shouldn't happen anymore.
+                if block_queue is not None:
+                    block_queue.put(tup[1])
                 continue
             i0 = tup[0]
             i1 = tup[1]

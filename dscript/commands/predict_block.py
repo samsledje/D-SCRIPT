@@ -118,15 +118,18 @@ def main(args):
 
     if not torch.cuda.is_available():
         log("A GPU/CUDA device is required.", file=logFile, print_also=True)
+        logFile.close()
         sys.exit(1)
 
     if args.proteins is None == args.pairs is None:
         log("Please specify exactly one of proteins and pairs.", file=logFile, print_also=True)
+        logFile.close()
         sys.exit(2)
 
     embPath = args.embeddings
     if not os.path.exists(embPath):
         log(f"Embeddings File {embPath} not found.", file=logFile, print_also=True)
+        logFile.close()
         sys.exit(3)
     
     modelPath = args.model
@@ -334,7 +337,7 @@ def main(args):
                             p1 = embeddings2[i1-start2]
                             tup = (i0,i1,p0,p1)
                         input_queue.put(tup) 
-            if flag: #Should be a positive int if not None
+            if flag and pair_done_queue: #Should be a positive int if not None, only do if PDQ is in use
                 input_queue.put((None, flag))
             log(f"Block submitted: {block1}, {block2} with blocking number {flag}", file=logFile, print_also=False)
     
