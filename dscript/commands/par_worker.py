@@ -5,6 +5,7 @@ from ..utils import log
 from ..models.interaction import DSCRIPTModel
 
 #Worker process function for parallel prediction
+#Because one can't pass an open file, logFile will always be none.
 def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None, block_queue=None):
     log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
@@ -20,33 +21,29 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
         except FileNotFoundError:
             log(f"Model {modelPath} not found", file=logFile, print_also=True)
             #logFile.close()
-            sys.exit(1) #Is it bad to call this from multiple processes?
+            sys.exit(6) #Is it bad to call this from multiple processes?
     else:
         try:
-            model = DSCRIPTModel.from_pretrained(
-                modelPath, use_cuda=True
-            )
+            model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
             model = model.cuda(device=device)
             model.use_cuda = True
         except Exception as e:
-            #print(e)
             log(f"Model {modelPath} failed: {e}", file=logFile, print_also=True)
             #logFile.close()
-            sys.exit(1)
-    if (
-        dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1]
-        == 242
-    ) and (use_fs):
+            sys.exit(6)
+    if (dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1] == 242) and (use_fs):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
         )
+    
     model.eval()
-
     old_i0 = -1
     log("Making Predictions...", file=logFile, print_also=True)
 
     with torch.no_grad():
         for tup in iter(input_queue.get, None):
+            #Record that all pairs in a pair of blocks have been taken off the queue,
+            #as inficated by the presence of a flag of the form (None, i)
             if block_queue is not None and tup[0] is None:
                 block_queue.put(tup[1])
                 continue
@@ -90,13 +87,9 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
                     res = (i0, i1, p)
                 output_queue.put(res)
             except RuntimeError as e:
-                #No longer have seq names n0, n1 and only first proc can log anyways
-                #if logFile: 
-                #    log(
-                #        f"{n0} x {n1} skipped ({e})",
-                #        file=logFile,
-                #    )
-                log(e)
-                #An error arising in any process will stil be indicated by the presense of -1 in the output.
+                #Don't have seq names to print here
+                log(e, printAlso=True)
+                #An error arising in any process will be indicated by the presense of -1 in the output.
+                #(We have to put sumethign always so the writer process eill finish)
                 output_queue.put(i0, i1, -1) #the contact map will only be queried if p=-1 > threshold
 

@@ -1,9 +1,11 @@
 # To Do
 - Expand test suite to include function unittests (maximize coverage)
-- Add multi-gpu support (issue #6)
-- support for loading embeddings on the fly to reduce memory usage (issue #11)
 
 # v0
+
+## v0.3
+ - Introduce `predict_block` to support multi-GPU and semi-on-the-fly embedding loading, resolving #6 and #11
+ - Improve method for loading embeddings
 
 ## v0.2
 
