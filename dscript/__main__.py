@@ -59,7 +59,6 @@ def main():
         embed,
         evaluate,
         predict,
-        predict_par,
         predict_block,
         extract_3di,
     )
@@ -69,7 +68,6 @@ def main():
         "embed": embed,
         "evaluate": evaluate,
         "predict": predict,
-        "predict_par": predict_par,
         "predict_block": predict_block,
         "extract-3di": extract_3di,
     }
