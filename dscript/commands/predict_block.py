@@ -213,7 +213,7 @@ def main(args):
         logFile.close()
         sys.exit(5)
 
-    use_sparse = all_pairs or num_blocks == 1 or not args.sparse_loading
+    use_sparse = not all_pairs and num_blocks > 1 and args.sparse_loading
 
 
     # Make Predictions
