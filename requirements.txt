@@ -5,6 +5,7 @@ huggingface_hub
 matplotlib
 numpy
 pandas
+safetensors
 scikit-learn
 scipy
 seaborn
