@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
+Make new predictions with a pre-trained model using blocked, multi-GPU pariwise inference. One of --proteins and --pairs is required.
 """
 from __future__ import annotations
 import argparse
@@ -89,7 +89,7 @@ def add_args(parser):
         "--blocks",
         type=int,
         default=1,
-        help="Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs."
+        help="Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs. Default 1."
     )
     parser.add_argument(
         "--sparse_loading",

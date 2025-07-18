@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
+Make new predictions between two protein sets using blocked, multi-GPU pariwise inference  with a pre-trained model.
 """
 from __future__ import annotations
 import argparse
@@ -52,12 +52,12 @@ def add_args(parser):
     parser.add_argument(
         "--protA", 
         required=True,
-        help="A files with protein IDs. All pairs between proteins in this file and proteins in protB will be predicted"
+        help="A file with protein IDs. All pairs between proteins in this file and proteins in protB will be predicted"
     )
     parser.add_argument(
         "--protB", 
         required=True,
-        help="A files with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted"
+        help="A file with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted"
     )
     parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]") #Will it still try to load?
     parser.add_argument(
@@ -111,13 +111,13 @@ def add_args(parser):
         "--blocksA",
         type=int,
         default=1,
-        help="Number of equal-sized blocks to split proteins in protA into. If one set is smuch smaller, it is recommended to set the corresponding # of blocks to 1."
+        help="Number of equal-sized blocks to split proteins in protA into. If one set is smuch smaller, it is recommended to set the corresponding # of blocks to 1. Default 1."
     )
     parser.add_argument(
         "--blocksB",
         type=int,
         default=1,
-        help="Number of equal-sized blocks to split proteins in protB into."
+        help="Number of equal-sized blocks to split proteins in protB into. Default 1."
     )
 
     return parser
@@ -137,8 +137,6 @@ class ProteinSet():
         self.n_prots = len(self.all_prots)
         self.block_size = math.ceil(self.n_prots / self.num_blocks)
         self.loadpool = None
-        self.logFile = logFile
-        self.use_fs = False
 
     def set_embed_path(self, path):
         if not os.path.exists(path):
