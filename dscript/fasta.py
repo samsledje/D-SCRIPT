@@ -14,6 +14,15 @@ def parse(f, comment="#"):
 
     return names, sequences
 
+#Iterate through FASTA, but only keep records from specified proteins
+def parse_from_list(f, names):
+    fsDict = {n:None for n in names}
+    for record in SeqIO.parse(f, "fasta"):
+        if record.name in fsDict:
+            fsDict[record.name] = str(record.seq)
+    return fsDict
+    
+
 
 def parse_directory(directory, extension=".seq"):
     names = []

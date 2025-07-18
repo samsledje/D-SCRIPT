@@ -6,14 +6,14 @@ import torch.utils.data
 import numpy as np
 import pandas as pd
 import subprocess as sp
-import sys
 import gzip as gz
-import h5py
-import multiprocessing as mp
+import torch.multiprocessing as mp
 
 from tqdm import tqdm
 from functools import partial
 from datetime import datetime
+
+from .loading import LoadingPool
 
 
 def log(m, file=None, timestamped=True, print_also=False):
@@ -45,44 +45,27 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
 
 
-def _hdf5_load_partial_func(k, file_path):
-    """
-    Helper function for load_hdf5_parallel
-    """
 
-    with h5py.File(file_path, "r") as fi:
-        emb = torch.from_numpy(fi[k][:])
-    return emb
-
-
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+#If keys is a dict (of key -> index) will produce a list of indices instead of a dict
+#Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
+def load_hdf5_parallel(file_path, keys, n_jobs=-1, return_dict=True):
     """
     Load keys from hdf5 file into memory
 
     :param file_path: Path to hdf5 file
     :type file_path: str
     :param keys: List of keys to get
-    :type keys: list[str]
-    :return: Dictionary with keys and records in memory
-    :rtype: dict
+    :type keys: iterable[str]
+    :return: if return_dict, a mapping of keys (proteins names) to pointers to empbeddings.
+             otherwise, a list of pointers in the same order as keys
+    :rtype: list
     """
-    torch.multiprocessing.set_sharing_strategy("file_system")
 
-    if n_jobs == -1:
-        n_jobs = mp.cpu_count()
-
-    with mp.Pool(processes=n_jobs) as pool:
-        all_embs = list(
-            tqdm(
-                pool.imap(
-                    partial(_hdf5_load_partial_func, file_path=file_path), keys
-                ),
-                total=len(keys),
-            )
-        )
-
-    embeddings = {k: v for k, v in zip(keys, all_embs)}
-    return embeddings
+    pool = LoadingPool(file_path, n_jobs)
+    result = pool.load_once(keys)
+    if return_dict:
+        return dict(zip(keys, result))
+    return result
 
 
 class PairedDataset(torch.utils.data.Dataset):

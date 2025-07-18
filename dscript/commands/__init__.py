@@ -3,5 +3,7 @@ __all__ = [
     "evaluate",
     "embed",
     "predict",
+    "predict_block",
+    "predict_bipartite",
     "extract_3di",
 ]
