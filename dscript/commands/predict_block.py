@@ -162,24 +162,24 @@ def main(args):
     # Load Proteins
     all_pairs = args.proteins is not None
     if all_pairs:
-        csvPath = args.proteins
+        tsvPath = args.proteins
     elif args.pairs is not None:
-        csvPath = args.pairs
+        tsvPath = args.pairs
     else:
         log(f"One of --proteins and --pairs must be specified." , file=logFile, print_also=True)
         logFile.close()
         sys.exit(4)
     try:
-        log(f"Loading {'' if all_pairs else 'pairs of '}protein IDs from {csvPath}", file=logFile, print_also=True)
-        with open(csvPath) as f:
-            csv_lines = [line.strip() for line in f if line and not line.isspace()]
+        log(f"Loading {'' if all_pairs else 'pairs of '}protein IDs from {tsvPath}", file=logFile, print_also=True)
+        with open(tsvPath) as f:
+            tsv_lines = [line.strip() for line in f if line and not line.isspace()]
     except FileNotFoundError:
-        log(f"Proteins / Pairs file {csvPath} not found", file=logFile, print_also=True)
+        log(f"Proteins / Pairs file {tsvPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(4)
 
     if all_pairs:
-        all_prots = csv_lines
+        all_prots = tsv_lines
         n_prots = len(all_prots)
         n_pairs = int(n_prots * (n_prots - 1) / 2) #n choose 2
     #Process a list of pairs into a binary matrix. Not asymptotically efficient for sparse pairs.
@@ -190,8 +190,8 @@ def main(args):
         pairs1 = []
         all_prots = []
         prot_to_idx = {}
-        for pair in csv_lines:
-            p0, p1 = pair.split()[:2]
+        for pair in tsv_lines:
+            p0, p1 = pair.split('\t')[:2]
             if p0 in prot_to_idx:
                 i0 = prot_to_idx[p0]
             else:

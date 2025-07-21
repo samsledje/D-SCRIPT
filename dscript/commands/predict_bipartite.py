@@ -128,14 +128,14 @@ def add_args(parser):
     
 
 class ProteinSet():
-    def __init__(self, csvPath="", blocks=1, logFile=None):
+    def __init__(self, protPath="", blocks=1, logFile=None):
         self.num_blocks = blocks
         try:
-            log(f"Loading protein IDs from {csvPath}", file=logFile, print_also=True)
-            with open(csvPath) as f:
+            log(f"Loading protein IDs from {protPath}", file=logFile, print_also=True)
+            with open(protPath) as f:
                 self.all_prots = [line.strip() for line in f if line and not line.isspace()]
         except FileNotFoundError:
-            log(f"Proteins file {csvPath} not found", file=logFile, print_also=True)
+            log(f"Proteins file {protPath} not found", file=logFile, print_also=True)
             logFile.close()
             sys.exit(4)
         self.n_prots = len(self.all_prots)
