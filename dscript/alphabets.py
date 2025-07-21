@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import numpy as np
 
 
@@ -61,7 +59,7 @@ class Alphabet:
         return string.tobytes()
 
     def unpack(self, h, k):
-        """ unpack integer h into array of this alphabet with length k """
+        """unpack integer h into array of this alphabet with length k"""
         n = self.size
         kmer = np.zeros(k, dtype=np.uint8)
         for i in reversed(range(k)):
@@ -71,7 +69,7 @@ class Alphabet:
         return kmer
 
     def get_kmer(self, h, k):
-        """ retrieve byte string of length k decoded from integer h """
+        """retrieve byte string of length k decoded from integer h"""
         kmer = self.unpack(h, k)
         return self.decode(kmer)
 
@@ -87,12 +85,10 @@ class Uniprot21(Alphabet):
     """
 
     def __init__(self, mask=False):
-        chars = alphabet = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
+        chars = b"ARNDCQEGHILKMFPSTWYVXOUBZ"
         encoding = np.arange(len(chars))
         encoding[21:] = [11, 4, 20, 20]  # encode 'OUBZ' as synonyms
-        super(Uniprot21, self).__init__(
-            chars, encoding=encoding, mask=mask, missing=20
-        )
+        super().__init__(chars, encoding=encoding, mask=mask, missing=20)
 
 
 class SDM12(Alphabet):
@@ -105,7 +101,7 @@ class SDM12(Alphabet):
     """
 
     def __init__(self, mask=False):
-        chars = alphabet = b"ADKNTYLCWHGPXERSQFIVMOUBZ"
+        chars = b"ADKNTYLCWHGPXERSQFIVMOUBZ"
         groups = [
             b"A",
             b"D",
@@ -123,7 +119,7 @@ class SDM12(Alphabet):
         ]
         groups = {c: i for i in range(len(groups)) for c in groups[i]}
         encoding = np.array([groups[c] for c in chars])
-        super(SDM12, self).__init__(chars, encoding=encoding, mask=mask)
+        super().__init__(chars, encoding=encoding, mask=mask)
 
 
 SecStr8 = Alphabet(b"HBEGITS ")

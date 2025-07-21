@@ -1,16 +1,15 @@
 import os
 import sys
-import subprocess as sp
-import random
-import torch
+from datetime import datetime
+
 import h5py
+import torch
 from tqdm import tqdm
+
+from .alphabets import Uniprot21
 from .fasta import parse, parse_directory, write
 from .pretrained import get_pretrained
-from .alphabets import Uniprot21
-from .models.embedding import SkipLSTM
 from .utils import log
-from datetime import datetime
 
 
 def lm_embed(sequence, use_cuda=False):
@@ -59,9 +58,7 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     if use_cuda:
         torch.cuda.set_device(device)
         if verbose:
-            log(
-                f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-            )
+            log(f"# Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
     else:
         if verbose:
             log("# Using CPU")
@@ -87,17 +84,15 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
         encoded_seqs.append(es)
     if verbose:
         num_seqs = len(encoded_seqs)
-        log("# {} Sequences Loaded".format(num_seqs))
+        log(f"# {num_seqs} Sequences Loaded")
         log(
-            "# Approximate Storage Required (varies by average sequence length): ~{}GB".format(
-                num_seqs * (1 / 125)
-            )
+            f"# Approximate Storage Required (varies by average sequence length): ~{num_seqs * (1 / 125)}GB"
         )
 
-    log("# Storing to {}...".format(outputPath))
+    log(f"# Storing to {outputPath}...")
     with torch.no_grad(), h5py.File(outputPath, "a") as h5fi:
         try:
-            for (name, x) in tqdm(zip(names, encoded_seqs), total=len(names)):
+            for name, x in tqdm(zip(names, encoded_seqs, strict=False), total=len(names)):
                 if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)

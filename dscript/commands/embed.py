@@ -3,10 +3,12 @@ Generate new embeddings using pre-trained language model.
 """
 
 from __future__ import annotations
-import argparse
-from ..language_model import embed_from_fasta
 
-from typing import Callable, NamedTuple
+import argparse
+from collections.abc import Callable
+from typing import NamedTuple
+
+from ..language_model import embed_from_fasta
 
 
 class EmbeddingArguments(NamedTuple):
@@ -23,12 +25,8 @@ def add_args(parser):
 
     :meta private:
     """
-    parser.add_argument(
-        "--seqs", help="Sequences to be embedded", required=True
-    )
-    parser.add_argument(
-        "-o", "--outfile", help="h5 file to write results", required=True
-    )
+    parser.add_argument("--seqs", help="Sequences to be embedded", required=True)
+    parser.add_argument("-o", "--outfile", help="h5 file to write results", required=True)
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
     )

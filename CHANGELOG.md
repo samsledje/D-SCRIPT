@@ -1,9 +1,13 @@
-# To Do
-- Expand test suite to include function unittests (maximize coverage)
-- Add multi-gpu support (issue #6)
-- support for loading embeddings on the fly to reduce memory usage (issue #11)
-
 # v0
+
+## v0.3
+
+### v0.3.0: D-SCRIPT with BMPI
+- Modernized D-SCRIPT repository
+- Significantly updated unittest coverage
+- Migrate to loguru under the hood 
+- Update pyproject, GitHub actions, and other continuous integration/installation
+- Linting and formatting with Ruff
 
 ## v0.2
 

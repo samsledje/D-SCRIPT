@@ -1,7 +1,7 @@
-from functools import wraps, partial
 import os
 import os.path
 import sys
+from functools import wraps
 
 import torch
 
@@ -96,22 +96,27 @@ def get_state_dict(version="human_v2", verbose=True):
     :rtype: str
     """
     state_dict_fullname = get_state_dict_path(version)
-    state_dict_url = (
-        f"{ROOT_URL}/{STATE_DICT_BASENAME.format(version=version)}"
-    )
+    state_dict_url = f"{ROOT_URL}/{STATE_DICT_BASENAME.format(version=version)}"
     if not os.path.exists(state_dict_fullname):
         try:
             import shutil
             import urllib.request
+            from urllib.parse import urlparse
+
+            # Validate URL scheme for security
+            parsed_url = urlparse(state_dict_url)
+            if parsed_url.scheme not in ('http', 'https'):
+                raise ValueError(f"Invalid URL scheme '{parsed_url.scheme}'. Only http and https are allowed.")
 
             if verbose:
                 log(f"Downloading model {version} from {state_dict_url}...")
-            with urllib.request.urlopen(state_dict_url) as response, open(
-                state_dict_fullname, "wb"
-            ) as out_file:
+            with (
+                urllib.request.urlopen(state_dict_url) as response,
+                open(state_dict_fullname, "wb") as out_file,
+            ):
                 shutil.copyfileobj(response, out_file)
         except Exception as e:
-            log("Unable to download model - {}".format(e))
+            log(f"Unable to download model - {e}")
             sys.exit(1)
     return state_dict_fullname
 
@@ -172,7 +177,7 @@ def get_pretrained(version="human_v2"):
     :rtype: dscript.models.*
     """
     if version not in VALID_MODELS:
-        raise ValueError("Model {} does not exist".format(version))
+        raise ValueError(f"Model {version} does not exist")
 
     state_dict_path = get_state_dict(version)
     return VALID_MODELS[version](state_dict_path)
