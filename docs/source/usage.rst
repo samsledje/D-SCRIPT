@@ -49,31 +49,38 @@ Blocked, Multi-GPU Prediction
 
 .. code-block:: bash
 
-    usage: dscript predict [-h] [--proteins PROTEINS] [--pairs PAIRS] [--model MODEL] --embeddings EMBEDDINGS [--foldseek_fasta FOLDSEEK_FASTA] [-o OUTFILE] [-d DEVICE] [--store_cmaps] [--thresh THRESH] [--load_proc LOAD_PROC] [--blocks BLOCKS] [--sparse_loading]
+    usage: dscript predict [-h] [--proteins PROTEINS] [--pairs PAIRS] [--model MODEL] --embeddings EMBEDDINGS [--foldseek_fasta FOLDSEEK_FASTA] [-o OUTFILE] [-d DEVICE]
+                       [--store_cmaps] [--thresh THRESH] [--load_proc LOAD_PROC] [--blocks BLOCKS] [--sparse_loading]
 
     Make new predictions with a pre-trained model using blocked, multi-GPU pariwise inference. One of --proteins and --pairs is required.
-    
+
     options:
       -h, --help            show this help message and exit
       --proteins PROTEINS   File with protein IDs for which to predict all pairs, one per line; specify one of proteins or pairs
       --pairs PAIRS         File with candidate protein pairs to predict, one pair per line; specify one of proteins or pairs
-      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]
+      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub
+                            [default: samsl/topsy_turvy_human_v1]
       --embeddings EMBEDDINGS
                             h5 file with (a superset of) pre-embedded sequences. Generate with dscript embed.
       --foldseek_fasta FOLDSEEK_FASTA
-                            3di sequences in .fasta format. Can be generated using `dscript extract-3di. Default is None. If provided, TT3D will be run, otherwise default D-SCRIPT/TT will be run.
+                            3di sequences in .fasta format. Can be generated using `dscript extract-3di. Default is None. If provided, TT3D will be run, otherwise default
+                            D-SCRIPT/TT will be run.
       -o OUTFILE, --outfile OUTFILE
                             File for predictions
       -d DEVICE, --device DEVICE
-                            The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1.
+                            Compute device to use. Options: 'cpu', 'all' (all GPUs), or GPU index (0, 1, 2, etc.). To use specific GPUs, set CUDA_VISIBLE_DEVICES
+                            beforehand and use 'all'. [default: all]
       --store_cmaps         Store contact maps for predicted pairs above `--thresh` in an h5 file
       --thresh THRESH       Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]
       --load_proc LOAD_PROC
-                            Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the # of CPUs are allowed.
-      --blocks BLOCKS       Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different
-                            blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs. Default 1.
-      --sparse_loading      Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommented when predicting with many blocks on sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks >
-                            1 and pairs specified. Maximum (embedding) memory usage with this option is 4 blocks' worth.
+                            Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the
+                            # of CPUs are allowed.
+      --blocks BLOCKS       Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When
+                            multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different blocks. And, small blocks
+                            may lead to occasional brief hangs with multiple GPUs. Default 1.
+      --sparse_loading      Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommented when predicting with many blocks on
+                            sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks > 1 and pairs
+                            specified. Maximum (embedding) memory usage with this option is 4 blocks' worth.
 
 Bipartite, Multi-GPU Prediction
 ~~~~~~~~~~

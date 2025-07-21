@@ -26,12 +26,14 @@ def _predict(
             file=None,  # If None, will be printed
             print_also=True,
         )
+        use_cuda = False
     else:
         log(
             f"Using CUDA device {device.index} - {torch.cuda.get_device_name(device)}",
             file=None,  # If None, will be printed
             print_also=True,
         )
+        use_cuda = True
     # Load Model
     try:
         if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
@@ -39,14 +41,14 @@ def _predict(
             model = torch.load(
                 modelPath, map_location=torch.device(device), weights_only=False
             )  # Check moved to main
-            model.use_cuda = True
+            model.use_cuda = use_cuda
         else:
             logger.debug(f"Loading model from {modelPath} on device {device}.")
             # Safe to call concurrently - see https://github.com/huggingface/huggingface_hub/pull/2534
             # Prefer to download here (will only download once) for concurrency
             model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
             model = model.to(device=device)
-            model.use_cuda = True
+            model.use_cuda = use_cuda
     except Exception as e:
         log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
         sys.exit(7)

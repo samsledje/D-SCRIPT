@@ -153,31 +153,38 @@ def main(args):
     if device_arg.lower() == "cpu":
         device = "cpu"
         use_cuda = False
+        n_gpu = 1
     elif device_arg.lower() == "all":
         device = -1  # Use all GPUs
         use_cuda = True
+    elif device_arg.isdigit(): #Allow only nonnegative integers
+        device = int(device_arg)
+        use_cuda = True
     else:
-        try:
-            device = int(device_arg)
-            use_cuda = True
-        except ValueError:
-            log(
-                f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.",
-                file=logFile,
-                print_also=True,
-            )
-            logFile.close()
-            sys.exit(7)
-
-    # Validate CUDA availability if GPU requested
-    if use_cuda and not torch.cuda.is_available():
         log(
-            "CUDA not available but GPU requested. Use --device cpu for CPU execution.",
+            f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.",
             file=logFile,
             print_also=True,
         )
         logFile.close()
         sys.exit(1)
+    # Validate CUDA availability and device index if GPU requested
+    if use_cuda:
+        if not torch.cuda.is_available():
+            log(
+                "CUDA not available but GPU requested. Use --device cpu for CPU execution.",
+                file=logFile,
+                print_also=True,
+            )
+            logFile.close()
+            sys.exit(1)
+        n_gpu = torch.cuda.device_count()
+        if device >= n_gpu:
+            log(
+                f"Invalid device argument: {device_arg} exceeds the number of GPUs available, which is {n_gpu}. Please specify a valid GPU, or use --device cpu for CPU execution.", file=logFile, 
+                print_also=True,
+            )
+
 
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
@@ -298,8 +305,7 @@ def main(args):
     # This uses the pytorch spawn function to start a bunch of processes using spawn
     # Apparently, spawn (method) is required when using CUDA in the processes
 
-    if use_cuda and device < 0:  # Use all GPUs
-        n_gpu = torch.cuda.device_count()
+    if device == -1:  # Use all GPUs
         _ = mp.spawn(
             _predict,
             args=(
@@ -313,27 +319,11 @@ def main(args):
             nprocs=n_gpu,
             join=False,
         )
-    elif use_cuda:  # Use specific GPU
+    else:  # Use CPU or specific GPU
         p = mp.Process(
             target=_predict,
             args=(
-                device,
-                modelPath,
-                input_queue,
-                output_queue,
-                args.store_cmaps,
-                use_fs,
-                pair_done_queue,
-            ),
-        )
-        p.start()
-        n_gpu = 1
-
-    if not use_cuda:  # CPU execution
-        p = mp.Process(
-            target=_predict,
-            args=(
-                "cpu",
+                device, #"cpu" for CPU, or an index for a GPU
                 modelPath,
                 input_queue,
                 output_queue,
