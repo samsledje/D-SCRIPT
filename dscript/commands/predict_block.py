@@ -19,7 +19,7 @@ import torch.multiprocessing as mp
 from ..fasta import parse_from_list
 from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..loading import LoadingPool
-from ..utils import log
+from ..utils import log, parse_device
 
 # When a new process is started with spawn, the file containing the target function will be passed
 # So, the function should be in its own file to minimize the cost and remove any risk.
@@ -35,7 +35,7 @@ class BlockedPredictionArguments(NamedTuple):
     embeddings: str
     foldseek_fasta: str | None
     outfile: str | None
-    device: int | None
+    device: str | None
     thresh: float | None
     load_proc: int | None
     blocks: int | None
@@ -147,44 +147,7 @@ def main(args):
         sys.exit(3)
 
     modelPath = args.model
-    device_arg = args.device
-
-    # Parse device argument
-    if device_arg.lower() == "cpu":
-        device = "cpu"
-        use_cuda = False
-        n_gpu = 1
-    elif device_arg.lower() == "all":
-        device = -1  # Use all GPUs
-        use_cuda = True
-    elif device_arg.isdigit(): #Allow only nonnegative integers
-        device = int(device_arg)
-        use_cuda = True
-    else:
-        log(
-            f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.",
-            file=logFile,
-            print_also=True,
-        )
-        logFile.close()
-        sys.exit(1)
-    # Validate CUDA availability and device index if GPU requested
-    if use_cuda:
-        if not torch.cuda.is_available():
-            log(
-                "CUDA not available but GPU requested. Use --device cpu for CPU execution.",
-                file=logFile,
-                print_also=True,
-            )
-            logFile.close()
-            sys.exit(1)
-        n_gpu = torch.cuda.device_count()
-        if device >= n_gpu:
-            log(
-                f"Invalid device argument: {device_arg} exceeds the number of GPUs available, which is {n_gpu}. Please specify a valid GPU, or use --device cpu for CPU execution.", file=logFile, 
-                print_also=True,
-            )
-
+    device, use_cuda = parse_device(args.device, logFile)
 
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
@@ -306,6 +269,7 @@ def main(args):
     # Apparently, spawn (method) is required when using CUDA in the processes
 
     if device == -1:  # Use all GPUs
+        n_gpu = torch.cuda.device_count()
         _ = mp.spawn(
             _predict,
             args=(

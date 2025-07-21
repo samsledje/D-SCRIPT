@@ -18,7 +18,7 @@ import torch.multiprocessing as mp
 from ..fasta import parse_from_list
 from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..loading import LoadingPool
-from ..utils import log
+from ..utils import log, parse_device
 
 # When a new process is started with spawn, the file containing the target function will be passed
 # So, the function should be in its own file to minimize the cost and remove any risk.
@@ -36,7 +36,7 @@ class BipartitePredictionArguments(NamedTuple):
     foldseekA: str | None
     foldseekB: str | None
     outfile: str | None
-    device: int | None
+    device: str | None
     thresh: float | None
     load_proc: int | None
     blocksA: int | None
@@ -95,9 +95,9 @@ def add_args(parser):
     parser.add_argument(
         "-d",
         "--device",
-        type=int,
-        default=-1,
-        help="The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1.",
+        type=str,
+        default="all",
+        help="Compute device to use. Options: 'cpu', 'all' (all GPUs), or GPU index (0, 1, 2, etc.). To use specific GPUs, set CUDA_VISIBLE_DEVICES beforehand and use 'all'. [default: all]",
     )
     parser.add_argument(
         "--store_cmaps",
@@ -244,7 +244,7 @@ def main(args):
         protsB.set_embed_path(args.embedB)
 
     modelPath = args.model
-    device = args.device
+    device, use_cuda = parse_device(args.device, logFile)
     threshold = args.thresh
 
     # Check model path
@@ -290,7 +290,7 @@ def main(args):
 
     # device = -1 -> use all GPUs
     # See remark in predict_block
-    if device < 0:
+    if device == -1:
         n_gpu = torch.cuda.device_count()
         _ = mp.spawn(
             _predict,

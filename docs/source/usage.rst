@@ -107,7 +107,8 @@ Bipartite, Multi-GPU Prediction
       -o OUTFILE, --outfile OUTFILE
                             File for predictions
       -d DEVICE, --device DEVICE
-                            The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1.
+                            Compute device to use. Options: 'cpu', 'all' (all GPUs), or GPU index (0, 1, 2, etc.). To use specific GPUs, set CUDA_VISIBLE_DEVICES
+                            beforehand and use 'all'. [default: all]
       --store_cmaps         Store contact maps for predicted pairs above `--thresh` in an h5 file
       --thresh THRESH       Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]
       --load_proc LOAD_PROC
