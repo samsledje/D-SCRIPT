@@ -1,10 +1,9 @@
-import numpy as np
 import torch
-import torch.functional as F
 import torch.nn as nn
-from .embedding import FullyConnectedEmbed
-from .contact import ContactCNN
 from huggingface_hub import PyTorchModelHubMixin
+
+from .contact import ContactCNN
+from .embedding import FullyConnectedEmbed
 
 
 class LogisticActivation(nn.Module):
@@ -23,10 +22,10 @@ class LogisticActivation(nn.Module):
     """
 
     def __init__(self, x0=0, k=1, train=False):
-        super(LogisticActivation, self).__init__()
+        super().__init__()
         self.x0 = x0
         self.k = nn.Parameter(torch.FloatTensor([float(k)]))
-        self.k.requiresGrad = train
+        self.k.requires_grad = train
 
     def forward(self, x):
         """
@@ -37,9 +36,7 @@ class LogisticActivation(nn.Module):
         :return: :math:`(N \\times *)`, same shape as the input
         :rtype: torch.Tensor
         """
-        o = torch.clamp(
-            1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1
-        ).squeeze()
+        o = torch.clamp(1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1)
         return o
 
     def clip(self):
@@ -91,7 +88,7 @@ class ModelInteraction(nn.Module):
         :type gamma_init: float
 
         """
-        super(ModelInteraction, self).__init__()
+        super().__init__()
         self.use_cuda = use_cuda
         self.do_w = do_w
         self.do_sigmoid = do_sigmoid
@@ -106,6 +103,7 @@ class ModelInteraction(nn.Module):
             self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
 
         self.do_pool = do_pool
+        self.pool_size = pool_size
         self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
 
         self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
@@ -166,12 +164,9 @@ class ModelInteraction(nn.Module):
 
         if embed_foldseek:
             assert f0 is not None and f1 is not None
-            assert isinstance(f0, torch.Tensor) and isinstance(
-                f1, torch.Tensor
-            )
+            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
             assert (
-                z0.get_device() == f0.get_device()
-                and z0.get_device() == f1.get_device()
+                z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
             )
             assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
 
@@ -204,12 +199,9 @@ class ModelInteraction(nn.Module):
         """
         if embed_foldseek:
             assert f0 is not None and f1 is not None
-            assert isinstance(f0, torch.Tensor) and isinstance(
-                f1, torch.Tensor
-            )
+            assert isinstance(f0, torch.Tensor) and isinstance(f1, torch.Tensor)
             assert (
-                z0.get_device() == f0.get_device()
-                and z0.get_device() == f1.get_device()
+                z0.get_device() == f0.get_device() and z0.get_device() == f1.get_device()
             )
             assert f0.shape[1] == z0.shape[1] and f1.shape[1] == z1.shape[1]
 
@@ -246,7 +238,7 @@ class ModelInteraction(nn.Module):
         Q = torch.relu(yhat - mu - (self.gamma * sigma))
         phat = torch.sum(Q) / (torch.sum(torch.sign(Q)) + 1)
         if self.do_sigmoid:
-            phat = self.activation(phat)
+            phat = self.activation(phat).squeeze()
         return C, phat
 
     def predict(self, z0, z1, embed_foldseek=False, f0=None, f1=None):
@@ -260,19 +252,16 @@ class ModelInteraction(nn.Module):
         :return: Predicted probability of interaction
         :rtype: torch.Tensor, torch.Tensor
         """
-        _, phat = self.map_predict(
-            z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1
-        )
+        _, phat = self.map_predict(z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1)
         return phat
 
     def forward(self, z0, z1, embed_foldseek=False, f0=None, f1=None):
         """
         :meta private:
         """
-        return self.predict(
-            z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1
-        )
-    
+        return self.predict(z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1)
+
+
 class DSCRIPTModel(ModelInteraction, PyTorchModelHubMixin):
     def __init__(
         self,
@@ -293,11 +282,9 @@ class DSCRIPTModel(ModelInteraction, PyTorchModelHubMixin):
         lambda_init=0,
         gamma_init=0,
     ):
-        embedding = FullyConnectedEmbed(
-            emb_nin, emb_nout, emb_dropout, emb_activation
-        )
+        embedding = FullyConnectedEmbed(emb_nin, emb_nout, emb_dropout, emb_activation)
         contact = ContactCNN(con_embed_dim, con_hidden_dim, con_width, con_activation)
-        super(DSCRIPTModel, self).__init__(
+        super().__init__(
             embedding=embedding,
             contact=contact,
             use_cuda=use_cuda,

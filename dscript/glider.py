@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.spatial.distance as spatial
-from numpy import linalg as LA
 
 
 def get_dim(edgelist):
@@ -110,16 +109,8 @@ def compute_cw_score(p, q, edgedict, ndict, params=None):
     score = 0
     for elem in ndict[p]:
         if elem in ndict[q]:
-            p_elem = (
-                edgedict[(p, elem)]
-                if (p, elem) in edgedict
-                else edgedict[(elem, p)]
-            )
-            q_elem = (
-                edgedict[(q, elem)]
-                if (q, elem) in edgedict
-                else edgedict[(elem, q)]
-            )
+            p_elem = edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
+            q_elem = edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
             score += p_elem + q_elem
     return score
 
@@ -146,16 +137,8 @@ def compute_cw_score_normalized(p, q, edgedict, ndict, params=None):
     score = 0
     for elem in ndict[p]:
         if elem in ndict[q]:
-            p_elem = (
-                edgedict[(p, elem)]
-                if (p, elem) in edgedict
-                else edgedict[(elem, p)]
-            )
-            q_elem = (
-                edgedict[(q, elem)]
-                if (q, elem) in edgedict
-                else edgedict[(elem, q)]
-            )
+            p_elem = edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
+            q_elem = edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
             score += p_elem + q_elem
     degrees = params["deg"]
     return score / np.sqrt(degrees[p] * degrees[q])
@@ -280,7 +263,7 @@ def create_edge_dict(edgelist):
     :rtype: dict
     """
     edgedict = {}
-    for (p, q, w) in edgelist:
+    for p, q, w in edgelist:
         edgedict[(p, q)] = w
     return edgedict
 
@@ -345,12 +328,8 @@ def glide_compute_map(pos_df, thres_p=0.9, params={}):
                 count += 1
         u_edges.append((glide_map[p], glide_map[q], w))
     A, D = a_d(u_edges, count)
-    X = compute_X_normalized(
-        A, D, lm=params["lam"], is_normalized=params["norm"]
-    )
-    glide_mat = glide_predict_links(
-        u_edges, X, params=params["glide"], thres_p=thres_p
-    )
+    X = compute_X_normalized(A, D, lm=params["lam"], is_normalized=params["norm"])
+    glide_mat = glide_predict_links(u_edges, X, params=params["glide"], thres_p=thres_p)
     return glide_mat, glide_map
 
 

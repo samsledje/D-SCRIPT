@@ -1,24 +1,78 @@
-[tool.black]
-line-length = 79
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | docs
-)/
-'''
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
+[project]
+name = "dscript"
+dynamic = ["version"]
+description = "D-SCRIPT: protein-protein interaction prediction"
+authors = [
+    {name = "Samuel Sledzieski", email = "samsl@mit.edu"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "torch>=1.11",
+    "biopython",
+    "matplotlib",
+    "seaborn",
+    "tqdm",
+    "scikit-learn",
+    "h5py",
+    "huggingface_hub",
+    "loguru",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[project.urls]
+Homepage = "http://dscript.csail.mit.edu"
+
+[project.scripts]
+dscript = "dscript.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "dscript.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["dscript*"]
+
+[tool.ruff]
+line-length = 90
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["dscript"]
 
 [tool.coverage.paths]
 source = ["dscript"]

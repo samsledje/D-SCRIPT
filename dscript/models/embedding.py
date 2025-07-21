@@ -1,8 +1,5 @@
-from __future__ import print_function, division
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence
 
 
@@ -36,7 +33,7 @@ class FullyConnectedEmbed(nn.Module):
     """
 
     def __init__(self, nin, nout, dropout=0.5, activation=nn.ReLU()):
-        super(FullyConnectedEmbed, self).__init__()
+        super().__init__()
         self.nin = nin
         self.nout = nout
         self.dropout_p = dropout
@@ -56,6 +53,7 @@ class FullyConnectedEmbed(nn.Module):
         t = self.activation(t)
         t = self.drop(t)
         return t
+
 
 class SkipLSTM(nn.Module):
     """
@@ -77,10 +75,8 @@ class SkipLSTM(nn.Module):
     :type bidirectional: bool
     """
 
-    def __init__(
-        self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True
-    ):
-        super(SkipLSTM, self).__init__()
+    def __init__(self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True):
+        super().__init__()
 
         self.nin = nin
         self.nout = nout

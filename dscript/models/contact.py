@@ -3,7 +3,6 @@
 
 import torch
 import torch.nn as nn
-import torch.functional as F
 
 
 class FullyConnected(nn.Module):
@@ -21,7 +20,7 @@ class FullyConnected(nn.Module):
     """
 
     def __init__(self, embed_dim, hidden_dim, activation=nn.ReLU()):
-        super(FullyConnected, self).__init__()
+        super().__init__()
 
         self.D = embed_dim
         self.H = hidden_dim
@@ -47,13 +46,13 @@ class FullyConnected(nn.Module):
         z0 = self.proj(z0)
         z1 = self.proj(z1)
         """
-        
+
         z0 = z0.transpose(1, 2)
         z1 = z1.transpose(1, 2)
-        
+
         # z0 is (b,d,N), z1 is (b,d,M)
 
-        z_dif = torch.abs(z0.unsqueeze(3) - z1.unsqueeze(2)) # (b, d, N)
+        z_dif = torch.abs(z0.unsqueeze(3) - z1.unsqueeze(2))  # (b, d, N)
         z_mul = z0.unsqueeze(3) * z1.unsqueeze(2)
         z_cat = torch.cat([z_dif, z_mul], 1)
 
@@ -78,10 +77,8 @@ class ContactCNN(nn.Module):
     :type activation: torch.nn.Module
     """
 
-    def __init__(
-        self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()
-    ):
-        super(ContactCNN, self).__init__()
+    def __init__(self, embed_dim, hidden_dim=50, width=7, activation=nn.Sigmoid()):
+        super().__init__()
 
         self.hidden = FullyConnected(embed_dim, hidden_dim)
 

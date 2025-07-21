@@ -1,19 +1,12 @@
-from __future__ import print_function, division
+import multiprocessing as mp
+from datetime import datetime
+from functools import partial
 
+import h5py
+import numpy as np
 import torch
 import torch.utils.data
-
-import numpy as np
-import pandas as pd
-import subprocess as sp
-import sys
-import gzip as gz
-import h5py
-import multiprocessing as mp
-
 from tqdm import tqdm
-from functools import partial
-from datetime import datetime
 
 
 def log(m, file=None, timestamped=True, print_also=False):
@@ -42,7 +35,7 @@ def RBF(D, sigma=None):
     :rtype: np.ndarray
     """
     sigma = sigma or np.sqrt(np.max(D))
-    return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
+    return np.exp(-1 * (np.square(D) / (2 * sigma**2)))
 
 
 def _hdf5_load_partial_func(k, file_path):
@@ -74,14 +67,12 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1):
     with mp.Pool(processes=n_jobs) as pool:
         all_embs = list(
             tqdm(
-                pool.imap(
-                    partial(_hdf5_load_partial_func, file_path=file_path), keys
-                ),
+                pool.imap(partial(_hdf5_load_partial_func, file_path=file_path), keys),
                 total=len(keys),
             )
         )
 
-    embeddings = {k: v for k, v in zip(keys, all_embs)}
+    embeddings = {k: v for k, v in zip(keys, all_embs, strict=False)}
     return embeddings
 
 
@@ -99,20 +90,10 @@ class PairedDataset(torch.utils.data.Dataset):
         self.X1 = X1
         self.Y = Y
         assert len(X0) == len(X1), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
+            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
         )
         assert len(X0) == len(Y), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
+            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
         )
 
     def __len__(self):

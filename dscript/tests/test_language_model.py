@@ -1,11 +1,12 @@
 import os
 import shutil
 import subprocess as sp
+
 from Bio import SeqIO
 
 from dscript.language_model import (
-    lm_embed,
     embed_from_fasta,
+    lm_embed,
 )
 
 

@@ -1,33 +1,36 @@
 """
 Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
 """
+
 from __future__ import annotations
+
 import argparse
 import datetime
 import sys
+from collections.abc import Callable
+from typing import NamedTuple
 
 import h5py
 import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
-from typing import Callable, NamedTuple, Optional
 
 from ..fasta import parse
-from ..foldseek import get_foldseek_onehot, fold_vocab
+from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..language_model import lm_embed
-from ..utils import log, load_hdf5_parallel
 from ..models.interaction import DSCRIPTModel
+from ..utils import load_hdf5_parallel, log
 
 
 class PredictionArguments(NamedTuple):
     cmd: str
     device: int
-    embeddings: Optional[str]
-    outfile: Optional[str]
+    embeddings: str | None
+    outfile: str | None
     seqs: str
     model: str
-    thresh: Optional[float]
+    thresh: float | None
     func: Callable[[PredictionArguments], None]
 
 
@@ -41,7 +44,10 @@ def add_args(parser):
     parser.add_argument(
         "--pairs", help="Candidate protein pairs to predict", required=True
     )
-    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]")
+    parser.add_argument(
+        "--model",
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]",
+    )
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
     parser.add_argument(
@@ -91,9 +97,7 @@ def main(args):
 
     # Set Outpath
     if outPath is None:
-        outPath = datetime.datetime.now().strftime(
-            "%Y-%m-%d-%H:%M.predictions"
-        )
+        outPath = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M.predictions")
 
     logFilePath = outPath + ".log"
     logFile = open(logFilePath, "w+")
@@ -119,7 +123,9 @@ def main(args):
                 model.use_cuda = True
             else:
                 model = torch.load(
-                    modelPath, map_location=torch.device("cpu"), weights_only=False
+                    modelPath,
+                    map_location=torch.device("cpu"),
+                    weights_only=False,
                 ).cpu()
                 model.use_cuda = False
         except FileNotFoundError:
@@ -128,9 +134,7 @@ def main(args):
             sys.exit(1)
     else:
         try:
-            model = DSCRIPTModel.from_pretrained(
-                modelPath, use_cuda=use_cuda
-            )
+            model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=use_cuda)
             if use_cuda:
                 model = model.cuda()
                 model.use_cuda = True
@@ -143,8 +147,7 @@ def main(args):
             logFile.close()
             sys.exit(1)
     if (
-        dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1]
-        == 242
+        dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1] == 242
     ) and (foldseek_fasta is None):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
@@ -164,7 +167,7 @@ def main(args):
     if embPath is None:
         try:
             names, seqs = parse(seqPath, "r")
-            seqDict = {n: s for n, s in zip(names, seqs)}
+            seqDict = {n: s for n, s in zip(names, seqs, strict=False)}
         except FileNotFoundError:
             log(
                 f"Sequence File {seqPath} not found",
@@ -186,7 +189,7 @@ def main(args):
         log("Loading FoldSeek 3Di sequences...", file=logFile, print_also=True)
         try:
             fs_names, fs_seqs = parse(foldseek_fasta, "r")
-            fsDict = {n: s for n, s in zip(fs_names, fs_seqs)}
+            fsDict = {n: s for n, s in zip(fs_names, fs_seqs, strict=False)}
         except FileNotFoundError:
             log(
                 f"Foldseek Sequence File {foldseek_fasta} not found",
@@ -207,9 +210,7 @@ def main(args):
     with open(outPathAll, "w+") as f:
         with open(outPathPos, "w+") as pos_f:
             with torch.no_grad():
-                for _, (n0, n1) in tqdm(
-                    pairs.iloc[:, :2].iterrows(), total=len(pairs)
-                ):
+                for _, (n0, n1) in tqdm(pairs.iloc[:, :2].iterrows(), total=len(pairs)):
                     n0 = str(n0)
                     n1 = str(n1)
                     if n % 50 == 0:
@@ -237,9 +238,7 @@ def main(args):
                     try:
                         if foldseek_fasta is not None:
                             try:
-                                cm, p = model.map_predict(
-                                    p0, p1, True, fs0, fs1
-                                )
+                                cm, p = model.map_predict(p0, p1, True, fs0, fs1)
                             except TypeError as e:
                                 log(e)
                                 log(
