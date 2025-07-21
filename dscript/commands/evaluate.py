@@ -46,7 +46,12 @@ def add_args(parser):
     :meta private:
     """
 
-    parser.add_argument("--model", help="Trained prediction model", required=True)
+    parser.add_argument(
+        "--model",
+        default="samsl/topsy_turvy_human_v1",
+        type=str,
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]",
+    )
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument(
         "--embedding", help="h5 file with embedded sequences", required=True

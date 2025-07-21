@@ -5,7 +5,7 @@
 ### v0.3.0: D-SCRIPT with BMPI
 - Modernized D-SCRIPT repository
 - Significantly updated unittest coverage
-- Remove custom log function in favor of loguru
+- Migrate to loguru under the hood 
 - Update pyproject, GitHub actions, and other continuous integration/installation
 - Linting and formatting with Ruff
 

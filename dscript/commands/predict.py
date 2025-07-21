@@ -46,7 +46,9 @@ def add_args(parser):
     )
     parser.add_argument(
         "--model",
-        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]",
+        default="samsl/topsy_turvy_human_v1",
+        type=str,
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]",
     )
     parser.add_argument("--seqs", help="Protein sequences in .fasta format")
     parser.add_argument("--embeddings", help="h5 file with embedded sequences")
