@@ -5,22 +5,20 @@ from ..utils import log
 from ..models.interaction import DSCRIPTModel
 
 #Worker process function for parallel prediction
-#Because one can't pass an open file, logFile will always be none.
-def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, logFile=None, block_queue=None):
+def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, use_fs=False, block_queue=None):
     log(
             f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
-            file=logFile, #If None, will be printed
+            file=None, #If None, will be printed
             print_also=True,
         )
     # Load Model
-    log(f"Loading model from {modelPath}", file=logFile, print_also=True)
+    log(f"Loading model from {modelPath}", file=None, print_also=True)
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
         try:
             model = torch.load(modelPath).cuda(device=device)
             model.use_cuda = True
         except FileNotFoundError:
-            log(f"Model {modelPath} not found", file=logFile, print_also=True)
-            #logFile.close()
+            log(f"Model {modelPath} not found", file=None, print_also=True)
             sys.exit(6) #Is it bad to call this from multiple processes?
     else:
         try:
@@ -28,8 +26,7 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
             model = model.cuda(device=device)
             model.use_cuda = True
         except Exception as e:
-            log(f"Model {modelPath} failed: {e}", file=logFile, print_also=True)
-            #logFile.close()
+            log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
             sys.exit(6)
     if (dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1] == 242) and (use_fs):
         raise ValueError(
@@ -38,7 +35,7 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
     
     model.eval()
     old_i0 = -1
-    log("Making Predictions...", file=logFile, print_also=True)
+    log("Making Predictions...", file=None, print_also=True)
 
     with torch.no_grad():
         for tup in iter(input_queue.get, None):
@@ -75,7 +72,8 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
                     except TypeError as e:
                         log(e)
                         log(
-                            "Loaded model does not support foldseek. Please retrain with --allow_foldseek or download a pre-trained TT3D model."
+                            "Loaded model does not support foldseek. Please retrain with --allow_foldseek or download a pre-trained TT3D model.",
+                            file=None, print_also=True
                         )
                         raise e
                 else:
@@ -91,8 +89,8 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
                 output_queue.put(res)
             except RuntimeError as e:
                 #Don't have seq names to print here
-                log(e, printAlso=True)
+                log(e, file=None, printAlso=True)
                 #An error arising in any process will be indicated by the presense of -1 in the output.
-                #(We have to put sumethign always so the writer process eill finish)
+                #(We always have to put something  so the writer process will finish)
                 output_queue.put(i0, i1, -1) #the contact map will only be queried if p=-1 > threshold
 

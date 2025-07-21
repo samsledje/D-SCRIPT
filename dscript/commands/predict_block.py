@@ -235,10 +235,10 @@ def main(args):
     if device < 0: 
         n_gpu = torch.cuda.device_count()
         proc_ctx = mp.spawn(_predict, 
-                            args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue), #Can't pass an open file
+                            args=(modelPath, input_queue, output_queue, args.store_cmaps, use_fs, pair_done_queue), 
                             nprocs=n_gpu, join=False)
     else:
-        p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, None, pair_done_queue))
+        p = mp.Process(target=_predict, args=(device, modelPath, input_queue, output_queue, args.store_cmaps, use_fs, pair_done_queue))
         p.start()
         n_gpu = 1
     
