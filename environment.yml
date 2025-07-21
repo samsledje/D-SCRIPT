@@ -6,11 +6,8 @@ channels:
 
 dependencies:
   - python>=3.10
-  - cudatoolkit=11.3 #changed from 10.2 - max for pt 1.11 is 11?, min for A100 is 11
-  - cudnn #added
-  - mkl=2024.0 #added with version
   - pip
-  - pytorch>=1.11
+  - pytorch>=1.13
   - biopython
   - h5py
   - huggingface_hub
