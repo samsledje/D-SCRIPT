@@ -550,8 +550,6 @@ def interaction_eval(
 
 def train_model(args, output):
     # Create data sets
-    global fold_vocab
-
     batch_size = args.batch_size
     use_cuda = (args.device > -1) and torch.cuda.is_available()
     train_fi = args.train
