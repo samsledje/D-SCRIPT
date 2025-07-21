@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess as sp
 import tempfile
+import torch
 
 from loguru import logger
 
@@ -52,8 +53,11 @@ class TestCommands:
         self._run_command(cmd)
 
     def test_predict_on_gpu(self):
-        cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device 0"
-        self._run_command(cmd)
+        if torch.cuda.is_available():
+            cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device 0"
+            self._run_command(cmd)
+        else:
+            logger.warning("CUDA is not available, skipping GPU prediction test.")
 
     def test_predict_on_cpu(self):
         cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device cpu"
