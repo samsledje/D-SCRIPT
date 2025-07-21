@@ -104,8 +104,8 @@ def add_args(parser):
     parser.add_argument(
         "--load_proc",
         type=int,
-        default=-1,
-        help="Number of processes to use when loading embeddings (default = -1 = # of available CPUs). Because loading is IO-bound, larger values are allowed."
+        default=16,
+        help="Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the # of CPUs are allowed."
     )
     parser.add_argument(
         "--blocksA",

@@ -70,8 +70,8 @@ def add_args(parser):
     parser.add_argument(
         "--load_proc",
         type=int,
-        default=-1,
-        help="Number of processes to use when loading embeddings (-1 = # of CPUs)"
+        default=32,
+        help="Number of processes to use when loading embeddings (-1 = # of CPUs, default=32)"
     )
     return parser
 
