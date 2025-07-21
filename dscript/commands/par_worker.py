@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 
 import torch
+from loguru import logger
 
 from ..models.interaction import DSCRIPTModel
 from ..utils import log
@@ -23,12 +24,17 @@ def _predict(
         file=None,  # If None, will be printed
         print_also=True,
     )
+    logger.debug(f"Predict worker started on device {device}.")
     # Load Model
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
-        model = torch.load(modelPath).cuda(device=device)  # Check moved to main
+        logger.debug(f"Loading model from {modelPath} on device {device}.")
+        model = torch.load(
+            modelPath, map_location=torch.device(device), weights_only=False
+        )  # Check moved to main
         model.use_cuda = True
     else:
         try:
+            logger.debug(f"Loading model from {modelPath} on device {device}.")
             # Safe to call concurrently - see https://github.com/huggingface/huggingface_hub/pull/2534
             # Prefer to download here (will only download once) for concurrency
             model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
@@ -46,6 +52,7 @@ def _predict(
 
     model.eval()
     old_i0 = -1
+    logger.debug(f"Starting predictions in worker {device}...")
     log("Making Predictions...", file=None, print_also=True)
 
     with torch.no_grad():

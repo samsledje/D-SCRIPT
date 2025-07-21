@@ -1,6 +1,9 @@
 import os
 import shutil
 import subprocess as sp
+import tempfile
+
+from loguru import logger
 
 
 class TestCommands:
@@ -9,11 +12,23 @@ class TestCommands:
         cmd = "python setup.py install"
         proc = sp.Popen(cmd.split())
         proc.wait()
-        os.makedirs("./tmp-dscript-testing/", exist_ok=True)
+
+        # Create a temporary directory that will persist for the entire test class
+        cls.temp_dir = tempfile.mkdtemp(prefix="dscript_test_")
+        logger.info(f"Created temporary directory: {cls.temp_dir}")
 
     @classmethod
     def teardown_class(cls):
-        shutil.rmtree("./tmp-dscript-testing/")
+        # Clean up the temporary directory
+        if hasattr(cls, "temp_dir") and os.path.exists(cls.temp_dir):
+            try:
+                shutil.rmtree(cls.temp_dir)
+                logger.info(f"Successfully removed temporary directory: {cls.temp_dir}")
+            except OSError as e:
+                logger.warning(
+                    f"Could not remove temporary directory {cls.temp_dir}: {e}"
+                )
+                # Let the OS clean it up eventually
 
     def _run_command(self, cmd):
         proc = sp.Popen(cmd.split())
@@ -21,21 +36,25 @@ class TestCommands:
         assert not proc.returncode
 
     def test_embed(self):
-        cmd = "dscript embed --seqs dscript/tests/test.fasta --outfile tmp-dscript-testing/test_embed.h5"
+        cmd = f"dscript embed --seqs dscript/tests/test.fasta --outfile {self.temp_dir}/test_embed.h5"
         self._run_command(cmd)
 
     def test_train_with_topsy_turvy(self):
-        cmd = "dscript train --topsy-turvy --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train"
+        cmd = f"dscript train --topsy-turvy --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test_tt-train.log --save-prefix {self.temp_dir}/test_train"
         self._run_command(cmd)
 
     def test_train_without_topsy_turvy(self):
-        cmd = "dscript train --train dscript/tests/test.csv --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --outfile tmp-dscript-testing/test_tt-train.log --save-prefix tmp-dscript-testing/test_train"
+        cmd = f"dscript train --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test_tt-train.log --save-prefix {self.temp_dir}/test_train"
         self._run_command(cmd)
 
     def test_evaluate(self):
-        cmd = "dscript evaluate --test dscript/tests/test.csv --embedding tmp-dscript-testing/test_embed.h5 --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_evaluate"
+        cmd = f"dscript evaluate --test dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_evaluate"
         self._run_command(cmd)
 
     def test_predict(self):
-        cmd = "dscript predict --seqs dscript/tests/test.fasta --pairs dscript/tests/test.csv --model tmp-dscript-testing/test_train_final.sav --outfile tmp-dscript-testing/test_predict --thresh 0.05"
+        cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05"
+        self._run_command(cmd)
+
+    def test_serial(self):
+        cmd = f"dscript predict_serial --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_serial --thresh 0.05"
         self._run_command(cmd)

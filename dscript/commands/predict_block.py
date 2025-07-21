@@ -15,6 +15,7 @@ from typing import NamedTuple
 import numpy as np
 import torch
 import torch.multiprocessing as mp
+from loguru import logger
 
 from ..fasta import parse_from_list
 from ..foldseek import fold_vocab, get_foldseek_onehot
@@ -82,7 +83,7 @@ def add_args(parser):
         "--device",
         type=int,
         default=-1,
-        help="The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1.",
+        help="The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1. [default: -1]",
     )
     parser.add_argument(
         "--store_cmaps",
@@ -279,6 +280,7 @@ def main(args):
     # Also, it is possible that blocks will finish out of order, in which case the process will wait for the earlier (expected)
     # block to finish, which might lead the queue to be briefly empty before being re-filled.
     # Larger block sizes are recommended with multiple GPUs to reduce the risk/frequency of this.
+    logger.debug("Starting GPU workers...")
     if device < 0:
         n_gpu = torch.cuda.device_count()
         _ = mp.spawn(
@@ -320,6 +322,7 @@ def main(args):
     # The writer needs to be seperate from the main process so that writing can start before all pairs are in the queue
     # We are still passing a large array (list of seq names) but it saves us passing names of all pairs of strings
     # Note that we can't share a queue between spawned and forked processes, so this also needs to be spawned
+    logger.debug("Starting writer process...")
     write_proc = mp.Process(
         target=_writer,
         args=(
@@ -437,6 +440,7 @@ def main(args):
                 print_also=False,
             )
 
+        logger.debug("Loading first block of proteins...")
         data1 = load_prots(0)
         data2 = None
         data3 = None

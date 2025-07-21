@@ -23,8 +23,8 @@ For a list of pairs, additional columns (for example, a [label] in training or t
 
 .. code-block:: bash
 
-    dscript predict --proteins [list of proteins] --embeddings --outfile [embedding file] --model [model file]
-    dscript predict --pairs [list of pairs] --embeddings --outfile [embedding file] --model [model file]
+    dscript predict --proteins [list of proteins] --embeddings [embedding file] --outfile [outfile] --model [model file]
+    dscript predict --pairs [list of pairs] --embeddings [embedding file] --outfile [outfile] --model [model file]
 
 Train and save a model
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -41,7 +41,7 @@ Evaluate a trained model
 
 .. code-block:: bash
 
-    dscript evaluate --model [model file] --test [test data] --embedding [embedding file] --outfile [result file]
+    dscript evaluate --model [model file] --test [test data] --embeddings [embedding file] --outfile [result file]
 
 
 Blocked, Multi-GPU Prediction
