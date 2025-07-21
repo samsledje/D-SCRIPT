@@ -70,8 +70,8 @@ def main():
         "train": train,
         "embed": embed,
         "evaluate": evaluate,
-        "predict": predict,
-        "predict_block": predict_block,
+        "predict_serial": predict,
+        "predict": predict_block,
         "predict_bipartite": predict_bipartite,
         "extract-3di": extract_3di,
     }
