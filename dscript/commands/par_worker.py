@@ -26,29 +26,31 @@ def _predict(
     )
     logger.debug(f"Predict worker started on device {device}.")
     # Load Model
-    if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
-        logger.debug(f"Loading model from {modelPath} on device {device}.")
-        model = torch.load(
-            modelPath, map_location=torch.device(device), weights_only=False
-        )  # Check moved to main
-        model.use_cuda = True
-    else:
-        try:
+    try:
+        if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
+            logger.debug(f"Loading model from {modelPath} on device {device}.")
+            model = torch.load(
+                modelPath, map_location=torch.device(device), weights_only=False
+            )  # Check moved to main
+            model.use_cuda = True
+        else:
             logger.debug(f"Loading model from {modelPath} on device {device}.")
             # Safe to call concurrently - see https://github.com/huggingface/huggingface_hub/pull/2534
             # Prefer to download here (will only download once) for concurrency
             model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
             model = model.cuda(device=device)
             model.use_cuda = True
-        except Exception as e:
-            log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
-            sys.exit(7)
+    except Exception as e:
+        log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
+        sys.exit(7)
+
     if (
         dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1] == 242
     ) and (use_fs):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
         )
+        sys.exit(8)
 
     model.eval()
     old_i0 = -1
@@ -58,7 +60,7 @@ def _predict(
     with torch.no_grad():
         for tup in iter(input_queue.get, None):
             # Record that all pairs in a pair of blocks have been taken off the queue,
-            # as inficated by the presence of a flag of the form (None, i)
+            # as indicated by the presence of a flag of the form (None, i)
             if tup[0] is None:
                 # If we still get flags, even if there is no block_queue in use, we ignore them
                 # This shouldn't happen anymore.
