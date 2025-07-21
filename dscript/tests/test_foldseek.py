@@ -6,6 +6,8 @@ from dscript.foldseek import (
     get_foldseek_onehot,
 )
 
+from loguru import logger
+
 
 class TestFoldseek:
     """Test cases for foldseek.py module."""
@@ -167,10 +169,10 @@ class TestFoldseek:
             # The function might handle missing binary gracefully
         except (FileNotFoundError, OSError):
             # Expected when foldseek binary is not found
+            logger.warning("Foldseek binary not found, skipping test.")
             pass
-        except Exception:
-            # Other exceptions might occur due to missing input files
-            # which is acceptable for this test
+        except Exception as e:
+            logger.error(f"Unexpected error occurred: {e}")
             pass
 
     def test_get_3di_sequences_empty_pdb_list(self):
@@ -181,8 +183,9 @@ class TestFoldseek:
             result = get_3di_sequences(pdb_files)
             # Should handle empty list gracefully
             assert isinstance(result, dict)
-        except Exception:
+        except Exception as e:
             # May fail due to empty input, which is acceptable
+            logger.warning(f"Unexpected error with empty PDB list: {e}")
             pass
 
     def test_get_3di_sequences_nonexistent_pdb_files(self):
@@ -193,8 +196,9 @@ class TestFoldseek:
             result = get_3di_sequences(pdb_files)
             # If it succeeds, result should be a dict
             assert isinstance(result, dict)
-        except Exception:
+        except Exception as e:
             # Expected to fail with non-existent files
+            logger.error(f"Unexpected error with non-existent PDB files: {e}")
             pass
 
     def test_fold_vocab_mapping(self):
