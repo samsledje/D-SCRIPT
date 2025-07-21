@@ -1,12 +1,11 @@
 import torch
+from loguru import logger
 
 from dscript.foldseek import (
     fold_vocab,
     get_3di_sequences,
     get_foldseek_onehot,
 )
-
-from loguru import logger
 
 
 class TestFoldseek:
