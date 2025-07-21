@@ -141,6 +141,8 @@ class ProteinSet():
         self.n_prots = len(self.all_prots)
         self.block_size = math.ceil(self.n_prots / self.num_blocks)
         self.loadpool = None
+        self.logFile = logFile
+        self.use_fs = False
 
     def set_embed_path(self, path):
         if not os.path.exists(path):
