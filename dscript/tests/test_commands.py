@@ -2,8 +2,8 @@ import os
 import shutil
 import subprocess as sp
 import tempfile
-import torch
 
+import torch
 from loguru import logger
 
 

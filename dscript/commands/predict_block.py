@@ -15,7 +15,6 @@ from typing import NamedTuple
 import numpy as np
 import torch
 import torch.multiprocessing as mp
-from loguru import logger
 
 from ..fasta import parse_from_list
 from ..foldseek import fold_vocab, get_foldseek_onehot
@@ -149,7 +148,7 @@ def main(args):
 
     modelPath = args.model
     device_arg = args.device
-    
+
     # Parse device argument
     if device_arg.lower() == "cpu":
         device = "cpu"
@@ -162,16 +161,24 @@ def main(args):
             device = int(device_arg)
             use_cuda = True
         except ValueError:
-            log(f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.", file=logFile, print_also=True)
+            log(
+                f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.",
+                file=logFile,
+                print_also=True,
+            )
             logFile.close()
             sys.exit(7)
 
     # Validate CUDA availability if GPU requested
     if use_cuda and not torch.cuda.is_available():
-        log("CUDA not available but GPU requested. Use --device cpu for CPU execution.", file=logFile, print_also=True)
+        log(
+            "CUDA not available but GPU requested. Use --device cpu for CPU execution.",
+            file=logFile,
+            print_also=True,
+        )
         logFile.close()
         sys.exit(1)
-    
+
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
     num_blocks = args.blocks
@@ -321,7 +328,7 @@ def main(args):
         )
         p.start()
         n_gpu = 1
-    
+
     if not use_cuda:  # CPU execution
         p = mp.Process(
             target=_predict,
