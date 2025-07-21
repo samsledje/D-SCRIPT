@@ -29,9 +29,9 @@ class PredictionArguments(NamedTuple):
     embeddings: str | None
     outfile: str | None
     seqs: str
-    model: Optional[str]
-    thresh: Optional[float]
-    load_proc: Optional[int]
+    model: str | None
+    thresh: float | None
+    load_proc: int | None
     func: Callable[[PredictionArguments], None]
 
 
@@ -79,7 +79,7 @@ def add_args(parser):
         "--load_proc",
         type=int,
         default=32,
-        help="Number of processes to use when loading embeddings (-1 = # of CPUs, default=32)"
+        help="Number of processes to use when loading embeddings (-1 = # of CPUs, default=32)",
     )
     return parser
 
@@ -192,7 +192,9 @@ def main(args):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, all_prots, n_jobs=args.load_proc) #Is a dict, legacy behavior
+        embeddings = load_hdf5_parallel(
+            embPath, all_prots, n_jobs=args.load_proc
+        )  # Is a dict, legacy behavior
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:

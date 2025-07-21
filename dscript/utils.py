@@ -1,19 +1,12 @@
 import sys
-from functools import partial
 
-import h5py
 import numpy as np
-import pandas as pd
-import subprocess as sp
-import gzip as gz
 import torch
 import torch.utils.data
 from loguru import logger
-from tqdm import tqdm
-
-import torch.multiprocessing as mp
 
 from .loading import LoadingPool
+
 
 def setup_logger(log_file=None, also_stdout=False):
     """
@@ -35,6 +28,7 @@ def setup_logger(log_file=None, also_stdout=False):
     if also_stdout or log_file is None:
         logger.add(sys.stdout)
 
+
 def log(m, file=None, timestamped=True, print_also=False):
     """
     Legacy log function that wraps loguru for backward compatibility.
@@ -55,7 +49,7 @@ def log(m, file=None, timestamped=True, print_also=False):
     logger.info(m)
 
     # Flush the file if it's provided and has flush method
-    if file is not None and hasattr(file, 'flush'):
+    if file is not None and hasattr(file, "flush"):
         file.flush()
 
 
@@ -76,9 +70,8 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma**2)))
 
 
-
-#If keys is a dict (of key -> index) will produce a list of indices instead of a dict
-#Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
+# If keys is a dict (of key -> index) will produce a list of indices instead of a dict
+# Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
 def load_hdf5_parallel(file_path, keys, n_jobs=-1, return_dict=True):
     """
     Load keys from hdf5 file into memory

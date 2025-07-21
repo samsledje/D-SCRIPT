@@ -4,9 +4,12 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
-#Writer process function for parallel prediction
-def _writer(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue):
-    n = 0 
+
+# Writer process function for parallel prediction
+def _writer(
+    all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, output_queue
+):
+    n = 0
     f = open(outPathAll, "w+")
     pos_f = open(outPathPos, "w+")
     store_cmaps = cmapPath is not None
@@ -35,4 +38,3 @@ def _writer(all_prots, outPathAll, outPathPos, cmapPath, n_pairs, threshold, out
     pos_f.close()
     if store_cmaps:
         cmap_file.close()
-  

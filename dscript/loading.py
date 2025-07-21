@@ -3,28 +3,32 @@ from tqdm import tqdm
 
 from .load_worker import _hdf5_load_partial_func
 
-#Seperate managing the pool from the loading function
-#to allow the calling process to keep the pool around
+
+# Seperate managing the pool from the loading function
+# to allow the calling process to keep the pool around
 class LoadingPool:
     def __init__(self, file_path, n_jobs=-1):
         if n_jobs < 1:
             self.n_jobs = mp.cpu_count()
         else:
             self.n_jobs = n_jobs
-        #Remark: the data loading itself is multi-threaded under the hood
-        #So, CPU utilization is high regardless of how many processes are used
-        #But throughbut is a bit faster using multiple processes for some reason
-        
-        #Note: Using spawn (or torch.mp.spawn) caused errors, make sure to use fork
+        # Remark: the data loading itself is multi-threaded under the hood
+        # So, CPU utilization is high regardless of how many processes are used
+        # But throughbut is a bit faster using multiple processes for some reason
+
+        # Note: Using spawn (or torch.mp.spawn) caused errors, make sure to use fork
         ctx = mp.get_context("fork")
         self.input_queue = ctx.Queue()
         self.output_queue = ctx.Queue()
-    
-        self.pool = ctx.Pool(processes=self.n_jobs, initializer=_hdf5_load_partial_func, 
-                    initargs=(self.input_queue, self.output_queue, file_path))
+
+        self.pool = ctx.Pool(
+            processes=self.n_jobs,
+            initializer=_hdf5_load_partial_func,
+            initargs=(self.input_queue, self.output_queue, file_path),
+        )
         self.pool.close()
 
-    #Will always return a list in the order that inputs are received   
+    # Will always return a list in the order that inputs are received
     def load(self, keys, progress=False):
         count = 0
         for key in keys:
@@ -44,8 +48,8 @@ class LoadingPool:
         if progress:
             pbar.close()
         return embeddings
-    
-    #Basically does load and shutdown together - based on older version
+
+    # Basically does load and shutdown together - based on older version
     def load_once(self, keys, progress=True):
         count = 0
         for key in keys:
@@ -59,7 +63,7 @@ class LoadingPool:
             self.input_queue.put(None)
         while done_count < self.n_jobs:
             res = self.output_queue.get()
-            if res is None: #This makes really sure that each job is finished processing
+            if res is None:  # This makes really sure that each job is finished processing
                 done_count += 1
             else:
                 i, emb = res
@@ -71,7 +75,6 @@ class LoadingPool:
         self.pool.join()
         return embeddings
 
-    
     def shutdown(self):
         for _ in range(self.n_jobs):
             self.input_queue.put(None)
@@ -79,14 +82,3 @@ class LoadingPool:
             res = self.output_queue.get()
             assert res is None
         self.pool.join()
-
-
-    
-
-        
-        
-
-
-
-
-    

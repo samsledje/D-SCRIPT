@@ -9,18 +9,18 @@ from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
 from .commands.extract_3di import Extract3DiArguments
 from .commands.predict import PredictionArguments
-from .commands.predict_block import BlockedPredictionArguments
 from .commands.predict_bipartite import BipartitePredictionArguments
+from .commands.predict_block import BlockedPredictionArguments
 from .commands.train import TrainArguments
 
 DScriptArguments = (
-    EmbeddingArguments,
-    | EvaluateArguments,
-    | PredictionArguments,
-    | BlockedPredictionArguments,
-    | BipartitePredictionArguments,
-    | TrainArguments,
-    | Extract3DiArguments,
+    EmbeddingArguments
+    | EvaluateArguments
+    | PredictionArguments
+    | BlockedPredictionArguments
+    | BipartitePredictionArguments
+    | TrainArguments
+    | Extract3DiArguments
 )
 
 
@@ -58,11 +58,10 @@ def main():
     from .commands import (
         embed,
         evaluate,
-        predict,
-        predict_block,
-        predict_bipartite,
         extract_3di,
         predict,
+        predict_bipartite,
+        predict_block,
         train,
     )
 
