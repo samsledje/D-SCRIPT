@@ -19,26 +19,31 @@ def _predict(
     use_fs=False,
     block_queue=None,
 ):
-    log(
-        f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}",
-        file=None,  # If None, will be printed
-        print_also=True,
-    )
-    logger.debug(f"Predict worker started on device {device}.")
+    device = torch.device(f"cuda:{device}" if device != "cpu" else "cpu")
+    if device.type == "cpu":
+        log(
+            "Using CPU for predictions. This may be slow for large datasets.",
+            file=None,  # If None, will be printed
+            print_also=True,
+        )
+    else:
+        log(
+            f"Using CUDA device {device.index} - {torch.cuda.get_device_name(device)}",
+            file=None,  # If None, will be printed
+            print_also=True,
+        )
     # Load Model
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
-        logger.debug(f"Loading model from {modelPath} on device {device}.")
         model = torch.load(
-            modelPath, map_location=torch.device(device), weights_only=False
+            modelPath, map_location=device, weights_only=False
         )  # Check moved to main
         model.use_cuda = True
     else:
         try:
-            logger.debug(f"Loading model from {modelPath} on device {device}.")
             # Safe to call concurrently - see https://github.com/huggingface/huggingface_hub/pull/2534
             # Prefer to download here (will only download once) for concurrency
             model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
-            model = model.cuda(device=device)
+            model = model.to(device=device)
             model.use_cuda = True
         except Exception as e:
             log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
@@ -52,7 +57,6 @@ def _predict(
 
     model.eval()
     old_i0 = -1
-    logger.debug(f"Starting predictions in worker {device}...")
     log("Making Predictions...", file=None, print_also=True)
 
     with torch.no_grad():
@@ -69,14 +73,14 @@ def _predict(
             i1 = tup[1]
             # Check for repeat seq - Assumes inputs may be sorted by first pair element
             if old_i0 != i0:
-                p0 = tup[2].cuda(device=device)
+                p0 = tup[2].to(device=device)
                 old_i0 = i0
-            p1 = tup[3].cuda(device=device)
+            p1 = tup[3].to(device=device)
 
             # Load foldseek one-hot
             if use_fs:
-                fs0 = tup[4].cuda(device=device)
-                fs1 = tup[5].cuda(device=device)
+                fs0 = tup[4].to(device=device)
+                fs1 = tup[5].to(device=device)
 
             # Clear tup to remove references to tensors in shared CPU
             tup = None

@@ -81,9 +81,9 @@ def add_args(parser):
     parser.add_argument(
         "-d",
         "--device",
-        type=int,
-        default=-1,
-        help="The index of a compute device (GPU) to use, or -1 to use all. To use more than one but less than all available GPUs, set CUDA_VISIBLE_DEVICES beforehand and then set d=-1. [default: -1]",
+        type=str,
+        default="all",
+        help="Compute device to use. Options: 'cpu', 'all' (all GPUs), or GPU index (0, 1, 2, etc.). To use specific GPUs, set CUDA_VISIBLE_DEVICES beforehand and use 'all'. [default: all]",
     )
     parser.add_argument(
         "--store_cmaps",
@@ -132,11 +132,6 @@ def main(args):
     logFilePath = outPath + ".log"
     logFile = open(logFilePath, "w+")
 
-    if not torch.cuda.is_available():
-        log("A GPU/CUDA device is required.", file=logFile, print_also=True)
-        logFile.close()
-        sys.exit(1)
-
     if args.proteins is None == args.pairs is None:
         log(
             "Please specify exactly one of proteins and pairs.",
@@ -153,7 +148,30 @@ def main(args):
         sys.exit(3)
 
     modelPath = args.model
-    device = args.device
+    device_arg = args.device
+    
+    # Parse device argument
+    if device_arg.lower() == "cpu":
+        device = "cpu"
+        use_cuda = False
+    elif device_arg.lower() == "all":
+        device = -1  # Use all GPUs
+        use_cuda = True
+    else:
+        try:
+            device = int(device_arg)
+            use_cuda = True
+        except ValueError:
+            log(f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.", file=logFile, print_also=True)
+            logFile.close()
+            sys.exit(7)
+
+    # Validate CUDA availability if GPU requested
+    if use_cuda and not torch.cuda.is_available():
+        log("CUDA not available but GPU requested. Use --device cpu for CPU execution.", file=logFile, print_also=True)
+        logFile.close()
+        sys.exit(1)
+    
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
     num_blocks = args.blocks
@@ -273,15 +291,7 @@ def main(args):
     # This uses the pytorch spawn function to start a bunch of processes using spawn
     # Apparently, spawn (method) is required when using CUDA in the processes
 
-    # device = -1 -> use all GPUs
-    # Important remark: with multiple GPUs, it is no longer 100% true that only three blocks will be needed in memory
-    # because, when a block is detected as being finished, the other n-1 GPUs will likely be finishing a last prediction
-    # task from that block. But, since the memory management is implicit (by the garbage collector), there will not be an error.
-    # Also, it is possible that blocks will finish out of order, in which case the process will wait for the earlier (expected)
-    # block to finish, which might lead the queue to be briefly empty before being re-filled.
-    # Larger block sizes are recommended with multiple GPUs to reduce the risk/frequency of this.
-    logger.debug("Starting GPU workers...")
-    if device < 0:
+    if use_cuda and device < 0:  # Use all GPUs
         n_gpu = torch.cuda.device_count()
         _ = mp.spawn(
             _predict,
@@ -296,11 +306,27 @@ def main(args):
             nprocs=n_gpu,
             join=False,
         )
-    else:
+    elif use_cuda:  # Use specific GPU
         p = mp.Process(
             target=_predict,
             args=(
                 device,
+                modelPath,
+                input_queue,
+                output_queue,
+                args.store_cmaps,
+                use_fs,
+                pair_done_queue,
+            ),
+        )
+        p.start()
+        n_gpu = 1
+    
+    if not use_cuda:  # CPU execution
+        p = mp.Process(
+            target=_predict,
+            args=(
+                "cpu",
                 modelPath,
                 input_queue,
                 output_queue,
@@ -322,7 +348,6 @@ def main(args):
     # The writer needs to be seperate from the main process so that writing can start before all pairs are in the queue
     # We are still passing a large array (list of seq names) but it saves us passing names of all pairs of strings
     # Note that we can't share a queue between spawned and forked processes, so this also needs to be spawned
-    logger.debug("Starting writer process...")
     write_proc = mp.Process(
         target=_writer,
         args=(
@@ -440,7 +465,6 @@ def main(args):
                 print_also=False,
             )
 
-        logger.debug("Loading first block of proteins...")
         data1 = load_prots(0)
         data2 = None
         data3 = None
