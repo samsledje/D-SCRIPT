@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import os
-import shlex
 import argparse
-import tempfile
-import subprocess as sp
-
+import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import NamedTuple, Callable
-from Bio import Seq, SeqRecord, SeqIO
+from typing import NamedTuple
 
-from ..utils import log
+from Bio import SeqIO
+
 from ..foldseek import get_3di_sequences
+from ..utils import log
 
 
 class Extract3DiArguments(NamedTuple):
@@ -42,15 +40,11 @@ def add_args(parser):
 
 
 def main(args):
-
     pdb_file_list = [
-        Path(args.pdb_directory) / Path(p)
-        for p in os.listdir(args.pdb_directory)
+        Path(args.pdb_directory) / Path(p) for p in os.listdir(args.pdb_directory)
     ]
 
-    seq_records = get_3di_sequences(
-        pdb_file_list, foldseek_path=args.foldseek_path
-    )
+    seq_records = get_3di_sequences(pdb_file_list, foldseek_path=args.foldseek_path)
     SeqIO.write(seq_records.values(), args.out_file, "fasta-2line")
 
     log(f"3Di sequences written to {args.out_file}")

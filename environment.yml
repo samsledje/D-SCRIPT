@@ -3,15 +3,14 @@ name: dscript
 channels:
   - pytorch
   - conda-forge
-  - defaults
 
 dependencies:
-  - pip=20.0
+  - python>=3.10
   - cudatoolkit=11.3 #changed from 10.2 - max for pt 1.11 is 11?, min for A100 is 11
   - cudnn #added
   - mkl=2024.0 #added with version
-  - python=3.7
-  - pytorch=1.11
+  - pip
+  - pytorch>=1.11
   - biopython
   - h5py
   - huggingface_hub
@@ -23,3 +22,6 @@ dependencies:
   - seaborn
   - setuptools
   - tqdm
+  - loguru
+  - pip:
+    - -e .

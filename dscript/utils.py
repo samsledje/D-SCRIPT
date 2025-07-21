@@ -1,30 +1,61 @@
-from __future__ import print_function, division
+import sys
+from functools import partial
 
-import torch
-import torch.utils.data
-
+import h5py
 import numpy as np
 import pandas as pd
 import subprocess as sp
 import gzip as gz
-import torch.multiprocessing as mp
-
+import torch
+import torch.utils.data
+from loguru import logger
 from tqdm import tqdm
-from functools import partial
-from datetime import datetime
+
+import torch.multiprocessing as mp
 
 from .loading import LoadingPool
 
+def setup_logger(log_file=None, also_stdout=False):
+    """
+    Setup loguru logger for D-SCRIPT.
+
+    :param log_file: File handle or path to write logs to
+    :type log_file: file handle, str, or None
+    :param also_stdout: Whether to also log to stdout
+    :type also_stdout: bool
+    """
+    # Remove default logger
+    logger.remove()
+
+    # Add file handler if log_file is provided
+    if log_file is not None:
+        logger.add(log_file)
+
+    # Add stdout handler if requested or if no file specified
+    if also_stdout or log_file is None:
+        logger.add(sys.stdout)
 
 def log(m, file=None, timestamped=True, print_also=False):
-    curr_time = f"[{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}] "
-    log_string = f"{curr_time if timestamped else ''}{m}"
-    if file is None:
-        print(log_string)
-    else:
-        print(log_string, file=file)
-        if print_also:
-            print(log_string)
+    """
+    Legacy log function that wraps loguru for backward compatibility.
+
+    :param m: Message to log
+    :type m: str
+    :param file: File handle to write to (if None, uses stdout)
+    :type file: file handle or None
+    :param timestamped: Whether to include timestamp (handled by loguru)
+    :type timestamped: bool
+    :param print_also: Whether to also print to stdout when writing to file
+    :type print_also: bool
+    """
+    # Configure logger based on parameters
+    setup_logger(log_file=file, also_stdout=print_also)
+
+    # Log the message
+    logger.info(m)
+
+    # Flush the file if it's provided and has flush method
+    if file is not None and hasattr(file, 'flush'):
         file.flush()
 
 
@@ -42,7 +73,7 @@ def RBF(D, sigma=None):
     :rtype: np.ndarray
     """
     sigma = sigma or np.sqrt(np.max(D))
-    return np.exp(-1 * (np.square(D) / (2 * sigma ** 2)))
+    return np.exp(-1 * (np.square(D) / (2 * sigma**2)))
 
 
 
@@ -82,20 +113,10 @@ class PairedDataset(torch.utils.data.Dataset):
         self.X1 = X1
         self.Y = Y
         assert len(X0) == len(X1), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
+            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
         )
         assert len(X0) == len(Y), (
-            "X0: "
-            + str(len(X0))
-            + " X1: "
-            + str(len(X1))
-            + " Y: "
-            + str(len(Y))
+            "X0: " + str(len(X0)) + " X1: " + str(len(X1)) + " Y: " + str(len(Y))
         )
 
     def __len__(self):

@@ -3,27 +3,29 @@ Evaluate a trained model.
 """
 
 from __future__ import annotations
+
 import argparse
 import datetime
-import sys
-from typing import Callable, NamedTuple
 import json
-import h5py
+import sys
+from collections.abc import Callable
+from typing import NamedTuple
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+from Bio import SeqIO
 from sklearn.metrics import (
     average_precision_score,
     precision_recall_curve,
     roc_auc_score,
     roc_curve,
 )
-from Bio import SeqIO
 from tqdm import tqdm
 
-from ..utils import log, load_hdf5_parallel
+from ..utils import load_hdf5_parallel, log
 
 matplotlib.use("Agg")
 
@@ -45,7 +47,10 @@ def add_args(parser):
     """
 
     parser.add_argument(
-        "--model", help="Trained prediction model", required=True
+        "--model",
+        default="samsl/topsy_turvy_human_v1",
+        type=str,
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]",
     )
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument(
@@ -122,7 +127,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.ylabel("Precision")
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title("Precision-Recall (AUPR: {:.3})".format(aupr))
+    plt.title(f"Precision-Recall (AUPR: {aupr:.3})")
     plt.savefig(path + ".aupr.png")
     plt.close()
 
@@ -136,7 +141,7 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.ylabel("TPR")
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title("Receiver Operating Characteristic (AUROC: {:.3})".format(auroc))
+    plt.title(f"Receiver Operating Characteristic (AUROC: {auroc:.3})")
     plt.savefig(path + ".auroc.png")
     plt.close()
 
@@ -148,9 +153,7 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     if n0 in fold_record:
         fold_seq = fold_record[n0]
         assert size_n0 == len(fold_seq)
-        foldseek_enc = torch.zeros(
-            size_n0, len(fold_vocab), dtype=torch.float32
-        )
+        foldseek_enc = torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
         for i, a in enumerate(fold_seq):
             assert a in fold_vocab
             foldseek_enc[i, fold_vocab[a]] = 1
@@ -177,7 +180,7 @@ def main(args):
         fold_fasta = SeqIO.parse(fold_fasta_file, "fasta")
         for rec in fold_fasta:
             fold_record[rec.id] = rec.seq
-        with open(fold_vocab_file, "r") as fv:
+        with open(fold_vocab_file) as fv:
             fold_vocab = json.load(fv)
     ##################################################
 
@@ -186,9 +189,7 @@ def main(args):
     use_cuda = (device >= 0) and torch.cuda.is_available()
     if use_cuda:
         torch.cuda.set_device(device)
-        log(
-            f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}"
-        )
+        log(f"Using CUDA device {device} - {torch.cuda.get_device_name(device)}")
     else:
         log("Using CPU")
 
@@ -198,7 +199,9 @@ def main(args):
         model = torch.load(model_path).cuda()
         model.use_cuda = True
     else:
-        model = torch.load(model_path, map_location=torch.device("cpu")).cpu()
+        model = torch.load(
+            model_path, map_location=torch.device("cpu"), weights_only=False
+        ).cpu()
         model.use_cuda = False
 
     embPath = args.embedding
@@ -258,7 +261,7 @@ def main(args):
                 labels.append(label)
                 outFile.write(f"{n0}\t{n1}\t{label}\t{pred:.5}\n")
             except Exception as e:
-                sys.stderr.write("{} x {} - {}".format(n0, n1, e))
+                sys.stderr.write(f"{n0} x {n1} - {e}")
 
     phats = np.array(phats)
     labels = np.array(labels)

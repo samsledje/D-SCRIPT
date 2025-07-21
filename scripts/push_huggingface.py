@@ -1,6 +1,7 @@
-import torch
 import argparse
-from huggingface_hub import PyTorchModelHubMixin
+
+import torch
+
 from dscript.models.interaction import DSCRIPTModel
 
 if __name__ == "__main__":
@@ -20,23 +21,21 @@ if __name__ == "__main__":
 
     # Load the model
     model = DSCRIPTModel(
-            emb_nin = 6165, 
-            emb_nout = 100,
-            emb_dropout = 0.5,
-            con_embed_dim = 121,
-            con_hidden_dim = 50,
-            con_width = 7,
-            use_cuda = False,
-            do_w=model_old.do_w,
-            pool_size=9,
-            do_pool=model_old.do_pool,
-            do_sigmoid=model_old.do_sigmoid,
-        )
-    
+        emb_nin=6165,
+        emb_nout=100,
+        emb_dropout=0.5,
+        con_embed_dim=121,
+        con_hidden_dim=50,
+        con_width=7,
+        use_cuda=False,
+        do_w=model_old.do_w,
+        pool_size=9,
+        do_pool=model_old.do_pool,
+        do_sigmoid=model_old.do_sigmoid,
+    )
+
     # Load the state dict into the model
     model.load_state_dict(state_dict)
     model.eval()
 
     model.push_to_hub(f"{hf_user}/{hf_model_name}")
-
-

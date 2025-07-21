@@ -1,33 +1,32 @@
 """
 D-SCRIPT: Structure Aware PPI Prediction
 """
+
 import argparse
-import os
 import sys
-from typing import Union
 
 from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
+from .commands.extract_3di import Extract3DiArguments
 from .commands.predict import PredictionArguments
 from .commands.predict_block import BlockedPredictionArguments
 from .commands.predict_bipartite import BipartitePredictionArguments
 from .commands.train import TrainArguments
-from .commands.extract_3di import Extract3DiArguments
 
-DScriptArguments = Union[
+DScriptArguments = (
     EmbeddingArguments,
-    EvaluateArguments,
-    PredictionArguments,
-    BlockedPredictionArguments,
-    BipartitePredictionArguments,
-    TrainArguments,
-    Extract3DiArguments,
-]
+    | EvaluateArguments,
+    | PredictionArguments,
+    | BlockedPredictionArguments,
+    | BipartitePredictionArguments,
+    | TrainArguments,
+    | Extract3DiArguments,
+)
 
 
 class CitationAction(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
-        super(CitationAction, self).__init__(option_strings, dest, **kwargs)
+        super().__init__(option_strings, dest, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
         from . import __citation__
@@ -57,13 +56,14 @@ def main():
     subparsers.required = True
 
     from .commands import (
-        train,
         embed,
         evaluate,
         predict,
         predict_block,
         predict_bipartite,
         extract_3di,
+        predict,
+        train,
     )
 
     modules = {

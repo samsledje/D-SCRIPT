@@ -4,10 +4,17 @@
 # v0
 
 ## v0.3
- - Introduce `predict_block` to support multi-GPU prediction of protein interactions with semi-on-the-fly embedding loading, resolving #6 and #11
- - Add sparse embedding loading to `predict_block`, in which only the required subset of each block of embeddings is loaded at each time when predicing only some pairs
- - Add `predict_bipartite` for predicting interactions between all proteins from two disjoint sets, e.g., proteins from two species. This implementation is a bit more efficient than using `predict_block` with cross-set pairs specified.
- - Improve method for loading embeddings
+
+### v0.3.0: D-SCRIPT with BMPI
+- Introduce `predict_block` to support multi-GPU prediction of protein interactions with semi-on-the-fly embedding loading, resolving #6 and #11
+- Add sparse embedding loading to `predict_block`, in which only the required subset of each block of embeddings is loaded at each time when predicing only some pairs
+- Add `predict_bipartite` for predicting interactions between all proteins from two disjoint sets, e.g., proteins from two species. This implementation is a bit more efficient than using `predict_block` with cross-set pairs specified.
+- Improve method for loading embeddings
+- Modernized D-SCRIPT repository
+- Significantly updated unittest coverage
+- Migrate to loguru under the hood 
+- Update pyproject, GitHub actions, and other continuous integration/installation
+- Linting and formatting with Ruff
 
 ## v0.2
 

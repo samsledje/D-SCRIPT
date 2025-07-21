@@ -3,37 +3,33 @@ Train a new model.
 """
 
 from __future__ import annotations
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
-from torch.utils.data import IterableDataset, DataLoader
-from sklearn.metrics import average_precision_score as average_precision
-from tqdm import tqdm
-from typing import Callable, NamedTuple, Optional
-import json
-import sys
+
 import argparse
+import sys
+from collections.abc import Callable
+from typing import NamedTuple
+
 import h5py
-import subprocess as sp
 import numpy as np
 import pandas as pd
-import gzip as gz
+import torch
+import torch.nn.functional as F
 from Bio import SeqIO
+from sklearn.metrics import average_precision_score as average_precision
+from torch.autograd import Variable
+from tqdm import tqdm
 
 from .. import __version__
-from ..alphabets import Uniprot21
+from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..glider import glide_compute_map, glider_score
-from ..foldseek import get_foldseek_onehot, fold_vocab
+from ..models.contact import ContactCNN
+from ..models.embedding import FullyConnectedEmbed
+from ..models.interaction import ModelInteraction
 from ..utils import (
     PairedDataset,
     collate_paired_sequences,
     log,
-    load_hdf5_parallel,
 )
-from ..models.embedding import FullyConnectedEmbed
-from ..models.contact import ContactCNN
-from ..models.interaction import ModelInteraction
 
 
 class TrainArguments(NamedTuple):
@@ -60,10 +56,10 @@ class TrainArguments(NamedTuple):
     run_tt: bool
     glider_weight: float
     glider_thresh: float
-    outfile: Optional[str]
-    save_prefix: Optional[str]
-    checkpoint: Optional[str]
-    seed: Optional[int]
+    outfile: str | None
+    save_prefix: str | None
+    checkpoint: str | None
+    seed: int | None
     func: Callable[[TrainArguments], None]
 
 
@@ -83,9 +79,7 @@ def add_args(parser):
     foldseek_grp = parser.add_argument_group("Foldseek related commands")
 
     # Data
-    data_grp.add_argument(
-        "--train", required=True, help="list of training pairs"
-    )
+    data_grp.add_argument("--train", required=True, help="list of training pairs")
     data_grp.add_argument(
         "--test", required=True, help="list of validation/testing pairs"
     )
@@ -214,18 +208,12 @@ def add_args(parser):
     )
 
     # Output
-    misc_grp.add_argument(
-        "-o", "--outfile", help="output file path (default: stdout)"
-    )
-    misc_grp.add_argument(
-        "--save-prefix", help="path prefix for saving models"
-    )
+    misc_grp.add_argument("-o", "--outfile", help="output file path (default: stdout)")
+    misc_grp.add_argument("--save-prefix", help="path prefix for saving models")
     misc_grp.add_argument(
         "-d", "--device", type=int, default=-1, help="compute device to use"
     )
-    misc_grp.add_argument(
-        "--checkpoint", help="checkpoint model to start training from"
-    )
+    misc_grp.add_argument("--checkpoint", help="checkpoint model to start training from")
     misc_grp.add_argument("--seed", help="Set random seed", type=int)
 
     ## Foldseek arguments
@@ -256,7 +244,7 @@ def predict_cmap_interaction(
     allow_foldseek=False,
     fold_record=None,
     fold_vocab=None,
-    add_first=True
+    add_first=True,
     ###
 ):
     """
@@ -288,9 +276,7 @@ def predict_cmap_interaction(
             assert fold_record is not None and fold_vocab is not None
             f_a = get_foldseek_onehot(
                 n0[i], z_a.shape[1], fold_record, fold_vocab
-            ).unsqueeze(
-                0
-            )  # seqlen x vocabsize
+            ).unsqueeze(0)  # seqlen x vocabsize
             f_b = get_foldseek_onehot(
                 n1[i], z_b.shape[1], fold_record, fold_vocab
             ).unsqueeze(0)
@@ -325,7 +311,7 @@ def predict_interaction(
     allow_foldseek=False,
     fold_record=None,
     fold_vocab=None,
-    add_first=True
+    add_first=True,
     ###
 ):
     """
@@ -372,7 +358,7 @@ def interaction_grad(
     allow_foldseek=False,
     fold_record=None,
     fold_vocab=None,
-    add_first=True
+    add_first=True,
     ###
 ):
     """
@@ -438,9 +424,7 @@ def interaction_grad(
             g_score = g_score.cuda()
 
         glider_loss = F.binary_cross_entropy(p_hat.float(), g_score.float())
-        accuracy_loss = (glider_weight * glider_loss) + (
-            (1 - glider_weight) * bce_loss
-        )
+        accuracy_loss = (glider_weight * glider_loss) + ((1 - glider_weight) * bce_loss)
     else:
         accuracy_loss = bce_loss
 
@@ -479,7 +463,7 @@ def interaction_eval(
     allow_foldseek=False,
     fold_record=None,
     fold_vocab=None,
-    add_first=True
+    add_first=True,
     ###
 ):
     """
@@ -550,8 +534,6 @@ def interaction_eval(
 
 def train_model(args, output):
     # Create data sets
-    global fold_vocab
-
     batch_size = args.batch_size
     use_cuda = (args.device > -1) and torch.cuda.is_available()
     train_fi = args.train
@@ -582,12 +564,12 @@ def train_model(args, output):
         train_p2 = train_df["prot2"]
         train_y = torch.from_numpy(train_df["label"].values)
     else:
-        train_p1 = pd.concat(
-            (train_df["prot1"], train_df["prot2"]), axis=0
-        ).reset_index(drop=True)
-        train_p2 = pd.concat(
-            (train_df["prot2"], train_df["prot1"]), axis=0
-        ).reset_index(drop=True)
+        train_p1 = pd.concat((train_df["prot1"], train_df["prot2"]), axis=0).reset_index(
+            drop=True
+        )
+        train_p2 = pd.concat((train_df["prot2"], train_df["prot1"]), axis=0).reset_index(
+            drop=True
+        )
         train_y = torch.from_numpy(
             pd.concat((train_df["label"], train_df["label"])).values
         )
@@ -648,7 +630,6 @@ def train_model(args, output):
         glider_mat, glider_map = (None, None)
 
     if args.checkpoint is None:
-
         # Create embedding model
         input_dim = args.input_dim
 
@@ -705,7 +686,7 @@ def train_model(args, output):
 
     else:
         log(
-            "Loading model from checkpoint {}".format(args.checkpoint),
+            f"Loading model from checkpoint {args.checkpoint}",
             file=output,
         )
         model = torch.load(args.checkpoint)
@@ -735,14 +716,11 @@ def train_model(args, output):
     log(f"\tcontact map weight: {cmap_weight}", file=output)
     output.flush()
 
-    batch_report_fmt = (
-        "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
-    )
+    batch_report_fmt = "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
     N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
-
         model.train()
 
         n = 0
@@ -751,8 +729,7 @@ def train_model(args, output):
         mse_accum = 0
 
         # Train batches
-        for (z0, z1, y) in train_iterator:
-
+        for z0, z1, y in train_iterator:
             loss, correct, mse, b = interaction_grad(
                 model,
                 z0,
@@ -802,7 +779,6 @@ def train_model(args, output):
         model.eval()
 
         with torch.no_grad():
-
             (
                 inter_loss,
                 inter_correct,
@@ -837,12 +813,7 @@ def train_model(args, output):
 
             # Save the model
             if save_prefix is not None:
-                save_path = (
-                    save_prefix
-                    + "_epoch"
-                    + str(epoch + 1).zfill(digits)
-                    + ".sav"
-                )
+                save_path = save_prefix + "_epoch" + str(epoch + 1).zfill(digits) + ".sav"
                 log(f"Saving model to {save_path}", file=output)
                 model.cpu()
                 torch.save(model, save_path)
@@ -874,7 +845,7 @@ def main(args):
         output = open(output, "w")
 
     log(f"D-SCRIPT Version {__version__}", file=output, print_also=True)
-    log(f'Called as: {" ".join(sys.argv)}', file=output, print_also=True)
+    log(f"Called as: {' '.join(sys.argv)}", file=output, print_also=True)
 
     # Set the device
     device = args.device
