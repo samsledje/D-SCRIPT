@@ -29,7 +29,7 @@ class BipartitePredictionArguments(NamedTuple):
     cmd: str
     protA: str
     protB: str
-    model: str
+    model: Optional[str]
     embedA: str
     embedA: Optional[str]
     foldseekA: Optional[str]
@@ -59,7 +59,11 @@ def add_args(parser):
         required=True,
         help="A file with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted"
     )
-    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]") #Will it still try to load?
+    parser.add_argument(
+        "--model", 
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]",
+        default="samsl/topsy_turvy_human_v1"
+    )
     parser.add_argument(
         "--embedA", 
         required=True,
@@ -218,6 +222,17 @@ def main(args):
     modelPath = args.model
     device = args.device
     threshold = args.thresh
+
+    #Check model path
+    if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
+        if os.path.isfile(modelPath):
+            log(f"Will load model locally from {modelPath}", file=logFile, print_also=True)
+        else:
+            log(f"Local model {modelPath} not found", file=logFile, print_also=True)
+            logFile.close()
+            sys.exit(6) 
+    else:
+        log(f"Will attempt to download HuggingFace model from {modelPath}", file=logFile, print_also=True)
 
     #CUDA-using processes need to be spawned; and, the start method needs to be
     # #set before the queues are created so they match the processes

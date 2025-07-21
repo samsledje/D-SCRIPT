@@ -29,7 +29,7 @@ class BlockedPredictionArguments(NamedTuple):
     cmd: str
     protins: Optional[str]
     pairs: Optional[str]
-    model: str
+    model: Optional[str]
     embeddings: str
     foldseek_fasta: Optional[str]
     outfile: Optional[str]
@@ -53,8 +53,11 @@ def add_args(parser):
     parser.add_argument(
         "--pairs", help="File with candidate protein pairs to predict, one pair per line; specify one of proteins or pairs", required=False
     )
-    parser.add_argument("--model", help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]") #Will it still try to load?
-    #parser.add_argument("--seqs", help="Protein sequences in .fasta format")
+    parser.add_argument(
+        "--model", 
+        help="Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]",
+        default="samsl/topsy_turvy_human_v1"
+    )
     parser.add_argument("--embeddings", help="h5 file with (a superset of) pre-embedded sequences. Generate with dscript embed.", required=True
     )
     parser.add_argument(
@@ -137,6 +140,18 @@ def main(args):
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
     num_blocks = args.blocks
+
+    #Check model path
+    if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
+        if os.path.isfile(modelPath):
+            log(f"Will load model locally from {modelPath}", file=logFile, print_also=True)
+        else:
+            log(f"Local model {modelPath} not found", file=logFile, print_also=True)
+            logFile.close()
+            sys.exit(6) 
+    else:
+        log(f"Will attempt to download HuggingFace model from {modelPath}", file=logFile, print_also=True)
+
 
     #CUDA-using processes need to be spawned; and, the start method needs to be
     # #set before the queues are created so they match the processes

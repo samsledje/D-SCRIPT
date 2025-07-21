@@ -57,7 +57,7 @@ Blocked, Multi-GPU Prediction
       -h, --help            show this help message and exit
       --proteins PROTEINS   File with protein IDs for which to predict all pairs, one per line; specify one of proteins or pairs
       --pairs PAIRS         File with candidate protein pairs to predict, one pair per line; specify one of proteins or pairs
-      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]
+      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]
       --embeddings EMBEDDINGS
                             h5 file with (a superset of) pre-embedded sequences. Generate with dscript embed.
       --foldseek_fasta FOLDSEEK_FASTA
@@ -89,7 +89,7 @@ Bipartite, Multi-GPU Prediction
       -h, --help            show this help message and exit
       --protA PROTA         A files with protein IDs. All pairs between proteins in this file and proteins in protB will be predicted
       --protB PROTB         A files with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted
-      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]
+      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]
       --embedA EMBEDA       h5 file with (a superset of) pre-embedded sequences from the file protA. Generate with dscript embed. If a single file contains embeddings for both protA and protB, specify it as embedA.
       --embedB EMBEDB       h5 file with (a superset of) pre-embedded sequences from the file protB. Generate with dscript embed.
       --foldseekA FOLDSEEKA
@@ -123,7 +123,7 @@ Serial Prediction
       -h, --help            show this help message and exit
       --pairs PAIRS         Candidate protein pairs to predict
       --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default:
-                            samsl/topsy_turvy_v1]
+                            samsl/topsy_turvy_human_v1]
       --seqs SEQS           Protein sequences in .fasta format
       --embeddings EMBEDDINGS
                             h5 file with embedded sequences

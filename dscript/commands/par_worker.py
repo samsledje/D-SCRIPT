@@ -12,22 +12,19 @@ def _predict(device, modelPath, input_queue, output_queue, store_cmaps=False, us
             print_also=True,
         )
     # Load Model
-    log(f"Loading model from {modelPath}", file=None, print_also=True)
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
-        try:
-            model = torch.load(modelPath).cuda(device=device)
-            model.use_cuda = True
-        except FileNotFoundError:
-            log(f"Model {modelPath} not found", file=None, print_also=True)
-            sys.exit(6) #Is it bad to call this from multiple processes?
+        model = torch.load(modelPath).cuda(device=device) #Check moved to main
+        model.use_cuda = True
     else:
         try:
+            #Safe to call concurrently - see https://github.com/huggingface/huggingface_hub/pull/2534
+            #Prefer to download here (will only download once) for concurrency
             model = DSCRIPTModel.from_pretrained(modelPath, use_cuda=True)
             model = model.cuda(device=device)
             model.use_cuda = True
         except Exception as e:
             log(f"Model {modelPath} failed: {e}", file=None, print_also=True)
-            sys.exit(6)
+            sys.exit(7)
     if (dict(model.named_parameters())["contact.hidden.conv.weight"].shape[1] == 242) and (use_fs):
         raise ValueError(
             "A TT3D model has been provided, but no foldseek_fasta has been provided"
