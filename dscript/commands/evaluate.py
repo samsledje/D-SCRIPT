@@ -198,7 +198,7 @@ def main(args):
         model = torch.load(model_path).cuda()
         model.use_cuda = True
     else:
-        model = torch.load(model_path, map_location=torch.device("cpu")).cpu()
+        model = torch.load(model_path, map_location=torch.device("cpu"), weights_only=False).cpu()
         model.use_cuda = False
 
     embPath = args.embedding
