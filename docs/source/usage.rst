@@ -69,7 +69,7 @@ Blocked, Multi-GPU Prediction
       --store_cmaps         Store contact maps for predicted pairs above `--thresh` in an h5 file
       --thresh THRESH       Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]
       --load_proc LOAD_PROC
-                            Number of processes to use when loading embeddings (default = -1 = # of available CPUs). Because loading is IO-bound, larger values are allowed.
+                            Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the # of CPUs are allowed.
       --blocks BLOCKS       Number of equal-sized blocks to split proteins into. In the multi-block case, maximum (embedding) memory usage should be 3 blocks' worth. When multiple GPUs are used, memory usage may briefly be higher when different GPUs are working on tasks from different
                             blocks. And, small blocks may lead to occasional brief hangs with multiple GPUs. Default 1.
       --sparse_loading      Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommented when predicting with many blocks on sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks >
@@ -104,7 +104,7 @@ Bipartite, Multi-GPU Prediction
       --store_cmaps         Store contact maps for predicted pairs above `--thresh` in an h5 file
       --thresh THRESH       Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]
       --load_proc LOAD_PROC
-                            Number of processes to use when loading embeddings (default = -1 = # of available CPUs). Because loading is IO-bound, larger values are allowed.
+                            Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the # of CPUs are allowed.
       --blocksA BLOCKSA     Number of equal-sized blocks to split proteins in protA into. If one set is smuch smaller, it is recommended to set the corresponding # of blocks to 1. Default 1.
       --blocksB BLOCKSB     Number of equal-sized blocks to split proteins in protB into. Default 1.
 
@@ -114,29 +114,30 @@ Serial Prediction
 
 .. code-block:: bash
 
-    usage: dscript predict [-h] --pairs PAIRS --model MODEL [--seqs SEQS]
-                        [--embeddings EMBEDDINGS] [-o OUTFILE] [-d DEVICE]
-                        [--thresh THRESH]
+    usage: dscript predict_serial [-h] --pairs PAIRS [--model MODEL] [--seqs SEQS] [--embeddings EMBEDDINGS] [--foldseek_fasta FOLDSEEK_FASTA] [-o OUTFILE] [-d DEVICE]
+                              [--store_cmaps] [--thresh THRESH] [--load_proc LOAD_PROC]
 
-    Make new predictions with a pre-trained model using (legacy) serial inference. One of --seqs and --embeddings is required.
+    Make new predictions with a pre-trained model using legacy (serial) inference. One of --seqs or --embeddings is required.
 
-    optional arguments:
-    -h, --help            show this help message and exit
-    --pairs PAIRS         Candidate protein pairs to predict
-    --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_v1]
-    --seqs SEQS           Protein sequences in .fasta format
-    --foldseek_fasta FOLDSEEK_FASTA
-                            3di sequences in .fasta format. Can be generated using `dscript extract-3di. Default is None. If provided, TT3D will be run, otherwise default D-SCRIPT/TT will be run.
-    --embeddings EMBEDDINGS
+    options:
+      -h, --help            show this help message and exit
+      --pairs PAIRS         Candidate protein pairs to predict
+      --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default:
+                            samsl/topsy_turvy_v1]
+      --seqs SEQS           Protein sequences in .fasta format
+      --embeddings EMBEDDINGS
                             h5 file with embedded sequences
-    -o OUTFILE, --outfile OUTFILE
+      --foldseek_fasta FOLDSEEK_FASTA
+                            3di sequences in .fasta format. Can be generated using `dscript extract-3di. Default is None. If provided, TT3D will be run, otherwise default
+                            D-SCRIPT/TT will be run.
+      -o OUTFILE, --outfile OUTFILE
                             File for predictions
-    --store_cmaps      Store contact maps for predicted pairs above `--thresh` in an h5 file
-    -d DEVICE, --device DEVICE
+      -d DEVICE, --device DEVICE
                             Compute device to use
-    --thresh THRESH       Positive prediction threshold - used to store contact
-                            maps and predictions in a separate file. [default:
-                            0.5]
+      --store_cmaps         Store contact maps for predicted pairs above `--thresh` in an h5 file
+      --thresh THRESH       Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]
+      --load_proc LOAD_PROC
+                            Number of processes to use when loading embeddings (-1 = # of CPUs, default=32)
 
 
 Embedding

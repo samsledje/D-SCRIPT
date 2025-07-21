@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
+Make new predictions with a pre-trained model using legacy (serial) inference. One of --seqs or --embeddings is required.
 """
 from __future__ import annotations
 import argparse
