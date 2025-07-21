@@ -1,23 +1,58 @@
 import multiprocessing as mp
 from datetime import datetime
 from functools import partial
+import sys
 
 import h5py
 import numpy as np
 import torch
 import torch.utils.data
+from loguru import logger
 from tqdm import tqdm
 
 
+def setup_logger(log_file=None, also_stdout=False):
+    """
+    Setup loguru logger for D-SCRIPT.
+    
+    :param log_file: File handle or path to write logs to
+    :type log_file: file handle, str, or None
+    :param also_stdout: Whether to also log to stdout
+    :type also_stdout: bool
+    """
+    # Remove default logger
+    logger.remove()
+    
+    # Add file handler if log_file is provided
+    if log_file is not None:
+        logger.add(log_file)
+    
+    # Add stdout handler if requested or if no file specified
+    if also_stdout or log_file is None:
+        logger.add(sys.stdout)
+
+
 def log(m, file=None, timestamped=True, print_also=False):
-    curr_time = f"[{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}] "
-    log_string = f"{curr_time if timestamped else ''}{m}"
-    if file is None:
-        print(log_string)
-    else:
-        print(log_string, file=file)
-        if print_also:
-            print(log_string)
+    """
+    Legacy log function that wraps loguru for backward compatibility.
+    
+    :param m: Message to log
+    :type m: str
+    :param file: File handle to write to (if None, uses stdout)
+    :type file: file handle or None
+    :param timestamped: Whether to include timestamp (handled by loguru)
+    :type timestamped: bool
+    :param print_also: Whether to also print to stdout when writing to file
+    :type print_also: bool
+    """
+    # Configure logger based on parameters
+    setup_logger(log_file=file, also_stdout=print_also)
+    
+    # Log the message
+    logger.info(m)
+    
+    # Flush the file if it's provided and has flush method
+    if file is not None and hasattr(file, 'flush'):
         file.flush()
 
 

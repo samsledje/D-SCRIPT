@@ -24,6 +24,7 @@ dependencies = [
     "scikit-learn",
     "h5py",
     "huggingface_hub",
+    "safetensors",
     "loguru",
 ]
 

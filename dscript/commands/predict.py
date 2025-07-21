@@ -85,7 +85,7 @@ def main(args):
         log("One of --seqs or --embeddings is required.")
         sys.exit(0)
 
-    csvPath = args.pairs
+    tsvPath = args.pairs
     modelPath = args.model
     outPath = args.outfile
     seqPath = args.seqs
@@ -155,11 +155,11 @@ def main(args):
 
     # Load Pairs
     try:
-        log(f"Loading pairs from {csvPath}", file=logFile, print_also=True)
-        pairs = pd.read_csv(csvPath, sep="\t", header=None)
+        log(f"Loading pairs from {tsvPath}", file=logFile, print_also=True)
+        pairs = pd.read_csv(tsvPath, sep="\t", header=None)
         all_prots = set(pairs.iloc[:, 0]).union(set(pairs.iloc[:, 1]))
     except FileNotFoundError:
-        log(f"Pairs File {csvPath} not found", file=logFile, print_also=True)
+        log(f"Pairs File {tsvPath} not found", file=logFile, print_also=True)
         logFile.close()
         sys.exit(1)
 
