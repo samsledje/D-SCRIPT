@@ -1,13 +1,11 @@
-import multiprocessing as mp
 import sys
-from functools import partial
 
-import h5py
 import numpy as np
 import torch
 import torch.utils.data
 from loguru import logger
-from tqdm import tqdm
+
+from .loading import LoadingPool
 
 
 def setup_logger(log_file=None, also_stdout=False):
@@ -51,7 +49,7 @@ def log(m, file=None, timestamped=True, print_also=False):
     logger.info(m)
 
     # Flush the file if it's provided and has flush method
-    if file is not None and hasattr(file, 'flush'):
+    if file is not None and hasattr(file, "flush"):
         file.flush()
 
 
@@ -72,42 +70,64 @@ def RBF(D, sigma=None):
     return np.exp(-1 * (np.square(D) / (2 * sigma**2)))
 
 
-def _hdf5_load_partial_func(k, file_path):
-    """
-    Helper function for load_hdf5_parallel
-    """
-
-    with h5py.File(file_path, "r") as fi:
-        emb = torch.from_numpy(fi[k][:])
-    return emb
-
-
-def load_hdf5_parallel(file_path, keys, n_jobs=-1):
+# If keys is a dict (of key -> index) will produce a list of indices instead of a dict
+# Now replaced by loading.LoadingPool; this is a wrapper for existing behavior
+def load_hdf5_parallel(file_path, keys, n_jobs=-1, return_dict=True):
     """
     Load keys from hdf5 file into memory
 
     :param file_path: Path to hdf5 file
     :type file_path: str
     :param keys: List of keys to get
-    :type keys: list[str]
-    :return: Dictionary with keys and records in memory
-    :rtype: dict
+    :type keys: iterable[str]
+    :return: if return_dict, a mapping of keys (proteins names) to pointers to empbeddings.
+             otherwise, a list of pointers in the same order as keys
+    :rtype: list
     """
-    torch.multiprocessing.set_sharing_strategy("file_system")
 
-    if n_jobs == -1:
-        n_jobs = mp.cpu_count()
+    pool = LoadingPool(file_path, n_jobs)
+    result = pool.load_once(keys)
+    if return_dict:
+        return dict(zip(keys, result))
+    return result
 
-    with mp.Pool(processes=n_jobs) as pool:
-        all_embs = list(
-            tqdm(
-                pool.imap(partial(_hdf5_load_partial_func, file_path=file_path), keys),
-                total=len(keys),
-            )
+
+# Parse device argument
+def parse_device(device_arg, logFile):
+    if device_arg.lower() == "cpu":
+        device = "cpu"
+        use_cuda = False
+    elif device_arg.lower() == "all":
+        device = -1  # Use all GPUs
+        use_cuda = True
+    elif device_arg.isdigit():  # Allow only nonnegative integers
+        device = int(device_arg)
+        use_cuda = True
+    else:
+        log(
+            f"Invalid device argument: {device_arg}. Use 'cpu', 'all', or a GPU index.",
+            file=logFile,
+            print_also=True,
         )
-
-    embeddings = {k: v for k, v in zip(keys, all_embs, strict=False)}
-    return embeddings
+        logFile.close()
+        sys.exit(1)
+    # Validate CUDA availability and device index if GPU requested
+    if use_cuda:
+        if not torch.cuda.is_available():
+            log(
+                "CUDA not available but GPU requested. Use --device cpu for CPU execution.",
+                file=logFile,
+                print_also=True,
+            )
+            logFile.close()
+            sys.exit(1)
+        if device >= 0 and device >= torch.cuda.device_count():
+            log(
+                f"Invalid device argument: {device_arg} exceeds the number of GPUs available, which is {torch.cuda.device_count()}. Please specify a valid GPU, or use --device cpu for CPU execution.",
+                file=logFile,
+                print_also=True,
+            )
+    return device
 
 
 class PairedDataset(torch.utils.data.Dataset):

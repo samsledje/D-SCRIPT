@@ -25,7 +25,9 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 
-from ..utils import load_hdf5_parallel, log
+from dscript.loading import LoadingPool
+
+from ..utils import log
 
 matplotlib.use("Agg")
 
@@ -54,11 +56,17 @@ def add_args(parser):
     )
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument(
-        "--embedding", help="h5 file with embedded sequences", required=True
+        "--embeddings", help="h5 file with embedded sequences", required=True
     )
     parser.add_argument("-o", "--outfile", help="Output file to write results")
     parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Compute device to use"
+    )
+    parser.add_argument(
+        "--load_proc",
+        type=int,
+        default=16,
+        help="Number of processes to use when loading embeddings (-1 = # of available CPUs, default=16). Because loading is IO-bound, values larger that the # of CPUs are allowed.",
     )
 
     # Foldseek arguments
@@ -204,7 +212,7 @@ def main(args):
         ).cpu()
         model.use_cuda = False
 
-    embPath = args.embedding
+    embPath = args.embeddings
 
     # Load Pairs
     test_fi = args.test
@@ -216,8 +224,9 @@ def main(args):
         outPath = args.outfile
     outFile = open(outPath + ".predictions.tsv", "w+")
 
-    allProteins = set(test_df[0]).union(test_df[1])
-    embeddings = load_hdf5_parallel(embPath, allProteins)
+    allProteins = sorted(list(set(test_df[0]).union(test_df[1])))
+    loadpool = LoadingPool(embPath, n_jobs=args.load_proc)
+    embeddings = loadpool.load(allProteins)
 
     model.eval()
     with torch.no_grad():
@@ -227,8 +236,12 @@ def main(args):
             test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
         ):
             try:
-                p0 = embeddings[n0]
-                p1 = embeddings[n1]
+                i0 = allProteins.index(n0)
+                i1 = allProteins.index(n1)
+                if i0 < 0 or i1 < 0:
+                    raise ValueError(f"Protein {n0} or {n1} not found in embeddings")
+                p0 = embeddings[i0]
+                p1 = embeddings[i1]
 
                 if use_cuda:
                     p0 = p0.cuda()

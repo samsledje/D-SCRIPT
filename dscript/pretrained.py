@@ -105,8 +105,10 @@ def get_state_dict(version="human_v2", verbose=True):
 
             # Validate URL scheme for security
             parsed_url = urlparse(state_dict_url)
-            if parsed_url.scheme not in ('http', 'https'):
-                raise ValueError(f"Invalid URL scheme '{parsed_url.scheme}'. Only http and https are allowed.")
+            if parsed_url.scheme not in ("http", "https"):
+                raise ValueError(
+                    f"Invalid URL scheme '{parsed_url.scheme}'. Only http and https are allowed."
+                )
 
             if verbose:
                 log(f"Downloading model {version} from {state_dict_url}...")

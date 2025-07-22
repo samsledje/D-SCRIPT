@@ -1,5 +1,5 @@
 """
-Make new predictions with a pre-trained model. One of --seqs or --embeddings is required.
+Make new predictions with a pre-trained model using legacy (serial) inference. One of --seqs or --embeddings is required.
 """
 
 from __future__ import annotations
@@ -29,8 +29,9 @@ class PredictionArguments(NamedTuple):
     embeddings: str | None
     outfile: str | None
     seqs: str
-    model: str
+    model: str | None
     thresh: float | None
+    load_proc: int | None
     func: Callable[[PredictionArguments], None]
 
 
@@ -73,6 +74,12 @@ def add_args(parser):
         type=float,
         default=0.5,
         help="Positive prediction threshold - used to store contact maps and predictions in a separate file. [default: 0.5]",
+    )
+    parser.add_argument(
+        "--load_proc",
+        type=int,
+        default=32,
+        help="Number of processes to use when loading embeddings (-1 = # of CPUs, default=32)",
     )
     return parser
 
@@ -166,6 +173,7 @@ def main(args):
         sys.exit(1)
 
     # Load Sequences or Embeddings
+    torch.multiprocessing.set_sharing_strategy("file_system")
     if embPath is None:
         try:
             names, seqs = parse(seqPath, "r")
@@ -184,7 +192,9 @@ def main(args):
             embeddings[n] = lm_embed(seqDict[n], use_cuda)
     else:
         log("Loading Embeddings...", file=logFile, print_also=True)
-        embeddings = load_hdf5_parallel(embPath, all_prots)
+        embeddings = load_hdf5_parallel(
+            embPath, all_prots, n_jobs=args.load_proc
+        )  # Is a dict, legacy behavior
 
     # Load Foldseek Sequences
     if foldseek_fasta is not None:
