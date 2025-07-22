@@ -1,13 +1,11 @@
 # D-SCRIPT
- ![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
-
-<!--- #![GitHub release (latest by date)](https://img.shields.io/github/v/release/samsledje/D-SCRIPT) --->
-<!--- [![D-SCRIPT](https://img.shields.io/github/v/release/samsledje/D-SCRIPT?include_prereleases)](https://github.com/samsledje/D-SCRIPT/releases) --->
 [![PyPI](https://img.shields.io/pypi/v/dscript)](https://pypi.org/project/dscript/)
 [![DOI](https://zenodo.org/badge/308463847.svg)](https://zenodo.org/badge/latestdoi/308463847)
 [![License](https://img.shields.io/github/license/samsledje/D-SCRIPT)](https://github.com/samsledje/D-SCRIPT/blob/main/LICENSE)
 [![Pytest](https://github.com/samsledje/D-SCRIPT/actions/workflows/autorun-tests.yml/badge.svg)](https://github.com/samsledje/D-SCRIPT/actions/workflows/autorun-tests.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+![D-SCRIPT Architecture](docs/source/img/dscript_architecture.png)
 
 D-SCRIPT is a deep learning method for predicting a physical interaction between two proteins given just their sequences. It generalizes well to new species and is robust to limitations in training data size. Its design reflects the intuition that for two proteins to physically interact, a subset of amino acids from each protein should be in contact with the other. The intermediate stages of D-SCRIPT directly implement this intuition, with the penultimate stage in D-SCRIPT being a rough estimate of the inter-protein contact map of the protein dimer. This structurally-motivated design enhances the interpretability of the results and, since structure is more conserved evolutionarily than sequence, improves generalizability across species.
 
