@@ -96,12 +96,15 @@ class TestCommands:
             assert len(lines) == 3, "Expected 3 lines in the output file."
 
     def test_predict_bipartite(self):
-        cmd = f"dscript predict_bipartite --protA dscript/tests/test.bipartite.txt --protB dscript/tests/test.bipartite.txt --embedA {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_bipartite --thresh 0.05 --device 0"
-        self._run_command(cmd)
-        with open(f"{self.temp_dir}/test_bipartite.tsv") as f:
-            lines = f.readlines()
-            assert len(lines) > 0, "Output file is empty."
-            assert len(lines) == 9, "Expected 9 lines in the output file."
+        if torch.cuda.is_available():
+            cmd = f"dscript predict_bipartite --protA dscript/tests/test.bipartite.txt --protB dscript/tests/test.bipartite.txt --embedA {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_bipartite --thresh 0.05 --device 0"
+            self._run_command(cmd)
+            with open(f"{self.temp_dir}/test_bipartite.tsv") as f:
+                lines = f.readlines()
+                assert len(lines) > 0, "Output file is empty."
+                assert len(lines) == 9, "Expected 9 lines in the output file."
+        else:
+            logger.warning("CUDA is not available, skipping bipartite prediction test.")
 
     def test_predict_bipartite_cpu(self):
         cmd = f"dscript predict_bipartite --protA dscript/tests/test.bipartite.txt --protB dscript/tests/test.bipartite.txt --embedA {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_bipartite_cpu --thresh 0.05 --device cpu"
