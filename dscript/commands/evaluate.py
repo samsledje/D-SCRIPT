@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 import torch
 from Bio import SeqIO
-from loguru import logger
 from sklearn.metrics import (
     average_precision_score,
     precision_recall_curve,
@@ -279,9 +278,6 @@ def main(args):
 
     phats = np.array(phats)
     labels = np.array(labels)
-
-    logger.debug(phats)
-    logger.debug(labels)
 
     with open(outPath + "_metrics.txt", "w+") as f:
         aupr = average_precision_score(labels, phats)

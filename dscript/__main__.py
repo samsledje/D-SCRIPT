@@ -5,7 +5,15 @@ D-SCRIPT: Structure Aware PPI Prediction
 import argparse
 import sys
 
-from .commands import predict_serial
+from .commands import (
+    embed,
+    evaluate,
+    extract_3di,
+    predict_bipartite,
+    predict_block,
+    predict_serial,
+    train,
+)
 from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
 from .commands.extract_3di import Extract3DiArguments
@@ -55,15 +63,6 @@ def main():
 
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
-
-    from .commands import (
-        embed,
-        evaluate,
-        extract_3di,
-        predict_bipartite,
-        predict_block,
-        train,
-    )
 
     modules = {
         "train": train,
