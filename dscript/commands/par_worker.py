@@ -37,7 +37,6 @@ def _predict(
     # Load Model
     try:
         if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
-            logger.debug(f"Loading model from {modelPath} on device {device}.")
             model = torch.load(
                 modelPath, map_location=torch.device(device), weights_only=False
             )  # Check moved to main

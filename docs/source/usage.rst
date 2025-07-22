@@ -94,8 +94,8 @@ Bipartite, Multi-GPU Prediction
     
     options:
       -h, --help            show this help message and exit
-      --protA PROTA         A files with protein IDs. All pairs between proteins in this file and proteins in protB will be predicted
-      --protB PROTB         A files with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted
+      --protA PROTA         A text file with protein IDs, one on each line. All pairs between proteins in this file and proteins in protB will be predicted
+      --protB PROTB         A text file with protein IDs, one on each line. All pairs between proteins in protA and proteins in this file will be predicted
       --model MODEL         Pretrained Model. If this is a `.sav` or `.pt` file, it will be loaded. Otherwise, we will try to load `[model]` from HuggingFace hub [default: samsl/topsy_turvy_human_v1]
       --embedA EMBEDA       h5 file with (a superset of) pre-embedded sequences from the file protA. Generate with dscript embed. If a single file contains embeddings for both protA and protB, specify it as embedA.
       --embedB EMBEDB       h5 file with (a superset of) pre-embedded sequences from the file protB. Generate with dscript embed.

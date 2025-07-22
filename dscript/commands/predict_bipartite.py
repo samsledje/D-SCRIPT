@@ -25,6 +25,7 @@ from ..utils import log, parse_device
 from .par_worker import _predict
 from .par_writer import _writer
 
+from loguru import logger
 
 class BipartitePredictionArguments(NamedTuple):
     cmd: str
@@ -53,12 +54,12 @@ def add_args(parser):
     parser.add_argument(
         "--protA",
         required=True,
-        help="A file with protein IDs. All pairs between proteins in this file and proteins in protB will be predicted",
+        help="A text file with protein IDs, one on each line. All pairs between proteins in this file and proteins in protB will be predicted",
     )
     parser.add_argument(
         "--protB",
         required=True,
-        help="A file with protein IDs. All pairs between proteins in protA and proteins in this file will be predicted",
+        help="A text file with protein IDs, one on each line. All pairs between proteins in protA and proteins in this file will be predicted",
     )
     parser.add_argument(
         "--model",
@@ -300,6 +301,7 @@ def main(args):
             ),  # Can't pass an open file
             nprocs=n_gpu,
             join=False,
+            daemon=True,
         )
     else:
         p = mp.Process(
@@ -312,8 +314,9 @@ def main(args):
                 args.store_cmaps,
                 use_fs,
                 pair_done_queue,
-            ),
+            ), 
         )
+        p.daemon = True
         p.start()
         n_gpu = 1
 
@@ -337,8 +340,9 @@ def main(args):
             n_pairs,
             threshold,
             output_queue,
-        ),
+        ), 
     )
+    write_proc.daemon = True
     write_proc.start()
 
     # Create the pool we will use to load embeddings
