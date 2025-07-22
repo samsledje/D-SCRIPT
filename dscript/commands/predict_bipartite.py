@@ -25,7 +25,6 @@ from ..utils import log, parse_device
 from .par_worker import _predict
 from .par_writer import _writer
 
-from loguru import logger
 
 class BipartitePredictionArguments(NamedTuple):
     cmd: str
@@ -314,7 +313,7 @@ def main(args):
                 args.store_cmaps,
                 use_fs,
                 pair_done_queue,
-            ), 
+            ),
         )
         p.daemon = True
         p.start()
@@ -340,7 +339,7 @@ def main(args):
             n_pairs,
             threshold,
             output_queue,
-        ), 
+        ),
     )
     write_proc.daemon = True
     write_proc.start()

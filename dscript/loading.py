@@ -1,8 +1,9 @@
-import sys
 import queue
+import sys
+
 import torch.multiprocessing as mp
-from tqdm import tqdm
 from loguru import logger
+from tqdm import tqdm
 
 from .load_worker import _hdf5_load_partial_func
 

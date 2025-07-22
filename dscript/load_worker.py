@@ -2,6 +2,7 @@ import h5py
 import torch
 from loguru import logger
 
+
 # Worker process function for loading embeddings
 def _hdf5_load_partial_func(qin, qout, file_path):
     """

@@ -1,9 +1,9 @@
 import os
-import h5py
 import shutil
 import subprocess as sp
 import tempfile
 
+import h5py
 import torch
 from loguru import logger
 
@@ -40,7 +40,9 @@ class TestCommands:
     def test_embed(self):
         cmd = f"dscript embed --seqs dscript/tests/test.fasta --outfile {self.temp_dir}/test_embed.h5"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_embed.h5"), "Embedding file not created."
+        assert os.path.exists(f"{self.temp_dir}/test_embed.h5"), (
+            "Embedding file not created."
+        )
         with h5py.File(f"{self.temp_dir}/test_embed.h5", "r") as f:
             klist = list(f.keys())
             assert len(klist) == 3, "Expected 3 keys in the embedding file."
@@ -48,12 +50,16 @@ class TestCommands:
     def test_train_with_topsy_turvy(self):
         cmd = f"dscript train --topsy-turvy --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test_tt-train.log --save-prefix {self.temp_dir}/test_tt-train"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_tt-train_final.sav"), "Model file not created."
+        assert os.path.exists(f"{self.temp_dir}/test_tt-train_final.sav"), (
+            "Model file not created."
+        )
 
     def test_train_without_topsy_turvy(self):
         cmd = f"dscript train --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test-train.log --save-prefix {self.temp_dir}/test_train"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_train_final.sav"), "Model file not created."
+        assert os.path.exists(f"{self.temp_dir}/test_train_final.sav"), (
+            "Model file not created."
+        )
 
     def test_evaluate(self):
         cmd = f"dscript evaluate --test dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_evaluate"
@@ -63,7 +69,7 @@ class TestCommands:
         if torch.cuda.is_available():
             cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device 0"
             self._run_command(cmd)
-            with open(f"{self.temp_dir}/test_predict.tsv", "r") as f:
+            with open(f"{self.temp_dir}/test_predict.tsv") as f:
                 lines = f.readlines()
                 assert len(lines) > 0, "Output file is empty."
                 assert len(lines) == 3, "Expected 3 lines in the output file."
@@ -74,7 +80,7 @@ class TestCommands:
         if torch.cuda.is_available():
             cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device all"
             self._run_command(cmd)
-            with open(f"{self.temp_dir}/test_predict.tsv", "r") as f:
+            with open(f"{self.temp_dir}/test_predict.tsv") as f:
                 lines = f.readlines()
                 assert len(lines) > 0, "Output file is empty."
                 assert len(lines) == 3, "Expected 3 lines in the output file."
@@ -84,23 +90,23 @@ class TestCommands:
     def test_predict_on_cpu(self):
         cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device cpu"
         self._run_command(cmd)
-        with open(f"{self.temp_dir}/test_predict.tsv", "r") as f:
-                lines = f.readlines()
-                assert len(lines) > 0, "Output file is empty."
-                assert len(lines) == 3, "Expected 3 lines in the output file."
+        with open(f"{self.temp_dir}/test_predict.tsv") as f:
+            lines = f.readlines()
+            assert len(lines) > 0, "Output file is empty."
+            assert len(lines) == 3, "Expected 3 lines in the output file."
 
     def test_predict_bipartite(self):
         cmd = f"dscript predict_bipartite --protA dscript/tests/test.bipartite.txt --protB dscript/tests/test.bipartite.txt --embedA {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_bipartite --thresh 0.05 --device 0"
         self._run_command(cmd)
-        with open(f"{self.temp_dir}/test_bipartite.tsv", "r") as f:
+        with open(f"{self.temp_dir}/test_bipartite.tsv") as f:
             lines = f.readlines()
             assert len(lines) > 0, "Output file is empty."
-            assert len(lines) == 9, "Expected 9 lines in the output file." 
+            assert len(lines) == 9, "Expected 9 lines in the output file."
 
     def test_predict_bipartite_cpu(self):
         cmd = f"dscript predict_bipartite --protA dscript/tests/test.bipartite.txt --protB dscript/tests/test.bipartite.txt --embedA {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_bipartite_cpu --thresh 0.05 --device cpu"
         self._run_command(cmd)
-        with open(f"{self.temp_dir}/test_bipartite_cpu.tsv", "r") as f:
+        with open(f"{self.temp_dir}/test_bipartite_cpu.tsv") as f:
             lines = f.readlines()
             assert len(lines) > 0, "Output file is empty."
             assert len(lines) == 9, "Expected 9 lines in the output file."
