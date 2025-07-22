@@ -224,10 +224,6 @@ def main(args):
     logFilePath = outPath + ".log"
     logFile = open(logFilePath, "w+")
 
-    if not torch.cuda.is_available():
-        log("A GPU/CUDA device is required.", file=logFile, print_also=True)
-        sys.exit(1)
-
     # With 2 of everything, this will be a lot more readable
     # Initialize and load proteins
     protsA = ProteinSet(args.protA, args.blocksA, logFile)
@@ -244,7 +240,7 @@ def main(args):
         protsB.set_embed_path(args.embedB)
 
     modelPath = args.model
-    device, use_cuda = parse_device(args.device, logFile)
+    device = parse_device(args.device, logFile)
     threshold = args.thresh
 
     # Check model path

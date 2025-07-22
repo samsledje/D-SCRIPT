@@ -52,9 +52,16 @@ class TestCommands:
         cmd = f"dscript evaluate --test dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_evaluate"
         self._run_command(cmd)
 
-    def test_predict_on_gpu(self):
+    def test_predict_one_gpu(self):
         if torch.cuda.is_available():
             cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device 0"
+            self._run_command(cmd)
+        else:
+            logger.warning("CUDA is not available, skipping GPU prediction test.")
+
+    def test_predict_all_gpu(self):
+        if torch.cuda.is_available():
+            cmd = f"dscript predict --pairs dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_predict --thresh 0.05 --device all"
             self._run_command(cmd)
         else:
             logger.warning("CUDA is not available, skipping GPU prediction test.")

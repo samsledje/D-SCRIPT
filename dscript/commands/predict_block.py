@@ -147,7 +147,7 @@ def main(args):
         sys.exit(3)
 
     modelPath = args.model
-    device, use_cuda = parse_device(args.device, logFile)
+    device = parse_device(args.device, logFile)
 
     threshold = args.thresh
     foldseek_fasta = args.foldseek_fasta
@@ -287,7 +287,7 @@ def main(args):
         p = mp.Process(
             target=_predict,
             args=(
-                device, #"cpu" for CPU, or an index for a GPU
+                device,  # "cpu" for CPU, or an index for a GPU
                 modelPath,
                 input_queue,
                 output_queue,

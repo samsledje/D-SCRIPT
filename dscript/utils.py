@@ -91,16 +91,16 @@ def load_hdf5_parallel(file_path, keys, n_jobs=-1, return_dict=True):
         return dict(zip(keys, result))
     return result
 
+
 # Parse device argument
 def parse_device(device_arg, logFile):
     if device_arg.lower() == "cpu":
         device = "cpu"
         use_cuda = False
-        n_gpu = 1
     elif device_arg.lower() == "all":
         device = -1  # Use all GPUs
         use_cuda = True
-    elif device_arg.isdigit(): #Allow only nonnegative integers
+    elif device_arg.isdigit():  # Allow only nonnegative integers
         device = int(device_arg)
         use_cuda = True
     else:
@@ -123,10 +123,11 @@ def parse_device(device_arg, logFile):
             sys.exit(1)
         if device >= 0 and device >= torch.cuda.device_count():
             log(
-                f"Invalid device argument: {device_arg} exceeds the number of GPUs available, which is {torch.cuda.device_count()}. Please specify a valid GPU, or use --device cpu for CPU execution.", file=logFile, 
+                f"Invalid device argument: {device_arg} exceeds the number of GPUs available, which is {torch.cuda.device_count()}. Please specify a valid GPU, or use --device cpu for CPU execution.",
+                file=logFile,
                 print_also=True,
             )
-    return device, use_cuda
+    return device
 
 
 class PairedDataset(torch.utils.data.Dataset):
