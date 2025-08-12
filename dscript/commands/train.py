@@ -14,12 +14,12 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from Bio import SeqIO
 from sklearn.metrics import average_precision_score as average_precision
 from torch.autograd import Variable
 from tqdm import tqdm
 
 from .. import __version__
+from ..fasta import parse_dict
 from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..glider import glide_compute_map, glider_score
 from ..models.contact import ContactCNN
@@ -551,9 +551,9 @@ def train_model(args, output):
     # fold_vocab = None
     if allow_foldseek:
         assert fold_fasta_file is not None
-        fold_fasta = SeqIO.parse(fold_fasta_file, "fasta")
-        for rec in fold_fasta:
-            fold_record[rec.id] = rec.seq
+        fold_fasta = parse_dict(fold_fasta_file)
+        for rec_k, rec_v in fold_fasta.items():
+            fold_record[rec_k] = rec_v
     ##################################################
 
     train_df = pd.read_csv(train_fi, sep="\t", header=None)

@@ -18,7 +18,6 @@ dependencies = [
     "scipy",
     "pandas",
     "torch>=1.13",
-    "biopython",
     "matplotlib",
     "seaborn",
     "tqdm",

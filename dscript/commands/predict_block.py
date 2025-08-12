@@ -110,7 +110,7 @@ def add_args(parser):
     parser.add_argument(
         "--sparse_loading",
         action="store_true",
-        help="Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommented when predicting with many blocks on sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks > 1 and pairs specified. Maximum (embedding) memory usage with this option is 4 blocks' worth.",
+        help="Load only the proteins required from each block, but do not reuse loaded blocks in memory. Recommended when predicting with many blocks on sparse pairs, such that many pairs of blocks might contain no pairs of proteins of interest. Only available when blocks > 1 and pairs specified. Maximum (embedding) memory usage with this option is 4 blocks' worth.",
     )
     return parser
 

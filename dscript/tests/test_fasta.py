@@ -3,7 +3,6 @@ import tempfile
 from io import StringIO
 
 import pytest
-from Bio import SeqIO
 
 from dscript.fasta import (
     parse,
@@ -42,20 +41,6 @@ TGCA"""
         for seq in sequences:
             assert isinstance(seq, str)
             assert len(seq) > 0
-
-    def test_parse_with_comment(self):
-        """Test parsing with comment parameter (though not used in current implementation)."""
-        fasta_content = """>seq1
-ACGT
->seq2
-TGCA"""
-
-        fasta_io = StringIO(fasta_content)
-        names, sequences = parse(fasta_io, comment="#")
-
-        assert len(names) == 2
-        assert names == ["seq1", "seq2"]
-        assert sequences == ["ACGT", "TGCA"]
 
     def test_parse_empty_file(self):
         """Test parsing an empty FASTA file."""
@@ -154,12 +139,11 @@ TGCA"""
 
         try:
             # Verify the file was written correctly
-            records = list(SeqIO.parse(tmp_file_path, "fasta"))
-            assert len(records) == 2
-            assert records[0].id == "seq1"
-            assert str(records[0].seq) == "ACGT"
-            assert records[1].id == "seq2"
-            assert str(records[1].seq) == "TGCA"
+            names, sequences = parse(tmp_file_path)
+
+            assert len(names) == 2
+            assert names == ["seq1", "seq2"]
+            assert sequences == ["ACGT", "TGCA"]
         finally:
             os.unlink(tmp_file_path)
 

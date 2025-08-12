@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-from Bio import SeqIO
 from sklearn.metrics import (
     average_precision_score,
     precision_recall_curve,
@@ -28,6 +27,7 @@ from tqdm import tqdm
 from dscript.loading import LoadingPool
 
 from ..utils import log
+from ..fasta import parse_dict
 
 matplotlib.use("Agg")
 
@@ -185,9 +185,9 @@ def main(args):
     fold_vocab = None
     if allow_foldseek:
         assert fold_fasta_file is not None and fold_vocab_file is not None
-        fold_fasta = SeqIO.parse(fold_fasta_file, "fasta")
-        for rec in fold_fasta:
-            fold_record[rec.id] = rec.seq
+        fold_fasta = parse_dict(fold_fasta_file)
+        for rec_k, rec_v in fold_fasta.items():
+            fold_record[rec_k] = rec_v
         with open(fold_vocab_file) as fv:
             fold_vocab = json.load(fv)
     ##################################################

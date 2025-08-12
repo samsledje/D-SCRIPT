@@ -26,7 +26,6 @@ If you want to build D-SCRIPT for source or contribute to development, you can f
 
 This will install the following dependencies:
 
-    - biopython
     - biotite == 1.4
     - h5py
     - huggingface_hub

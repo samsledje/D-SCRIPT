@@ -1,15 +1,16 @@
 import os
 import shutil
+from sre_parse import parse
 import subprocess as sp
 import tempfile
 
-from Bio import SeqIO
 from loguru import logger
 
 from dscript.language_model import (
     embed_from_fasta,
     lm_embed,
 )
+from dscript.fasta import parse
 
 
 class TestLanguageModel:
@@ -37,10 +38,10 @@ class TestLanguageModel:
                 # Let the OS clean it up eventually
 
     def test_lm_embed(self):
-        seqs = list(SeqIO.parse("dscript/tests/test.fasta", "fasta"))
-        for seqrec in seqs:
-            x = lm_embed(str(seqrec.seq))
-            assert x.shape[1] == len(seqrec.seq)
+        _, sequences = parse("dscript/tests/test.fasta")
+        for seq in sequences:
+            x = lm_embed(seq)
+            assert x.shape[1] == len(seq)
 
     def embed_from_fasta(self):
         embed_from_fasta(
