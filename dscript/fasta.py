@@ -1,8 +1,9 @@
 import os
 
-from loguru import logger
-from biotite.sequence.io import fasta
 from biotite import InvalidFileError
+from biotite.sequence.io import fasta
+from loguru import logger
+
 
 def parse_dict(f: str):
     """
@@ -23,6 +24,7 @@ def parse_dict(f: str):
         seq_dict[k] = str(v)
 
     return seq_dict
+
 
 def parse(f: str):
     """
@@ -78,7 +80,7 @@ def parse_directory(directory, extension=".seq"):
         - list of str: Sequences.
     :rtype: (list of str, list of str)
     """
-    
+
     names = []
     sequences = []
 

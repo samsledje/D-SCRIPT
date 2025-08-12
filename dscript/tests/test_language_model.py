@@ -1,16 +1,15 @@
 import os
 import shutil
-from sre_parse import parse
 import subprocess as sp
 import tempfile
 
 from loguru import logger
 
+from dscript.fasta import parse
 from dscript.language_model import (
     embed_from_fasta,
     lm_embed,
 )
-from dscript.fasta import parse
 
 
 class TestLanguageModel:

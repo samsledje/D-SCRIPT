@@ -26,8 +26,8 @@ from tqdm import tqdm
 
 from dscript.loading import LoadingPool
 
-from ..utils import log
 from ..fasta import parse_dict
+from ..utils import log
 
 matplotlib.use("Agg")
 
