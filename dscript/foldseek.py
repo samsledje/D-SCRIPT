@@ -1,9 +1,8 @@
-import shlex
-import subprocess as sp
-import tempfile
-
+import biotite.structure as struc
+import biotite.structure.alphabet as alphabet
+import biotite.structure.io as strucio
 import torch
-from Bio import Seq, SeqRecord
+from loguru import logger
 
 from .utils import log
 
@@ -48,27 +47,30 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
         return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
 
 
-def get_3di_sequences(pdb_files: list[str], foldseek_path="foldseek"):
-    pdb_file_string = " ".join([str(p) for p in pdb_files])
-    pdb_dir_name = hash(pdb_file_string)
+def get_3di_sequences(pdb_files: list[str]):
+    """
+    Extract 3Di sequences from PDB/mmCIF files using biotite.structure.alphabet.to_3di(atoms).
+    Returns a dict {basename: SeqRecord}.
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        FSEEK_BASE_CMD = (
-            f"{foldseek_path} createdb {pdb_file_string} {tmpdir}/{pdb_dir_name}"
-        )
-        log(FSEEK_BASE_CMD)
-        proc = sp.Popen(shlex.split(FSEEK_BASE_CMD), stdout=sp.PIPE, stderr=sp.PIPE)
-        out, err = proc.communicate()
-
-        with open(f"{tmpdir}/{pdb_dir_name}_ss") as seq_file:
-            seqs = [i.strip().strip("\x00") for i in seq_file]
-
-        with open(f"{tmpdir}/{pdb_dir_name}.lookup") as name_file:
-            names = [i.strip().split()[1].split(".")[0] for i in name_file]
-
-        seq_records = {
-            n: SeqRecord.SeqRecord(Seq.Seq(s), id=n, description=n)
-            for (n, s) in zip(names, seqs, strict=False)
-        }
-
-        return seq_records
+    At this time, this function will only extract a 3Di sequence for the first chain in each PDB file.
+    If you need to extract multiple chains, you will need to modify this function. This is to maintain
+    consistent naming support with the rest of D-SCRIPT training and inference scripts, as the current
+    requirement is that pdb file names match fasta header names.
+    """
+    seq_records = {}
+    for pdb_path in pdb_files:
+        basename = str(pdb_path).split("/")[-1].split(".")[0]
+        try:
+            atoms = strucio.load_structure(str(pdb_path))
+            atoms = atoms[struc.filter_amino_acids(atoms)]
+            chains = sorted(list(set(atoms.chain_id)))
+            first_chain = chains[0]
+            chain_atoms = atoms[atoms.chain_id == first_chain]
+            if len(chain_atoms) == 0:
+                logger.warning(f"No atoms found for chain {first_chain} in {pdb_path}")
+            seq_3di, idx = alphabet.to_3di(chain_atoms)
+            seq_records[basename] = str(seq_3di[0]).upper()
+        except Exception as e:
+            log(f"Error processing {pdb_path}: {e}")
+            continue
+    return seq_records

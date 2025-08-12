@@ -157,22 +157,18 @@ class TestFoldseek:
             assert result[i, d_idx] == 1.0
             assert torch.sum(result[i]) == 1.0
 
-    def test_get_3di_sequences_no_foldseek_binary(self):
-        """Test get_3di_sequences when foldseek binary is not available."""
-        # This test assumes foldseek is not installed
-        pdb_files = ["dummy.pdb"]
+    def test_get_3di_sequences_with_cif(self):
+        """Test get_3di_sequences using biotite on a CIF file."""
+        import os
 
-        try:
-            _ = get_3di_sequences(pdb_files, foldseek_path="nonexistent_foldseek")
-            # If it doesn't fail, that's unexpected but not necessarily wrong
-            # The function might handle missing binary gracefully
-        except (FileNotFoundError, OSError):
-            # Expected when foldseek binary is not found
-            logger.warning("Foldseek binary not found, skipping test.")
-            pass
-        except Exception as e:
-            logger.error(f"Unexpected error occurred: {e}")
-            pass
+        cif_path = os.path.join(os.path.dirname(__file__), "../../data/8JZ0.cif")
+        cif_path = os.path.abspath(cif_path)
+        result = get_3di_sequences([cif_path])
+        assert isinstance(result, dict)
+        assert "8JZ0" in result
+        seq_record = result["8JZ0"]
+        assert isinstance(seq_record, str)
+        assert len(seq_record) > 0
 
     def test_get_3di_sequences_empty_pdb_list(self):
         """Test get_3di_sequences with empty PDB file list."""

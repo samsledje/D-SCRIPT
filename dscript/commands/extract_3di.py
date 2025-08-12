@@ -6,7 +6,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import NamedTuple
 
-from Bio import SeqIO
+# Use biotite for FASTA writing
+import biotite.sequence.io.fasta as fasta
 
 from ..foldseek import get_3di_sequences
 from ..utils import log
@@ -29,24 +30,24 @@ def add_args(parser):
         type=str,
         help="Path for .fasta file containing 3Di strings",
     )
-    parser.add_argument(
-        "--foldseek_path",
-        type=str,
-        default="foldseek",
-        help="Path to local Foldseek executable if not on $PATH",
-    )
 
     return parser
 
 
 def main(args):
     pdb_file_list = [
-        Path(args.pdb_directory) / Path(p) for p in os.listdir(args.pdb_directory)
+        Path(args.pdb_directory) / Path(p)
+        for p in os.listdir(args.pdb_directory)
+        if p.endswith(".pdb") or p.endswith(".cif")
     ]
 
-    seq_records = get_3di_sequences(pdb_file_list, foldseek_path=args.foldseek_path)
-    SeqIO.write(seq_records.values(), args.out_file, "fasta-2line")
-
+    seq_records = get_3di_sequences(pdb_file_list)
+    # Convert SeqRecord to biotite sequence and write FASTA
+    with open(args.out_file, "w+") as f:
+        ff = fasta.FastaFile()
+        for rec_k, rec_v in seq_records.items():
+            ff[rec_k] = rec_v
+        ff.write(f)
     log(f"3Di sequences written to {args.out_file}")
 
 
