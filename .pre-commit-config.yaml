@@ -1,32 +1,15 @@
 fail_fast: true
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v6.0.0
     hooks:
     - id: check-merge-conflict
     - id: check-yaml
     - id: end-of-file-fixer
     - id: trailing-whitespace
-      #-   repo: https://github.com/pycqa/isort
-      #    rev: 5.8.0
-      #    hooks:
-      #    - id: isort
-      #      args: ["--profile", "black"]
--   repo: https://github.com/ambv/black
-    rev: 21.6b0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.8
     hooks:
-    - id: black
-      language_version: python3.7
-      additional_dependencies: ['click==8.0.4']
-      #-   repo: https://gitlab.com/pycqa/flake8
-      #rev: 3.9.2
-      #hooks:
-      #- id: flake8
--   repo: local
-    hooks:
-    - id: pytest-check
-      name: pytest-check
-      entry: pytest
-      language: conda
-      pass_filenames: false
-      always_run: true
+    - id: ruff-check
+      args: [ --fix ]
+    - id: ruff-format
