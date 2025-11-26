@@ -6,6 +6,7 @@ from loguru import logger
 
 from .utils import log
 
+# OPEN QUESTION: Does this order matter?
 fold_vocab = {
     "D": 0,
     "P": 1,
@@ -30,6 +31,14 @@ fold_vocab = {
     "X": 20,
 }
 
+# N.B. Written assuming order matters to retain foldseek indices
+def build_backbone_vocab(size = 12, fold_vocab = fold_vocab):
+    # defaulting size to 12, because what was used in given script
+    aa_alphabet = "ACDEFGHIKLMNPQRSTVWY"
+    if size < 1 or size > len(aa_alphabet):
+        raise ValueError(f"Size must be between 1 and {len(aa_alphabet)}")
+    letters = aa_alphabet[:size]
+    return {aa: fold_vocab[aa] for aa in letters}
 
 def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     """
@@ -74,3 +83,4 @@ def get_3di_sequences(pdb_files: list[str]):
             log(f"Error processing {pdb_path}: {e}")
             continue
     return seq_records
+
