@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 from .. import __version__
 from ..fasta import parse_dict
-from ..foldseek import fold_vocab, get_foldseek_onehot, build_backbone_vocab
+from ..foldseek import fold_vocab, get_foldseek_onehot, build_backbone_vocab, Foldseek3diContext
 from ..glider import glide_compute_map, glider_score
 from ..models.contact import ContactCNN
 from ..models.embedding import FullyConnectedEmbed
@@ -30,22 +30,6 @@ from ..utils import (
     collate_paired_sequences,
     log,
 )
-
-from dataclasses import dataclass
-
-@dataclass
-class Foldseek3diContext:
-    allow_foldseek: bool = False
-    allow_backbone3di: bool = False
-
-    fold_record: dict = None
-    fold_vocab: dict = None
-
-    backbone_record: dict = None
-    backbone_vocab: dict = None
-
-    add_first: bool = False # TODO: remove all refs to this
-
 
 class TrainArguments(NamedTuple):
     cmd: str
