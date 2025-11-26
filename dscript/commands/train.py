@@ -31,6 +31,7 @@ from ..utils import (
     log,
 )
 
+
 class TrainArguments(NamedTuple):
     cmd: str
     device: int
@@ -294,10 +295,6 @@ def predict_cmap_interaction(
                 f_a = f_a.cuda()
                 f_b = f_b.cuda()
 
-            if add_first:
-                z_a = torch.concat([z_a, f_a], dim=2)
-                z_b = torch.concat([z_b, f_b], dim=2)
-
         if structural_context.allow_backbone3di:
             assert structural_context.backbone_record is not None and structural_context.fold_vocab is not None
             b_a = get_foldseek_onehot(
@@ -313,12 +310,7 @@ def predict_cmap_interaction(
                 b_b = b_b.cuda()
 
         cm, ph = model.map_predict(z_a, z_b, structural_context.allow_foldseek, f_a, f_b, structural_context.allow_backbone3di, b_a, b_b)
-        '''
-        if allow_foldseek and (not add_first):
-            cm, ph = model.map_predict(z_a, z_b, True, f_a, f_b)
-        else:
-            cm, ph = model.map_predict(z_a, z_b)
-        '''
+
         p_hat.append(ph)
         c_map_mag.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
@@ -575,8 +567,6 @@ def train_model(args, output):
         allow_backbone3di = allow_backbone3di,
         backbone_record   = backbone_record,
         backbone_vocab    = backbone_vocab,
-        # TODO: remove
-        add_first         = False
     )
 
     ##################################################
@@ -658,13 +648,6 @@ def train_model(args, output):
         # Create embedding model
         input_dim = args.input_dim
 
-        ############### foldseek code ###########################
-
-        if allow_foldseek and add_first:
-            input_dim += len(fold_vocab)
-
-        ##########################################################
-
         projection_dim = args.projection_dim
 
         dropout_p = args.dropout_p
@@ -683,7 +666,7 @@ def train_model(args, output):
         log(f"\tkernel_width: {kernel_width}", file=output)
 
         proj_dim = projection_dim
-        if allow_foldseek and not add_first:
+        if allow_foldseek:
             proj_dim += len(fold_vocab)
         if allow_backbone3di:
             proj_dim += len(backbone_vocab)

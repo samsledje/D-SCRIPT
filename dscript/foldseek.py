@@ -19,8 +19,6 @@ class Foldseek3diContext:
     backbone_record: dict = None
     backbone_vocab: dict = None
 
-    add_first: bool = False # TODO: remove all refs to this
-
 # OPEN QUESTION: Does this order matter?
 fold_vocab = {
     "D": 0,
