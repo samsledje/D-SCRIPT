@@ -399,7 +399,6 @@ def interaction_grad(
     :return: (Loss, number correct, mean square error, batch size)
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
-
     c_map_mag, p_hat = predict_cmap_interaction(
         model,
         n0,
@@ -752,7 +751,7 @@ def train_model(args, output):
                 glider_map=glider_map,
                 glider_mat=glider_mat,
                 use_cuda=use_cuda,
-                structural_context=None
+                structural_context=foldseek3dicontext
             )
 
             n += b
@@ -799,7 +798,7 @@ def train_model(args, output):
                 test_iterator,
                 embeddings,
                 use_cuda,
-                structural_context
+                foldseek3dicontext
             )
             tokens = [
                 epoch + 1,

@@ -19,7 +19,6 @@ class Foldseek3diContext:
     backbone_record: dict = None
     backbone_vocab: dict = None
 
-# OPEN QUESTION: Does this order matter?
 fold_vocab = {
     "D": 0,
     "P": 1,
@@ -44,14 +43,14 @@ fold_vocab = {
     "X": 20,
 }
 
-# N.B. Written assuming order matters to retain foldseek indices
-def build_backbone_vocab(size = 12, fold_vocab = fold_vocab):
-    # defaulting size to 12, because what was used in given script
-    aa_alphabet = "ACDEFGHIKLMNPQRSTVWY"
+def build_backbone_vocab(size=12):
+    aa_alphabet = "ACDEFGHIKLMPQNRSTVWY"
     if size < 1 or size > len(aa_alphabet):
         raise ValueError(f"Size must be between 1 and {len(aa_alphabet)}")
     letters = aa_alphabet[:size]
-    return {aa: fold_vocab[aa] for aa in letters}
+    vocab = {aa: i for i, aa in enumerate(letters)}
+    vocab["H"] = size # missing
+    return vocab
 
 def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     """
