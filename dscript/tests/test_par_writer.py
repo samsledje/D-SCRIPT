@@ -59,7 +59,7 @@ class TestParWriter:
         )
 
         # Verify all predictions file
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             all_lines = f.readlines()
 
         assert len(all_lines) == 4
@@ -69,7 +69,7 @@ class TestParWriter:
         assert "prot3\tprot4\t0.1\n" in all_lines
 
         # Verify positive predictions file (only >= threshold)
-        with open(basic_setup["out_pos"], "r") as f:
+        with open(basic_setup["out_pos"]) as f:
             pos_lines = f.readlines()
 
         assert len(pos_lines) == 2
@@ -101,12 +101,12 @@ class TestParWriter:
         )
 
         # All predictions should be in all file
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             all_lines = f.readlines()
         assert len(all_lines) == 3
 
         # Only >= 0.5 should be in positive file
-        with open(basic_setup["out_pos"], "r") as f:
+        with open(basic_setup["out_pos"]) as f:
             pos_lines = f.readlines()
 
         assert len(pos_lines) == 2
@@ -170,7 +170,7 @@ class TestParWriter:
 
         _writer(all_prots, str(out_all), str(out_pos), None, 3, 0.5, output_queue)
 
-        with open(out_all, "r") as f:
+        with open(out_all) as f:
             lines = f.readlines()
 
         # Check protein names are correctly mapped
@@ -193,10 +193,10 @@ class TestParWriter:
         )
 
         # Files should be created but empty
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             assert f.read() == ""
 
-        with open(basic_setup["out_pos"], "r") as f:
+        with open(basic_setup["out_pos"]) as f:
             assert f.read() == ""
 
     def test_writer_single_prediction(self, basic_setup):
@@ -214,7 +214,7 @@ class TestParWriter:
             output_queue,
         )
 
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             lines = f.readlines()
 
         assert len(lines) == 1
@@ -244,11 +244,11 @@ class TestParWriter:
         )
 
         # All file should have all predictions
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             assert len(f.readlines()) == 3
 
         # Positive file should be empty
-        with open(basic_setup["out_pos"], "r") as f:
+        with open(basic_setup["out_pos"]) as f:
             assert f.read() == ""
 
     def test_writer_all_above_threshold(self, basic_setup):
@@ -275,10 +275,10 @@ class TestParWriter:
         )
 
         # Both files should have all predictions
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             all_lines = f.readlines()
 
-        with open(basic_setup["out_pos"], "r") as f:
+        with open(basic_setup["out_pos"]) as f:
             pos_lines = f.readlines()
 
         assert len(all_lines) == len(pos_lines) == 3
@@ -378,7 +378,7 @@ class TestParWriter:
             output_queue,
         )
 
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             lines = f.readlines()
 
         # Verify order is preserved
@@ -403,7 +403,7 @@ class TestParWriter:
             output_queue,
         )
 
-        with open(basic_setup["out_all"], "r") as f:
+        with open(basic_setup["out_all"]) as f:
             content = f.read()
 
         # Check that precision is preserved
@@ -474,7 +474,7 @@ class TestParWriter:
 
         _writer(all_prots, str(out_all), str(out_pos), None, 1, 0.5, output_queue)
 
-        with open(out_all, "r") as f:
+        with open(out_all) as f:
             content = f.read()
 
         # Should handle special characters correctly

@@ -3,7 +3,7 @@ Tests for HDF5 loading worker in dscript.load_worker
 """
 
 import queue
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import h5py
 import numpy as np
@@ -136,7 +136,9 @@ class TestHDF5LoadWorker:
         qout = queue.Queue()
 
         # Load multiple embeddings
-        for i, protein in enumerate(["protein1", "protein2", "protein3", "special_protein"]):
+        for i, protein in enumerate(
+            ["protein1", "protein2", "protein3", "special_protein"]
+        ):
             qin.put((protein, i))
         qin.put(None)
 
@@ -330,7 +332,12 @@ class TestHDF5LoadWorker:
         qout = queue.Queue()
 
         # Add items in specific order
-        order = [("protein1", 0), ("protein2", 1), ("protein3", 2), ("special_protein", 3)]
+        order = [
+            ("protein1", 0),
+            ("protein2", 1),
+            ("protein3", 2),
+            ("special_protein", 3),
+        ]
         for item in order:
             qin.put(item)
         qin.put(None)

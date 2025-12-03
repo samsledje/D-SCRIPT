@@ -16,7 +16,7 @@
 - Improve method for loading embeddings
 - Modernized D-SCRIPT repository
 - Significantly updated unittest coverage
-- Migrate to loguru under the hood 
+- Migrate to loguru under the hood
 - Update pyproject, GitHub actions, and other continuous integration/installation
 - Linting and formatting with Ruff
 
@@ -27,7 +27,7 @@
 - Update pretrained API and docs to include Topsy-Turvy
 - Add retry decorator to get_pretrained if download fails
 - Add ability to set a random seed for training
-- Update `evaluate` code to also store metrics in a file 
+- Update `evaluate` code to also store metrics in a file
 
 ### v0.2.1: 2022-06-28 -- Bug fixes
 - Add biopython to setup.py

@@ -56,6 +56,7 @@ class TestLanguageModel:
 
         # Verify embeddings are in the file
         import h5py
+
         with h5py.File(output_path, "r") as f:
             assert len(f.keys()) > 0
 
@@ -109,6 +110,7 @@ class TestLanguageModel:
     def test_lm_embed_returns_tensor(self):
         """Test that lm_embed returns a torch tensor"""
         import torch
+
         test_seq = "MKTAYIAKQR"
         x = lm_embed(test_seq, use_cuda=False)
 
@@ -117,6 +119,7 @@ class TestLanguageModel:
     def test_lm_embed_deterministic(self):
         """Test that lm_embed produces consistent results"""
         import torch
+
         test_seq = "MKTAYIAKQRQISFVKSHFSRQ"
 
         # Embed the same sequence twice
@@ -140,6 +143,7 @@ class TestLanguageModel:
     def test_embed_from_fasta_creates_valid_h5(self):
         """Test that embed_from_fasta creates valid HDF5 file"""
         import h5py
+
         output_path = f"{self.temp_dir}/test_embed_valid.h5"
 
         # Parse original sequences
@@ -165,6 +169,7 @@ class TestLanguageModel:
     def test_embed_from_fasta_handles_existing_file(self):
         """Test that embed_from_fasta can append to existing file"""
         import h5py
+
         output_path = f"{self.temp_dir}/test_embed_append.h5"
 
         # First embedding

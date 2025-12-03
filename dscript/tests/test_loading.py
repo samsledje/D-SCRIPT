@@ -2,8 +2,7 @@
 Tests for parallel data loading functionality in dscript.loading
 """
 
-import os
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import h5py
 import numpy as np
@@ -285,7 +284,7 @@ class TestLoadingPoolEdgeCases:
     def temp_empty_hdf5(self, tmp_path):
         """Create an empty HDF5 file"""
         file_path = tmp_path / "empty.h5"
-        with h5py.File(file_path, "w") as f:
+        with h5py.File(file_path, "w"):
             pass  # Create empty file
         return str(file_path)
 

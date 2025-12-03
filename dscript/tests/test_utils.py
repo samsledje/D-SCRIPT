@@ -2,8 +2,6 @@
 Tests for utility functions in dscript.utils
 """
 
-import sys
-from io import StringIO
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
@@ -11,8 +9,8 @@ import pytest
 import torch
 
 from dscript.utils import (
-    PairedDataset,
     RBF,
+    PairedDataset,
     collate_paired_sequences,
     load_hdf5_parallel,
     log,
@@ -91,9 +89,8 @@ class TestLog:
         content = log_file.read_text()
         assert "dual message" in content
 
-    def test_log_flushes_file(self, tmp_path):
+    def test_log_flushes_file(self):
         """Test that log flushes the file handle"""
-        log_file = tmp_path / "test.log"
         mock_file = Mock()
         mock_file.flush = Mock()
 
@@ -407,15 +404,12 @@ class TestCollatePairedSequences:
 
     def test_collate_preserves_order(self):
         """Test that collation preserves order"""
-        args = [
-            (f"seq{i}", f"seq{i+10}", torch.tensor(i))
-            for i in range(10)
-        ]
+        args = [(f"seq{i}", f"seq{i + 10}", torch.tensor(i)) for i in range(10)]
 
         x0, x1, y = collate_paired_sequences(args)
 
         # Check order is preserved
         for i in range(10):
             assert x0[i] == f"seq{i}"
-            assert x1[i] == f"seq{i+10}"
+            assert x1[i] == f"seq{i + 10}"
             assert y[i] == i

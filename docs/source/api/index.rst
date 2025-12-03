@@ -72,7 +72,7 @@ dscript.pretrained
     :show-inheritance:
 
 dscript.utils
-------------- 
+-------------
 
 .. automodule:: dscript.utils
    :members:

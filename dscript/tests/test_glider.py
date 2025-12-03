@@ -7,7 +7,6 @@ import pandas as pd
 import pytest
 
 from dscript.glider import (
-    compute_X_normalized,
     compute_cw_score,
     compute_cw_score_normalized,
     compute_degree_vec,
@@ -15,6 +14,7 @@ from dscript.glider import (
     compute_l3_unweighted_mat,
     compute_l3_weighted_mat,
     compute_pinverse_diagonal,
+    compute_X_normalized,
     create_edge_dict,
     create_neighborhood_dict,
     densify,
@@ -477,7 +477,11 @@ class TestGlideComputeMap:
     def test_glide_compute_map_basic(self):
         """Test computing glide map from dataframe"""
         df = pd.DataFrame(
-            {"protein1": ["A", "B", "C"], "protein2": ["B", "C", "A"], "weight": [1.0, 1.0, 1.0]}
+            {
+                "protein1": ["A", "B", "C"],
+                "protein2": ["B", "C", "A"],
+                "weight": [1.0, 1.0, 1.0],
+            }
         )
 
         params = {"glide": {"alpha": 1.0, "beta": 1.0, "loc": "cw", "delta": 0.1}}

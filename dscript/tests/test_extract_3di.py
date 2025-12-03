@@ -2,9 +2,8 @@
 Tests for 3Di sequence extraction functionality in dscript.commands.extract_3di
 """
 
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import biotite.sequence.io.fasta as fasta
 import pytest
@@ -104,7 +103,7 @@ class TestExtract3Di:
         main(mock_args)
 
         # Read and verify output FASTA
-        with open(mock_args.out_file, "r") as f:
+        with open(mock_args.out_file) as f:
             fasta_file = fasta.FastaFile.read(f)
 
         # Check that all sequences are in the output
@@ -230,7 +229,7 @@ class TestExtract3Di:
         main(args)
 
         # Verify all sequences in output
-        with open(args.out_file, "r") as f:
+        with open(args.out_file) as f:
             fasta_file = fasta.FastaFile.read(f)
 
         assert len(fasta_file) == 10
@@ -255,7 +254,7 @@ class TestExtract3Di:
         main(args)
 
         # Read and verify
-        with open(args.out_file, "r") as f:
+        with open(args.out_file) as f:
             fasta_file = fasta.FastaFile.read(f)
 
         assert fasta_file["test_protein"] == test_sequence
@@ -281,7 +280,7 @@ class TestExtract3Di:
         main(args)
 
         # Should handle special characters in FASTA headers
-        with open(args.out_file, "r") as f:
+        with open(args.out_file) as f:
             fasta_file = fasta.FastaFile.read(f)
 
         assert "protein_1" in fasta_file
@@ -322,7 +321,7 @@ class TestExtract3DiIntegration:
         # Verify results
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             fasta_file = fasta.FastaFile.read(f)
 
         assert len(fasta_file) == 2

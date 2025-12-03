@@ -2,7 +2,6 @@
 Tests for CLI entry point in dscript.__main__
 """
 
-import sys
 from io import StringIO
 from unittest.mock import Mock, patch
 
@@ -28,7 +27,7 @@ class TestCitationAction:
 
         # Should exit with code 0
         with pytest.raises(SystemExit) as exc_info:
-            with patch("sys.stdout", new=StringIO()) as fake_out:
+            with patch("sys.stdout", new=StringIO()):
                 action(parser, namespace, None)
 
         assert exc_info.value.code == 0
@@ -54,7 +53,7 @@ class TestMainFunction:
         """Test main with --version flag"""
         with patch("sys.argv", ["dscript", "--version"]):
             with pytest.raises(SystemExit) as exc_info:
-                with patch("sys.stdout", new=StringIO()) as fake_out:
+                with patch("sys.stdout", new=StringIO()):
                     main()
 
             # --version should exit with code 0
@@ -288,7 +287,7 @@ class TestMainIntegration:
         """Test that --help flag works"""
         with patch("sys.argv", ["dscript", "--help"]):
             with pytest.raises(SystemExit) as exc_info:
-                with patch("sys.stdout", new=StringIO()) as fake_out:
+                with patch("sys.stdout", new=StringIO()):
                     main()
 
             # --help should exit with code 0
@@ -305,13 +304,11 @@ class TestMainIntegration:
 
     def test_version_output_contains_version(self):
         """Test that version output contains actual version"""
-        from dscript import __version__
 
         with patch("sys.argv", ["dscript", "--version"]):
             with pytest.raises(SystemExit):
-                with patch("sys.stdout", new=StringIO()) as fake_out:
+                with patch("sys.stdout", new=StringIO()):
                     main()
-                    output = fake_out.getvalue()
 
             # Output should contain version info
             # Note: argparse prints to stderr for --version in some cases
@@ -320,9 +317,8 @@ class TestMainIntegration:
         """Test that citation output contains citation info"""
         with patch("sys.argv", ["dscript", "--citation"]):
             with pytest.raises(SystemExit):
-                with patch("sys.stdout", new=StringIO()) as fake_out:
+                with patch("sys.stdout", new=StringIO()):
                     main()
-                    output = fake_out.getvalue()
 
             # Citation should have been printed
 

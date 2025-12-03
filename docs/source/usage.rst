@@ -91,7 +91,7 @@ Bipartite Prediction
                                  [--blocksB BLOCKSB]
 
     Make new predictions between two protein sets using blocked, multi-GPU pariwise inference  with a pre-trained model.
-    
+
     options:
       -h, --help            show this help message and exit
       --protA PROTA         A text file with protein IDs, one on each line. All pairs between proteins in this file and proteins in protB will be predicted
