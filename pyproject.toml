@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"
 
 [project]
 name = "dscript"
-dynamic = ["version"]
+version = "0.3.1"
 description = "D-SCRIPT: protein-protein interaction prediction"
 authors = [
     {name = "Samuel Sledzieski", email = "samsl@mit.edu"}
@@ -43,6 +43,7 @@ docs = [
     "jinja2<3.1",
     "Sphinx==3.4",
     "sphinx-rtd-theme==1.0.0",
+    "pydata-sphinx-theme",
     "sphinxcontrib-applehelp==1.0.2",
     "sphinxcontrib-devhelp==1.0.2",
     "sphinxcontrib-htmlhelp==1.0.3",
@@ -57,11 +58,14 @@ Homepage = "http://dscript.csail.mit.edu"
 [project.scripts]
 dscript = "dscript.__main__:main"
 
-[tool.setuptools.dynamic]
-version = {attr = "dscript.__version__"}
+[tool.uv]
+package = true
 
-[tool.setuptools.packages.find]
-include = ["dscript*"]
+[tool.uv.sources]
+
+[tool.uv.build-backend]
+module-name = "dscript"
+module-root = ""
 
 [tool.ruff]
 line-length = 90
@@ -88,6 +92,9 @@ known-first-party = ["dscript"]
 
 [tool.coverage.paths]
 source = ["dscript"]
+
+[tool.coverage.run]
+omit = ["dscript/tests/*"]
 
 [tool.pytest.ini_options]
 filterwarnings = [

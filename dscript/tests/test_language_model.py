@@ -28,15 +28,15 @@ class TestLanguageModelUnit:
 
         # Mock the proj layer
         model.proj = Mock()
-        model.proj.weight = torch.randn(100, 100)
-        model.proj.bias = torch.zeros(100)
+        model.proj.weight = torch.randn(6165, 6165)
+        model.proj.bias = torch.zeros(6165)
 
         # Mock transform to return realistic embeddings
         def mock_transform(x):
             batch_size = x.shape[0]
             seq_len = x.shape[1]
-            # Return (batch, seq_len, embedding_dim=100)
-            return torch.randn(batch_size, seq_len, 100)
+            # Return (batch, seq_len, embedding_dim=6165)
+            return torch.randn(batch_size, seq_len, 6165)
 
         model.transform = Mock(side_effect=mock_transform)
         return model
@@ -49,10 +49,10 @@ class TestLanguageModelUnit:
         test_seq = "MKTAYIAKQRQISFVKSHFSRQ"
         x = lm_embed(test_seq, use_cuda=False)
 
-        # Should be (batch=1, seq_len, embedding_dim=100)
+        # Should be (batch=1, seq_len, embedding_dim=6165)
         assert x.shape[0] == 1
         assert x.shape[1] == len(test_seq)
-        assert x.shape[2] == 100
+        assert x.shape[2] == 6165
 
     @patch("dscript.language_model.get_pretrained")
     def test_lm_embed_returns_tensor(self, mock_get_pretrained, mock_model):
@@ -73,7 +73,7 @@ class TestLanguageModelUnit:
         x = lm_embed(short_seq, use_cuda=False)
 
         assert x.shape[1] == 2
-        assert x.shape[2] == 100
+        assert x.shape[2] == 6165
 
     @patch("dscript.language_model.get_pretrained")
     def test_lm_embed_single_amino_acid(self, mock_get_pretrained, mock_model):
@@ -84,7 +84,7 @@ class TestLanguageModelUnit:
         x = lm_embed(single_aa, use_cuda=False)
 
         assert x.shape[1] == 1
-        assert x.shape[2] == 100
+        assert x.shape[2] == 6165
 
     @patch("dscript.language_model.get_pretrained")
     def test_embed_from_fasta_creates_h5(self, mock_get_pretrained, mock_model, tmp_path):
@@ -215,7 +215,7 @@ class TestLanguageModelIntegration:
 
         assert x.shape[0] == 1
         assert x.shape[1] == len(test_seq)
-        assert x.shape[2] == 100
+        assert x.shape[2] == 6165
         assert isinstance(x, torch.Tensor)
 
     def test_embed_from_fasta_real(self, tmp_path):
@@ -239,4 +239,4 @@ class TestLanguageModelIntegration:
                 embedding = f[name][:]
                 assert embedding.shape[0] == 1
                 assert embedding.shape[1] == len(seq)
-                assert embedding.shape[2] == 100
+                assert embedding.shape[2] == 6165

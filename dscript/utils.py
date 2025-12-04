@@ -53,7 +53,7 @@ def log(m, file=None, timestamped=True, print_also=False):
         file.flush()
 
 
-def RBF(D, sigma=None):
+def RBF(D, sigma=None, pseudocount=1e-10):
     """
     Convert distance matrix into similarity matrix using Radial Basis Function (RBF) Kernel.
 
@@ -66,6 +66,7 @@ def RBF(D, sigma=None):
     :return: Similarity matrix
     :rtype: np.ndarray
     """
+    D += pseudocount
     sigma = sigma or np.sqrt(np.max(D))
     return np.exp(-1 * (np.square(D) / (2 * sigma**2)))
 
@@ -161,7 +162,11 @@ def collate_paired_sequences(args):
     """
     Collate function for PyTorch data loader.
     """
+    if not len(args):
+        return [], [], torch.tensor([])
+
     x0 = [a[0] for a in args]
     x1 = [a[1] for a in args]
-    y = [a[2] for a in args]
-    return x0, x1, torch.stack(y, 0)
+    y = torch.stack([a[2] for a in args], 0)
+
+    return x0, x1, y

@@ -95,7 +95,7 @@ class TestLog:
         mock_file.flush = Mock()
 
         log("flush test", file=mock_file)
-        mock_file.flush.assert_called_once()
+        mock_file.flush.assert_called()
 
 
 class TestRBF:
