@@ -1,0 +1,9 @@
+html[data-theme="light"] {
+    --pst-color-primary: rgb(51, 122, 44);
+    --pst-color-secondary: rgb(40, 85, 129);
+}
+
+html[data-theme="dark"] {
+    --pst-color-primary: rgb(69, 171, 60);
+    --pst-color-secondary: rgb(61, 126, 191);
+}
