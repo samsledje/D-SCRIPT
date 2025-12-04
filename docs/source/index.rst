@@ -31,9 +31,4 @@ Table of contents
    installation
    usage
    data
-   api/index
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
+   api
