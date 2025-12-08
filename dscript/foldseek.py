@@ -44,12 +44,29 @@ fold_vocab = {
 }
 
 def build_backbone_vocab(size=12):
+    """
+    Build a reduced amino-acid vocabulary mapping for backbone modeling.
+
+    This function selects the first `size` amino acids from a fixed alphabet
+    (`"ACDEFGHIKLMPQNRSTVWY"`) and returns a dictionary mapping each selected
+    amino acid to its corresponding value in `fold_vocab`. The backbone
+    sequence generation script uses "H" as invalid residue replacement.
+
+    :param size: Number of amino acids to include from the start of the
+                 alphabet. Must be between 1 and 20.
+    :type size: int, optional
+    :returns: A dictionary mapping each selected amino-acid letter in range to   
+              an index.
+    :rtype: dict
+    :raises ValueError: If `size` is less than 1 or greater than the number
+                        of amino acids in the alphabet (20).
+    """
+
     aa_alphabet = "ACDEFGHIKLMPQNRSTVWY"
     if size < 1 or size > len(aa_alphabet):
         raise ValueError(f"Size must be between 1 and {len(aa_alphabet)}")
     letters = aa_alphabet[:size]
     vocab = {aa: i for i, aa in enumerate(letters)}
-    vocab["H"] = size # missing
     return vocab
 
 def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):

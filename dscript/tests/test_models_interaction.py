@@ -4,7 +4,7 @@ import torch.nn as nn
 
 from dscript.models.contact import ContactCNN
 from dscript.models.embedding import FullyConnectedEmbed
-from dscript.models.interaction import DSCRIPTModel, LogisticActivation, ModelInteraction
+from dscript.models.interaction import DSCRIPTModel, LogisticActivation, ModelInteraction, InteractionInputs
 
 
 class TestLogisticActivation:
@@ -228,7 +228,7 @@ class TestModelInteraction:
         z0 = torch.randn(batch_size, seq_len_0, input_dim)
         z1 = torch.randn(batch_size, seq_len_1, input_dim)
 
-        C = model.cpred(z0, z1)
+        C = model.cpred(InteractionInputs(z0, z1))
 
         expected_shape = (batch_size, 1, seq_len_0, seq_len_1)
         assert C.shape == expected_shape
@@ -252,7 +252,38 @@ class TestModelInteraction:
         f0 = torch.randn(batch_size, seq_len_0, foldseek_dim)
         f1 = torch.randn(batch_size, seq_len_1, foldseek_dim)
 
-        C = model.cpred(z0, z1, embed_foldseek=True, f0=f0, f1=f1)
+        inputs = InteractionInputs(z0, z1, f0=f0, f1=f1)
+
+        C = model.cpred(inputs)
+
+        expected_shape = (batch_size, 1, seq_len_0, seq_len_1)
+        assert C.shape == expected_shape
+
+    def test_cpred_method_with_foldseek_and_backbone(self):
+        """Test cpred method with foldseek and backbone embeddings."""
+
+        batch_size = 1
+        seq_len_0 = 8
+        seq_len_1 = 10
+        input_dim = 6165
+        foldseek_dim = 21
+        backbone_dim = 12
+        contact = ContactCNN(self.embed_dim + foldseek_dim, self.hidden_dim, 7)
+
+        model = ModelInteraction(
+            embedding=self.embedding, contact=contact, use_cuda=False
+        )
+
+        z0 = torch.randn(batch_size, seq_len_0, input_dim)
+        z1 = torch.randn(batch_size, seq_len_1, input_dim)
+        f0 = torch.randn(batch_size, seq_len_0, foldseek_dim)
+        f1 = torch.randn(batch_size, seq_len_1, foldseek_dim)
+        b0 = torch.randn(batch_size, seq_len_0, backbone_dim)
+        b1 = torch.randn(batch_size, seq_len_1, backbone_dim)
+
+        inputs = InteractionInputs(z0, z1, f0=f0, f1=f1, b0=b0, b1=b1)
+
+        C = model.cpred(inputs)
 
         expected_shape = (batch_size, 1, seq_len_0, seq_len_1)
         assert C.shape == expected_shape
@@ -293,7 +324,7 @@ class TestModelInteraction:
         z0 = torch.randn(batch_size, seq_len_0, input_dim)
         z1 = torch.randn(batch_size, seq_len_1, input_dim)
 
-        C, phat = model.map_predict(z0, z1)
+        C, phat = model.map_predict(InteractionInputs(z0, z1))
 
         # Contact map shape
         expected_c_shape = (batch_size, 1, seq_len_0, seq_len_1)
@@ -513,11 +544,33 @@ class TestModelInteractionEdgeCases:
 
         # Test with embed_foldseek=True but missing f0/f1
         with pytest.raises(AssertionError):
-            model.cpred(z0, z1, embed_foldseek=True, f0=None, f1=None)
+            model.cpred(InteractionInputs(z0, z1, embed_foldseek=True, f0=None, f1=None))
 
         # Test with wrong types
         with pytest.raises(AssertionError):
-            model.cpred(z0, z1, embed_foldseek=True, f0="not_tensor", f1=None)
+            model.cpred(InteractionInputs(z0, z1, embed_foldseek=True, f0="not_tensor", f1=None))
+
+    def test_backbone_assertion_errors(self):
+        """Test assertion errors in backbone embedding."""
+        model = ModelInteraction(
+            embedding=self.embedding, contact=self.contact, use_cuda=False
+        )
+
+        batch_size = 1
+        seq_len_0 = 5
+        seq_len_1 = 6
+        input_dim = 6165
+
+        z0 = torch.randn(batch_size, seq_len_0, input_dim)
+        z1 = torch.randn(batch_size, seq_len_1, input_dim)
+
+        # Test with embed_backbone=True but missing f0/f1
+        with pytest.raises(AssertionError):
+            model.cpred(InteractionInputs(z0, z1, embed_backbone=True, b0=None, b1=None))
+
+        # Test with wrong types
+        with pytest.raises(AssertionError):
+            model.cpred(InteractionInputs(z0, z1, embed_backbone=True, b0="not_tensor", b1=None))
 
     def test_very_small_sequences(self):
         """Test with very small sequence lengths."""
@@ -574,3 +627,4 @@ class TestModelInteractionEdgeCases:
             phat = model.predict(z0, z1)
 
         assert isinstance(phat.item(), float)
+

@@ -24,7 +24,8 @@ from ..foldseek import fold_vocab, get_foldseek_onehot, build_backbone_vocab, Fo
 from ..glider import glide_compute_map, glider_score
 from ..models.contact import ContactCNN
 from ..models.embedding import FullyConnectedEmbed
-from ..models.interaction import ModelInteraction
+from ..models.interaction import ModelInteraction, InteractionInputs
+
 from ..utils import (
     PairedDataset,
     collate_paired_sequences,
@@ -235,7 +236,7 @@ def add_args(parser):
     )
     foldseek_grp.add_argument(
         "--backbone3di_fasta",
-        help="foldseek fasta file containing the 12 state representation",
+        help="FASTA file containing the 12 state representation",
     )
 
     return parser
@@ -309,8 +310,10 @@ def predict_cmap_interaction(
                 b_a = b_a.cuda()
                 b_b = b_b.cuda()
 
-        cm, ph = model.map_predict(z_a, z_b, structural_context.allow_foldseek, f_a, f_b, structural_context.allow_backbone3di, b_a, b_b)
-
+        cm, ph = model.map_predict(InteractionInputs(z_a, z_b,
+                                        embed_foldseek=structural_context.allow_foldseek, f0=f_a, f1=f_b,
+                                        embed_backbone=structural_context.allow_backbone3di, b0=b_a, b1=b_b
+                                  ))
         p_hat.append(ph)
         c_map_mag.append(torch.mean(cm))
     p_hat = torch.stack(p_hat, 0)
@@ -399,6 +402,7 @@ def interaction_grad(
     :return: (Loss, number correct, mean square error, batch size)
     :rtype: (torch.Tensor, int, torch.Tensor, int)
     """
+
     c_map_mag, p_hat = predict_cmap_interaction(
         model,
         n0,

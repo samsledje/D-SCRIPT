@@ -26,6 +26,9 @@ from tqdm import tqdm
 
 from dscript.loading import LoadingPool
 
+from dscript.models.interaction import InteractionInputs
+
+from ..foldseek import get_foldseek_onehot, build_backbone_vocab
 from ..fasta import parse_dict
 from ..utils import log
 
@@ -94,6 +97,18 @@ def add_args(parser):
         help="If set to true, adds the fold seek embedding after the projection layer",
     )
 
+    ## Backbone arguments
+    parser.add_argument(
+        "--allow_backbone3di",
+        default=False,
+        action="store_true",
+        help="If set to true, adds the 12 state one-hot representation",
+    )
+    parser.add_argument(
+        "--backbone3di_fasta",
+        help="FASTA file containing the 12 state representation",
+    )
+
     return parser
 
 
@@ -153,34 +168,16 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.savefig(path + ".auroc.png")
     plt.close()
 
-
-def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
-    """
-    fold_record is just a dictionary {ensembl_gene_name => foldseek_sequence}
-    """
-    if n0 in fold_record:
-        fold_seq = fold_record[n0]
-        assert size_n0 == len(fold_seq)
-        foldseek_enc = torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
-        for i, a in enumerate(fold_seq):
-            assert a in fold_vocab
-            foldseek_enc[i, fold_vocab[a]] = 1
-        return foldseek_enc
-    else:
-        return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
-
-
 def main(args):
     """
     Run model evaluation from arguments.
 
     :meta private:
     """
-    ########## Foldseek code #########################3
+    ########## Foldseek code #########################
     allow_foldseek = args.allow_foldseek
     fold_fasta_file = args.foldseek_fasta
     fold_vocab_file = args.foldseek_vocab
-    add_first = not args.add_foldseek_after_projection
     fold_record = {}
     fold_vocab = None
     if allow_foldseek:
@@ -190,6 +187,18 @@ def main(args):
             fold_record[rec_k] = rec_v
         with open(fold_vocab_file) as fv:
             fold_vocab = json.load(fv)
+    ########## Backbone code #########################
+    allow_backbone = args.allow_backbone3di
+    backbone_fasta_file = args.backbone3di_fasta
+    backbone_record = {}
+    backbone_vocab = None
+    if allow_backbone:
+        assert backbone_fasta is not None
+        backbone_fasta = parse_dict(backbone_fasta_file)
+        for rec_k, rec_v in backbone_fasta.items():
+            backbone_record[rec_k] = rec_v
+        backbone_vocab = build_backbone_vocab()
+
     ##################################################
 
     # Set Device
@@ -247,28 +256,26 @@ def main(args):
                     p0 = p0.cuda()
                     p1 = p1.cuda()
 
-                if allow_foldseek:
-                    f_a = get_foldseek_onehot(
-                        n0, p0.shape[1], fold_record, fold_vocab
-                    ).unsqueeze(0)
-                    f_b = get_foldseek_onehot(
-                        n1, p1.shape[1], fold_record, fold_vocab
-                    ).unsqueeze(0)
+                f_a = f_b = b_a = b_b = None
 
+                def build_struct_embedding(n, length, record, vocab):
+                    e = get_foldseek_onehot(n, length, record, vocab).unsqueeze(0)
                     if use_cuda:
-                        f_a = f_a.cuda()
-                        f_b = f_b.cuda()
+                        e = e.cuda()
+                    return e
 
-                    if add_first:
-                        p0 = torch.concat([p0, f_a], dim=2)
-                        p1 = torch.concat([p0, f_a], dim=2)
+                if allow_foldseek:
+                    f_a = build_struct_embedding(n0, p0.shape[1], fold_record, fold_vocab)
+                    f_b = build_struct_embedding(n1, p1.shape[1], fold_record, fold_vocab)
 
-                if allow_foldseek and (not add_first):
-                    _, pred = model.map_predict(p0, p1, True, f_a, f_b)
-                    pred = pred.item()
-                else:
-                    _, pred = model.map_predict(p0, p1)
-                    pred = pred.item()
+                if allow_backbone:
+                    b_a = build_struct_embedding(n0, p0.shape[1], backbone_record, backbone_vocab)
+                    b_b = build_struct_embedding(n1, p1.shape[1], backbone_record, backbone_vocab)
+
+                interactionInputs = InteractionInputs(p0, p1, embed_foldseek=allow_foldseek, f0=f_a, f1=f_b, embed_backbone=allow_backbone, b0=b_a, b1=b_b)
+
+                _, pred = model.map_predict(interactionInputs)
+                pred = pred.item()
 
                 phats.append(pred)
                 labels.append(label)
@@ -295,3 +302,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     add_args(parser)
     main(parser.parse_args())
+
