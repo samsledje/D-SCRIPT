@@ -62,7 +62,7 @@ def build_backbone_vocab(size=12):
                         of amino acids in the alphabet (20).
     """
 
-    aa_alphabet = "ACDEFGHIKLMPQNRSTVWY"
+    aa_alphabet = "ACDEFGHIKLMNPQRSTVWY"
     if size < 1 or size > len(aa_alphabet):
         raise ValueError(f"Size must be between 1 and {len(aa_alphabet)}")
     letters = aa_alphabet[:size]
