@@ -27,7 +27,7 @@ annot_table_fh <- getLDS(mart = fly,
                       martL=human,
                       attributesL = c("ensembl_peptide_id", "external_gene_name"))
 
-colnames(annot_table_fh) <- c("ExternalName-Fly", "FlybaseId-Fly", 
+colnames(annot_table_fh) <- c("ExternalName-Fly", "FlybaseId-Fly",
                             "EnsemblPeptide-Human", "ExternalName-Human")
 write_delim(annot_table_fh, file = "orthologs-human-2-fly.tsv", delim = "\t")
 ```
@@ -41,7 +41,7 @@ annot_table <- getLDS(mart = yeast,
 
 annot_table1 <- annot_table
 annot_table1
-colnames(annot_table1) <- c("ExternalName-Yeast", "Yeast-EnsemblGeneID", 
+colnames(annot_table1) <- c("ExternalName-Yeast", "Yeast-EnsemblGeneID",
                             "EnsemblPeptide-Human", "ExternalName-Human")
 
 write_delim(annot_table1, file="orthologs-human-2-yeast.tsv", delim = "\t")

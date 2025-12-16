@@ -27,15 +27,15 @@ mh2mf
 ```{r plot}
 library(ggplot2)
 library(ggpubr)
-freqh <- mh2mf["EnsemblPeptide-Human"] %>% 
-  group_by(`EnsemblPeptide-Human`) %>% 
-  summarize(x = n()) %>% 
-  select(x) 
+freqh <- mh2mf["EnsemblPeptide-Human"] %>%
+  group_by(`EnsemblPeptide-Human`) %>%
+  summarize(x = n()) %>%
+  select(x)
 
-freqf <-  mh2mf %>% 
-  group_by(`FlybaseId-Fly`) %>% 
-  summarize(x = n()) %>% 
-  select(x) 
+freqf <-  mh2mf %>%
+  group_by(`FlybaseId-Fly`) %>%
+  summarize(x = n()) %>%
+  select(x)
 par(mfrow = c(1, 2))
 
 ggarrange(ggplot(freqh, aes(x=x)) +
@@ -54,7 +54,7 @@ flyelse <- fly %>% filter(!(p1 %in% flym.orths & p2 %in% flym.orths))
 
 human <- read_delim("human_train.tsv", delim = "\t", col_names = FALSE)
 colnames(human) <- c("p1", "p2", "score")
-human[which(human$p1 > human$p2), c("p1", "p2")] <- human[which(human$p1 > human$p2), c("p2", "p1")] 
+human[which(human$p1 > human$p2), c("p1", "p2")] <- human[which(human$p1 > human$p2), c("p2", "p1")]
 humanpos <- human %>% filter(score == 1) %>% select(p1, p2)
 
 
@@ -79,7 +79,7 @@ flym2m$predictions <- apply(flym2m, 1, function(row){
 compute_prec_recall <- function(allpred) {
   predtrues <- sum(allpred$predictions)
   realtrues <- sum(allpred$score)
-  
+
   print(c(predtrues, realtrues))
   tp <- sum(allpred %>% filter(score == 1 & predictions == 1) %>% select(predictions) %>% pull())
   fp <- predtrues - tp
@@ -96,4 +96,3 @@ compute_prec_recall(flyall)
 
 write_delim(flyall, "output_fly-2-human.tsv", delim="\t")
 ```
-

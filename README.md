@@ -48,12 +48,12 @@ For inference, proteins can be divided into blocks to reduce memory usage for em
 ```bash
 #Example with 16 blocks, using (using 3/16th the maximum embedding memory), and a GPU
 dscript predict --pairs data/pairs/ecoli_test.tsv --embeddings ecoli_embed.h5 --outfile ecoli_test_predict --blocks 16 -d 0
-``` 
+```
 
 For more information on prediction modes, such as all-pair and bipartite predictions, see our [complete documentation](https://d-script.readthedocs.io/en/main/usage.html)
 
 ## References
  - The original D-SCRIPT model is described in the paper “[D-SCRIPT translates genome to phenome with sequence-based, structure-aware, genome-scale predictions of protein-protein interactions](https://doi.org/10.1016/j.cels.2021.08.010).”
  - We have updated D-SCRIPT to incorporate network information ([Topsy Turvy](https://academic.oup.com/bioinformatics/article/38/Supplement_1/i264/6617505)) and structure information ([TT3D](https://academic.oup.com/bioinformatics/article/39/11/btad663/7332153))
- - The addition of Blocked, Multi-GPU Parallel Inference to D-SCRIPT is described in the application note “[Memory-Efficient, Accelerated Protein Interaction inference with Blocked, Multi-GPU D-SCRIPT](https://doi.org/10.1093/bioinformatics/btaf564).” 
+ - The addition of Blocked, Multi-GPU Parallel Inference to D-SCRIPT is described in the application note “[Memory-Efficient, Accelerated Protein Interaction inference with Blocked, Multi-GPU D-SCRIPT](https://doi.org/10.1093/bioinformatics/btaf564).”
  - [Documentation](https://d-script.readthedocs.io/en/main/)
