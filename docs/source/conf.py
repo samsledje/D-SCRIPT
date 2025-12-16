@@ -12,6 +12,7 @@
 #
 import os.path
 import sys
+from importlib.metadata import version as _get_version
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
@@ -21,11 +22,10 @@ sys.path.insert(0, os.path.abspath("../../"))
 # -- Project information -----------------------------------------------------
 
 project = "D-SCRIPT"
-copyright = "2021, Samuel Sledzieski, Rohit Singh"
-author = "Samuel Sledzieski, Rohit Singh"
+copyright = "2025, Samuel Sledzieski"
+author = "Samuel Sledzieski"
 
-# The full version, including alpha/beta/rc tags
-release = "v0.3.0"
+release = _get_version("dscript")
 master_doc = "index"
 
 
@@ -39,7 +39,6 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
-    "sphinx_rtd_theme",
 ]
 
 
@@ -59,13 +58,22 @@ exclude_patterns = []
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = [
+    "css/dscript.css",
+]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 # html_theme = 'default'
-html_theme = "sphinx_rtd_theme"
-# html_theme_options = {
-#     'logo_only':  True,
-# }
+# html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
+html_theme_options = {
+    "navbar_end": ["theme-switcher"],
+    "logo": {
+        "text": "D-SCRIPT",
+    },
+}
 # html_logo = '_static/dscript_architecture1.png'
+html_context = {"default_mode": "auto"}
+html_sidebars = {"**": []}

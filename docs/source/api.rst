@@ -4,9 +4,6 @@ API
 .. toctree::
    :maxdepth: 4
 
-   dscript.commands
-   dscript.models
-
 dscript.alphabets
 -----------------
 
@@ -75,6 +72,30 @@ dscript.utils
 -------------
 
 .. automodule:: dscript.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscript.models.embedding
+------------------------
+
+.. automodule:: dscript.models.embedding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscript.models.contact
+----------------------
+
+.. automodule:: dscript.models.contact
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscript.models.interaction
+--------------------------
+
+.. automodule:: dscript.models.interaction
    :members:
    :undoc-members:
    :show-inheritance:
