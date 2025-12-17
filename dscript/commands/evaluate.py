@@ -23,14 +23,16 @@ from sklearn.metrics import (
     roc_curve,
 )
 from tqdm import tqdm
-
+from pathlib import Path
 from dscript.loading import LoadingPool
 
 from dscript.models.interaction import InteractionInputs
 
 from ..foldseek import get_foldseek_onehot, build_backbone_vocab
+from ..parallel_embedding_loader import EmbeddingLoader, add_batch_dim_if_needed
 from ..fasta import parse_dict
 from ..utils import log
+import h5py
 
 matplotlib.use("Agg")
 
@@ -59,7 +61,9 @@ def add_args(parser):
     )
     parser.add_argument("--test", help="Test Data", required=True)
     parser.add_argument(
-        "--embeddings", help="h5 file with embedded sequences", required=True
+        "--embeddings",
+        help="directory containing per-protein `.pt` embeddings or HDF5 file with embeddings",
+        required=True,
     )
     parser.add_argument("-o", "--outfile", help="Output file to write results")
     parser.add_argument(
@@ -221,10 +225,26 @@ def main(args):
         ).cpu()
         model.use_cuda = False
 
-    embPath = args.embeddings
+    emb_path = Path(args.embeddings)
+
+    if emb_path.is_dir():
+        embedding_mode = "pt_dir"
+        log(f"Embedding path is a directory: {emb_path}")
+    elif emb_path.is_file():
+        # Could be HDF5 or something else
+        if h5py.is_hdf5(str(emb_path)):
+            embedding_mode = "hdf5"
+            log(f"Embedding path is an HDF5 file: {emb_path}")
+        else:
+            raise ValueError(
+                f"Embedding file is not HDF5 and not a directory: {emb_path}"
+            )
+    else:
+        raise FileNotFoundError(f"Embedding path does not exist: {emb_path}")
 
     # Load Pairs
     test_fi = args.test
+
     test_df = pd.read_csv(test_fi, sep="\t", header=None)
 
     if args.outfile is None:
@@ -234,8 +254,18 @@ def main(args):
     outFile = open(outPath + ".predictions.tsv", "w+")
 
     allProteins = sorted(list(set(test_df[0]).union(test_df[1])))
-    loadpool = LoadingPool(embPath, n_jobs=args.load_proc)
-    embeddings = loadpool.load(allProteins)
+
+    # Load embeddings
+    embeddings: dict[str, torch.Tensor] = {}
+    if embedding_mode == "pt_dir":
+        embedding_loader = EmbeddingLoader(
+            embedding_dir_name=emb_path, protein_names=allProteins, num_workers=4
+        )
+        embeddings = embedding_loader.embeddings_cpu
+    elif embedding_mode == "hdf5":
+        with h5py.File(emb_path, "r") as h5fi:
+            for prot_name in tqdm(allProteins, desc="Loading HDF5 embeddings"):
+                embeddings[prot_name] = torch.from_numpy(h5fi[prot_name][:, :])
 
     model.eval()
     with torch.no_grad():
@@ -245,12 +275,13 @@ def main(args):
             test_df.iterrows(), total=len(test_df), desc="Predicting pairs"
         ):
             try:
-                i0 = allProteins.index(n0)
-                i1 = allProteins.index(n1)
-                if i0 < 0 or i1 < 0:
-                    raise ValueError(f"Protein {n0} or {n1} not found in embeddings")
-                p0 = embeddings[i0]
-                p1 = embeddings[i1]
+
+                p0 = embeddings[n0]
+                p1 = embeddings[n1]
+
+                # Ensure 3D [B, L, D]
+                p0 = add_batch_dim_if_needed(p0)
+                p1 = add_batch_dim_if_needed(p1)
 
                 if use_cuda:
                     p0 = p0.cuda()

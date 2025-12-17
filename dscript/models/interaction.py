@@ -196,6 +196,7 @@ class ModelInteraction(nn.Module):
 
         B = self.contact.cmap(e0, e1)
         C = self.contact.predict(B)
+
         return C
 
     # TODO: Temporaru overload to allow downstream (post train/evaluate) methods to work.
@@ -236,20 +237,21 @@ class ModelInteraction(nn.Module):
 
         if self.do_w:
             N, M = C.shape[2:]
+            device = C.device
 
-            x1 = -1 * torch.square(
-                (self.xx[:N] + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2))
-            )
+            xx_N = torch.arange(N, device=device, dtype=C.dtype)
+            xx_M = torch.arange(M, device=device, dtype=C.dtype)
 
-            x2 = -1 * torch.square(
-                (self.xx[:M] + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2))
-            )
+            x1 = -1 * torch.square((xx_N + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+
+            x2 = -1 * torch.square((xx_M + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
 
             x1 = torch.exp(self.lambda_ * x1)
             x2 = torch.exp(self.lambda_ * x2)
 
             W = x1.unsqueeze(1) * x2
             W = (1 - self.theta) * W + self.theta
+
             yhat = C * W
 
         else:
