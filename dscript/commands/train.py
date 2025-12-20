@@ -233,6 +233,12 @@ def add_args(parser):
     misc_grp.add_argument(
         "--wandb-project", default=None, help="Weights and Biases project name"
     )
+    misc_grp.add_argument(
+        "--wandb-name", default=None, help="Short descriptive Weights and Biases run name"
+    )
+    misc_grp.add_argument(
+        "--wandb-tags", nargs='+', default=None, help="Weights and Biases tags associated with run"
+    )
 
     ## Foldseek arguments
     foldseek_grp.add_argument(
@@ -570,6 +576,8 @@ def train_model(args, output):
     if args.log_wandb:
         run = wandb.init(
             # Set the wandb entity where your project will be logged (generally your team name).
+            name=args.wandb_name,
+            tags=args.wandb_tags,
             entity=args.wandb_entity,
             # Set the wandb project where this run will be logged.
             project=args.wandb_project,
@@ -799,6 +807,11 @@ def train_model(args, output):
     batch_report_fmt = "[{}/{}] training {:.1%}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}"
     epoch_report_fmt = "Finished Epoch {}/{}: Loss={:.6}, Accuracy={:.3%}, MSE={:.6}, Precision={:.6}, Recall={:.6}, F1={:.6}, AUPR={:.6}"
 
+    # save model with best aupr to wandb
+    best_aupr = 0.0
+    best_epoch = 0
+    best_model_path = ""
+
     N = len(train_iterator) * batch_size
     for epoch in range(num_epochs):
         model.train()
@@ -913,6 +926,10 @@ def train_model(args, output):
                 torch.save(model, save_path)
                 if use_cuda:
                     model.cuda()
+                if args.log_wandb and inter_aupr > best_aupr:
+                    best_aupr = inter_aupr
+                    best_epoch = epoch + 1
+                    best_model_path = save_path
 
         output.flush()
 
@@ -927,12 +944,13 @@ def train_model(args, output):
         if args.log_wandb:
             # Upload trained model as artifact
             artifact = wandb.Artifact(
-                name="trained-model",
+                name="best-trained-model",
                 type="model",
                 description="D-SCRIPT trained interaction model",
             )
-            artifact.add_file(state_dict_path)
+            artifact.add_file(best_model_path)
             run.log_artifact(artifact)
+            log(f"Saved model with best AUPR {best_aupr} at epoch {best_epoch} as artifact.")
             run.finish()
 
         if use_cuda:
