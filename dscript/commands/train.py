@@ -336,7 +336,7 @@ def predict_cmap_interaction(
         if structural_context.allow_backbone3di:
             assert (
                 structural_context.backbone_record is not None
-                and structural_context.fold_vocab is not None
+                and structural_context.backbone_vocab is not None
             )
             b_a = get_foldseek_onehot(
                 n0[i],
