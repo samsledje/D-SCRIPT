@@ -1,0 +1,58 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: /mnt/home/ssledzieski/GitHub/D-SCRIPT
+configfile: pyproject.toml
+testpaths: dscript/tests
+plugins: anyio-4.12.0, cov-7.0.0
+collected 309 items / 2 deselected / 307 selected
+
+dscript/tests/test_alphabets.py ........................                 [  7%]
+dscript/tests/test_commands.py ..........                                [ 11%]
+dscript/tests/test_extract_3di.py ............                           [ 14%]
+dscript/tests/test_fasta.py .........                                    [ 17%]
+dscript/tests/test_foldseek.py .............                             [ 22%]
+dscript/tests/test_glider.py ........................................... [ 36%]
+.......                                                                  [ 38%]
+dscript/tests/test_language_model.py .........                           [ 41%]
+dscript/tests/test_load_worker.py .............                          [ 45%]
+dscript/tests/test_main.py .........................                     [ 53%]
+dscript/tests/test_models_contact.py .................                   [ 59%]
+dscript/tests/test_models_embedding.py ...........................       [ 68%]
+dscript/tests/test_models_interaction.py ............................    [ 77%]
+dscript/tests/test_par_writer.py ................                        [ 82%]
+dscript/tests/test_pretrained.py ....................                    [ 88%]
+dscript/tests/test_utils.py ..................................           [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.11-final-0 _______________
+
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+dscript/__init__.py                         5      0   100%
+dscript/__main__.py                        35      1    97%   87
+dscript/alphabets.py                       49      0   100%
+dscript/commands/__init__.py                1      0   100%
+dscript/commands/embed.py                  32     13    59%   47-59, 63-65
+dscript/commands/evaluate.py              169    128    24%   112-154, 161-170, 180-291, 295-297
+dscript/commands/extract_3di.py            33      4    88%   55-58
+dscript/commands/par_worker.py             64     57    11%   22-121
+dscript/commands/par_writer.py             31      0   100%
+dscript/commands/predict_bipartite.py     199    143    28%   137-152, 155-159, 162-171, 174-176, 181-208, 220-418, 422-424
+dscript/commands/predict_block.py         289    243    16%   127-561, 565-567
+dscript/commands/predict_serial.py        176    136    23%   97-295, 299-301
+dscript/commands/train.py                 358    264    26%   265-301, 331-342, 394-454, 484-532, 537-831, 841-869, 873-875
+dscript/fasta.py                           44      6    86%   61-66
+dscript/foldseek.py                        35      1    97%   70
+dscript/glider.py                         185      3    98%   106-108
+dscript/language_model.py                  73     15    79%   31, 39, 61-63, 74, 85, 108-109, 129-134
+dscript/load_worker.py                     14      0   100%
+dscript/loading.py                         69     58    16%   15-34, 38-59, 63-85, 88-92
+dscript/models/__init__.py                  1      0   100%
+dscript/models/contact.py                  44      0   100%
+dscript/models/embedding.py                76      2    97%   143-144
+dscript/models/interaction.py              94      5    95%   201-206, 229
+dscript/pretrained.py                      88      1    99%   109
+dscript/utils.py                           66      0   100%
+---------------------------------------------------------------------
+TOTAL                                    2230   1080    52%
+================= 307 passed, 2 deselected in 94.25s (0:01:34) =================
