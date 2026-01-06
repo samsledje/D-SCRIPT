@@ -12,6 +12,7 @@ dev*
 # Files
 collect_env.py
 RUN_DSCRIPT.sh
+.coverage
 
 # File Types
 **/*.egg-info
