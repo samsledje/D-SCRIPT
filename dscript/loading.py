@@ -72,7 +72,9 @@ class LoadingPool:
             self.input_queue.put(None)
         while done_count < self.n_jobs:
             res = self.output_queue.get()
-            if res is None:  # This makes really sure that each job is finished processing
+            if (
+                res is None
+            ):  # This makes really sure that each job is finished processing
                 done_count += 1
             else:
                 i, emb = res

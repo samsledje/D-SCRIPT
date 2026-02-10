@@ -55,7 +55,9 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     :type verbose: bool
     """
     use_cuda = (
-        (device >= 0) and torch.cuda.is_available() and device < torch.cuda.device_count()
+        (device >= 0)
+        and torch.cuda.is_available()
+        and device < torch.cuda.device_count()
     )
     if use_cuda:
         torch.cuda.set_device(device)
@@ -94,7 +96,9 @@ def embed_from_fasta(fastaPath, outputPath, device=0, verbose=False):
     log(f"# Storing to {outputPath}...")
     with torch.no_grad(), h5py.File(outputPath, "a") as h5fi:
         try:
-            for name, x in tqdm(zip(names, encoded_seqs, strict=False), total=len(names)):
+            for name, x in tqdm(
+                zip(names, encoded_seqs, strict=False), total=len(names)
+            ):
                 if name not in h5fi:
                     x = x.long().unsqueeze(0)
                     z = model.transform(x)

@@ -153,7 +153,9 @@ class ProteinSet:
 
     def set_embed_path(self, path):
         if not os.path.exists(path):
-            log(f"Embeddings File {path} not found.", file=self.logFile, print_also=True)
+            log(
+                f"Embeddings File {path} not found.", file=self.logFile, print_also=True
+            )
             self.logFile.close()
             sys.exit(3)
         self.embed_path = path
@@ -186,7 +188,9 @@ class ProteinSet:
                     file=self.logFile,
                     print_also=False,
                 )
-                new_last = self.pair_done_queue.get()  # By getting before re-putting, we avoid constantly looping while only the unexpected block has finished
+                new_last = (
+                    self.pair_done_queue.get()
+                )  # By getting before re-putting, we avoid constantly looping while only the unexpected block has finished
                 self.pair_done_queue.put(last)
                 last = new_last
             log(
@@ -247,7 +251,9 @@ def main(args):
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
         if os.path.isfile(modelPath):
             log(
-                f"Will load model locally from {modelPath}", file=logFile, print_also=True
+                f"Will load model locally from {modelPath}",
+                file=logFile,
+                print_also=True,
             )
         else:
             log(f"Local model {modelPath} not found", file=logFile, print_also=True)
@@ -279,7 +285,9 @@ def main(args):
     input_queue = mp.Queue()
     output_queue = mp.Queue()
     # Only create this queue if it is going to be used.
-    pair_done_queue = mp.Queue() if (protsA.num_blocks + protsB.num_blocks > 3) else None
+    pair_done_queue = (
+        mp.Queue() if (protsA.num_blocks + protsB.num_blocks > 3) else None
+    )
 
     # This uses the pytorch spawn function to start a bunch of processes using spawn
     # Apparently, spawn (method) is required when using CUDA in the processes
@@ -389,7 +397,9 @@ def main(args):
         data1 = protsA.load_prots(i, flag=max(cur_waiting_pair - 1, 0))
         if i % 2 == 0:
             cur_waiting_pair += 1
-            submit_block(i, 0, data1, data2, flag=cur_waiting_pair)  # Reuse data2 = B[0]
+            submit_block(
+                i, 0, data1, data2, flag=cur_waiting_pair
+            )  # Reuse data2 = B[0]
             for j in range(1, protsB.num_blocks):
                 data2 = protsB.load_prots(j, flag=max(cur_waiting_pair - 1, 0))
                 cur_waiting_pair += 1

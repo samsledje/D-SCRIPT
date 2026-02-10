@@ -40,9 +40,9 @@ class TestCommands:
     def test_embed(self):
         cmd = f"dscript embed --seqs dscript/tests/test.fasta --outfile {self.temp_dir}/test_embed.h5"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_embed.h5"), (
-            "Embedding file not created."
-        )
+        assert os.path.exists(
+            f"{self.temp_dir}/test_embed.h5"
+        ), "Embedding file not created."
         with h5py.File(f"{self.temp_dir}/test_embed.h5", "r") as f:
             klist = list(f.keys())
             assert len(klist) == 3, "Expected 3 keys in the embedding file."
@@ -50,16 +50,16 @@ class TestCommands:
     def test_train_with_topsy_turvy(self):
         cmd = f"dscript train --topsy-turvy --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test_tt-train.log --save-prefix {self.temp_dir}/test_tt-train"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_tt-train_final.sav"), (
-            "Model file not created."
-        )
+        assert os.path.exists(
+            f"{self.temp_dir}/test_tt-train_final.sav"
+        ), "Model file not created."
 
     def test_train_without_topsy_turvy(self):
         cmd = f"dscript train --train dscript/tests/test.tsv --test dscript/tests/test.tsv --embedding {self.temp_dir}/test_embed.h5 --outfile {self.temp_dir}/test-train.log --save-prefix {self.temp_dir}/test_train"
         self._run_command(cmd)
-        assert os.path.exists(f"{self.temp_dir}/test_train_final.sav"), (
-            "Model file not created."
-        )
+        assert os.path.exists(
+            f"{self.temp_dir}/test_train_final.sav"
+        ), "Model file not created."
 
     def test_evaluate(self):
         cmd = f"dscript evaluate --test dscript/tests/test.tsv --embeddings {self.temp_dir}/test_embed.h5 --model {self.temp_dir}/test_train_final.sav --outfile {self.temp_dir}/test_evaluate"

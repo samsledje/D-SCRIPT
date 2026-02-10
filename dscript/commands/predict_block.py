@@ -157,7 +157,9 @@ def main(args):
     if modelPath.endswith(".sav") or modelPath.endswith(".pt"):
         if os.path.isfile(modelPath):
             log(
-                f"Will load model locally from {modelPath}", file=logFile, print_also=True
+                f"Will load model locally from {modelPath}",
+                file=logFile,
+                print_also=True,
             )
         else:
             log(f"Local model {modelPath} not found", file=logFile, print_also=True)
@@ -348,7 +350,9 @@ def main(args):
                     file=logFile,
                     print_also=False,
                 )
-                new_last = pair_done_queue.get()  # By getting before re-putting, we avoid constantly looping while only the unexpected block has finished
+                new_last = (
+                    pair_done_queue.get()
+                )  # By getting before re-putting, we avoid constantly looping while only the unexpected block has finished
                 pair_done_queue.put(last)
                 last = new_last
             log(
@@ -512,14 +516,17 @@ def main(args):
             # self-pair
             block_pairs = pairs_bool[start1:end1, start1:end1]
             prots_needed1 = (
-                np.nonzero(block_pairs.any(axis=0) | block_pairs.any(axis=1))[0] + start1
+                np.nonzero(block_pairs.any(axis=0) | block_pairs.any(axis=1))[0]
+                + start1
             )
             if len(prots_needed1) > 0:
                 data1 = load_prots(
                     i, flag=max(cur_waiting_pair - 1, 0), indices=prots_needed1
                 )
                 cur_waiting_pair += 1
-                submit_pairs(prots_needed1, prots_needed1, data1, data1, cur_waiting_pair)
+                submit_pairs(
+                    prots_needed1, prots_needed1, data1, data1, cur_waiting_pair
+                )
                 log(
                     f"Self-block submitted: {i} with blocking number {cur_waiting_pair}",
                     file=logFile,

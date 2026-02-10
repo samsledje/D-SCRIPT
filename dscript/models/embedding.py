@@ -75,7 +75,9 @@ class SkipLSTM(nn.Module):
     :type bidirectional: bool
     """
 
-    def __init__(self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True):
+    def __init__(
+        self, nin, nout, hidden_dim, num_layers, dropout=0, bidirectional=True
+    ):
         super().__init__()
 
         self.nin = nin

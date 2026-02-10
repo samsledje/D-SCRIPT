@@ -10,10 +10,13 @@ htmlcov
 dev*
 temp
 results
+bash/logs
 
 # Files
 collect_env.py
 RUN_DSCRIPT.sh
+*_re_*.py
+interaction_ex.py
 
 # File Types
 **/*.egg-info
@@ -22,3 +25,51 @@ RUN_DSCRIPT.sh
 **/*_log.txt
 **/*.h5
 **/.nfs*
+
+
+dscript/commands/evaluate_diex3.py
+dscript/commands/evaluate_diex4.py
+dscript/commands/evaluate_diex5.py
+dscript/commands/evaluate_ns.py
+dscript/commands/predict_serial_diex5.py
+dscript/commands/predict_serial_ori.py
+dscript/commands/train_diex1.py
+dscript/commands/train_diex10.py
+dscript/commands/train_diex11.py
+dscript/commands/train_diex12.py
+dscript/commands/train_diex13.py
+dscript/commands/train_diex14.py
+dscript/commands/train_diex2.py
+dscript/commands/train_diex3.py
+dscript/commands/train_diex4.py
+dscript/commands/train_diex5.py
+dscript/commands/train_diex6.py
+dscript/commands/train_diex7.py
+dscript/commands/train_diex8.py
+dscript/commands/train_diex9.py
+dscript/commands/train_old.py
+dscript/commands/train_re.py
+dscript/models/interaction_diex1.py
+dscript/models/interaction_diex10.py
+dscript/models/interaction_diex11.py
+dscript/models/interaction_diex12.py
+dscript/models/interaction_diex13.py
+dscript/models/interaction_diex14.py
+dscript/models/interaction_diex2.py
+dscript/models/interaction_diex3.py
+dscript/models/interaction_diex4.py
+dscript/models/interaction_diex5.py
+dscript/models/interaction_diex6.py
+dscript/models/interaction_diex7.py
+dscript/models/interaction_diex8.py
+dscript/models/interaction_diex9.py
+dscript/models/interaction_old.py
+dscript/models/interaction_re.py
+bash/train_re.sh
+bash/train_re_nlm.sh
+bash/train_re_random.sh
+
+
+
+
+

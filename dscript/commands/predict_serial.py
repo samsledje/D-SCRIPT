@@ -126,7 +126,9 @@ def main(args):
 
     # Set Device
     use_cuda = (
-        (device >= 0) and torch.cuda.is_available() and device < torch.cuda.device_count()
+        (device >= 0)
+        and torch.cuda.is_available()
+        and device < torch.cuda.device_count()
     )
     if use_cuda:
         torch.cuda.set_device(device)

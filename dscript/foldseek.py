@@ -8,6 +8,7 @@ from .utils import log
 
 from dataclasses import dataclass
 
+
 @dataclass
 class Foldseek3diContext:
     allow_foldseek: bool = False
@@ -18,6 +19,7 @@ class Foldseek3diContext:
 
     backbone_record: dict = None
     backbone_vocab: dict = None
+
 
 fold_vocab = {
     "D": 0,
@@ -43,6 +45,7 @@ fold_vocab = {
     "X": 20,
 }
 
+
 def build_backbone_vocab(size=12):
     """
     Build a reduced amino-acid vocabulary mapping for backbone modeling.
@@ -55,7 +58,7 @@ def build_backbone_vocab(size=12):
     :param size: Number of amino acids to include from the start of the
                  alphabet. Must be between 1 and 20.
     :type size: int, optional
-    :returns: A dictionary mapping each selected amino-acid letter in range to   
+    :returns: A dictionary mapping each selected amino-acid letter in range to
               an index.
     :rtype: dict
     :raises ValueError: If `size` is less than 1 or greater than the number
@@ -68,6 +71,7 @@ def build_backbone_vocab(size=12):
     letters = aa_alphabet[:size]
     vocab = {aa: i for i, aa in enumerate(letters)}
     return vocab
+
 
 def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     """
@@ -112,4 +116,3 @@ def get_3di_sequences(pdb_files: list[str]):
             log(f"Error processing {pdb_path}: {e}")
             continue
     return seq_records
-

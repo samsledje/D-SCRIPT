@@ -109,8 +109,12 @@ def compute_cw_score(p, q, edgedict, ndict, params=None):
     score = 0
     for elem in ndict[p]:
         if elem in ndict[q]:
-            p_elem = edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
-            q_elem = edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
+            p_elem = (
+                edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
+            )
+            q_elem = (
+                edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
+            )
             score += p_elem + q_elem
     return score
 
@@ -137,8 +141,12 @@ def compute_cw_score_normalized(p, q, edgedict, ndict, params=None):
     score = 0
     for elem in ndict[p]:
         if elem in ndict[q]:
-            p_elem = edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
-            q_elem = edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
+            p_elem = (
+                edgedict[(p, elem)] if (p, elem) in edgedict else edgedict[(elem, p)]
+            )
+            q_elem = (
+                edgedict[(q, elem)] if (q, elem) in edgedict else edgedict[(elem, q)]
+            )
             score += p_elem + q_elem
     degrees = params["deg"]
     return score / np.sqrt(degrees[p] * degrees[q])

@@ -272,7 +272,9 @@ class TestGetPretrained:
 
     @patch("dscript.pretrained.get_state_dict")
     @patch("dscript.pretrained.VALID_MODELS")
-    def test_get_pretrained_valid_versions(self, mock_valid_models, mock_get_state_dict):
+    def test_get_pretrained_valid_versions(
+        self, mock_valid_models, mock_get_state_dict
+    ):
         """Test get_pretrained with valid versions."""
 
         def mock_builder(path):

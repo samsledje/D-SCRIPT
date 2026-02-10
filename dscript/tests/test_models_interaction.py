@@ -4,7 +4,12 @@ import torch.nn as nn
 
 from dscript.models.contact import ContactCNN
 from dscript.models.embedding import FullyConnectedEmbed
-from dscript.models.interaction import DSCRIPTModel, LogisticActivation, ModelInteraction, InteractionInputs
+from dscript.models.interaction import (
+    DSCRIPTModel,
+    LogisticActivation,
+    ModelInteraction,
+    InteractionInputs,
+)
 
 
 class TestLogisticActivation:
@@ -544,11 +549,15 @@ class TestModelInteractionEdgeCases:
 
         # Test with embed_foldseek=True but missing f0/f1
         with pytest.raises(AssertionError):
-            model.cpred(InteractionInputs(z0, z1, embed_foldseek=True, f0=None, f1=None))
+            model.cpred(
+                InteractionInputs(z0, z1, embed_foldseek=True, f0=None, f1=None)
+            )
 
         # Test with wrong types
         with pytest.raises(AssertionError):
-            model.cpred(InteractionInputs(z0, z1, embed_foldseek=True, f0="not_tensor", f1=None))
+            model.cpred(
+                InteractionInputs(z0, z1, embed_foldseek=True, f0="not_tensor", f1=None)
+            )
 
     def test_backbone_assertion_errors(self):
         """Test assertion errors in backbone embedding."""
@@ -566,11 +575,15 @@ class TestModelInteractionEdgeCases:
 
         # Test with embed_backbone=True but missing f0/f1
         with pytest.raises(AssertionError):
-            model.cpred(InteractionInputs(z0, z1, embed_backbone=True, b0=None, b1=None))
+            model.cpred(
+                InteractionInputs(z0, z1, embed_backbone=True, b0=None, b1=None)
+            )
 
         # Test with wrong types
         with pytest.raises(AssertionError):
-            model.cpred(InteractionInputs(z0, z1, embed_backbone=True, b0="not_tensor", b1=None))
+            model.cpred(
+                InteractionInputs(z0, z1, embed_backbone=True, b0="not_tensor", b1=None)
+            )
 
     def test_very_small_sequences(self):
         """Test with very small sequence lengths."""
@@ -627,4 +640,3 @@ class TestModelInteractionEdgeCases:
             phat = model.predict(z0, z1)
 
         assert isinstance(phat.item(), float)
-
