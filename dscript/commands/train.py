@@ -504,7 +504,7 @@ def interaction_grad(
         correct = torch.sum(p_guess == y).item()
         mse = torch.mean((y.float() - p_hat) ** 2).item()
 
-    return loss, correct, mse, b
+    return accuracy_loss, representation_loss, loss, correct, mse, b
 
 
 def interaction_eval(
@@ -644,7 +644,7 @@ def train_model(args, output):
     if no_augment:
         train_p1 = train_df["prot1"]
         train_p2 = train_df["prot2"]
-        train_y = torch.from_numpy(train_df["label"].values)
+        train_y = torch.from_numpy(train_df["label"].values.copy())
     else:
         train_p1 = pd.concat((train_df["prot1"], train_df["prot2"]), axis=0).reset_index(
             drop=True
@@ -653,7 +653,7 @@ def train_model(args, output):
             drop=True
         )
         train_y = torch.from_numpy(
-            pd.concat((train_df["label"], train_df["label"])).values
+            pd.concat((train_df["label"], train_df["label"])).values.copy()
         )
 
     train_dataset = PairedDataset(train_p1, train_p2, train_y)
@@ -671,7 +671,7 @@ def train_model(args, output):
     test_df.columns = ["prot1", "prot2", "label"]
     test_p1 = test_df["prot1"]
     test_p2 = test_df["prot2"]
-    test_y = torch.from_numpy(test_df["label"].values)
+    test_y = torch.from_numpy(test_df["label"].values.copy())
 
     test_dataset = PairedDataset(test_p1, test_p2, test_y)
     test_iterator = torch.utils.data.DataLoader(
@@ -818,12 +818,14 @@ def train_model(args, output):
 
         n = 0
         loss_accum = 0
+        acc_loss_accum = 0
+        rep_loss_accum = 0
         acc_accum = 0
         mse_accum = 0
 
         # Train batches
         for z0, z1, y in train_iterator:
-            loss, correct, mse, b = interaction_grad(
+            accuracy_loss, representation_loss, loss, correct, mse, b = interaction_grad(
                 model,
                 z0,
                 z1,
@@ -841,6 +843,12 @@ def train_model(args, output):
             n += b
             delta = b * (loss - loss_accum)
             loss_accum += delta / n
+
+            delta = b * (accuracy_loss - acc_loss_accum)
+            acc_loss_accum += delta / n
+
+            delta = b * (representation_loss - rep_loss_accum)
+            rep_loss_accum += delta / n
 
             delta = correct - b * acc_accum
             acc_accum += delta / n
@@ -860,6 +868,8 @@ def train_model(args, output):
                     num_epochs,
                     n / N,
                     loss_accum,
+                    rep_loss_accum,
+                    acc_loss_accum,
                     acc_accum,
                     mse_accum,
                 ]
@@ -869,6 +879,8 @@ def train_model(args, output):
                     run.log(
                         {
                             "train/loss": loss_accum,
+                            "train/acc_loss": acc_loss_accum,
+                            "train/rep_loss": rep_loss_accum,
                             "train/accuracy": acc_accum,
                             "train/mse": mse_accum,
                         }
