@@ -1,0 +1,54 @@
+# dscript train_batched --config example_batched.yaml
+# Every setting can also be given as a flag (--hidden-dim 64), which overrides
+# this file. Keys may be written hidden_dim or hidden-dim.
+
+# --- data -------------------------------------------------------------------
+train: data/train.tsv          # prot1 <tab> prot2 <tab> label
+val: data/val.tsv
+embeddings: data/esm2_650m.h5  # HDF5 file, or a directory of per-protein .pt files
+# foldseek_fasta: data/foldseek.fasta   # enables the Foldseek feature
+# backbone_fasta: data/backbone.fasta   # enables the 12-state backbone feature
+
+# --- model ------------------------------------------------------------------
+projection_dim: 100
+hidden_dim: 50
+kernel_width: 7                # must be odd
+dropout: 0.5
+weighting: true                # learned distance-weighting matrix W
+sigmoid: true
+pool_width: null               # e.g. 9 for a local max-pool
+theta_init: 1.0
+lambda_init: 0.0
+gamma_init: 0.0
+sigmoid_k: 20.0
+sigmoid_x0: 0.5
+
+# --- loss -------------------------------------------------------------------
+interaction_weight: 0.35       # lambda
+topsy_turvy: false
+glider_weight: 0.2
+glider_thresh: 0.925
+
+# --- optimisation -----------------------------------------------------------
+epochs: 10
+pairs_per_step: 32             # across all devices; independent of memory
+lr: 0.001
+weight_decay: 0.0
+seed: 0
+
+# --- hardware ---------------------------------------------------------------
+accelerator: auto              # auto | gpu | cpu
+devices: auto                  # all visible GPUs; or a count; CPU processes with accelerator: cpu
+num_nodes: 1
+workers: 4                     # data-loading processes per device
+memory_fraction: 0.85          # share of each GPU's memory to plan for
+collective_timeout_minutes: 30
+
+# --- output -----------------------------------------------------------------
+output_dir: runs/example_batched
+resume: null                   # runs/example_batched/checkpoints/last.ckpt to continue
+report_every: 50
+wandb_project: null
+wandb_entity: null
+wandb_name: null
+wandb_tags: null

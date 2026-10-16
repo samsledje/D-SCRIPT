@@ -5,7 +5,7 @@ import sys
 import torch
 from loguru import logger
 
-from ..models.interaction import DSCRIPTModel
+from ..legacy.interaction import DSCRIPTModel
 from ..utils import log
 
 

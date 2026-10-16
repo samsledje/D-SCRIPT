@@ -19,7 +19,7 @@ from tqdm import tqdm
 from ..fasta import parse
 from ..foldseek import fold_vocab, get_foldseek_onehot
 from ..language_model import lm_embed
-from ..models.interaction import DSCRIPTModel
+from ..legacy.interaction import DSCRIPTModel
 from ..utils import load_hdf5_parallel, log
 
 

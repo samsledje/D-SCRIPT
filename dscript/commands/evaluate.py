@@ -21,14 +21,19 @@ from sklearn.metrics import (
     precision_recall_curve,
     roc_auc_score,
     roc_curve,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    mean_squared_error,
 )
 from tqdm import tqdm
 from pathlib import Path
 from dscript.loading import LoadingPool
 
-from dscript.models.interaction import InteractionInputs
+from dscript.legacy.interaction import InteractionInputs
 
-from ..foldseek import get_foldseek_onehot, build_backbone_vocab
+from ..foldseek import get_foldseek_onehot, build_backbone_vocab, fold_vocab
 from ..parallel_embedding_loader import EmbeddingLoader, add_batch_dim_if_needed
 from ..fasta import parse_dict
 from ..utils import log
@@ -89,18 +94,6 @@ def add_args(parser):
         "--foldseek_fasta",
         help="foldseek fasta file containing the foldseek representation",
     )
-    parser.add_argument(
-        "--foldseek_vocab",
-        help="foldseek vocab json file mapping foldseek alphabet to json",
-    )
-
-    parser.add_argument(
-        "--add_foldseek_after_projection",
-        default=False,
-        action="store_true",
-        help="If set to true, adds the fold seek embedding after the projection layer",
-    )
-
     ## Backbone arguments
     parser.add_argument(
         "--allow_backbone3di",
@@ -172,6 +165,70 @@ def plot_eval_predictions(labels, predictions, path="figure"):
     plt.savefig(path + ".auroc.png")
     plt.close()
 
+def log_eval_metrics(
+    labels: np.ndarray,
+    phats: np.ndarray,
+    out_path_prefix: str,
+    threshold: float = 0.5,
+    split_name: str = "test",
+) -> None:
+
+    # labels = np.asarray(labels, dtype=np.float32).reshape(-1)
+    # phats = np.asarray(phats, dtype=np.float32).reshape(-1)
+
+    n = int(labels.shape[0])
+
+    # Loss (BCE over probabilities)
+    if n == 0:
+        loss = float("nan")
+    else:
+        '''
+        logits = torch.from_numpy(phats).float()  # [n]
+        y = torch.from_numpy(labels).float()
+        #loss = float(
+        #    F.binary_cross_entropy_with_logits(logits, y, reduction="mean").item()
+        #)
+        p_prob = torch.sigmoid(logits).cpu().numpy()
+        '''
+        p_prob = phats
+
+    # Other metrics
+    if n == 0:
+        aupr = auroc = acc = prec = rec = f1 = mse = float("nan")
+    else:
+        y_true_int = labels.astype(int)
+
+        y_pred = (p_prob >= threshold).astype(int)
+
+        aupr = float(average_precision_score(y_true_int, p_prob))
+        auroc = (
+            float(roc_auc_score(y_true_int, p_prob))
+            if len(np.unique(y_true_int)) > 1
+            else float("nan")
+        )
+
+        acc = float(accuracy_score(y_true_int, y_pred))
+        prec = float(precision_score(y_true_int, y_pred, zero_division=0))
+        rec = float(recall_score(y_true_int, y_pred, zero_division=0))
+        f1 = float(f1_score(y_true_int, y_pred, zero_division=0))
+        mse = float(mean_squared_error(y_true_int, p_prob))
+
+    with open(out_path_prefix + "_metrics.txt", "w+") as f:
+        log(
+            f"[{split_name}] n: {n}\n"
+            f"[{split_name}] threshold: {threshold}\n"
+            #f"[{split_name}] loss: {loss:.6f}\n"
+            f"[{split_name}] AUPR: {aupr:.6f}\n"
+            f"[{split_name}] AUROC: {auroc:.6f}\n"
+            f"[{split_name}] accuracy: {acc:.6f}\n"
+            f"[{split_name}] mse: {mse:.6f}\n"
+            f"[{split_name}] precision: {prec:.6f}\n"
+            f"[{split_name}] recall: {rec:.6f}\n"
+            f"[{split_name}] f1: {f1:.6f}",
+            file=f,
+        )
+
+
 def main(args):
     """
     Run model evaluation from arguments.
@@ -181,23 +238,19 @@ def main(args):
     ########## Foldseek code #########################
     allow_foldseek = args.allow_foldseek
     fold_fasta_file = args.foldseek_fasta
-    fold_vocab_file = args.foldseek_vocab
     fold_record = {}
-    fold_vocab = None
     if allow_foldseek:
-        assert fold_fasta_file is not None and fold_vocab_file is not None
+        assert fold_fasta_file is not None
         fold_fasta = parse_dict(fold_fasta_file)
         for rec_k, rec_v in fold_fasta.items():
             fold_record[rec_k] = rec_v
-        with open(fold_vocab_file) as fv:
-            fold_vocab = json.load(fv)
     ########## Backbone code #########################
     allow_backbone = args.allow_backbone3di
     backbone_fasta_file = args.backbone3di_fasta
     backbone_record = {}
     backbone_vocab = None
     if allow_backbone:
-        assert backbone_fasta is not None
+        assert backbone_fasta_file is not None
         backbone_fasta = parse_dict(backbone_fasta_file)
         for rec_k, rec_v in backbone_fasta.items():
             backbone_record[rec_k] = rec_v
@@ -312,17 +365,29 @@ def main(args):
                 labels.append(label)
                 outFile.write(f"{n0}\t{n1}\t{label}\t{pred:.5}\n")
             except Exception as e:
+                print("exception. :'(")
                 sys.stderr.write(f"{n0} x {n1} - {e}")
 
     phats = np.array(phats)
     labels = np.array(labels)
 
+    """
     with open(outPath + "_metrics.txt", "w+") as f:
         aupr = average_precision_score(labels, phats)
         auroc = roc_auc_score(labels, phats)
 
         log(f"AUPR: {aupr}", file=f)
         log(f"AUROC: {auroc}", file=f)
+
+    """
+
+    log_eval_metrics(
+        labels=labels,
+        phats=phats,
+        out_path_prefix=outPath,
+        threshold=0.5,
+        split_name="test",
+    )
 
     plot_eval_predictions(labels, phats, outPath)
 

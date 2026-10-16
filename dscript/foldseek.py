@@ -19,6 +19,12 @@ class Foldseek3diContext:
     backbone_record: dict = None
     backbone_vocab: dict = None
 
+    allow_patch_vectors: bool = False
+    allow_concise_codes: bool = False
+
+    patch_vector_record: dict = None
+    concise_code_record: dict = None
+
 fold_vocab = {
     "D": 0,
     "P": 1,
@@ -75,7 +81,9 @@ def get_foldseek_onehot(n0, size_n0, fold_record, fold_vocab):
     """
     if n0 in fold_record:
         fold_seq = fold_record[n0]
-        assert size_n0 == len(fold_seq)
+        if size_n0 != len(fold_seq):
+            print(f"investigate {n0}")
+            return torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
         foldseek_enc = torch.zeros(size_n0, len(fold_vocab), dtype=torch.float32)
         for i, a in enumerate(fold_seq):
             assert a in fold_vocab

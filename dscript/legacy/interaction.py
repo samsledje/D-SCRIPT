@@ -1,0 +1,402 @@
+import torch
+import torch.nn as nn
+from huggingface_hub import PyTorchModelHubMixin
+
+from .batch import PairBatch  # new (step 1)
+from .contact import ContactCNN
+from .embedding import FullyConnectedEmbed
+
+from dataclasses import dataclass
+
+@dataclass
+class InteractionInputs:
+    z0: torch.Tensor
+    z1: torch.Tensor
+
+    f0: torch.Tensor = None
+    f1: torch.Tensor = None
+
+    b0: torch.Tensor = None
+    b1: torch.Tensor = None
+
+    embed_foldseek: bool = False
+    embed_backbone: bool = False
+
+    def __post_init__(self):
+        if self.embed_foldseek:
+            assert self.f0 is not None and self.f1 is not None
+            assert isinstance(self.f0, torch.Tensor) and isinstance(self.f1, torch.Tensor)
+            assert (
+                self.z0.get_device() == self.f0.get_device() and self.z0.get_device() == self.f1.get_device()
+            )
+            assert self.f0.shape[1] == self.z0.shape[1] and self.f1.shape[1] == self.z1.shape[1]
+        if self.embed_backbone:
+            assert self.b0 is not None and self.b1 is not None
+            assert isinstance(self.b0, torch.Tensor) and isinstance(self.b1, torch.Tensor)
+            assert (
+                self.z0.get_device() == self.b0.get_device() and self.z0.get_device() == self.b1.get_device()
+            )
+            assert self.b0.shape[1] == self.z0.shape[1] and self.b1.shape[1] == self.z1.shape[1]
+
+
+class LogisticActivation(nn.Module):
+    """
+    Implementation of Generalized Sigmoid
+    Applies the element-wise function:
+
+    :math:`\\sigma(x) = \\frac{1}{1 + \\exp(-k(x-x_0))}`
+
+    :param x0: The value of the sigmoid midpoint
+    :type x0: float
+    :param k: The slope of the sigmoid - trainable -  :math:`k \\geq 0`
+    :type k: float
+    :param train: Whether :math:`k` is a trainable parameter
+    :type train: bool
+    """
+
+    def __init__(self, x0=0, k=1, train=False):
+        super().__init__()
+        self.x0 = x0
+        self.k = nn.Parameter(torch.FloatTensor([float(k)]))
+        self.k.requires_grad = train
+
+    def forward(self, x):
+        """
+        Applies the function to the input elementwise
+
+        :param x: :math:`(N \\times *)` where :math:`*` means, any number of additional dimensions
+        :type x: torch.Tensor
+        :return: :math:`(N \\times *)`, same shape as the input
+        :rtype: torch.Tensor
+        """
+        o = torch.clamp(1 / (1 + torch.exp(-self.k * (x - self.x0))), min=0, max=1)
+        return o
+
+    def clip(self):
+        """
+        Restricts sigmoid slope :math:`k` to be greater than or equal to 0, if :math:`k` is trained.
+
+        :meta private:
+        """
+        self.k.data.clamp_(min=0)
+
+
+class ModelInteraction(nn.Module):
+    def __init__(
+        self,
+        embedding,
+        contact,
+        use_cuda,
+        do_w=True,
+        # language_mod_size=25,
+        do_sigmoid=True,
+        do_pool=False,
+        pool_size=9,
+        theta_init=1,
+        lambda_init=0,
+        gamma_init=0,
+    ):
+        """
+        Main D-SCRIPT model. Contains an embedding and contact model and offers access to those models. Computes pooling operations on contact map to generate interaction probability.
+
+        :param embedding: Embedding model
+        :type embedding: dscript.models.embedding.FullyConnectedEmbed
+        :param contact: Contact model
+        :type contact: dscript.models.contact.ContactCNN
+        :param use_cuda: Whether the model should be run on GPU
+        :type use_cuda: bool
+        :param do_w: whether to use the weighting matrix [default: True]
+        :type do_w: bool
+        :param do_sigmoid: whether to use a final sigmoid activation [default: True]
+        :type do_sigmoid: bool
+        :param do_pool: whether to do a local max-pool prior to the global pool
+        :type do_pool: bool
+        :param pool_size: width of max-pool [default 9]
+        :type pool_size: bool
+        :param theta_init: initialization value of :math:`\\theta` for weight matrix [default: 1]
+        :type theta_init: float
+        :param lambda_init: initialization value of :math:`\\lambda` for weight matrix [default: 0]
+        :type lambda_init: float
+        :param gamma_init: initialization value of :math:`\\gamma` for global pooling [default: 0]
+        :type gamma_init: float
+
+        """
+        super().__init__()
+        self.use_cuda = use_cuda
+        self.do_w = do_w
+        self.do_sigmoid = do_sigmoid
+        if do_sigmoid:
+            self.activation = LogisticActivation(x0=0.5, k=20)
+
+        self.embedding = embedding
+        self.contact = contact
+
+        if self.do_w:
+            self.theta = nn.Parameter(torch.FloatTensor([theta_init]))
+            self.lambda_ = nn.Parameter(torch.FloatTensor([lambda_init]))
+
+        self.do_pool = do_pool
+        self.pool_size = pool_size
+        self.maxPool = nn.MaxPool2d(pool_size, padding=pool_size // 2)
+
+        self.gamma = nn.Parameter(torch.FloatTensor([gamma_init]))
+
+        self.clip()
+
+        self.xx = nn.Parameter(torch.arange(2000), requires_grad=False)
+
+    def clip(self):
+        """
+        Clamp model values
+
+        :meta private:
+        """
+        self.contact.clip()
+
+        if self.do_w:
+            self.theta.data.clamp_(min=0, max=1)
+            self.lambda_.data.clamp_(min=0)
+
+        self.gamma.data.clamp_(min=0)
+
+    def embed(self, x):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z: torch.Tensor
+        :return: D-SCRIPT projection :math:`(b \\times N \\times d)`
+        :rtype: torch.Tensor
+        """
+        if self.embedding is None:
+            return x
+        else:
+            return self.embedding(x)
+
+    def cpred(self, inputs):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted contact map :math:`(b \\times N \\times M)`
+        :rtype: torch.Tensor
+        """
+        e0 = self.embed(inputs.z0)
+        e1 = self.embed(inputs.z1)
+
+        if inputs.embed_foldseek:
+            e0 = torch.concat([e0, inputs.f0], dim=2)
+            e1 = torch.concat([e1, inputs.f1], dim=2)
+
+        if inputs.embed_backbone:
+            e0 = torch.concat([e0, inputs.b0], dim=2)
+            e1 = torch.concat([e1, inputs.b1], dim=2)
+
+        B = self.contact.cmap(e0, e1)
+        C = self.contact.predict(B)
+
+        return C
+
+    # TODO: Temporaru overload to allow downstream (post train/evaluate) methods to work.
+    def _build_interaction_inputs(
+        self,
+        z0,
+        z1,
+        ### Foldseek embedding added
+        embed_foldseek=False,
+        f0=None,
+        f1=None,
+        ### Backbone embedding added
+        embed_backbone=False,
+        b0=None,
+        b1=None,
+    ):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted contact map, predicted probability of interaction :math:`(b \\times N \\times d_0), (1)`
+        :rtype: torch.Tensor, torch.Tensor
+        """
+        return InteractionInputs(z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1, embed_backbone=embed_backbone, b0=b0, b1=b1)
+
+
+    def map_predict(self, *args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], InteractionInputs):
+            cpredInputs = args[0]
+
+        if len(args) >= 2:
+            # new (step 1): was `_build_interaction_inputs(...)` without `self.`,
+            # a NameError on every positional call - including the predict
+            # commands' `model.map_predict(p0, p1)` and `model.predict(z0, z1)`.
+            cpredInputs = self._build_interaction_inputs(*args, **kwargs)
+
+        C = self.cpred(cpredInputs)
+
+        if self.do_w:
+            N, M = C.shape[2:]
+            device = C.device
+
+            xx_N = torch.arange(N, device=device, dtype=C.dtype)
+            xx_M = torch.arange(M, device=device, dtype=C.dtype)
+
+            x1 = -1 * torch.square((xx_N + 1 - ((N + 1) / 2)) / (-1 * ((N + 1) / 2)))
+
+            x2 = -1 * torch.square((xx_M + 1 - ((M + 1) / 2)) / (-1 * ((M + 1) / 2)))
+
+            x1 = torch.exp(self.lambda_ * x1)
+            x2 = torch.exp(self.lambda_ * x2)
+
+            W = x1.unsqueeze(1) * x2
+            W = (1 - self.theta) * W + self.theta
+
+            yhat = C * W
+
+        else:
+            yhat = C
+
+        if self.do_pool:
+            yhat = self.maxPool(yhat)
+
+        # Mean of contact predictions where p_ij > mu + gamma*sigma
+        mu = torch.mean(yhat)
+        sigma = torch.var(yhat)
+        # Q = torch.relu(yhat - mu)
+        Q = torch.relu(yhat - mu - (self.gamma * sigma))
+        phat = torch.sum(Q) / (torch.sum(torch.sign(Q)) + 1)
+        if self.do_sigmoid:
+            phat = self.activation(phat).squeeze()
+        return C, phat
+
+    # INTERNAL
+    def predict(
+        self,
+        z0,
+        z1,
+        embed_foldseek=False,
+        f0=None,
+        f1=None,
+        embed_backbone=False,
+        b0=None,
+        b1=None,
+    ):
+        """
+        Project down input language model embeddings into low dimension using projection module
+
+        :param z0: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z0: torch.Tensor
+        :param z1: Language model embedding :math:`(b \\times N \\times d_0)`
+        :type z1: torch.Tensor
+        :return: Predicted probability of interaction
+        :rtype: torch.Tensor, torch.Tensor
+        """
+        _, phat = self.map_predict(z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1, 
+            embed_backbone=embed_backbone, b0=b0, b1=b1)
+        return phat
+
+    def forward(self, z0, z1=None, embed_foldseek=False, f0=None, f1=None,
+                    embed_backbone=False, b0=None, b1=None):
+        """
+        Two calling conventions:
+
+        * ``model(batch)`` with a :class:`~dscript.models.batch.PairBatch`
+          returns a dict of outputs - the training entry point;  # new (step 1)
+        * ``model(z0, z1, ...)`` returns the interaction probability, unchanged
+          for existing callers.
+
+        :meta private:
+        """
+        if isinstance(z0, PairBatch):  # new (step 1)
+            return self.forward_batch(z0)
+        return self.predict(z0, z1, embed_foldseek=embed_foldseek, f0=f0, f1=f1,
+            embed_backbone=embed_backbone, b0=b0, b1=b1)
+
+    # Feature names this model knows how to consume, mapped onto the
+    # InteractionInputs fields. new (step 1)
+    _FEATURE_FIELDS = {
+        "foldseek": ("embed_foldseek", "f0", "f1"),
+        "backbone": ("embed_backbone", "b0", "b1"),
+    }
+
+    def forward_batch(self, batch: PairBatch, return_contact_maps: bool = False) -> dict:  # new (step 1)
+        """
+        Run a whole batch in one call.
+
+        v1 computes its pooling statistics over the whole contact map, so pairs
+        cannot share a padded tensor. This loops over the pairs internally,
+        exactly as training always has - the difference is that the loop now
+        lives inside forward(), so one call covers the batch (which is what
+        DistributedDataParallel needs).
+
+        :return: ``{"p_hat": (b,), "cmap_magnitude": (b,)}`` plus
+            ``"contact_maps"`` (list of ``(1, 1, N, M)``) if requested
+        """
+        unknown = set(batch.features) - set(self._FEATURE_FIELDS)
+        if unknown:
+            raise ValueError(f"v1 model cannot use features {sorted(unknown)}")
+
+        p_hat, magnitude, cmaps = [], [], []
+        for i in range(len(batch)):
+            kwargs = {}
+            for name, (flag, a, b) in self._FEATURE_FIELDS.items():
+                if name in batch.features:
+                    f0, f1 = batch.features[name]
+                    kwargs[flag] = True
+                    kwargs[a] = f0[i].unsqueeze(0)
+                    kwargs[b] = f1[i].unsqueeze(0)
+            inputs = InteractionInputs(
+                batch.z0[i].unsqueeze(0), batch.z1[i].unsqueeze(0), **kwargs
+            )
+            cm, ph = self.map_predict(inputs)
+            p_hat.append(ph)
+            magnitude.append(torch.mean(cm))
+            if return_contact_maps:
+                cmaps.append(cm)
+
+        out = {"p_hat": torch.stack(p_hat, 0), "cmap_magnitude": torch.stack(magnitude, 0)}
+        if return_contact_maps:
+            out["contact_maps"] = cmaps
+        return out
+
+
+class DSCRIPTModel(ModelInteraction, PyTorchModelHubMixin):
+    def __init__(
+        self,
+        emb_nin,
+        emb_nout,
+        emb_dropout,
+        con_embed_dim,
+        con_hidden_dim,
+        con_width,
+        use_cuda,
+        emb_activation=nn.ReLU(),
+        con_activation=nn.Sigmoid(),
+        do_w=True,
+        do_sigmoid=True,
+        do_pool=False,
+        pool_size=9,
+        theta_init=1,
+        lambda_init=0,
+        gamma_init=0,
+    ):
+        embedding = FullyConnectedEmbed(emb_nin, emb_nout, emb_dropout, emb_activation)
+        contact = ContactCNN(con_embed_dim, con_hidden_dim, con_width, con_activation)
+        super().__init__(
+            embedding=embedding,
+            contact=contact,
+            use_cuda=use_cuda,
+            do_w=do_w,
+            do_sigmoid=do_sigmoid,
+            do_pool=do_pool,
+            pool_size=pool_size,
+            theta_init=theta_init,
+            lambda_init=lambda_init,
+            gamma_init=gamma_init,
+        )
+

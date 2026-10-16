@@ -29,6 +29,32 @@ def setup_logger(log_file=None, also_stdout=False):
         logger.add(sys.stdout)
 
 
+_LOGGING_CONFIGURED = False  # new (step 1)
+
+
+def configure_logging(log_file=None, also_stdout=True, silent=False):  # new (step 1)
+    """
+    Configure loguru once, for a whole run.
+
+    After this, :func:`log` stops reconfiguring sinks on every call and just
+    logs - so a library call such as EmbeddingLoader's ``log()`` can no longer
+    tear down the run's file sink. Commands that never call this (predict,
+    embed, evaluate) keep the old per-call behaviour.
+
+    :param log_file: path or file handle, or None
+    :param also_stdout: also log to stdout
+    :param silent: remove all sinks - for non-zero ranks in distributed runs
+    """
+    global _LOGGING_CONFIGURED
+    logger.remove()
+    if not silent:
+        if log_file is not None:
+            logger.add(log_file)
+        if also_stdout or log_file is None:
+            logger.add(sys.stdout)
+    _LOGGING_CONFIGURED = True
+
+
 def log(m, file=None, timestamped=True, print_also=False):
     """
     Legacy log function that wraps loguru for backward compatibility.
@@ -43,7 +69,8 @@ def log(m, file=None, timestamped=True, print_also=False):
     :type print_also: bool
     """
     # Configure logger based on parameters
-    setup_logger(log_file=file, also_stdout=print_also)
+    if not _LOGGING_CONFIGURED:  # new (step 1): respect a run-wide configuration
+        setup_logger(log_file=file, also_stdout=print_also)
 
     # Log the message
     logger.info(m)
@@ -165,3 +192,4 @@ def collate_paired_sequences(args):
     x1 = [a[1] for a in args]
     y = [a[2] for a in args]
     return x0, x1, torch.stack(y, 0)
+

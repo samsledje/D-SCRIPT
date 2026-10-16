@@ -5,9 +5,9 @@ from functools import wraps
 
 import torch
 
-from .models.contact import ContactCNN
-from .models.embedding import FullyConnectedEmbed, SkipLSTM
-from .models.interaction import ModelInteraction
+from .legacy.contact import ContactCNN
+from .legacy.embedding import FullyConnectedEmbed, SkipLSTM
+from .legacy.interaction import ModelInteraction
 from .utils import log
 
 

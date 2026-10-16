@@ -12,7 +12,6 @@ from .commands import (
     predict_bipartite,
     predict_block,
     predict_serial,
-    train,
 )
 from .commands.embed import EmbeddingArguments
 from .commands.evaluate import EvaluateArguments
@@ -20,7 +19,6 @@ from .commands.extract_3di import Extract3DiArguments
 from .commands.predict_bipartite import BipartitePredictionArguments
 from .commands.predict_block import BlockedPredictionArguments
 from .commands.predict_serial import PredictionArguments
-from .commands.train import TrainArguments
 
 DScriptArguments = (
     EmbeddingArguments
@@ -28,7 +26,6 @@ DScriptArguments = (
     | PredictionArguments
     | BlockedPredictionArguments
     | BipartitePredictionArguments
-    | TrainArguments
     | Extract3DiArguments
 )
 
@@ -48,6 +45,21 @@ class CitationAction(argparse.Action):
 def main():
     from . import __version__
 
+    # The new training commands parse their own settings (YAML + flags); hand
+    # them everything after the command name. This is also how Fabric's
+    # launched processes re-enter.
+    if len(sys.argv) > 1 and sys.argv[1] == "train_serial":
+        from .commands.train_serial import main as train_main
+
+        return train_main(sys.argv[2:])
+    if len(sys.argv) > 1 and sys.argv[1] == "train_batched":
+        from .commands.train_batched import main as train_main
+
+        return train_main(sys.argv[2:])
+
+    # Imported here, not at the top, so the new commands above never load it.
+    from .legacy.tt3d_train import train  # upstream tt3d_new training, frozen
+
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
@@ -64,6 +76,8 @@ def main():
     subparsers = parser.add_subparsers(title="D-SCRIPT Commands", dest="cmd")
     subparsers.required = True
 
+    subparsers.add_parser("train_serial", help="train the original model (see `dscript train_serial --help`)")
+    subparsers.add_parser("train_batched", help="train the batched model (see `dscript train_batched --help`)")
     modules = {
         "train": train,
         "embed": embed,
@@ -85,3 +99,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

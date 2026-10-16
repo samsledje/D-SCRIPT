@@ -1,0 +1,14 @@
+# sha256 of each file as published upstream (tt3d_new @ 36577435), before the import-line edits.
+# tests/test_upstream.py undoes those edits and checks the copies still match.
+4df5cce6a68267593ac8e370985bba7a0c5a69e072d84542f799f35ee339ea7f  fasta.py  fasta.py
+275b69478492593d74d62a4218e6d8408db84f5c701b92147f92861be06013be  foldseek.py  foldseek.py
+9b5018404979d5a64ba1df9735d82e5b1353924729a90ec14472a108e685a856  glider.py  glider.py
+74545a6531eee72cc4dead32bf465a962ce1bab02875f9825a67fa0dc1941f0d  load_worker.py  load_worker.py
+ddc67bc047a3315733997adb8eb9ab7fcae9bda35bad765e83c61857c9ac3105  loading.py  loading.py
+1b1cdc07a8336ff5261f1add3519b14f46f84b89bada72b772a32871e176c3d0  models/__init__.py  models/__init__.py
+f9eade4e640284f044db278b32fa052cd4137cc32014bd168a9d2c19440ebfae  models/contact.py  models/contact.py
+348636a72e75d32504356f0cbde12cd90eaed017615af14d4cece07ba8ac6b5a  models/embedding.py  models/embedding.py
+3162ef5f2b2281a7b45994e8b2bb8efc416b3f6503453a601b1aac3e675260ee  models/interaction.py  models/interaction.py
+7e89774d6d2de07e6b2972152673cafd98379503afda526a522c01aa8f79e517  parallel_embedding_loader.py  parallel_embedding_loader.py
+99382637474f6d6c4a28d6fb53f6b57fbe0ca6ea79ba75f9552709604a7489f3  train.py  commands/train.py
+633b5917adde491a8631cf5f157dcb072bc2afa6a507e0ec3b84fd98cefa79ce  utils.py  utils.py
